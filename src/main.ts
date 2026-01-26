@@ -60,7 +60,7 @@ export default class TodoFlowPlugin extends Plugin {
                 this.logger.info(`Triage complete: ${JSON.stringify(results)}`);
                 // Auto-start Stack after Triage (Workflow)
                 // @ts-ignore
-                this.app.commands.executeCommandById('todo-flow-plugin:open-daily-stack');
+                this.app.commands.executeCommandById('todo-flow:open-daily-stack');
             })
         );
 
