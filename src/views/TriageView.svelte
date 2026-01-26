@@ -1,0 +1,173 @@
+<script lang="ts">
+    import { onMount } from 'svelte';
+    import { TriageController } from './TriageController';
+    import { type TaskNode } from '../scheduler.js';
+    import { slide } from 'svelte/transition';
+    import { KeybindingManager, type KeybindingSettings } from '../keybindings';
+    import { type HistoryManager } from '../history.js';
+    import { SwipeCommand } from '../commands/triage-commands.js';
+    import Card from '../components/Card.svelte';
+
+    let { app, tasks, keys, onComplete, historyManager, debug = false } = $props();
+    
+    let controller: TriageController;
+    let currentTask = $state<TaskNode | null>(null);
+    let swipeDirection = $state<'left' | 'right' | null>(null);
+    let keyManager: KeybindingManager;
+
+    onMount(() => {
+        controller = new TriageController(app, tasks);
+        currentTask = controller.getCurrentTask();
+        // Fallback for tests or direct usage
+        keyManager = new KeybindingManager(keys || { 
+            navUp: [], navDown: [], moveUp: [], moveDown: [], anchor: [], 
+            durationUp: ['ArrowRight'], durationDown: ['ArrowLeft'], 
+            undo: ['u'], confirm: [], cancel: [] 
+        });
+    });
+
+    function next(direction: 'left' | 'right') {
+        swipeDirection = direction;
+        setTimeout(async () => {
+            await historyManager.executeCommand(new SwipeCommand(controller, direction));
+            
+            currentTask = controller.getCurrentTask();
+            swipeDirection = null;
+
+            if (!currentTask) {
+                onComplete(controller.getResults());
+            }
+        }, 200);
+    }
+
+    export function handleKeyDown(e: KeyboardEvent) {
+        if (debug) console.debug('[TODO_FLOW_TRACE] Triage handleKeyDown:', e.key);
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+        if ((e.target as HTMLElement).isContentEditable) return;
+        
+        // Prevent default arrows
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+            e.preventDefault();
+        }
+
+        const action = keyManager.resolveAction(e);
+        if (!action) return;
+
+        e.preventDefault();
+
+        // Handle global undo/redo
+        if (action === 'UNDO') {
+            historyManager.undo();
+            currentTask = controller.getCurrentTask();
+            return;
+        }
+        
+        if (action === 'REDO') {
+            historyManager.redo();
+            currentTask = controller.getCurrentTask();
+            return;
+        }
+
+        switch (action) {
+            case 'DURATION_DOWN': // Left
+            case 'NAV_DOWN':      // j 
+                next('left');
+                break;
+            case 'DURATION_UP':   // Right
+            case 'NAV_UP':        // k 
+                next('right');
+                break;
+        }
+    }
+</script>
+
+
+<div 
+    class="todo-flow-triage-container"
+>
+    {#if currentTask}
+        <div 
+            class="triage-card-wrapper {swipeDirection}"
+            transition:slide
+        >
+            <Card title={currentTask.title} variant="triage">
+                <div class="todo-flow-triage-hint">
+                    ← Not Now | Shortlist →
+                </div>
+            </Card>
+        </div>
+    {:else}
+        <div class="todo-flow-triage-done">
+            <h2>All done!</h2>
+            <p>Your shortlist has been updated.</p>
+        </div>
+    {/if}
+
+    <div class="todo-flow-triage-controls">
+        <button onclick={() => next('left')} class="control-btn not-now">← Not Now</button>
+        <button onclick={() => { historyManager.undo(); currentTask = controller.getCurrentTask(); }} class="control-btn undo">Undo</button>
+        <button onclick={() => next('right')} class="control-btn shortlist">Shortlist →</button>
+    </div>
+</div>
+
+<style>
+    .todo-flow-triage-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 2rem;
+        background: var(--background-primary);
+        gap: 2rem;
+    }
+
+    .triage-card-wrapper {
+        /* Wrapper handles positioning and animation, Card handles visual box */
+        transition: transform 0.2s, opacity 0.2s;
+        width: 100%;
+        max-width: 400px; /* Match Card variant-triage width */
+        display: flex;
+        justify-content: center;
+    }
+
+    .triage-card-wrapper.left {
+        transform: translateX(-100px) rotate(-10deg);
+        opacity: 0;
+    }
+
+    .triage-card-wrapper.right {
+        transform: translateX(100px) rotate(10deg);
+        opacity: 0;
+    }
+
+    .todo-flow-triage-hint {
+        margin-top: 1rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .todo-flow-triage-controls {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .control-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        border: 1px solid var(--background-modifier-border);
+        background: var(--background-secondary);
+        color: var(--text-normal);
+        transition: background 0.2s;
+    }
+
+    .control-btn:hover {
+        background: var(--background-modifier-hover);
+    }
+
+    .shortlist {
+        background: var(--interactive-accent);
+        color: var(--text-on-accent);
+    }
+</style>

@@ -1,0 +1,162 @@
+export type Action =
+    | 'NAV_UP'
+    | 'NAV_DOWN'
+    | 'MOVE_UP'
+    | 'MOVE_DOWN'
+    | 'ANCHOR'
+    | 'DURATION_UP'
+    | 'DURATION_DOWN'
+    | 'UNDO'
+    | 'REDO'
+    | 'CONFIRM'
+    | 'CANCEL'
+    | 'TOGGLE_DONE'
+    | 'CREATE_TASK'
+    | 'DELETE_TASK'
+    | 'FORCE_OPEN'
+    | 'GO_BACK'
+    | 'EXPORT'
+    | 'RENAME'
+    | 'ARCHIVE'
+    | 'TOGGLE_HELP';
+
+export interface KeybindingSettings {
+    navUp: string[];
+    navDown: string[];
+    moveUp: string[];
+    moveDown: string[];
+    anchor: string[];
+    durationUp: string[];
+    durationDown: string[];
+    undo: string[];
+    redo: string[];
+    confirm: string[];
+    cancel: string[];
+    toggleDone: string[];
+    createTask: string[];
+    deleteTask: string[];
+    forceOpen: string[];
+    goBack: string[];
+    export: string[];
+    rename: string[];
+    archive: string[];
+    toggleHelp: string[];
+    debug?: boolean;
+}
+
+export const DEFAULT_KEYBINDINGS: KeybindingSettings = {
+    navUp: ['k', 'ArrowUp'],
+    navDown: ['j', 'ArrowDown'],
+    moveUp: ['K', 'Shift+ArrowUp'],
+    moveDown: ['J', 'Shift+ArrowDown'],
+    anchor: ['Shift+F'],
+    durationUp: ['f', 'ArrowRight'],
+    durationDown: ['d', 'ArrowLeft'],
+    undo: ['u', 'U'],
+    redo: ['Shift+U'],
+    confirm: ['Enter'],
+    cancel: ['Escape'],
+    toggleDone: ['x', 'X'],
+    createTask: ['c', 'C'],
+    deleteTask: ['Backspace', 'Delete'],
+    forceOpen: ['Shift+Enter'],
+    goBack: ['h'],
+    export: ['Shift+E', 'Cmd+s', 'Ctrl+s'],
+    rename: ['e'],
+    archive: ['z', 'Z'],
+    toggleHelp: ['?']
+};
+
+export class KeybindingManager {
+    constructor(private settings: KeybindingSettings) { }
+
+    resolveAction(e: KeyboardEvent): Action | null {
+        for (const [settingKey, combos] of Object.entries(this.settings)) {
+            if (Array.isArray(combos) && combos.some(combo => this.matchesBinding(combo, e))) {
+                const action = this.mapToActions(settingKey);
+                if (action) {
+                    if (this.settings.debug) {
+                        console.debug(`[TODO_FLOW_TRACE] Key matched: ${e.key} (code: ${e.code}) -> ${action}`);
+                    }
+                    return action;
+                }
+            }
+        }
+        return null;
+    }
+
+    private mapToActions(settingKey: string): Action | null {
+        const mapping: Record<string, Action> = {
+            navUp: 'NAV_UP',
+            navDown: 'NAV_DOWN',
+            moveUp: 'MOVE_UP',
+            moveDown: 'MOVE_DOWN',
+            anchor: 'ANCHOR',
+            durationUp: 'DURATION_UP',
+            durationDown: 'DURATION_DOWN',
+            undo: 'UNDO',
+            redo: 'REDO',
+            confirm: 'CONFIRM',
+            cancel: 'CANCEL',
+            toggleDone: 'TOGGLE_DONE',
+            createTask: 'CREATE_TASK',
+            deleteTask: 'DELETE_TASK',
+            forceOpen: 'FORCE_OPEN',
+            goBack: 'GO_BACK',
+            export: 'EXPORT',
+            rename: 'RENAME',
+            archive: 'ARCHIVE',
+            toggleHelp: 'TOGGLE_HELP'
+        };
+        return mapping[settingKey] || null;
+    }
+
+    private matchesBinding(binding: string, e: KeyboardEvent): boolean {
+        const parts = binding.split('+');
+        const requiredKey = parts[parts.length - 1]!;
+        const requiredModifiers = parts.slice(0, -1);
+
+        // 1. Check Key Match
+        const isSingleLetter = requiredKey.length === 1 && requiredKey.toLowerCase() !== requiredKey.toUpperCase();
+
+        if (isSingleLetter) {
+            if (requiredModifiers.length === 0) {
+                // Strict char match for "j" vs "J"
+                if (e.key !== requiredKey) return false;
+                if (e.ctrlKey || e.altKey || e.metaKey) return false;
+                return true;
+            } else {
+                // "Shift+f" -> e.key='F'
+                if (e.key.toLowerCase() !== requiredKey.toLowerCase()) return false;
+            }
+        } else {
+            if (requiredKey !== e.key && requiredKey !== e.code) return false;
+        }
+
+        // 2. Check Modifiers
+        const hasShift = requiredModifiers.includes('Shift');
+        const hasCtrl = requiredModifiers.includes('Ctrl');
+        const hasAlt = requiredModifiers.includes('Alt');
+        const hasMeta = requiredModifiers.includes('Meta');
+
+        if (!!e.shiftKey !== hasShift) {
+            // Exception: If the key itself implies shift (e.g. '?' or '!') and matches exactly, allow it.
+            // e.g. binding '?' (no Shift), e.key '?' (Shift true).
+            // Fix: Use length === 1 to include symbols like '?', but exclude control keys like 'Enter'.
+            if (requiredKey.length === 1 && e.key === requiredKey && !hasShift && e.shiftKey) {
+                // Allow
+            } else {
+                return false;
+            }
+        }
+        if (!!e.ctrlKey !== hasCtrl) return false;
+        if (!!e.altKey !== hasAlt) return false;
+        if (!!e.metaKey !== hasMeta) return false;
+
+        if (this.settings.debug && e.key === 'h') {
+            console.log(`[TODO_FLOW_TRACE] matchesBinding check for 'h': binding=${binding}, key=${e.key}, shift=${e.shiftKey}, ctrl=${e.ctrlKey}, alt=${e.altKey}, meta=${e.metaKey}`);
+        }
+
+        return true;
+    }
+}

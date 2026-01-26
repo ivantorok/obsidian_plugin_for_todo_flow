@@ -1,0 +1,47 @@
+import { ItemView, WorkspaceLeaf } from 'obsidian';
+import { mount, unmount } from 'svelte';
+import DumpViewSvelte from './DumpView.svelte';
+import { type TaskNode } from '../scheduler.js';
+
+export const VIEW_TYPE_DUMP = "todo-flow-dump-view";
+
+export class DumpView extends ItemView {
+    component: any;
+    folder: string;
+    onComplete: (tasks: TaskNode[]) => void;
+
+    constructor(leaf: WorkspaceLeaf, folder: string, onComplete: (tasks: TaskNode[]) => void) {
+        super(leaf);
+        this.folder = folder;
+        this.onComplete = onComplete;
+    }
+
+    getViewType() {
+        return VIEW_TYPE_DUMP;
+    }
+
+    getDisplayText() {
+        return "Todo Dump";
+    }
+
+    async onOpen() {
+        this.component = mount(DumpViewSvelte, {
+            target: this.contentEl,
+            props: {
+                app: this.app,
+                folder: this.folder,
+                onComplete: (tasks: TaskNode[]) => {
+                    this.onComplete(tasks);
+                    // Close dump view after completion
+                    this.leaf.detach();
+                }
+            }
+        });
+    }
+
+    async onClose() {
+        if (this.component) {
+            unmount(this.component);
+        }
+    }
+}
