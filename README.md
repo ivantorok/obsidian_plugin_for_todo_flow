@@ -2,18 +2,18 @@
 
 **Todo Flow** is a sophisticated "Flow-State" task manager for Obsidian. It functions like a DAW (Digital Audio Workstation) for your time, featuring a non-linear scheduler, fluid triage, and "Rock & Water" task physics.
 
-![Demo](docs/images/demo.gif)
+
 
 ## Core Features
 
 ### 1. The Dump 🧠
-![Dump View](docs/images/dump.png)
+
 Capture thoughts instantly without friction.
 - **Workflow:** Type a thought -> Press Enter -> It's saved as a file -> Input clears instantly.
 - **Files:** Creates timestamped files in your target folder (e.g., `2026-01-25-0900-a1b2-MyTask.md`).
 
 ### 2. Triage (Swipe Mode) 🃏
-![Triage View](docs/images/triage.png)
+
 Sort your dump into "Now" or "Later".
 - **Visuals:** Swipe-card interface (Left/Right).
 - **Logic:**
@@ -22,7 +22,7 @@ Sort your dump into "Now" or "Later".
 - **Session:** Works on a "Tray" system. Triaging a specific set of files keeps you focused on just that batch.
 
 ### 3. The Daily Stack 🧱
-![Stack View](docs/images/stack.png)
+
 A constraint-based scheduler for your Shortlisted tasks.
 - **Rock & Water Physics:**
   - **Rocks (Anchored Tasks):** Commitments fixed in time (e.g., "Meeting at 14:00"). They do not move.
