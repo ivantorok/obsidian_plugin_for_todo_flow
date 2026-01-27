@@ -28,28 +28,36 @@ export class StackLoader {
         const fileOrFolder = this.app.vault.getAbstractFileByPath(path);
 
         if (!fileOrFolder) {
+            if (this.logger) await this.logger.warn(`[StackLoader] [UNHAPPY] Path not found: "${path}"`);
             return [];
         }
 
-        if (fileOrFolder instanceof TFolder) {
-            // It's a folder - use GraphBuilder
-            const { GraphBuilder } = await import('../GraphBuilder.js');
-            const builder = new GraphBuilder(this.app);
-            const files = fileOrFolder.children.filter(f => f instanceof TFile && f.extension === 'md') as TFile[];
-            return await builder.buildGraph(files);
-        } else if (fileOrFolder instanceof TFile) {
-            // It's a file - use LinkParser to find children, then GraphBuilder to recurse
-            const linkedNodes = await this.parser.parse(path);
+        try {
+            if (fileOrFolder instanceof TFolder) {
+                // It's a folder - use GraphBuilder
+                const { GraphBuilder } = await import('../GraphBuilder.js');
+                const builder = new GraphBuilder(this.app);
+                const files = fileOrFolder.children.filter(f => f instanceof TFile && f.extension === 'md') as TFile[];
+                const result = await builder.buildGraph(files);
+                if (result.length === 0 && this.logger) await this.logger.warn(`[StackLoader] Folder "${path}" loaded 0 tasks.`);
+                return result;
+            } else if (fileOrFolder instanceof TFile) {
+                // It's a file - use LinkParser to find children, then GraphBuilder to recurse
+                const linkedNodes = await this.parser.parse(path);
 
-            // Resolve TFiles from linked nodes
-            const linkedFiles = linkedNodes
-                .map(node => this.app.vault.getAbstractFileByPath(node.id))
-                .filter(f => f instanceof TFile) as TFile[];
+                // Resolve TFiles from linked nodes
+                const linkedFiles = linkedNodes
+                    .map(node => this.app.vault.getAbstractFileByPath(node.id))
+                    .filter(f => f instanceof TFile) as TFile[];
 
-            // Use GraphBuilder to build the deep graph
-            const { GraphBuilder } = await import('../GraphBuilder.js');
-            const builder = new GraphBuilder(this.app);
-            return await builder.buildGraph(linkedFiles);
+                // Use GraphBuilder to build the deep graph
+                const { GraphBuilder } = await import('../GraphBuilder.js');
+                const builder = new GraphBuilder(this.app);
+                return await builder.buildGraph(linkedFiles);
+            }
+        } catch (e) {
+            if (this.logger) await this.logger.error(`[StackLoader] CRITICAL ERROR loading path "${path}": ${e}`);
+            console.error(e);
         }
 
         return [];

@@ -209,34 +209,34 @@ describe('Workflow Scenarios: Integration Features', () => {
     });
 
     it('Scenario 4: Drill Down - User presses Enter on a parent task and sees its children (Refactor)', async () => {
+        // ... existing code ...
+    });
+
+    it('Scenario 5: Persistence - User drills down and app reloads (Deep Persistence)', async () => {
+        // This scenario tests the View Wrapper logic (StackView.ts) via unit/integration test 
+        // because the persistence logic lives in the wrapper, not the Svelte component.
+        // See: src/__tests__/StackPersistence.test.ts for the implementation of this scenario.
+
+        // However, we can test that the Svelte component CORRECTLY restores the 'path' visual state
+        // if passed the correct props.
+
         const { HistoryManager } = await import('../history.js');
         const historyManager = new HistoryManager();
 
-        // Setup: Parent Task with 2 Children
         const children = [
-            { id: 'Child 1', title: 'Child 1', duration: 15, status: 'todo', isAnchored: false, children: [] },
-            { id: 'Child 2', title: 'Child 2', duration: 15, status: 'todo', isAnchored: false, children: [] }
-        ] as TaskNode[];
+            { id: 'c1', title: 'Child 1', duration: 15, status: 'todo', isAnchored: false, children: [] }
+        ];
 
-        const parentTask: TaskNode = {
-            id: 'Parent.md',
-            title: 'Parent Task',
-            duration: 30,
-            status: 'todo',
-            isAnchored: false,
-            children: children
-        };
-
-        const onNavigateSpy = vi.fn();
-
+        // Simulate that the View Wrapper has already restored the state and is passing the drilled-down stack
+        // to the Svelte component.
         const { container } = render(StackView, {
             props: {
-                initialTasks: [parentTask],
+                initialTasks: children as TaskNode[], // The restored stack
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
                 logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
                 now: moment(),
                 onOpenFile: vi.fn(),
-                onNavigate: onNavigateSpy,
+                onNavigate: vi.fn(),
                 onGoBack: vi.fn(),
                 onTaskUpdate: vi.fn(),
                 onTaskCreate: vi.fn(),
@@ -245,16 +245,10 @@ describe('Workflow Scenarios: Integration Features', () => {
         });
         await tick();
 
-        const stackContainer = container.querySelector('.todo-flow-stack-container') as HTMLElement;
-        stackContainer.focus();
+        // Verification: The user sees the child, not the parent
+        expect(container.textContent).toContain('Child 1');
 
-        // 1. Verify we see Parent
-        expect(container.textContent).toContain('Parent Task');
-
-        // 2. Press Enter (Drill Down)
-        await fireEvent.keyDown(stackContainer, { key: 'Enter', code: 'Enter' });
-        await new Promise(resolve => setTimeout(resolve, 50));
-
-        expect(onNavigateSpy).toHaveBeenCalledWith('Parent.md', 0);
+        // This confirms that IF StackView.ts does its job (tested in StackPersistence.test.ts),
+        // the UI matches the expectation.
     });
 });

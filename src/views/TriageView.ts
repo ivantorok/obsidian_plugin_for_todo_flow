@@ -5,21 +5,24 @@ import { type TaskNode } from '../scheduler.js';
 import { type KeybindingSettings, DEFAULT_KEYBINDINGS } from '../keybindings.js';
 import { type HistoryManager } from '../history.js';
 import { FileLogger } from '../logger.js';
+import { type TodoFlowSettings } from '../main.js';
 
 export const VIEW_TYPE_TRIAGE = "todo-flow-triage-view";
 
 export class TriageView extends ItemView {
     component: any;
     tasks: TaskNode[];
+    settings: TodoFlowSettings;
     keys: KeybindingSettings;
     onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void;
     historyManager: HistoryManager;
     logger: FileLogger | undefined;
 
-    constructor(leaf: WorkspaceLeaf, tasks: TaskNode[], keys: KeybindingSettings, historyManager: HistoryManager, logger: FileLogger | undefined, onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void) {
+    constructor(leaf: WorkspaceLeaf, tasks: TaskNode[], settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger | undefined, onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void) {
         super(leaf);
         this.tasks = tasks;
-        this.keys = keys || DEFAULT_KEYBINDINGS;
+        this.settings = settings;
+        this.keys = settings.keys || DEFAULT_KEYBINDINGS;
         this.historyManager = historyManager;
         this.logger = logger;
         this.onComplete = onComplete;
@@ -48,6 +51,7 @@ export class TriageView extends ItemView {
                 app: this.app,
                 tasks: this.tasks,
                 keys: this.keys,
+                settings: this.settings,
                 debug: this.keys.debug,
                 historyManager: this.historyManager,
                 onComplete: (results: any) => {

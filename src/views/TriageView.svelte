@@ -7,12 +7,15 @@
     import { type HistoryManager } from '../history.js';
     import { SwipeCommand } from '../commands/triage-commands.js';
     import Card from '../components/Card.svelte';
+    import HelpModal from './HelpModal.svelte';
+    import { type TodoFlowSettings } from '../main';
 
-    let { app, tasks, keys, onComplete, historyManager, debug = false } = $props();
+    let { app, tasks, keys, settings, onComplete, historyManager, debug = false } = $props();
     
     let controller: TriageController;
     let currentTask = $state<TaskNode | null>(null);
     let swipeDirection = $state<'left' | 'right' | null>(null);
+    let showHelp = $state(false);
     let keyManager: KeybindingManager;
 
     onMount(() => {
@@ -77,6 +80,19 @@
             case 'NAV_UP':        // k 
                 next('right');
                 break;
+            case 'CONFIRM':       // Enter
+                if (debug) console.log('[TriageView] CONFIRM (Open) triggered');
+                controller.openCurrentTask();
+                break;
+            case 'TOGGLE_HELP':
+                showHelp = !showHelp;
+                if (debug) console.log(`[TriageView] Help toggled: ${showHelp}`);
+                break;
+            case 'CANCEL':
+                if (showHelp) {
+                    showHelp = false;
+                }
+                break;
         }
     }
 </script>
@@ -108,6 +124,10 @@
         <button onclick={() => { historyManager.undo(); currentTask = controller.getCurrentTask(); }} class="control-btn undo">Undo</button>
         <button onclick={() => next('right')} class="control-btn shortlist">Shortlist →</button>
     </div>
+
+    {#if showHelp}
+        <HelpModal keys={keys} settings={settings} />
+    {/if}
 </div>
 
 <style>

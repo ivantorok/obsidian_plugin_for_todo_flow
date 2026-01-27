@@ -18,6 +18,7 @@ export const VIEW_TYPE_STACK = "todo-flow-stack-view";
 export class StackView extends ItemView {
     component: any;
     rootPath: string | null = null;
+    private currentTaskIds: string[] | null = null;
     tasks: TaskNode[] = [];
     settings: TodoFlowSettings;
     historyManager: HistoryManager;
@@ -52,8 +53,10 @@ export class StackView extends ItemView {
     }
 
     getState(): Record<string, unknown> {
+        const navState = this.navManager.getState();
         return {
-            rootPath: this.rootPath
+            rootPath: this.rootPath,
+            navState: navState // Save full navigation history
         };
     }
 
@@ -63,26 +66,64 @@ export class StackView extends ItemView {
         const now = this.getNow();
         if (this.logger) await this.logger.info(`[StackView] Schedule Basis: ${now.format('YYYY-MM-DD HH:mm')} (Mode: ${this.settings.timingMode})`);
 
+        if (!state) {
+            if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] setState received null/undefined state.`);
+        } else if (!state.rootPath && !state.ids) {
+            if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] setState received valid state object but MISSING rootPath OR ids. Keys: ${JSON.stringify(state)}`);
+        }
+
         if (state && (state.rootPath || state.ids)) {
 
             let rawTasks: TaskNode[] = [];
 
+            // Case 1: Restore from full Navigation History (Feature)
+            if (state.navState && state.navState.history && state.navState.history.length > 0) {
+                if (this.logger) await this.logger.info(`[StackView] Restoring full navigation state (Depth: ${state.navState.history.length})`);
+
+                // Restore the manager's state directly
+                this.navManager.setState(state.navState);
+
+                // Sync local view state
+                this.tasks = this.navManager.getCurrentStack();
+                this.rootPath = state.rootPath || state.navState.currentSource; // Fallback or sync
+
+                if (this.logger) await this.logger.info(`[StackView] State restored. Current Stack: ${this.tasks.length} items.`);
+
+                // Update component
+                if (this.component && this.component.setTasks) {
+                    this.component.setTasks(this.tasks);
+                    // attempt to restore focus if saved
+                    if (state.navState.currentFocusedIndex !== undefined) {
+                        this.component.setFocus(state.navState.currentFocusedIndex);
+                    }
+                }
+
+                return; // early exit, we are done
+            }
+
+            // Case 2: Standard Load (Root or Explicit)
             if (state.rootPath === 'QUERY:SHORTLIST') {
                 if (this.logger) await this.logger.info(`[StackView] Loading shortlisted tasks...`);
                 rawTasks = await this.loader.loadShortlisted();
                 if (this.logger) await this.logger.info(`[StackView] Loaded ${rawTasks.length} shortlisted tasks.`);
-                if (this.logger) await this.logger.info(`[StackView] Loaded ${rawTasks.length} shortlisted tasks.`);
-                this.rootPath = 'QUERY:SHORTLIST'; // Keep as canonical ID for re-loading support
+                this.rootPath = 'QUERY:SHORTLIST';
             } else if (state.ids && Array.isArray(state.ids)) {
                 // EXPLICIT MODE (Session Isolation)
                 if (this.logger) await this.logger.info(`[StackView] EXPLICIT MODE: Loading ${state.ids.length} tasks into Tray.`);
+
+                this.currentTaskIds = state.ids;
+
                 rawTasks = await this.loader.loadSpecificFiles(state.ids);
-                this.rootPath = `EXPLICIT:${state.ids.length}`; // Pseudo-ID
+                this.rootPath = `EXPLICIT:${state.ids.length}`;
             } else {
                 if (this.logger) await this.logger.info(`[StackView] PATH MODE: Loading tasks from ${state.rootPath}`);
                 this.rootPath = state.rootPath;
                 // Load initial stack via unified loader
                 rawTasks = await this.loader.load(state.rootPath);
+            }
+
+            if (rawTasks.length === 0) {
+                if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Loaded 0 tasks for rootPath="${this.rootPath}". Is directory empty or invalid?`);
             }
 
             const initialTasks = computeSchedule(rawTasks, now);
@@ -101,6 +142,65 @@ export class StackView extends ItemView {
         }
 
         await super.setState(state, result);
+    }
+
+    async reload(): Promise<void> {
+        const preCount = this.tasks ? this.tasks.length : 0;
+        if (this.logger) await this.logger.info(`[StackView] Reload triggered. Current tasks: ${preCount}`);
+
+        // Strategy: Re-call setState with the existing full state.
+        // This forces a re-read from disk via the loader while preserving navigation context.
+        const state: any = this.getState();
+
+        // Capture current focus safely
+        let focusedId: string | null = null;
+        if (this.component && typeof (this.component as any).getFocusedIndex === 'function') {
+            const currentFocusIndex = (this.component as any).getFocusedIndex();
+            const focusedTask = this.tasks && this.tasks[currentFocusIndex];
+            if (focusedTask) focusedId = focusedTask.id;
+        }
+
+        if (this.currentTaskIds && this.currentTaskIds.length > 0) {
+            if (this.logger) await this.logger.info(`[StackView] Reloading EXPLICIT list (${this.currentTaskIds.length} IDs).`);
+            state.ids = this.currentTaskIds;
+            await this.setState(state, null);
+
+            // Restore focus
+            if (focusedId && this.tasks) {
+                const newIndex = this.tasks.findIndex((t: any) => t.id === focusedId);
+                if (newIndex !== -1 && this.component) {
+                    this.component.setFocus(newIndex);
+                } else {
+                    if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Could not restore focus to task ID="${focusedId}". Task not found in reloaded stack.`);
+                }
+            }
+
+            const postCount = this.tasks ? this.tasks.length : 0;
+            if (this.logger) await this.logger.info(`[StackView] Reload complete. New tasks: ${postCount}`);
+
+        } else if (this.rootPath) {
+            if (!this.rootPath.startsWith('EXPLICIT')) {
+                state.rootPath = this.rootPath;
+                await this.setState(state, null);
+
+                // Restore focus
+                if (focusedId && this.tasks) {
+                    const newIndex = this.tasks.findIndex((t: any) => t.id === focusedId);
+                    if (newIndex !== -1 && this.component) {
+                        this.component.setFocus(newIndex);
+                    } else {
+                        if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Could not restore focus to task ID="${focusedId}". Task not found in reloaded stack.`);
+                    }
+                }
+
+                const postCount = this.tasks ? this.tasks.length : 0;
+                if (this.logger) await this.logger.info(`[StackView] Reload complete. New tasks: ${postCount}`);
+            } else {
+                this.logger.warn(`[StackView] Skipping reload for EXPLICIT mode (no IDs in memory).`);
+            }
+        } else {
+            if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Reload called but NO rootPath or valid IDs available. Cannot reload.`);
+        }
     }
 
     async onOpen() {

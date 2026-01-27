@@ -18,6 +18,7 @@ export class TriageController {
     private index = 0;
     private shortlistIndices = new Set<number>();
     private notNowIndices = new Set<number>();
+    private liveFiles: any[] = []; // SPIKE: Any to avoid import issues for now
     private logger: FileLogger | undefined;
 
     constructor(private app: App, private tasks: TaskNode[], logger?: FileLogger) {
@@ -28,6 +29,20 @@ export class TriageController {
     getCurrentTask(): TaskNode | null {
         if (this.index >= this.tasks.length) return null;
         return this.tasks[this.index]!;
+    }
+
+    async openCurrentTask() {
+        const task = this.getCurrentTask();
+        if (!task) return;
+
+        // Open the file in a new leaf (true) or current? 
+        // User workflow: "Enter to Edit". Usually implies "Go here".
+        // If we open in same leaf, we lose Triage View state? 
+        // Triage View is a Leaf. If we navigate "self", we destroy Triage.
+        // User wants to come *back* to Triage.
+        // So we probably want a new leaf (tab) or split.
+        // Let's use `true` (new leaf/tab) for now as it's safer.
+        await this.app.workspace.openLinkText(task.id, '', true);
     }
 
     async swipeRight() {

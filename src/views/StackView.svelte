@@ -120,6 +120,10 @@
         focusedIndex = Math.max(0, Math.min(tasks.length - 1, index));
     }
 
+    export function getFocusedIndex() {
+        return focusedIndex;
+    }
+
     function startRename(index: number) {
         editingIndex = index;
     }
