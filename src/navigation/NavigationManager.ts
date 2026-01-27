@@ -101,60 +101,93 @@ export class NavigationManager {
      * Go back to previous stack
      * Returns the focus index to restore
      */
+    /**
+     * Go back to previous stack
+     * Returns the focus index to restore
+     */
     async goBack(): Promise<{ success: boolean; focusedIndex: number }> {
-        console.log(`[NavigationManager] goBack() entry. History length: ${this.state.history.length}`);
         if (this.state.history.length === 0) {
-            console.log('[NavigationManager] goBack() failed: history empty');
             return { success: false, focusedIndex: 0 };
         }
 
         // Pop history entries
-        const previousStack = this.state.history.pop();
+        const previousStack = this.state.history.pop(); // SNAPSHOT: Contains exactly what we had (including archive state)
         const previousSource = this.state.sourceHistory.pop();
-        const previousFocus = this.state.focusedHistory.pop() ?? 0;
+        const previousFocusIndex = this.state.focusedHistory.pop() ?? 0;
 
-        console.log(`[NavigationManager] popping from history. prevSource: ${previousSource}, prevFocus: ${previousFocus}`);
-
-        if (previousSource === undefined) {
-            console.log('[NavigationManager] goBack() failed: previousSource undefined');
+        if (!previousStack || previousSource === undefined) {
             return { success: false, focusedIndex: 0 };
         }
 
-        // Re-parse the source via StackLoader to ensure fresh metadata
-        console.log(`[NavigationManager] loading source: ${previousSource}`);
+        // --- INTELLIGENT FOCUS RESTORATION CORRECTION ---
+        // We know the index we were at: previousFocusIndex.
+        // We want to know exactly WHICH task ID was at that index in the snapshot *before* we potentially re-process or re-load.
+        const previousFocusedTaskId = previousStack[previousFocusIndex]?.id;
 
-        let refreshedStack: TaskNode[];
+        // --- SNAPSHOT RESTORATION POLICY ---
+        // Instead of reloading blindly from Disk (which resurrects archived tasks), 
+        // we take the SNAPSHOT as the Source of Truth for *Existence*.
+        // However, we still want fresh metadata (Title, Status updates) if possible.
+        // Strategy:
+        // 1. Load fresh data from disk for the source.
+        // 2. Filter fresh data to ONLY include IDs that are in our Snapshot.
+        //    (This respects "Archived" state - if it wasn't in snapshot, it stays gone).
+        // 3. Update the Snapshot items with fresh data where available.
+        // 4. If an item is in Snapshot but gone from Disk (deleted externally), we keep it as a ghost 
+        //    OR mark it? For now, we keep the Snapshot version to avoid UI jumping.
 
-        if (previousSource.startsWith('EXPLICIT')) {
-            // "EXPLICIT" mode means we have a specific list of files (the Tray).
-            // We can't load "EXPLICIT:N" from disk. We must reload the IDs we had.
-            if (previousStack && previousStack.length > 0) {
+        // Step 1: Load Fresh (if possible) to get updates
+        let freshData: TaskNode[] = [];
+        try {
+            if (previousSource.startsWith('EXPLICIT')) {
                 const ids = previousStack.map(t => t.id);
-                console.log(`[NavigationManager] Reloading Explicit Tray. IDs: ${ids.length} items (${ids.slice(0, 3).join(', ')}...)`);
-                refreshedStack = await this.loader.loadSpecificFiles(ids);
-                console.log(`[NavigationManager] Reload result: ${refreshedStack.length} items.`);
-
-                // FAIL-SAFE: If reload failed to find files (e.g. temporary vault issue or odd paths),
-                // fallback to previousStack to avoid empty screen.
-                if (refreshedStack.length === 0) {
-                    console.warn(`[NavigationManager] WARN: Reload returned 0 items. Falling back to cached history stack.`);
-                    refreshedStack = [...previousStack];
-                }
+                freshData = await this.loader.loadSpecificFiles(ids);
             } else {
-                console.warn(`[NavigationManager] Previous stack history was empty.`);
-                refreshedStack = [];
+                freshData = await this.loader.load(previousSource);
             }
-        } else {
-            refreshedStack = await this.loader.load(previousSource);
+        } catch (e) {
+            console.warn(`[NavigationManager] Failed to load fresh data for ${previousSource}. Using snapshot only.`, e);
         }
 
-        console.log(`[NavigationManager] load complete. Tasks found: ${refreshedStack.length}`);
+        // Step 2 & 3: Merge Fresh Data into Snapshot
+        // We iterate over the SNAPSHOT (to preserve order and existence).
+        // If we find a fresh version, we swap it in.
+        const mergedStack = previousStack.map(snapshotTask => {
+            const freshTask = freshData.find(f => f.id === snapshotTask.id);
+            if (freshTask) {
+                // Return fresh task but preserve ephemeral state if needed? 
+                // For now, fresh task is best as it has latest title/status.
+                // UNLESS anchored status changed? 
+                // We assume fresh disk state is better for everything except "Existence in List".
+                return freshTask;
+            }
+            return snapshotTask; // Keep snapshot version if not found on disk
+        });
 
-        this.state.currentStack = this.preprocessor ? this.preprocessor(refreshedStack) : refreshedStack;
+        // Step 4: Apply Preprocessor (Schedule/Sort)
+        // This might reorder the stack based on new times!
+        const finalStack = this.preprocessor ? this.preprocessor(mergedStack) : mergedStack;
+
+        // --- RE-CALCULATE FOCUS INDEX ---
+        // Now that we have the final, potentially reordered stack, find where our Target ID went.
+        let newFocusedIndex = previousFocusIndex;
+
+        if (previousFocusedTaskId) {
+            const foundIndex = finalStack.findIndex(t => t.id === previousFocusedTaskId);
+            if (foundIndex !== -1) {
+                newFocusedIndex = foundIndex;
+            } else {
+                console.warn(`[NavigationManager] Focus target ID ${previousFocusedTaskId} not found in restored stack. Fallback to index ${previousFocusIndex}.`);
+                // Clamp to bounds
+                newFocusedIndex = Math.min(newFocusedIndex, Math.max(0, finalStack.length - 1));
+            }
+        }
+
+        this.state.currentStack = finalStack;
         this.state.currentSource = previousSource;
-        this.state.currentFocusedIndex = previousFocus;
+        this.state.currentFocusedIndex = newFocusedIndex;
 
-        return { success: true, focusedIndex: previousFocus };
+        return { success: true, focusedIndex: newFocusedIndex };
     }
 
     /**
