@@ -267,7 +267,7 @@ import moment from 'moment';
 export class RenameTaskCommand implements Command {
     description: string;
     private controller: StackController;
-    private index: number;
+    private taskId: string;
     private oldTitle: string;
     private newTitle: string;
     private oldMetadata: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored: boolean };
@@ -276,13 +276,15 @@ export class RenameTaskCommand implements Command {
 
     constructor(controller: StackController, index: number, newTitle: string) {
         this.controller = controller;
-        this.index = index;
         const task = controller.getTasks()[index];
-        this.oldTitle = task?.title || '';
+        if (!task) throw new Error(`Task not found at index ${index}`);
+
+        this.taskId = task.id;
+        this.oldTitle = task.title;
         this.oldMetadata = {
-            startTime: task?.startTime,
-            duration: task?.duration,
-            isAnchored: task?.isAnchored || false
+            startTime: task.startTime,
+            duration: task.duration,
+            isAnchored: task.isAnchored || false
         };
 
         // NLP Processing
@@ -296,22 +298,27 @@ export class RenameTaskCommand implements Command {
             };
         }
 
-        this.description = `Rename task from "${this.oldTitle}" to "${this.newTitle}" at index ${index}`;
+        this.description = `Rename task "${this.oldTitle}" to "${this.newTitle}" (ID: ${this.taskId})`;
     }
 
     execute(): void {
-        this.resultIndex = this.controller.updateTaskTitle(this.index, this.newTitle);
-        if (this.newMetadata && this.resultIndex !== null && this.controller.updateTaskMetadata) {
+        console.log(`[RenameTaskCommand] Executing for ID ${this.taskId}. New Title: "${this.newTitle}"`);
+
+        // Use ID-based update for the title
+        this.resultIndex = this.controller.updateTaskById(this.taskId, { title: this.newTitle });
+
+        if (this.newMetadata && this.resultIndex !== -1 && this.controller.updateTaskMetadata) {
+            console.log(`[RenameTaskCommand] Applying extra metadata for ID ${this.taskId}`);
+            // Note: updateTaskMetadata still uses index, but since we just got resultIndex from updateTaskById, it's fresh.
+            // Ideally updateTaskMetadata should also support ID, but we use resultIndex safely here.
             this.controller.updateTaskMetadata(this.resultIndex, this.newMetadata);
         }
     }
 
     undo(): void {
-        if (this.resultIndex !== null) {
-            this.controller.updateTaskTitle(this.resultIndex, this.oldTitle);
-            if (this.controller.updateTaskMetadata) {
-                this.controller.updateTaskMetadata(this.resultIndex, this.oldMetadata);
-            }
+        const index = this.controller.updateTaskById(this.taskId, { title: this.oldTitle });
+        if (index !== -1 && this.controller.updateTaskMetadata) {
+            this.controller.updateTaskMetadata(index, this.oldMetadata);
         }
     }
 }

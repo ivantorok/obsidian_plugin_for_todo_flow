@@ -97,6 +97,7 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment): 
     // Sort rocks effectively by their start time to process them in order
     rocks.sort((a, b) => a.startTime!.valueOf() - b.startTime!.valueOf());
 
+    const resolvedRockTimes = new Map<string, moment.Moment>();
     let shiftBase = moment(currentTime).subtract(10, 'years'); // effectively -infinity relative to schedule
 
     // Pass 1: Resolve overlaps among rocks
@@ -106,29 +107,22 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment): 
         // If this rock starts before the previous rock ends, push it
         if (start.isBefore(shiftBase)) {
             start = moment(shiftBase);
-            rock.startTime = start; // MUTATION: Update the task's start time in memory
         }
 
+        resolvedRockTimes.set(rock.id, start);
         const duration = rock.originalDuration ?? rock.duration;
-        // Note: we use 'originalDuration' or 'duration' depending on if we want 
-        // the rock to expand based on its children immediately. 
-        // For now, let's assume rock duration is somewhat fixed or we use the passed duration.
-        // Actually, for accurate scheduling, we might need the *calculated* duration, 
-        // but circular dependency if we haven't computed it yet.
-        // Simplification: Use current known duration. 
-        // Ideal: Rocks are usually parents or leaves. If parents, their duration might grow.
-        // But let's use the field `duration` which is passed in (and potentially stale if not re-calculated).
-        // However, in the controller flow, we usually update duration *before* calling schedule.
-
         shiftBase = moment(start).add(duration, 'minutes');
     }
 
     // Rocks are now non-overlapping.
     // Re-map rocks for the collision detector
-    const rockBlocks = rocks.map(t => ({
-        start: moment(t.startTime!),
-        end: moment(t.startTime!).add(t.originalDuration ?? t.duration, 'minutes')
-    }));
+    const rockBlocks = rocks.map(t => {
+        const resolvedStart = resolvedRockTimes.get(t.id) || moment(t.startTime!);
+        return {
+            start: moment(resolvedStart),
+            end: moment(resolvedStart).add(t.originalDuration ?? t.duration, 'minutes')
+        };
+    });
 
     let playhead = moment(currentTime);
 
@@ -141,12 +135,16 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment): 
     const result: TaskNode[] = tasks.map(t => {
         const ownDuration = t.originalDuration ?? t.duration;
         const { total: totalDuration, trace } = getTotalGreedyDuration(t, registry);
+
+        // Use resolved rock time if it exists, otherwise use original
+        const resolvedStart = resolvedRockTimes.get(t.id) || (t.startTime ? moment(t.startTime) : undefined);
+
         return {
             ...t,
             originalDuration: ownDuration,
             duration: totalDuration,
             trace: trace,
-            startTime: t.startTime ? moment(t.startTime) : undefined
+            startTime: resolvedStart
         };
     });
 

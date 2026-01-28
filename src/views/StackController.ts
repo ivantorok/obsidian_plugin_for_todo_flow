@@ -119,6 +119,7 @@ export class StackController {
     updateTaskTitle(index: number, newTitle: string): number {
         if (!this.tasks[index]) return index;
         const taskToMove = this.tasks[index]!;
+        const oldTitle = taskToMove.title;
         const task = { ...taskToMove };
         task.title = newTitle;
 
@@ -127,6 +128,9 @@ export class StackController {
         this.tasks = computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+        // We log here because this is where the title officially changes in state
+        console.log(`[StackController] updateTaskTitle index ${index} -> ${newIndex}. "${oldTitle}" -> "${newTitle}"`);
+
         if (newIndex !== -1) {
             this.onTaskUpdate?.(this.tasks[newIndex]!);
             return newIndex;
@@ -151,6 +155,8 @@ export class StackController {
         this.tasks = computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+        console.log(`[StackController] updateTaskMetadata index ${index} -> ${newIndex}. Updates: ${JSON.stringify(updates)}`);
+
         if (newIndex !== -1) {
             this.onTaskUpdate?.(this.tasks[newIndex]!);
             return newIndex;

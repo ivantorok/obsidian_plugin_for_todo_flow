@@ -136,15 +136,38 @@
         editingIndex = index;
     }
 
-    async function finishRename(index: number, newTitle: string) {
-        if (newTitle.trim().length > 0 && newTitle !== tasks[index]?.title) {
-            const cmd = new RenameTaskCommand(controller, index, newTitle);
-            await historyManager.executeCommand(cmd);
-            update();
+    let activeRenameId: string | null = null;
+    async function finishRename(id: string, newTitle: string) {
+        if (activeRenameId === id) {
+            if (logger) logger.info(`[StackView.svelte] finishRename BLOCKED - ID ${id} already processing`);
+            return;
         }
-        editingIndex = -1;
-        // Refocus the container
-        setTimeout(() => containerEl?.focus(), 50);
+
+        const task = tasks.find(t => t.id === id);
+        if (!task) return;
+
+        if (logger) logger.info(`[StackView.svelte] finishRename entry - ID: ${id}, New Title: "${newTitle}"`);
+        
+        try {
+            if (newTitle.trim().length > 0 && newTitle !== task.title) {
+                activeRenameId = id;
+                if (logger) logger.info(`[StackView.svelte] Executing RenameTaskCommand for ID ${id}`);
+                
+                const index = tasks.findIndex(t => t.id === id);
+                if (index === -1) return;
+
+                const cmd = new RenameTaskCommand(controller, index, newTitle);
+                await historyManager.executeCommand(cmd);
+                update();
+            } else {
+                if (logger) logger.info(`[StackView.svelte] Rename skipped - Title unchanged or ID mismatch`);
+            }
+        } finally {
+            editingIndex = -1;
+            activeRenameId = null;
+            // Refocus the container
+            setTimeout(() => containerEl?.focus(), 50);
+        }
     }
 
     function selectOnFocus(node: HTMLInputElement) {
@@ -369,7 +392,7 @@
         </div>
     {/if}
     <div class="todo-flow-timeline">
-        {#each tasks as task, i}
+        {#each tasks as task, i (task.id)}
             <div 
                 bind:this={taskElements[i]}
                 class="todo-flow-task-card" 
@@ -388,10 +411,10 @@
                             class="todo-flow-title-input"
                             value={task.title}
                             onkeydown={(e) => {
-                                if (e.key === 'Enter') finishRename(i, e.currentTarget.value);
+                                if (e.key === 'Enter') finishRename(task.id, e.currentTarget.value);
                                 if (e.key === 'Escape') editingIndex = -1;
                             }}
-                            onblur={(e) => finishRename(i, e.currentTarget.value)}
+                            onblur={(e) => finishRename(task.id, e.currentTarget.value)}
                             use:selectOnFocus
                         />
                     {:else}

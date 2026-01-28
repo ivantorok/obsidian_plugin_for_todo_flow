@@ -45,8 +45,8 @@ describe('Triage Controller QuickAdd', () => {
         // 6. Check results
         const results = controller.getResults();
         expect(results.shortlist).toHaveLength(2);
-        expect(results.shortlist[0].id).toBe('1.md');
-        expect(results.shortlist[1].id).toBe('2.md');
+        expect(results.shortlist![0]!.id).toBe('1.md');
+        expect(results.shortlist![1]!.id).toBe('2.md');
     });
 
     it('should append tasks to the end if added while still triaging', async () => {
