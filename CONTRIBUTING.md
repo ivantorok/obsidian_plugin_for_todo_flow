@@ -28,7 +28,17 @@ git push -u origin feature/my-new-feature
 ```
 
 ### 4. Create a Pull Request (PR)
-Go to GitHub and open a Pull Request to merge your branch into `main`. This allows the other developer to review your code before it affects the main codebase.
+Go to GitHub and open a Pull Request to merge your branch into `main`.
+
+**Using the website:**
+Push your branch and click the link in the terminal output.
+
+**Using GitHub CLI (`gh`):**
+```bash
+gh pr create --fill
+# or to open in browser
+gh pr create --web
+```
 
 ## Best Practices for Clarity
 To avoid "getting lost in branches" and maintain a TDD-like flow:
