@@ -6,7 +6,7 @@
     import moment from 'moment';
     import { KeybindingManager, type KeybindingSettings } from '../keybindings';
     import { type HistoryManager } from '../history.js';
-    import { MoveTaskCommand, ToggleAnchorCommand, ScaleDurationCommand, ToggleStatusCommand, AddTaskCommand, DeleteTaskCommand, ArchiveCommand } from '../commands/stack-commands.js';
+    import { MoveTaskCommand, ToggleAnchorCommand, ScaleDurationCommand, ToggleStatusCommand, AddTaskCommand, DeleteTaskCommand, ArchiveCommand, RenameTaskCommand } from '../commands/stack-commands.js';
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
 
@@ -20,7 +20,7 @@
         onTaskUpdate, 
         onTaskCreate,
         onStackChange,
-        openTaskModal,
+
         openQuickAddModal,
         onNavigate,
         onGoBack,
@@ -136,9 +136,10 @@
         editingIndex = index;
     }
 
-    function finishRename(index: number, newTitle: string) {
+    async function finishRename(index: number, newTitle: string) {
         if (newTitle.trim().length > 0 && newTitle !== tasks[index]?.title) {
-            controller.updateTaskTitle(index, newTitle);
+            const cmd = new RenameTaskCommand(controller, index, newTitle);
+            await historyManager.executeCommand(cmd);
             update();
         }
         editingIndex = -1;
@@ -311,19 +312,12 @@
                 update();
                 break;
             case 'CREATE_TASK':
-                if (debug) console.debug('[TODO_FLOW_TRACE] Action CREATE_TASK triggered');
-                if (openTaskModal) {
-                    openTaskModal(async (title: string) => {
-                        if (debug) console.debug('[TODO_FLOW_TRACE] Modal submitted:', title);
-                        const cmd = new AddTaskCommand(controller, focusedIndex, title);
-                        await historyManager.executeCommand(cmd);
-                        if (cmd.resultIndex !== null) {
-                            focusedIndex = cmd.resultIndex;
-                        }
-                        update();
-                    });
+                if (debug) console.debug('[TODO_FLOW_TRACE] Action CREATE_TASK triggered (redirecing to QuickAdd)');
+                // UNIFIED WORKFLOW: Both 'c' and 'o' now trigger the NLP-enabled Quick Add
+                if (openQuickAddModal) {
+                    openQuickAddModal(focusedIndex);
                 } else {
-                    if (debug) console.warn('[TODO_FLOW_TRACE] openTaskModal not available in props');
+                     if (debug) console.warn('[TODO_FLOW_TRACE] openQuickAddModal not available in props');
                 }
                 break;
             case 'QUICK_ADD':

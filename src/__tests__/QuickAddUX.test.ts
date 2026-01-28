@@ -77,7 +77,8 @@ describe('QuickAddModal UX Logic (Option B)', () => {
 
         expect(onChoose).toHaveBeenCalledWith({
             type: 'new',
-            title: 'Modified Title'
+            title: 'Modified Title',
+            isAnchored: false
         });
     });
 
@@ -89,7 +90,8 @@ describe('QuickAddModal UX Logic (Option B)', () => {
         modal.onChooseItem(suggestions[0]!.item, {} as KeyboardEvent);
         expect(onChoose).toHaveBeenCalledWith({
             type: 'new',
-            title: 'NonExisting'
+            title: 'NonExisting',
+            isAnchored: false
         });
     });
 });

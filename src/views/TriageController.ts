@@ -26,6 +26,11 @@ export class TriageController {
         if (this.logger) this.logger.info(`[TriageController] Initialized with ${tasks.length} tasks.`);
     }
 
+    addTask(task: TaskNode) {
+        this.tasks.push(task);
+        if (this.logger) this.logger.info(`[TriageController] Added task to queue: ${task.title}. Total tasks: ${this.tasks.length}`);
+    }
+
     getCurrentTask(): TaskNode | null {
         if (this.index >= this.tasks.length) return null;
         return this.tasks[this.index]!;

@@ -5,7 +5,6 @@ import { computeSchedule, type TaskNode } from '../scheduler.js';
 import { type KeybindingSettings, DEFAULT_KEYBINDINGS } from '../keybindings.js';
 import { formatKeys, parseKeys } from '../utils/settings-utils.js';
 import { type HistoryManager } from '../history.js';
-import { TaskModal } from '../modals/TaskModal.js';
 import { serializeStackToMarkdown } from '../persistence.js';
 import { FileLogger } from '../logger.js';
 import { StackLoader } from '../loaders/StackLoader.js';
@@ -26,11 +25,11 @@ export class StackView extends ItemView {
     historyManager: HistoryManager;
     logger: FileLogger;
     onTaskUpdate: (task: TaskNode) => void;
-    onTaskCreate: (title: string) => TaskNode;
+    onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode;
     loader: StackLoader;
     navManager: NavigationManager;
 
-    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, onTaskUpdate: (task: TaskNode) => void, onTaskCreate: (title: string) => TaskNode) {
+    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, onTaskUpdate: (task: TaskNode) => void, onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode) {
         super(leaf);
         this.settings = settings;
         this.historyManager = historyManager;
@@ -246,15 +245,19 @@ export class StackView extends ItemView {
                     this.navManager.setStack(tasks, this.rootPath!);
                     this.app.workspace.requestSaveLayout();
                 },
-                openTaskModal: (callback: (title: string) => void) => {
-                    new TaskModal(this.app, callback).open();
-                },
+                // openTaskModal: Removed in favor of QuickAddModal unification
                 openQuickAddModal: (currentIndex: number) => {
                     new QuickAddModal(this.app, async (result) => {
                         let nodeToInsert: TaskNode | null = null;
 
                         if (result.type === 'new' && result.title) {
-                            nodeToInsert = this.onTaskCreate(result.title);
+                            // Pass parsed metadata for creation
+                            const options: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean } = {};
+                            if (result.startTime) options.startTime = result.startTime;
+                            if (result.duration !== undefined) options.duration = result.duration;
+                            if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+
+                            nodeToInsert = this.onTaskCreate(result.title, options);
                         } else if (result.type === 'file' && result.file) {
                             // Load the specific file as a TaskNode
                             const nodes = await this.loader.loadSpecificFiles([result.file.path]);
@@ -445,6 +448,19 @@ export class StackView extends ItemView {
     async onClose() {
         if (this.component) {
             unmount(this.component);
+        }
+    }
+
+    getController() {
+        if (this.component && this.component.getController) {
+            return this.component.getController();
+        }
+        return null;
+    }
+
+    update() {
+        if (this.component && this.component.update) {
+            this.component.update();
         }
     }
 }

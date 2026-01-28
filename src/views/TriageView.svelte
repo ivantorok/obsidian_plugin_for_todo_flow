@@ -10,7 +10,7 @@
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
 
-    let { app, tasks, keys, settings, onComplete, historyManager, debug = false } = $props();
+    let { app, tasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal } = $props();
     
     let controller: TriageController;
     let currentTask = $state<TaskNode | null>(null);
@@ -41,6 +41,16 @@
                 onComplete(controller.getResults());
             }
         }, 200);
+    }
+
+    export function addTaskToQueue(task: TaskNode) {
+        if (controller) {
+            controller.addTask(task);
+            // If we were at the end (null task), refresh to show the new one
+            if (!currentTask) {
+                currentTask = controller.getCurrentTask();
+            }
+        }
     }
 
     export function handleKeyDown(e: KeyboardEvent) {
@@ -91,6 +101,12 @@
             case 'CANCEL':
                 if (showHelp) {
                     showHelp = false;
+                }
+                break;
+            case 'CREATE_TASK':
+            case 'QUICK_ADD':
+                if (openQuickAddModal) {
+                    openQuickAddModal();
                 }
                 break;
         }

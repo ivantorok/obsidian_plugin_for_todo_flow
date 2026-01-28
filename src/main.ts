@@ -8,6 +8,7 @@ import { GraphBuilder } from './GraphBuilder.js';
 import moment from 'moment';
 import { HistoryManager } from './history.js';
 import { SyncService } from './services/SyncService.js';
+import { ReprocessTaskCommand } from './commands/ReprocessTaskCommand.js';
 
 import { DEFAULT_KEYBINDINGS, type KeybindingSettings } from './keybindings.js';
 import { formatKeys, parseKeys } from './utils/settings-utils.js';
@@ -43,17 +44,19 @@ export default class TodoFlowPlugin extends Plugin {
     viewManager!: ViewManager;
 
     async onload() {
+        console.log('[Todo Flow] Plugin Loading...');
         await this.loadSettings();
         this.historyManager = new HistoryManager();
         this.logger = new FileLogger(this.app, this.settings.debug);
         this.viewManager = new ViewManager(this.app, this.logger);
-        await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build 2026-01-27 10:48)`);
 
-        await this.logger.info(`Todo Flow Plugin loading...`);
+        await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build 2026-01-28)`);
+        console.log('[Todo Flow] Logger initialized');
 
         this.addSettingTab(new TodoFlowSettingTab(this.app, this));
 
         // ... (views registration) ...
+        console.log('[Todo Flow] Registering Views...');
 
         this.registerView(
             VIEW_TYPE_DUMP,
@@ -69,6 +72,8 @@ export default class TodoFlowPlugin extends Plugin {
                 // Auto-start Stack after Triage (Workflow)
                 // @ts-ignore
                 this.app.commands.executeCommandById('todo-flow:open-daily-stack');
+            }, (title, options) => {
+                return this.onCreateTask(title, options);
             })
         );
 
@@ -76,8 +81,8 @@ export default class TodoFlowPlugin extends Plugin {
             VIEW_TYPE_STACK,
             (leaf) => new StackView(leaf, this.settings, this.historyManager, this.logger, (task) => {
                 this.syncTaskToNote(task);
-            }, (title) => {
-                return this.onCreateTask(title);
+            }, (title, options) => {
+                return this.onCreateTask(title, options);
             })
         );
 
@@ -111,6 +116,46 @@ export default class TodoFlowPlugin extends Plugin {
                 }
 
                 this.activateTriage(tasks);
+            }
+        });
+
+        console.log('[Todo Flow] Registering reprocess-nlp command');
+        this.addCommand({
+            id: 'reprocess-nlp',
+            name: 'Reprocess NLP Metadata (Smart Parse)',
+            callback: async () => {
+                this.logger.info('[Command] Executing reprocess-nlp');
+                try {
+                    const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
+                    if (leaf && leaf.view) {
+                        // Cast to any to bypass strict type check for now (StackView methods are public but TS might not see them via generic View)
+                        const stackView = leaf.view as any;
+
+                        if (stackView.getController && stackView.update) {
+                            const controller = stackView.getController();
+                            if (controller) {
+                                // Static import used here
+                                const cmd = new ReprocessTaskCommand(controller, async (task) => {
+                                    await this.syncTaskToNote(task);
+                                });
+
+                                await this.historyManager.executeCommand(cmd);
+                                stackView.update();
+                                this.logger.info('[Command] JSON Reprocessing successfully completed.');
+                                new (window as any).Notice('NLP Reprocessing Complete');
+                            }
+                        } else {
+                            this.logger.warn('[Command] StackView controller missing.');
+                            new (window as any).Notice('Open the Task Stack view first.');
+                        }
+                    } else {
+                        this.logger.warn('[Command] StackView leaf not found.');
+                        new (window as any).Notice('Open the Task Stack view first.');
+                    }
+                } catch (error) {
+                    this.logger.error(`[Command] Reprocess Failed: ${error}`);
+                    new (window as any).Notice('Reprocess Failed. Check logs.');
+                }
             }
         });
 
@@ -269,12 +314,13 @@ export default class TodoFlowPlugin extends Plugin {
         let leaf = workspace.getLeaf(true);
         this.logger.info(`[main.ts] activateTriage: Initializing session with ${tasks.length} tasks.`);
 
-        // Pass settings to TriageView
         const view = new TriageView(leaf, tasks, this.settings, this.historyManager, this.logger, (results) => {
             const ids = results.shortlist.map(t => t.id);
             this.logger.info(`[main.ts] Triage callback: Session isolation active. Received ${ids.length} shortlisted tasks: ${JSON.stringify(ids)}`);
             // Auto-start Stack with EXPLICIT IDs (Session Isolation)
             this.activateStack(ids);
+        }, (title: string, options?: any) => {
+            return this.onCreateTask(title, options);
         });
         await leaf.open(view);
         workspace.revealLeaf(leaf);
@@ -401,23 +447,38 @@ export default class TodoFlowPlugin extends Plugin {
         });
     }
 
-    onCreateTask(title: string): TaskNode {
+    onCreateTask(title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): TaskNode {
         const filename = generateFilename(title);
         const path = `${this.settings.targetFolder}/${filename}`;
+
+        const duration = options?.duration ?? 30;
+        const isAnchored = options?.isAnchored ?? false;
+        const startTime = options?.startTime;
 
         // Return a temporary node for immediate sync; Obsidian will create the actual file in background
         // but we need the node for the StackController to work immediately.
         const newNode: TaskNode = {
             id: path,
             title: title,
-            duration: 30,
+            duration: duration,
             status: 'todo',
-            isAnchored: false,
+            isAnchored: isAnchored,
+            startTime: startTime,
             children: []
         };
 
+        // Construct Frontmatter
+        let fileContent = `---\ntask: ${title}\nstatus: todo\nduration: ${duration}`;
+        if (isAnchored) {
+            fileContent += `\nanchored: true`;
+            if (startTime) {
+                fileContent += `\nstartTime: ${startTime.format('YYYY-MM-DD HH:mm')}`;
+            }
+        }
+        fileContent += `\n---\n# ${title}`;
+
         // Asynchronously create the file in the vault
-        this.app.vault.create(path, `---\ntask: ${title}\nstatus: todo\nduration: 30\n---\n# ${title}`);
+        this.app.vault.create(path, fileContent);
 
         return newNode;
     }

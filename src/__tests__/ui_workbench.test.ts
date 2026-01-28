@@ -234,10 +234,11 @@ describe('UI Workbench: Interaction & Stability', () => {
         expect(card!.classList.contains('is-done')).toBe(true);
     });
 
-    it('StackView: Should trigger task creation on "c" key', async () => {
+    it('StackView: Should trigger Quick Add (NLP) on "c" key', async () => {
         const { HistoryManager } = await import('../history.js');
         const historyManager = new HistoryManager();
-        const onCreate = vi.fn().mockImplementation((title) => ({ id: 'new', title, duration: 30, status: 'todo' }));
+
+        const openQuickAddModal = vi.fn(); // SHOULD be called
 
         const { container } = render(StackView, {
             props: {
@@ -249,8 +250,9 @@ describe('UI Workbench: Interaction & Stability', () => {
                 onNavigate: vi.fn(),
                 onGoBack: vi.fn(),
                 onTaskUpdate: vi.fn(),
-                onTaskCreate: onCreate,
-                openTaskModal: (cb: any) => cb('New Task'),
+                onTaskCreate: vi.fn(),
+
+                openQuickAddModal,
                 historyManager
             }
         });
@@ -262,11 +264,8 @@ describe('UI Workbench: Interaction & Stability', () => {
         await fireEvent.keyDown(stackContainer, { key: 'c', code: 'KeyC' });
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        expect(onCreate).toHaveBeenCalledWith('New Task');
-        const titles = container.querySelectorAll('.title');
-        // Original behavior: Insert at 0 (titles[0] was 'New Task')
-        // New behavior: Insert AFTER 0 (titles[1] is 'New Task')
-        expect(titles[1]!.textContent).toBe('New Task');
+
+        expect(openQuickAddModal).toHaveBeenCalledWith(0); // Focused index is 0
     });
 
     it('StackView: Should delete task on "Backspace"', async () => {

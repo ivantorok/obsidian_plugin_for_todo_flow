@@ -257,3 +257,33 @@ export class InsertTaskCommand implements Command {
         }
     }
 }
+
+/**
+ * Command to rename a task
+ */
+export class RenameTaskCommand implements Command {
+    description: string;
+    private controller: StackController;
+    private index: number;
+    private oldTitle: string;
+    private newTitle: string;
+    public resultIndex: number | null = null;
+
+    constructor(controller: StackController, index: number, newTitle: string) {
+        this.controller = controller;
+        this.index = index;
+        this.newTitle = newTitle;
+        this.oldTitle = controller.getTasks()[index]?.title || '';
+        this.description = `Rename task from "${this.oldTitle}" to "${newTitle}" at index ${index}`;
+    }
+
+    execute(): void {
+        this.resultIndex = this.controller.updateTaskTitle(this.index, this.newTitle);
+    }
+
+    undo(): void {
+        if (this.resultIndex !== null) {
+            this.controller.updateTaskTitle(this.resultIndex, this.oldTitle);
+        }
+    }
+}

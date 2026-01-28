@@ -17,8 +17,17 @@ export class TriageView extends ItemView {
     onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void;
     historyManager: HistoryManager;
     logger: FileLogger | undefined;
+    onCreateTask: (title: string, options?: any) => TaskNode;
 
-    constructor(leaf: WorkspaceLeaf, tasks: TaskNode[], settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger | undefined, onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void) {
+    constructor(
+        leaf: WorkspaceLeaf,
+        tasks: TaskNode[],
+        settings: TodoFlowSettings,
+        historyManager: HistoryManager,
+        logger: FileLogger | undefined,
+        onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void,
+        onCreateTask: (title: string, options?: any) => TaskNode
+    ) {
         super(leaf);
         this.tasks = tasks;
         this.settings = settings;
@@ -26,6 +35,7 @@ export class TriageView extends ItemView {
         this.historyManager = historyManager;
         this.logger = logger;
         this.onComplete = onComplete;
+        this.onCreateTask = onCreateTask;
     }
 
     getViewType() {
@@ -58,6 +68,25 @@ export class TriageView extends ItemView {
                     this.onComplete(results);
                     // Optionally close the view
                     this.leaf.detach();
+                },
+                openQuickAddModal: () => {
+                    // Import dynamically to avoid circular deps if any
+                    import('../ui/QuickAddModal.js').then(({ QuickAddModal }) => {
+                        new QuickAddModal(this.app, async (result) => {
+                            if (result.type === 'new' && result.title) {
+                                const options: any = {};
+                                if (result.startTime) options.startTime = result.startTime;
+                                if (result.duration !== undefined) options.duration = result.duration;
+                                if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+
+                                const newNode = this.onCreateTask(result.title, options);
+                                if (newNode && this.component) {
+                                    // Add to the Triage Queue via Component/Controller
+                                    this.component.addTaskToQueue(newNode);
+                                }
+                            }
+                        }).open();
+                    });
                 }
             }
         });

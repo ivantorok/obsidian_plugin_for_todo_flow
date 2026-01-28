@@ -1,9 +1,14 @@
 import { App, FuzzySuggestModal, TFile, Scope, type FuzzyMatch } from 'obsidian';
+import { DateParser } from '../utils/DateParser.js';
+import moment from 'moment';
 
 export interface QuickAddResult {
     type: 'file' | 'new';
     file?: TFile;
     title?: string;
+    startTime?: moment.Moment;
+    duration?: number;
+    isAnchored?: boolean;
 }
 
 type QuickAddEntry = TFile | { isNew: true, title: string };
@@ -86,16 +91,32 @@ export class QuickAddModal extends FuzzySuggestModal<QuickAddEntry> {
         }
     }
 
-    onChooseItem(item: QuickAddEntry, evt: MouseEvent | KeyboardEvent): void {
+    async onChooseItem(item: QuickAddEntry, evt: MouseEvent | KeyboardEvent): Promise<void> {
         const isShift = evt.shiftKey;
 
+        let inputString = '';
+
         if ('isNew' in item) {
-            this.onChoose({ type: 'new', title: item.title });
+            inputString = item.title;
         } else if (isShift) {
-            const title = this.currentQuery.trim() || item.basename;
-            this.onChoose({ type: 'new', title: title });
+            inputString = this.currentQuery.trim() || item.basename;
         } else {
+            // File selection - no parsing needed
             this.onChoose({ type: 'file', file: item });
+            return;
         }
+
+        // Parse NLP for new tasks
+        const parsed = DateParser.parseTaskInput(inputString);
+
+        const result: QuickAddResult = {
+            type: 'new',
+            title: parsed.title
+        };
+        if (parsed.startTime) result.startTime = parsed.startTime;
+        if (parsed.duration !== undefined) result.duration = parsed.duration;
+        if (parsed.isAnchored !== undefined) result.isAnchored = parsed.isAnchored;
+
+        this.onChoose(result);
     }
 }
