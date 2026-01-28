@@ -10,7 +10,7 @@
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
 
-    let { app, tasks: initialTasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal } = $props();
+    let { app, tasks: initialTasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal, logger } = $props();
     
     let controller: TriageController;
     let tasks = $state<TaskNode[]>([...initialTasks]);
@@ -45,17 +45,17 @@
     }
 
     export function addTaskToQueue(task: TaskNode) {
-        console.log('[TriageView.svelte] addTaskToQueue called with:', task.title);
+        if (logger) logger.info(`[TriageView.svelte] addTaskToQueue called with: ${task.title}`);
         if (controller) {
             controller.addTask(task);
             // If we were at the end (null task), refresh to show the new one
             if (!currentTask) {
-                console.log('[TriageView.svelte] End of queue reached, refreshing currentTask');
+                if (logger) logger.info('[TriageView.svelte] End of queue reached, refreshing currentTask');
                 currentTask = controller.getCurrentTask();
-                console.log('[TriageView.svelte] New currentTask:', currentTask?.title);
+                if (logger) logger.info(`[TriageView.svelte] New currentTask: ${currentTask?.title}`);
             }
         } else {
-            console.error('[TriageView.svelte] Controller missing in addTaskToQueue!');
+            if (logger) logger.error('[TriageView.svelte] Controller missing in addTaskToQueue!');
         }
     }
 
