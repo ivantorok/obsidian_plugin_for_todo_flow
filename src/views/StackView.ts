@@ -12,6 +12,7 @@ import { NavigationManager } from '../navigation/NavigationManager.js';
 import { type TodoFlowSettings } from '../main.js';
 import { QuickAddModal } from '../ui/QuickAddModal.js';
 import { InsertTaskCommand } from '../commands/stack-commands.js';
+import { ReprocessTaskCommand } from '../commands/ReprocessTaskCommand.js';
 import moment from 'moment';
 
 export const VIEW_TYPE_STACK = "todo-flow-stack-view";
@@ -24,12 +25,12 @@ export class StackView extends ItemView {
     settings: TodoFlowSettings;
     historyManager: HistoryManager;
     logger: FileLogger;
-    onTaskUpdate: (task: TaskNode) => void;
+    onTaskUpdate: (task: TaskNode) => void | Promise<void>;
     onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode;
     loader: StackLoader;
     navManager: NavigationManager;
 
-    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, onTaskUpdate: (task: TaskNode) => void, onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode) {
+    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode) {
         super(leaf);
         this.settings = settings;
         this.historyManager = historyManager;
@@ -155,6 +156,13 @@ export class StackView extends ItemView {
         // Strategy: Re-call setState with the existing full state.
         // This forces a re-read from disk via the loader while preserving navigation context.
         const state: any = this.getState();
+
+        // Silent NLP Reprocess
+        const controller = this.getController();
+        if (controller) {
+            const reprocessCmd = new ReprocessTaskCommand(controller, this.onTaskUpdate);
+            await reprocessCmd.execute();
+        }
 
         // Capture current focus safely
         let focusedId: string | null = null;

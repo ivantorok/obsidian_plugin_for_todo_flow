@@ -6,11 +6,11 @@ import moment from 'moment';
 
 export class ReprocessTaskCommand implements Command {
     private controller: StackController;
-    private onUpdate: (task: TaskNode) => Promise<void>;
+    private onUpdate: (task: TaskNode) => void | Promise<void>;
     private affectedIndices: number[] = [];
     public description: string = "Reprocess NLP for Stack";
 
-    constructor(controller: StackController, onUpdate: (task: TaskNode) => Promise<void>) {
+    constructor(controller: StackController, onUpdate: (task: TaskNode) => void | Promise<void>) {
         this.controller = controller;
         this.onUpdate = onUpdate;
     }

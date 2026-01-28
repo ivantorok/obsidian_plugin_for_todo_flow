@@ -134,7 +134,7 @@ export class StackController {
         return index;
     }
 
-    updateTaskMetadata(index: number, updates: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): number {
+    updateTaskMetadata(index: number, updates: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined }): number {
         if (!this.tasks[index]) return index;
         const taskToMove = this.tasks[index]!;
         const task = { ...taskToMove };

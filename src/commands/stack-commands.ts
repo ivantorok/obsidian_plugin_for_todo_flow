@@ -258,6 +258,9 @@ export class InsertTaskCommand implements Command {
     }
 }
 
+import { DateParser } from '../utils/DateParser.js';
+import moment from 'moment';
+
 /**
  * Command to rename a task
  */
@@ -267,23 +270,48 @@ export class RenameTaskCommand implements Command {
     private index: number;
     private oldTitle: string;
     private newTitle: string;
+    private oldMetadata: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored: boolean };
+    private newMetadata: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored: boolean } | null = null;
     public resultIndex: number | null = null;
 
     constructor(controller: StackController, index: number, newTitle: string) {
         this.controller = controller;
         this.index = index;
-        this.newTitle = newTitle;
-        this.oldTitle = controller.getTasks()[index]?.title || '';
-        this.description = `Rename task from "${this.oldTitle}" to "${newTitle}" at index ${index}`;
+        const task = controller.getTasks()[index];
+        this.oldTitle = task?.title || '';
+        this.oldMetadata = {
+            startTime: task?.startTime,
+            duration: task?.duration,
+            isAnchored: task?.isAnchored || false
+        };
+
+        // NLP Processing
+        const parsed = DateParser.parseTaskInput(newTitle);
+        this.newTitle = parsed.title;
+        if (parsed.isAnchored || parsed.duration !== undefined) {
+            this.newMetadata = {
+                startTime: parsed.startTime ?? undefined,
+                duration: parsed.duration,
+                isAnchored: parsed.isAnchored
+            };
+        }
+
+        this.description = `Rename task from "${this.oldTitle}" to "${this.newTitle}" at index ${index}`;
     }
 
     execute(): void {
         this.resultIndex = this.controller.updateTaskTitle(this.index, this.newTitle);
+        if (this.newMetadata && this.resultIndex !== null && this.controller.updateTaskMetadata) {
+            this.controller.updateTaskMetadata(this.resultIndex, this.newMetadata);
+        }
     }
 
     undo(): void {
         if (this.resultIndex !== null) {
             this.controller.updateTaskTitle(this.resultIndex, this.oldTitle);
+            if (this.controller.updateTaskMetadata) {
+                this.controller.updateTaskMetadata(this.resultIndex, this.oldMetadata);
+            }
         }
     }
 }
