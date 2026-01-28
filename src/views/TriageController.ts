@@ -27,8 +27,10 @@ export class TriageController {
     }
 
     addTask(task: TaskNode) {
+        console.log('[TriageController] addTask entry:', task.title, 'Index:', this.index, 'Total Tasks before:', this.tasks.length);
         this.tasks.push(task);
         if (this.logger) this.logger.info(`[TriageController] Added task to queue: ${task.title}. Total tasks: ${this.tasks.length}`);
+        console.log('[TriageController] addTask complete. Total Tasks after:', this.tasks.length);
     }
 
     getCurrentTask(): TaskNode | null {

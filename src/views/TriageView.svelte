@@ -45,12 +45,17 @@
     }
 
     export function addTaskToQueue(task: TaskNode) {
+        console.log('[TriageView.svelte] addTaskToQueue called with:', task.title);
         if (controller) {
             controller.addTask(task);
             // If we were at the end (null task), refresh to show the new one
             if (!currentTask) {
+                console.log('[TriageView.svelte] End of queue reached, refreshing currentTask');
                 currentTask = controller.getCurrentTask();
+                console.log('[TriageView.svelte] New currentTask:', currentTask?.title);
             }
+        } else {
+            console.error('[TriageView.svelte] Controller missing in addTaskToQueue!');
         }
     }
 

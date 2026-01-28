@@ -75,6 +75,7 @@ export class TriageView extends ItemView {
                     import('../ui/QuickAddModal.js').then(({ QuickAddModal }) => {
                         new QuickAddModal(this.app, async (result) => {
                             if (result.type === 'new' && result.title) {
+                                console.log('[TriageView] Modal returned NEW task:', result.title);
                                 const options: any = {};
                                 if (result.startTime) options.startTime = result.startTime;
                                 if (result.duration !== undefined) options.duration = result.duration;
@@ -82,12 +83,18 @@ export class TriageView extends ItemView {
 
                                 const newNode = this.onCreateTask(result.title, options);
                                 if (newNode && this.component) {
-                                    // Add to the Triage Queue via Component/Controller
-                                    this.component.addTaskToQueue(newNode);
+                                    console.log('[TriageView] Adding NEW node to queue:', newNode.id);
+                                    if (typeof this.component.addTaskToQueue === 'function') {
+                                        this.component.addTaskToQueue(newNode);
+                                    } else {
+                                        console.error('[TriageView] addTaskToQueue is NOT a function on component!', this.component);
+                                        new (window as any).Notice('Error: Triage View component error.');
+                                    }
                                 }
                             } else if (result.type === 'file' && result.file) {
+                                console.log('[TriageView] Modal returned EXISTING file:', result.file.path);
                                 // Convert TFile to TaskNode
-                                const newNode: TaskNode = {
+                                const existingNode: TaskNode = {
                                     id: result.file.path,
                                     title: parseTitleFromFilename(result.file.basename),
                                     duration: 30, // Default for triage
@@ -96,10 +103,19 @@ export class TriageView extends ItemView {
                                     children: []
                                 };
                                 if (this.component) {
-                                    this.component.addTaskToQueue(newNode);
+                                    console.log('[TriageView] Adding EXISTING node to queue:', existingNode.id);
+                                    if (typeof this.component.addTaskToQueue === 'function') {
+                                        this.component.addTaskToQueue(existingNode);
+                                    } else {
+                                        console.error('[TriageView] addTaskToQueue is NOT a function on component!', this.component);
+                                        new (window as any).Notice('Error: Triage View component error.');
+                                    }
                                 }
                             }
                         }).open();
+                    }).catch(err => {
+                        console.error('[TriageView] Failed to import QuickAddModal:', err);
+                        new (window as any).Notice('Failed to open QuickAdd.');
                     });
                 }
             }
