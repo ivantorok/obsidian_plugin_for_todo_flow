@@ -9,7 +9,8 @@ describe('ReprocessTaskCommand', () => {
     const mockController = {
         getTasks: vi.fn(),
         updateTaskMetadata: vi.fn(),
-        updateTaskTitle: vi.fn()
+        updateTaskTitle: vi.fn(),
+        updateTaskById: vi.fn()
     };
 
     const mockHistoryManager = {
@@ -25,7 +26,7 @@ describe('ReprocessTaskCommand', () => {
         const cmd = new ReprocessTaskCommand(mockController as any, (task) => Promise.resolve());
         await cmd.execute();
 
-        expect(mockController.updateTaskMetadata).not.toHaveBeenCalled();
+        expect(mockController.updateTaskById).not.toHaveBeenCalled();
     });
 
     it('should process tasks without !manual tag', async () => {
@@ -33,17 +34,14 @@ describe('ReprocessTaskCommand', () => {
             { id: '2', title: 'Meeting at 2pm', duration: 30, status: 'todo', isAnchored: false, children: [] }
         ];
         mockController.getTasks.mockReturnValue(tasks);
+        mockController.updateTaskById.mockReturnValue(0);
 
         const cmd = new ReprocessTaskCommand(mockController as any, (task) => Promise.resolve());
         await cmd.execute();
 
-        // Expect metadata update for anchored time
-        expect(mockController.updateTaskMetadata).toHaveBeenCalled();
-        // Expect title update to remove "at 2pm"
-        expect(mockController.updateTaskTitle).toHaveBeenCalledWith(0, 'Meeting');
-        // Note: index 0 depends on getting tasks array. 
-        // Real implementation might need to match by ID or index. 
-        // Command usually operates on stack index or we iterate.
-        // Let's assume command reprocesses ALL.
+        expect(mockController.updateTaskById).toHaveBeenCalledWith('2', expect.objectContaining({
+            title: 'Meeting',
+            isAnchored: true
+        }));
     });
 });

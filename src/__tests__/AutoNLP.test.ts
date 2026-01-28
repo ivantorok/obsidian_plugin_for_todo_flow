@@ -79,5 +79,36 @@ describe('Auto-NLP Triggers', () => {
             expect(tasks[2]?.title).toBe("Manual Task !manual 15:00");
             expect(tasks[2]?.isAnchored).toBe(false);
         });
+
+        it('should not scramble tasks when re-sorting happens during reprocess', async () => {
+            // Setup: Two tasks. Task 1 is floating, Task 2 is at 5pm.
+            const task1 = { id: 't1', title: 'Task 1 tomorrow at 6pm', duration: 30, isAnchored: false, status: 'todo' as const, children: [] };
+            const task2 = { id: 't2', title: 'Task 2 at 5pm', duration: 30, isAnchored: true, startTime: moment('2026-01-28 17:00'), status: 'todo' as const, children: [] };
+
+            // Reference time is Today 9am.
+            const localController = new StackController([task1, task2], moment('2026-01-28 09:00'));
+
+            // Before reprocess: Order is [Task 1 (9am), Task 2 (5pm)]
+            let tasks = localController.getTasks();
+            expect(tasks[0]!.id).toBe('t1');
+            expect(tasks[1]!.id).toBe('t2');
+
+            const spy = vi.fn();
+            const cmd = new ReprocessTaskCommand(localController, spy);
+            await cmd.execute();
+
+            // After reprocess: 
+            // Task 1 becomes anchored to Tomorrow at 6pm.
+            // Task 2 stays at Today 5pm.
+            // Order should now be [Task 2 (Today 5pm), Task 1 (Tomorrow 6pm)]
+            tasks = localController.getTasks();
+            expect(tasks[0]!.id).toBe('t2');
+            expect(tasks[0]!.title).toBe('Task 2');
+
+            expect(tasks[1]!.id).toBe('t1');
+            expect(tasks[1]!.title).toBe('Task 1');
+            expect(tasks[1]!.isAnchored).toBe(true);
+            expect(tasks[1]!.startTime?.format('YYYY-MM-DD HH:mm')).toBe('2026-01-29 18:00');
+        });
     });
 });

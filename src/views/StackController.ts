@@ -158,6 +158,33 @@ export class StackController {
         return index;
     }
 
+    updateTaskById(id: string, updates: { title?: string, startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): number {
+        const index = this.tasks.findIndex(t => t.id === id);
+        if (index === -1) return -1;
+
+        const taskToMove = this.tasks[index]!;
+        const task = { ...taskToMove };
+
+        if (updates.title !== undefined) task.title = updates.title;
+        if (updates.startTime !== undefined) task.startTime = updates.startTime;
+        if (updates.duration !== undefined) {
+            task.duration = updates.duration;
+            task.originalDuration = updates.duration;
+        }
+        if (updates.isAnchored !== undefined) task.isAnchored = updates.isAnchored;
+
+        const newTasks = [...this.tasks];
+        newTasks[index] = task;
+        this.tasks = computeSchedule(newTasks, this.currentTime);
+
+        const newIndex = this.tasks.findIndex(t => t.id === id);
+        if (newIndex !== -1) {
+            this.onTaskUpdate?.(this.tasks[newIndex]!);
+            return newIndex;
+        }
+        return -1;
+    }
+
     addTaskAt(index: number, title: string): { task: TaskNode, index: number } | null {
         if (!this.onTaskCreate) return null;
 

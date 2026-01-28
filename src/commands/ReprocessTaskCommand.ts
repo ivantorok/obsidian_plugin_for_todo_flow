@@ -16,11 +16,15 @@ export class ReprocessTaskCommand implements Command {
     }
 
     async execute(): Promise<void> {
-        const tasks = this.controller.getTasks();
+        // Collect IDs first to avoid mutation issues during iteration
+        const taskIds = this.controller.getTasks().map(t => t.id);
         let changed = false;
 
-        for (let i = 0; i < tasks.length; i++) {
-            const task = tasks[i];
+        for (const id of taskIds) {
+            // Re-fetch the task from the controller by ID to get the freshest state (in case previous iterations moved it)
+            const tasks = this.controller.getTasks();
+            const task = tasks.find(t => t.id === id);
+
             if (!task) continue;
 
             // Safety check: Skip tags
@@ -31,22 +35,19 @@ export class ReprocessTaskCommand implements Command {
             const parsed = DateParser.parseTaskInput(task.title);
 
             let hasChanges = false;
-            let newTitle = task.title;
-            let newDuration = task.duration;
-            let newStartTime = task.startTime;
-            let newAnchored = task.isAnchored;
+            const updates: { title?: string, startTime?: moment.Moment, duration?: number, isAnchored?: boolean } = {};
 
             // Check Title Change (removed parsed text)
             if (parsed.title !== task.title) {
-                newTitle = parsed.title;
+                updates.title = parsed.title;
                 hasChanges = true;
             }
 
             // Check Anchored/Time
             if (parsed.isAnchored && parsed.startTime) {
                 if (!task.isAnchored || !task.startTime || (parsed.startTime && !task.startTime.isSame(parsed.startTime))) {
-                    newStartTime = parsed.startTime;
-                    newAnchored = true;
+                    updates.startTime = parsed.startTime;
+                    updates.isAnchored = true;
                     hasChanges = true;
                 }
             }
@@ -54,45 +55,22 @@ export class ReprocessTaskCommand implements Command {
             // Check Duration
             if (parsed.duration !== undefined) {
                 if (parsed.duration !== task.duration) {
-                    newDuration = parsed.duration;
+                    updates.duration = parsed.duration;
                     hasChanges = true;
                 }
             }
 
             if (hasChanges) {
-                // Apply update via controller
-                if (newTitle !== task.title) {
-                    this.controller.updateTaskTitle(i, newTitle);
-                }
+                // Apply update via ID-based method to prevent coordinate-scrambling during re-sort
+                const resultIndex = this.controller.updateTaskById(id, updates);
 
-                if (newDuration !== task.duration) {
-                    if (this.controller.updateTaskMetadata) {
-                        const metadata: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean } = {
-                            isAnchored: newAnchored
-                        };
-                        if (newDuration !== undefined) metadata.duration = newDuration;
-                        if (newStartTime !== undefined) metadata.startTime = newStartTime;
-
-                        this.controller.updateTaskMetadata(i, metadata);
+                if (resultIndex !== -1) {
+                    const updatedTask = this.controller.getTasks()[resultIndex];
+                    if (updatedTask) {
+                        await this.onUpdate(updatedTask);
+                        this.affectedIndices.push(resultIndex);
+                        changed = true;
                     }
-                } else if (hasChanges) {
-                    // Just anchor/time changed
-                    if (this.controller.updateTaskMetadata) {
-                        const metadata: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean } = {
-                            isAnchored: newAnchored
-                        };
-                        if (newStartTime !== undefined) metadata.startTime = newStartTime;
-
-                        this.controller.updateTaskMetadata(i, metadata);
-                    }
-                }
-
-                // Persist to disk via callback
-                const updatedTask = this.controller.getTasks()[i];
-                if (updatedTask) {
-                    await this.onUpdate(updatedTask);
-                    this.affectedIndices.push(i);
-                    changed = true;
                 }
             }
         }

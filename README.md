@@ -28,6 +28,10 @@ A constraint-based scheduler for your Shortlisted tasks.
   - **Rocks (Anchored Tasks):** Commitments fixed in time (e.g., "Meeting at 14:00"). They do not move.
   - **Water (Floating Tasks):** Flexible tasks that "flow" into the available gaps between Rocks.
 - **Flow State:** As you check off items or change durations, the entire timeline recalculates instantly.
+- **Smart NLP (Zero-Manual-Effort):** 
+    - **Auto-parse on Rename:** Type `Task 5pm for 1h` while renaming inside the stack—it instantly anchors and cleans itself.
+    - **Auto-parse on Arrival:** Switching back to the stack view after editing files in the sidebar automatically reprocesses and syncs metadata.
+- **Multi-Day Display:** Anchored tasks on different days (e.g., from tomorrow) show the full date (`2026-01-29 11:00`) for total clarity.
 
 ## Installation
 
@@ -59,6 +63,7 @@ A constraint-based scheduler for your Shortlisted tasks.
 | `X` | **Complete** | Mark task as Done. Prunes it from the timeline. |
 | `z` | **Archive** | Remove task from the stack (status: archived) without checking it off. |
 | `u` | **Undo** | Undo the last action (support for stack manipulation). |
+| `?` | **Help** | Open this shortcut guide overlay. |
 
 ## Settings
 

@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: TodoFlowSettings = {
     timingMode: 'now',
     fixedStartTime: '09:00',
     keys: DEFAULT_KEYBINDINGS,
-    debug: false,
+    debug: true,
     lastTray: null
 }
 
@@ -430,7 +430,7 @@ export default class TodoFlowPlugin extends Plugin {
 
     async syncTaskToNote(task: TaskNode) {
         const ownDuration = task.originalDuration ?? task.duration;
-        this.logger.info(`[DEBUG] Syncing Task Metadata to Disk: ID=${task.id} | Title=${task.title} | Dur=${ownDuration} (Rollup: ${task.duration}) | Status=${task.status} | Anchored=${task.isAnchored}`);
+        this.logger.info(`[DEBUG] Syncing Task Metadata to Disk: ID=${task.id} | Title="${task.title}" | Dur=${ownDuration} (Rollup: ${task.duration}) | Status=${task.status} | Anchored=${task.isAnchored}`);
         const file = this.app.vault.getAbstractFileByPath(task.id);
         if (!(file instanceof TFile)) return;
 

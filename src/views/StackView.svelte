@@ -2,7 +2,7 @@
     import { onMount, createEventDispatcher, untrack } from 'svelte';
     import { StackController } from './StackController';
     import { type TaskNode, getMinDuration } from '../scheduler.js';
-    import { formatDuration } from '../utils';
+    import { formatDuration, formatDateRelative } from '../utils.ts';
     import moment from 'moment';
     import { KeybindingManager, type KeybindingSettings } from '../keybindings';
     import { type HistoryManager } from '../history.js';
@@ -379,7 +379,7 @@
                 onclick={() => { focusedIndex = i; }}
             >
                 <div class="time-col">
-                    {task.startTime?.format('HH:mm')}
+                    {formatDateRelative(task.startTime, internalNow)}
                 </div>
                 <div class="content-col">
                     {#if editingIndex === i}
