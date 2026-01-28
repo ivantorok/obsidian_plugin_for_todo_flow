@@ -10,9 +10,10 @@
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
 
-    let { app, tasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal } = $props();
+    let { app, tasks: initialTasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal } = $props();
     
     let controller: TriageController;
+    let tasks = $state<TaskNode[]>([...initialTasks]);
     let currentTask = $state<TaskNode | null>(null);
     let swipeDirection = $state<'left' | 'right' | null>(null);
     let showHelp = $state(false);

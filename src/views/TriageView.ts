@@ -3,6 +3,7 @@ import { mount, unmount } from 'svelte';
 import TriageViewSvelte from './TriageView.svelte';
 import { type TaskNode } from '../scheduler.js';
 import { type KeybindingSettings, DEFAULT_KEYBINDINGS } from '../keybindings.js';
+import { parseTitleFromFilename } from '../persistence.js';
 import { type HistoryManager } from '../history.js';
 import { FileLogger } from '../logger.js';
 import { type TodoFlowSettings } from '../main.js';
@@ -82,6 +83,19 @@ export class TriageView extends ItemView {
                                 const newNode = this.onCreateTask(result.title, options);
                                 if (newNode && this.component) {
                                     // Add to the Triage Queue via Component/Controller
+                                    this.component.addTaskToQueue(newNode);
+                                }
+                            } else if (result.type === 'file' && result.file) {
+                                // Convert TFile to TaskNode
+                                const newNode: TaskNode = {
+                                    id: result.file.path,
+                                    title: parseTitleFromFilename(result.file.basename),
+                                    duration: 30, // Default for triage
+                                    status: 'todo',
+                                    isAnchored: false,
+                                    children: []
+                                };
+                                if (this.component) {
                                     this.component.addTaskToQueue(newNode);
                                 }
                             }
