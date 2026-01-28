@@ -50,7 +50,7 @@ export default class TodoFlowPlugin extends Plugin {
         this.logger = new FileLogger(this.app, this.settings.debug);
         this.viewManager = new ViewManager(this.app, this.logger);
 
-        await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build 2026-01-28)`);
+        await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build 2026-01-28-2110)`);
         console.log('[Todo Flow] Logger initialized');
 
         this.addSettingTab(new TodoFlowSettingTab(this.app, this));
