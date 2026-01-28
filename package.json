@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
-    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && npm run copy",
-    "copy": "mkdir -p /Users/i525277/obsidian_test/testing_20260125081145/.obsidian/plugins/todo-flow && cp main.js manifest.json /Users/i525277/obsidian_test/testing_20260125081145/.obsidian/plugins/todo-flow/",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && mv main.css styles.css && npm run copy",
+    "copy": "mkdir -p /home/ivan/Projects/obsidian/20260107/.obsidian/plugins/todo-flow && cp main.js styles.css manifest.json /home/ivan/Projects/obsidian/20260107/.obsidian/plugins/todo-flow/",
     "test": "vitest run",
     "test:watch": "vitest",
     "ship": "./ship.sh",

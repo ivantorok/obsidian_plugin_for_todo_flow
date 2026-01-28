@@ -46,7 +46,7 @@ const context = await esbuild.context({
     minify: prod,
     plugins: [
         sveltePlugin({
-            compilerOptions: { css: "injected" },
+            compilerOptions: { css: "external" },
             preprocess: sveltePreprocess(),
         }),
     ],
