@@ -31,6 +31,17 @@ vi.mock('obsidian', () => {
             open() { }
             close() { }
         },
+        FuzzySuggestModal: class {
+            constructor(app: any) { }
+            open() { }
+            close() { }
+            setPlaceholder() { }
+            scope = { register: vi.fn(), unregister: vi.fn() };
+        },
+        Scope: class {
+            register = vi.fn();
+            unregister = vi.fn();
+        },
         Setting: class {
             constructor(containerEl: HTMLElement) { }
             setName(name: string) { return this; }

@@ -9,7 +9,9 @@ vi.mock('obsidian', () => ({
     },
     WorkspaceLeaf: class { },
     TFile: class { },
+    FuzzySuggestModal: class { constructor(public app: any) { }; setPlaceholder() { }; open() { }; close() { }; },
     Modal: class { constructor(public app: any) { }; open() { }; close() { }; },
+    Scope: class { register = vi.fn(); unregister = vi.fn(); },
     Plugin: class { },
     moment: () => ({ format: () => '2026-01-01' })
 }));

@@ -22,6 +22,7 @@ describe('Keybinding Manager', () => {
         export: ['Shift+E', 'Cmd+s', 'Ctrl+s'],
         rename: ['e'],
         archive: ['z', 'Z'],
+        quickAdd: ['o'],
         toggleHelp: ['?']
     };
 

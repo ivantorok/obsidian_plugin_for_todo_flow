@@ -23,6 +23,17 @@ vi.mock('obsidian', () => {
             close() { }
             contentEl = { createEl: () => ({ createEl: () => { } }) };
         },
+        FuzzySuggestModal: class {
+            constructor() { }
+            open() { }
+            close() { }
+            setPlaceholder() { }
+            scope = { register: () => { }, unregister: () => { } };
+        },
+        Scope: class {
+            register() { }
+            unregister() { }
+        },
         Notice: class { },
         ItemView: class {
             constructor() { }

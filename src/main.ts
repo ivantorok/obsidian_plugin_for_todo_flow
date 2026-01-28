@@ -513,6 +513,7 @@ class TodoFlowSettingTab extends PluginSettingTab {
         containerEl.createEl('h3', { text: 'Actions' });
         this.addKeySetting(containerEl, 'toggleDone', 'Toggle Done');
         this.addKeySetting(containerEl, 'createTask', 'Create Task');
+        this.addKeySetting(containerEl, 'quickAdd', 'Quick Add to Stack');
         this.addKeySetting(containerEl, 'rename', 'Rename Task');
         this.addKeySetting(containerEl, 'deleteTask', 'Delete Task');
         this.addKeySetting(containerEl, 'export', 'Export to Note');

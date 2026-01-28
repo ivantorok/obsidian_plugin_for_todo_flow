@@ -19,7 +19,9 @@
         logger,
         onTaskUpdate, 
         onTaskCreate,
+        onStackChange,
         openTaskModal,
+        openQuickAddModal,
         onNavigate,
         onGoBack,
         onExport,
@@ -101,9 +103,10 @@
         }
     }
 
-    function update() {
+    export function update() {
         if (debug) console.debug('[TODO_FLOW_TRACE] update() entry. Current tasks:', tasks.length);
         tasks = controller.getTasks();
+        if (onStackChange) onStackChange(tasks);
         if (debug) console.debug('[TODO_FLOW_TRACE] update() complete. New tasks:', tasks.length);
     }
 
@@ -123,6 +126,11 @@
     export function getFocusedIndex() {
         return focusedIndex;
     }
+
+    export function getController() {
+        return controller;
+    }
+
 
     function startRename(index: number) {
         editingIndex = index;
@@ -316,6 +324,11 @@
                     });
                 } else {
                     if (debug) console.warn('[TODO_FLOW_TRACE] openTaskModal not available in props');
+                }
+                break;
+            case 'QUICK_ADD':
+                if (openQuickAddModal) {
+                    openQuickAddModal(focusedIndex);
                 }
                 break;
             case 'DELETE_TASK':

@@ -11,6 +11,8 @@ import { FileLogger } from '../logger.js';
 import { StackLoader } from '../loaders/StackLoader.js';
 import { NavigationManager } from '../navigation/NavigationManager.js';
 import { type TodoFlowSettings } from '../main.js';
+import { QuickAddModal } from '../ui/QuickAddModal.js';
+import { InsertTaskCommand } from '../commands/stack-commands.js';
 import moment from 'moment';
 
 export const VIEW_TYPE_STACK = "todo-flow-stack-view";
@@ -77,8 +79,11 @@ export class StackView extends ItemView {
             let rawTasks: TaskNode[] = [];
 
             // Case 1: Restore from full Navigation History (Feature)
-            if (state.navState && state.navState.history && state.navState.history.length > 0) {
-                if (this.logger) await this.logger.info(`[StackView] Restoring full navigation state (Depth: ${state.navState.history.length})`);
+            const hasHistory = state.navState?.history && state.navState.history.length > 0;
+            const hasStack = state.navState?.currentStack && state.navState.currentStack.length > 0;
+
+            if (state.navState && (hasHistory || hasStack)) {
+                if (this.logger) await this.logger.info(`[StackView] Restoring full navigation state (Depth: ${state.navState.history?.length || 0})`);
 
                 // Restore the manager's state directly
                 this.navManager.setState(state.navState);
@@ -236,8 +241,44 @@ export class StackView extends ItemView {
                 logger: this.logger,
                 onTaskUpdate: this.onTaskUpdate,
                 onTaskCreate: this.onTaskCreate,
+                onStackChange: (tasks: TaskNode[]) => {
+                    this.tasks = tasks;
+                    this.navManager.setStack(tasks, this.rootPath!);
+                    this.app.workspace.requestSaveLayout();
+                },
                 openTaskModal: (callback: (title: string) => void) => {
                     new TaskModal(this.app, callback).open();
+                },
+                openQuickAddModal: (currentIndex: number) => {
+                    new QuickAddModal(this.app, async (result) => {
+                        let nodeToInsert: TaskNode | null = null;
+
+                        if (result.type === 'new' && result.title) {
+                            nodeToInsert = this.onTaskCreate(result.title);
+                        } else if (result.type === 'file' && result.file) {
+                            // Load the specific file as a TaskNode
+                            const nodes = await this.loader.loadSpecificFiles([result.file.path]);
+                            if (nodes.length > 0) {
+                                nodeToInsert = nodes[0]!;
+                            }
+                        }
+
+                        if (nodeToInsert && this.component) {
+                            const controller = this.component.getController();
+                            if (controller) {
+                                const cmd = new InsertTaskCommand(controller, currentIndex, nodeToInsert);
+                                await this.historyManager.executeCommand(cmd);
+
+                                // Refresh component
+                                if (this.component.update) {
+                                    this.component.update();
+                                    if (cmd.resultIndex !== null) {
+                                        this.component.setFocus(cmd.resultIndex);
+                                    }
+                                }
+                            }
+                        }
+                    }).open();
                 },
                 onOpenFile: (path: string) => {
                     this.app.workspace.openLinkText(path, '', true);
@@ -260,7 +301,8 @@ export class StackView extends ItemView {
                         this.logger.info(`[StackView] Retrieved stack from NavigationManager: ${newStack.length} tasks`);
 
                         this.tasks = newStack;
-                        this.logger.info(`[StackView] Updated this.tasks to ${this.tasks.length} tasks`);
+                        this.rootPath = this.navManager.getState().currentSource;
+                        this.logger.info(`[StackView] Updated this.tasks to ${this.tasks.length} tasks. New rootPath: ${this.rootPath}`);
 
                         this.logStackDetails(this.tasks, 'Drill Down Refreshed');
 
@@ -303,7 +345,8 @@ export class StackView extends ItemView {
                         this.logger.info(`[StackView] Retrieved stack from NavigationManager: ${newStack.length} tasks`);
 
                         this.tasks = newStack;
-                        this.logger.info(`[StackView] Updated this.tasks to ${this.tasks.length} tasks`);
+                        this.rootPath = this.navManager.getState().currentSource;
+                        this.logger.info(`[StackView] Updated this.tasks to ${this.tasks.length} tasks. New rootPath: ${this.rootPath}`);
 
                         await this.logStackDetails(this.tasks, 'Go Back Refreshed');
 

@@ -163,6 +163,17 @@ export class StackController {
         this.tasks = computeSchedule(newTasks, this.currentTime);
     }
 
+    insertAfter(index: number, task: TaskNode): number {
+        const newTasks = [...this.tasks];
+        // Insert AFTER current index
+        newTasks.splice(index + 1, 0, task);
+
+        this.tasks = computeSchedule(newTasks, this.currentTime);
+
+        // Find the index of the newly added task
+        return this.tasks.findIndex(t => t.id === task.id);
+    }
+
     // Removing renameTask as per remapping, but keeping it for now if needed. 
     // Actually user said "c" is for adding, so rename might need another key if they want it.
     // I'll keep the method but remove the binding.

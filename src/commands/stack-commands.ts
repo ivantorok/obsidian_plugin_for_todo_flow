@@ -229,3 +229,31 @@ export class ArchiveCommand implements Command {
         this.controller.insertTask(this.index, this.task);
     }
 }
+
+/**
+ * Command to insert an existing task node at a specific position
+ */
+export class InsertTaskCommand implements Command {
+    description: string;
+    private controller: StackController;
+    private index: number;
+    private task: TaskNode;
+    public resultIndex: number | null = null;
+
+    constructor(controller: StackController, index: number, task: TaskNode) {
+        this.controller = controller;
+        this.index = index;
+        this.task = task;
+        this.description = `Insert task "${task.title}" after index ${index}`;
+    }
+
+    execute(): void {
+        this.resultIndex = this.controller.insertAfter(this.index, this.task);
+    }
+
+    undo(): void {
+        if (this.resultIndex !== null) {
+            this.controller.removeTask(this.resultIndex);
+        }
+    }
+}

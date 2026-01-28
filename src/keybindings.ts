@@ -18,6 +18,7 @@ export type Action =
     | 'EXPORT'
     | 'RENAME'
     | 'ARCHIVE'
+    | 'QUICK_ADD'
     | 'TOGGLE_HELP';
 
 export interface KeybindingSettings {
@@ -40,6 +41,7 @@ export interface KeybindingSettings {
     export: string[];
     rename: string[];
     archive: string[];
+    quickAdd: string[];
     toggleHelp: string[];
     debug?: boolean;
 }
@@ -64,6 +66,7 @@ export const DEFAULT_KEYBINDINGS: KeybindingSettings = {
     export: ['Shift+E', 'Cmd+s', 'Ctrl+s'],
     rename: ['e'],
     archive: ['z', 'Z'],
+    quickAdd: ['o'],
     toggleHelp: ['?']
 };
 
@@ -106,6 +109,7 @@ export class KeybindingManager {
             export: 'EXPORT',
             rename: 'RENAME',
             archive: 'ARCHIVE',
+            quickAdd: 'QUICK_ADD',
             toggleHelp: 'TOGGLE_HELP'
         };
         return mapping[settingKey] || null;
