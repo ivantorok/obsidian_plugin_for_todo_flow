@@ -32,7 +32,7 @@ export class ReprocessTaskCommand implements Command {
                 continue;
             }
 
-            const parsed = DateParser.parseTaskInput(task.title);
+            const parsed = DateParser.parseTaskInput(task.title, this.controller.now);
 
             let hasChanges = false;
             const updates: { title?: string, startTime?: moment.Moment, duration?: number, isAnchored?: boolean } = {};

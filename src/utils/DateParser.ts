@@ -8,7 +8,7 @@ export interface ParsedTask {
 }
 
 export class DateParser {
-    static parseTaskInput(input: string): ParsedTask {
+    static parseTaskInput(input: string, now: moment.Moment = moment()): ParsedTask {
         let title = input;
         let duration: number | undefined;
         let startTime: moment.Moment | undefined;
@@ -85,7 +85,7 @@ export class DateParser {
         // 3. RELATIVE DATE & TIME
         // Only if no absolute date found
 
-        const targetDate = moment(); // Start with Today
+        const targetDate = now.clone(); // Start with provided reference
         let dateFound = false;
 
         // A. "Tomorrow" / "tmrw"

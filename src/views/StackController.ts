@@ -26,6 +26,10 @@ export class StackController {
         this.tasks = computeSchedule(this.tasks, this.currentTime);
     }
 
+    get now(): moment.Moment {
+        return this.currentTime;
+    }
+
     getTasks(): TaskNode[] {
         return this.tasks;
     }

@@ -4,9 +4,11 @@
     import Card from '../components/Card.svelte';
     import type { App } from 'obsidian';
     import { type TaskNode } from '../scheduler.js';
+    import { FileLogger } from '../logger.js';
 
     export let app: App;
     export let folder: string;
+    export let logger: FileLogger;
     export let onComplete: (tasks: TaskNode[]) => void;
 
     let thought = '';
@@ -15,7 +17,7 @@
     let sessionTasks: TaskNode[] = [];
 
     onMount(() => {
-        controller = new DumpController(app, folder);
+        controller = new DumpController(app, folder, logger);
         inputEl?.focus();
     });
 

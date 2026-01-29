@@ -50,17 +50,21 @@ export default class TodoFlowPlugin extends Plugin {
         this.logger = new FileLogger(this.app, this.settings.debug);
         this.viewManager = new ViewManager(this.app, this.logger);
 
-        await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build 2026-01-28-2135)`);
+        await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build 2026-01-29-0940)`);
         console.log('[Todo Flow] Logger initialized');
 
         this.addSettingTab(new TodoFlowSettingTab(this.app, this));
+
+        this.app.workspace.onLayoutReady(() => {
+            this.logger.info('[Todo Flow] Workspace layout is READY.');
+        });
 
         // ... (views registration) ...
         console.log('[Todo Flow] Registering Views...');
 
         this.registerView(
             VIEW_TYPE_DUMP,
-            (leaf) => new DumpView(leaf, this.settings.targetFolder, (tasks) => {
+            (leaf) => new DumpView(leaf, this.settings.targetFolder, this.logger, (tasks) => {
                 this.activateTriage(tasks);
             })
         );
@@ -96,15 +100,16 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.addCommand({
             id: 'open-todo-dump',
-            name: 'Open Todo Dump',
+            name: 'XXX_DUMP',
             callback: () => {
+                this.logger.info('[Command] Executing open-todo-dump');
                 this.activateView(VIEW_TYPE_DUMP);
             }
         });
 
         this.addCommand({
             id: 'start-triage',
-            name: 'Start Triage from target folder',
+            name: 'XXX_TRIAGE',
             callback: async () => {
                 const { TaskQueryService } = await import('./services/TaskQueryService.js');
                 const queryService = new TaskQueryService(this.app, this.logger);

@@ -288,7 +288,7 @@ export class RenameTaskCommand implements Command {
         };
 
         // NLP Processing
-        const parsed = DateParser.parseTaskInput(newTitle);
+        const parsed = DateParser.parseTaskInput(newTitle, this.controller.now);
         this.newTitle = parsed.title;
         if (parsed.isAnchored || parsed.duration !== undefined) {
             this.newMetadata = {

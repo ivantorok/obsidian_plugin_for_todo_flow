@@ -1,6 +1,7 @@
 import { type App, type TFile } from 'obsidian';
 import { type TaskNode } from './scheduler.js';
 import { resolveTaskTitle, getFirstNonMetadataLine } from './utils/title-resolver.js';
+import { DateParser } from './utils/DateParser.js';
 import moment from 'moment';
 
 export class GraphBuilder {
@@ -25,14 +26,19 @@ export class GraphBuilder {
         const content = await this.app.vault.read(file);
         const firstLine = getFirstNonMetadataLine(content);
 
+        const baseTitle = resolveTaskTitle(frontmatter, firstLine, file.name);
+
+        // NLP Enrichment: If frontmatter is missing data, try to extract from title
+        const parsed = DateParser.parseTaskInput(baseTitle);
+
         const node: TaskNode = {
             id: file.path,
-            title: resolveTaskTitle(frontmatter, firstLine, file.name),
-            duration: frontmatter.duration || 30, // Default 30m
-            isAnchored: frontmatter.anchored || false,
+            title: parsed.title, // Use cleaned title
+            duration: frontmatter.duration || parsed.duration || 30,
+            isAnchored: frontmatter.anchored !== undefined ? frontmatter.anchored : parsed.isAnchored,
             status: status,
             children: [],
-            startTime: frontmatter.startTime ? moment(frontmatter.startTime) : undefined
+            startTime: frontmatter.startTime ? moment(frontmatter.startTime) : (parsed.startTime ?? undefined)
         };
 
         // 1. Pruning: If status is done, we do NOT traverse children.
