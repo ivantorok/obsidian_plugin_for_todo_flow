@@ -640,6 +640,7 @@ class TodoFlowSettingTab extends PluginSettingTab {
         this.addKeySetting(containerEl, 'rename', 'Rename Task');
         this.addKeySetting(containerEl, 'editStartTime', 'Set Start Time');
         this.addKeySetting(containerEl, 'deleteTask', 'Delete Task');
+        this.addKeySetting(containerEl, 'archive', 'Archive Task (Stack)');
         this.addKeySetting(containerEl, 'export', 'Export to Note');
 
         containerEl.createEl('h3', { text: 'Organization' });

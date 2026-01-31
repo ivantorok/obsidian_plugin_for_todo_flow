@@ -226,15 +226,20 @@
 
         const deltaX = touchCurrentX - touchStartX;
         const action = resolveSwipe(deltaX);
+        const index = tasks.findIndex(t => t.id === task.id);
 
-        if (action === 'right') {
-            await historyManager.executeCommand(new ToggleStatusCommand(controller, task.id));
-            if ((window as any).Notice) new (window as any).Notice('Task Completed');
-            update();
-        } else if (action === 'left') {
-            await historyManager.executeCommand(new ArchiveCommand(controller, task.id));
-            if ((window as any).Notice) new (window as any).Notice('Task Archived');
-            update();
+        if (index !== -1) {
+            if (action === 'right') {
+                await historyManager.executeCommand(new ToggleStatusCommand(controller, index));
+                if ((window as any).Notice) new (window as any).Notice(`Task: ${task.title} toggled`);
+                update();
+            } else if (action === 'left') {
+                await historyManager.executeCommand(new ArchiveCommand(controller, index, async (t) => {
+                    await onTaskUpdate(t);
+                }));
+                if ((window as any).Notice) new (window as any).Notice(`Archived: ${task.title}`);
+                update();
+            }
         }
 
         swipingTaskId = null;
