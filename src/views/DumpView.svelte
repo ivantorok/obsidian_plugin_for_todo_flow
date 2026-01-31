@@ -64,6 +64,9 @@
         width: 100%;
         background: var(--background-primary);
         padding: 2rem;
+        /* Robust vertical centering on mobile including safe area buffer */
+        padding-top: calc(var(--safe-area-inset-top, 0px) + 2rem);
+        box-sizing: border-box;
     }
 
     .todo-flow-dump-hint {
