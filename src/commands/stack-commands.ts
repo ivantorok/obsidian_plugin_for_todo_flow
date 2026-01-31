@@ -322,3 +322,64 @@ export class RenameTaskCommand implements Command {
         }
     }
 }
+
+/**
+ * Command to set a task's start time explicitly (anchors it)
+ */
+export class SetStartTimeCommand implements Command {
+    description: string;
+    private controller: StackController;
+    private taskId: string;
+    private oldMetadata: { startTime: moment.Moment, isAnchored: boolean };
+    private newStartTime: moment.Moment;
+    public resultIndex: number | null = null;
+
+    constructor(controller: StackController, index: number, timeString: string) {
+        this.controller = controller;
+        const task = controller.getTasks()[index];
+        if (!task) throw new Error(`Task not found at index ${index}`);
+
+        this.taskId = task.id;
+        this.oldMetadata = {
+            startTime: moment(task.startTime),
+            isAnchored: task.isAnchored || false
+        };
+
+        const parsed = DateParser.parseTaskInput(timeString, controller.now);
+        if (parsed.startTime) {
+            this.newStartTime = parsed.startTime;
+        } else {
+            // Fallback: try to parse it as raw HH:mm if DateParser failed
+            const rawParsed = moment(timeString, ['HH:mm', 'H:mm', 'h:mm a', 'hh:mm a']);
+            if (rawParsed.isValid()) {
+                this.newStartTime = controller.now.clone().set({
+                    hour: rawParsed.hour(),
+                    minute: rawParsed.minute(),
+                    second: 0,
+                    millisecond: 0
+                });
+            } else {
+                throw new Error(`Invalid time format: ${timeString}`);
+            }
+        }
+
+        this.description = `Set start time of "${task.title}" to ${this.newStartTime.format('HH:mm')}`;
+    }
+
+    execute(): void {
+        const index = this.controller.getTasks().findIndex(t => t.id === this.taskId);
+        if (index !== -1) {
+            this.resultIndex = this.controller.updateTaskMetadata(index, {
+                startTime: this.newStartTime,
+                isAnchored: true
+            });
+        }
+    }
+
+    undo(): void {
+        const index = this.controller.getTasks().findIndex(t => t.id === this.taskId);
+        if (index !== -1) {
+            this.controller.updateTaskMetadata(index, this.oldMetadata);
+        }
+    }
+}

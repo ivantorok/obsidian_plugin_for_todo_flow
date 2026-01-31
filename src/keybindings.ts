@@ -19,6 +19,7 @@ export type Action =
     | 'RENAME'
     | 'ARCHIVE'
     | 'QUICK_ADD'
+    | 'EDIT_START_TIME'
     | 'TOGGLE_HELP';
 
 export interface KeybindingSettings {
@@ -42,6 +43,7 @@ export interface KeybindingSettings {
     rename: string[];
     archive: string[];
     quickAdd: string[];
+    editStartTime: string[];
     toggleHelp: string[];
     debug?: boolean;
 }
@@ -67,6 +69,7 @@ export const DEFAULT_KEYBINDINGS: KeybindingSettings = {
     rename: ['e'],
     archive: ['z', 'Z'],
     quickAdd: ['o'],
+    editStartTime: ['s'],
     toggleHelp: ['?']
 };
 
@@ -110,6 +113,7 @@ export class KeybindingManager {
             rename: 'RENAME',
             archive: 'ARCHIVE',
             quickAdd: 'QUICK_ADD',
+            editStartTime: 'EDIT_START_TIME',
             toggleHelp: 'TOGGLE_HELP'
         };
         return mapping[settingKey] || null;

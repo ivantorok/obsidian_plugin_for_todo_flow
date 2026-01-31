@@ -6,7 +6,7 @@
     import moment from 'moment';
     import { KeybindingManager, type KeybindingSettings } from '../keybindings';
     import { type HistoryManager } from '../history.js';
-    import { MoveTaskCommand, ToggleAnchorCommand, ScaleDurationCommand, ToggleStatusCommand, AddTaskCommand, DeleteTaskCommand, ArchiveCommand, RenameTaskCommand } from '../commands/stack-commands.js';
+    import { MoveTaskCommand, ToggleAnchorCommand, ScaleDurationCommand, ToggleStatusCommand, AddTaskCommand, DeleteTaskCommand, ArchiveCommand, RenameTaskCommand, SetStartTimeCommand } from '../commands/stack-commands.js';
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
 
@@ -62,6 +62,7 @@
 
     let focusedIndex = $state(0);
     let editingIndex = $state(-1); // -1 means no task is being renamed
+    let editingStartTimeIndex = $state(-1); // -1 means no task is being time-edited
     let showHelp = $state(false); // Help Layer State
     
     // We need to instantiate the manager
@@ -169,6 +170,28 @@
             setTimeout(() => containerEl?.focus(), 50);
         }
     }
+    
+    function startEditStartTime(index: number) {
+        editingStartTimeIndex = index;
+    }
+
+    async function finishEditStartTime(id: string, newTime: string) {
+        const index = tasks.findIndex(t => t.id === id);
+        if (index === -1) return;
+        
+        try {
+            if (newTime.trim().length > 0) {
+                const cmd = new SetStartTimeCommand(controller, index, newTime);
+                await historyManager.executeCommand(cmd);
+                update();
+            }
+        } catch (e) {
+            new (window as any).Notice(`Invalid time: ${newTime}`);
+        } finally {
+            editingStartTimeIndex = -1;
+            setTimeout(() => containerEl?.focus(), 50);
+        }
+    }
 
     function selectOnFocus(node: HTMLInputElement) {
         node.focus();
@@ -220,7 +243,7 @@
         }
 
         // --- EDITING BLOCKING LOGIC ---
-        if (editingIndex !== -1) {
+        if (editingIndex !== -1 || editingStartTimeIndex !== -1) {
             // While editing, we only care about Escape/Enter handled by the input itself
             // but we block global navigation keys
             return;
@@ -245,6 +268,10 @@
         switch (action) {
               case 'RENAME':
                 startRename(focusedIndex);
+                break;
+                
+              case 'EDIT_START_TIME':
+                startEditStartTime(focusedIndex);
                 break;
                 
              case 'FORCE_OPEN':
@@ -402,7 +429,21 @@
                 onclick={() => { focusedIndex = i; }}
             >
                 <div class="time-col">
-                    {formatDateRelative(task.startTime, internalNow)}
+                    {#if editingStartTimeIndex === i}
+                        <input 
+                            type="text" 
+                            class="todo-flow-time-input"
+                            value={task.startTime.format('HH:mm')}
+                            onkeydown={(e) => {
+                                if (e.key === 'Enter') finishEditStartTime(task.id, e.currentTarget.value);
+                                if (e.key === 'Escape') editingStartTimeIndex = -1;
+                            }}
+                            onblur={(e) => finishEditStartTime(task.id, e.currentTarget.value)}
+                            use:selectOnFocus
+                        />
+                    {:else}
+                        {formatDateRelative(task.startTime, internalNow)}
+                    {/if}
                 </div>
                 <div class="content-col">
                     {#if editingIndex === i}
@@ -533,6 +574,17 @@
         font-size: 1rem;
         font-weight: 500;
         padding: 2px 4px;
+        border-radius: 4px;
+    }
+
+    .todo-flow-time-input {
+        width: 60px;
+        background: var(--background-modifier-form-field);
+        border: 1px solid var(--background-modifier-border);
+        color: var(--text-normal);
+        font-family: var(--font-monospace);
+        font-size: 0.9rem;
+        padding: 0 2px;
         border-radius: 4px;
     }
 </style>

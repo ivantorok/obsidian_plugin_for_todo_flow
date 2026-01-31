@@ -68,6 +68,7 @@
                 <div class="row"><span class="key">{formatBinding(keys.toggleDone[0])}</span> <span>Toggle Done</span></div>
                 <div class="row"><span class="key">{formatBinding(keys.createTask[0])}</span> <span>Create Task</span></div>
                 <div class="row"><span class="key">{formatBinding(keys.rename[0])}</span> <span>Rename Task</span></div>
+                <div class="row"><span class="key">{formatBinding(keys.editStartTime[0])}</span> <span>Set Start Time</span></div>
                 <div class="row"><span class="key">{formatBinding(keys.deleteTask[0])}</span> <span>Delete Task</span></div>
                 <div class="row"><span class="key">{formatBinding(keys.export[0])}</span> <span>Export to Note</span></div>
             </div>
