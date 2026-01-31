@@ -70,7 +70,7 @@ export function parseTitleFromFilename(basename: string): string {
 import { type TaskNode } from './scheduler.js';
 import { MetadataCache } from 'obsidian';
 
-export function serializeStackToMarkdown(tasks: TaskNode[]): string {
+export function serializeStackToMarkdown(tasks: TaskNode[], options?: { wrapped?: boolean }): string {
     const dateStr = moment().format('YYYY-MM-DD');
     let content = `## Daily Stack - ${dateStr}\n\n`;
 
@@ -81,6 +81,10 @@ export function serializeStackToMarkdown(tasks: TaskNode[]): string {
         const link = `[[${task.id}|${task.title}]]`;
         content += `- [ ] ${timeStr} ${link} (${task.duration}m)\n`;
     });
+
+    if (options?.wrapped) {
+        return `<!-- TODO_FLOW_STACK_START -->\n${content}<!-- TODO_FLOW_STACK_END -->`;
+    }
 
     return content;
 }

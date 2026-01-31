@@ -3,7 +3,7 @@ import { DumpView, VIEW_TYPE_DUMP } from './views/DumpView.js';
 import { TriageView, VIEW_TYPE_TRIAGE } from './views/TriageView.js';
 import { StackView, VIEW_TYPE_STACK } from './views/StackView.js';
 import { type TaskNode } from './scheduler.js';
-import { parseTitleFromFilename, updateMetadataField, generateFilename } from './persistence.js';
+import { parseTitleFromFilename, updateMetadataField, generateFilename, serializeStackToMarkdown } from './persistence.js';
 import { GraphBuilder } from './GraphBuilder.js';
 import moment from 'moment';
 import { HistoryManager } from './history.js';
@@ -312,6 +312,41 @@ export default class TodoFlowPlugin extends Plugin {
                     // @ts-ignore
                     this.app.commands.executeCommandById('app:open-settings');
                 }
+            }
+        });
+
+        this.addCommand({
+            id: 'insert-stack-at-cursor',
+            name: 'Insert Current Stack at Cursor',
+            editorCallback: async (editor: any, view: any) => {
+                this.logger.info('[Command] Executing insert-stack-at-cursor');
+
+                // 1. Find the StackView
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK);
+                if (leaves.length === 0) {
+                    new (window as any).Notice('Open the Task Stack view first.');
+                    return;
+                }
+
+                // Use the first one
+                const leaf = leaves[0];
+                if (!leaf) return;
+                const stackView = leaf.view as StackView;
+
+                // 2. Get Tasks
+                // We can access this.tasks from StackView directly as it is public
+                const tasks = stackView.tasks;
+                if (!tasks || tasks.length === 0) {
+                    new (window as any).Notice('Stack is empty or not loaded.');
+                    return;
+                }
+
+                // 3. Generate Markdown (Wrapped with comments for future "Update" support)
+                const content = serializeStackToMarkdown(tasks, { wrapped: true });
+
+                // 4. Insert at cursor
+                editor.replaceSelection(content);
+                new (window as any).Notice('Stack inserted!');
             }
         });
     }
