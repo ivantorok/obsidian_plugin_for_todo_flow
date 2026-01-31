@@ -260,7 +260,7 @@
         const now = Date.now();
         if (isDoubleTap(lastTapTime, now)) {
             // Double Tap -> Anchor
-            await historyManager.executeCommand(new ToggleAnchorCommand(controller, task.id));
+            await historyManager.executeCommand(new ToggleAnchorCommand(controller, index));
             if (logger) logger.info(`[StackView] Double-tap Anchor: ${task.title}`);
             update();
             lastTapTime = 0; // Reset
