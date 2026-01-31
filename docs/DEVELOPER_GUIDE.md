@@ -268,6 +268,35 @@ For new developers joining the project:
 
 ---
 
+## Mobile Development & Gestures
+
+To maintain a native feel on Obsidian Mobile:
+
+### 1. Gesture Isolation
+Obsidian Mobile uses edge-swipes for sidebars. To prevent conflicts:
+- Use `touch-action: none` on components that handle their own swipes.
+- Call `e.stopPropagation()` in `touchstart` and `touchmove` handlers to prevent Obsidian from seeing the events.
+
+### 2. Touch vs Keyboard Parity
+Always provide a touch alternative for keyboard shortcuts:
+- **Swipe Right**: Affirmative actions (Confirm, Complete).
+- **Swipe Left**: Negative/Dismissive actions (Skip, Archive).
+- **Long Press**: Context Menus (use Obsidian's native `Menu` class).
+- **Double Tap**: State toggles (Anchor, Favorite).
+
+### 3. TDD for Gestures
+Extract threshold math into testable functions.
+```typescript
+// persistence.ts or logic helper
+export function resolveSwipe(deltaX: number, threshold: number) {
+    if (deltaX > threshold) return 'right';
+    if (deltaX < -threshold) return 'left';
+    return 'none';
+}
+```
+
+---
+
 ## Tips & Best Practices
 
 1. **Always run tests before deploying**: `./ship.sh` enforces this
