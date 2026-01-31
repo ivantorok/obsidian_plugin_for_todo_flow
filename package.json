@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && mv main.css styles.css && npm run copy",
-    "copy": "mkdir -p ~/DemoVault/.obsidian/plugins/todo-flow && cp main.js styles.css manifest.json ~/DemoVault/.obsidian/plugins/todo-flow/",
+    "copy": "export TARGET_VAULT=${VAULT_PATH:-~/DemoVault}; mkdir -p \"$TARGET_VAULT/.obsidian/plugins/todo-flow\" && cp main.js styles.css manifest.json \"$TARGET_VAULT/.obsidian/plugins/todo-flow/\"",
+    "copy-to": "mkdir -p \"$VAULT/.obsidian/plugins/todo-flow\" && cp main.js styles.css manifest.json \"$VAULT/.obsidian/plugins/todo-flow/\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "ship": "./ship.sh",

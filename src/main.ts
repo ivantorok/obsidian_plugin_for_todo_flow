@@ -294,6 +294,25 @@ export default class TodoFlowPlugin extends Plugin {
                 }).open();
             }
         });
+
+        this.addCommand({
+            id: 'open-settings',
+            name: 'Open Settings',
+            callback: () => {
+                this.logger.info('[Command] Executing open-settings');
+                // @ts-ignore - setting is a private property in Obsidian API but widely used/available
+                if (this.app.setting && this.app.setting.openTabById) {
+                    // @ts-ignore
+                    this.app.setting.open();
+                    // @ts-ignore
+                    this.app.setting.openTabById('todo-flow');
+                } else {
+                    // Fallback to generic settings if the specific API is not found (though it should be)
+                    // @ts-ignore
+                    this.app.commands.executeCommandById('app:open-settings');
+                }
+            }
+        });
     }
 
     async activateView(viewType: string, props?: any) {

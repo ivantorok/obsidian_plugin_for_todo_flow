@@ -7,6 +7,12 @@
 # Automated deployment (recommended)
 ./ship.sh "commit message"
 
+# Deploy to a specific vault
+VAULT="/Users/i525277/DemoVault" npm run copy-to
+
+# Build and restart Obsidian with a specific vault
+./reset_and_launch.sh /Users/i525277/DemoVault
+
 # Manual steps
 npm run build
 npm run copy
@@ -27,19 +33,42 @@ npm test src/__tests__/logger.test.ts
 npm test -- --watch
 ```
 
+---
+
+## Cross-Platform Setup
+
+To maintain a consistent development experience across Mac (Darwin) and Linux (Lubuntu):
+
+### 1. Configure Local Environment
+Create a `.env` file in the project root (it's ignored by Git):
+```bash
+cp .env.example .env
+```
+
+Edit `.env` to set your local vault path:
+```bash
+VAULT_PATH="/Users/i525277/DemoVault" # Mac example
+# VAULT_PATH="/home/ivan/Documents/Vault" # Linux example
+```
+
+### 2. OS-Aware Scripts
+- `npm run copy`: Automatically uses `$VAULT_PATH` from your `.env`.
+- `./reset_and_launch.sh`: Detects your OS and uses the correct command to launch Obsidian with your configured vault.
+
 ### Debugging
 ```bash
 # Enable developer mode in Obsidian
 # Command Palette → "Todo Flow: Toggle Developer Mode"
 
-# View logs
-cat /Users/i525277/obsidian_test/testing_20260125081145/todo-flow.log
+# View logs (replace <VAULT_PATH> with your vault location)
+cat <VAULT_PATH>/todo-flow.log
 
 # Clear logs
 # Command Palette → "Todo Flow: Clear Log File"
-
+```bash
 # Or manually
-rm /Users/i525277/obsidian_test/testing_20260125081145/todo-flow.log
+rm <VAULT_PATH>/todo-flow.log
+```
 ```
 
 ---
@@ -146,7 +175,7 @@ Located at: `/Users/i525277/github/obsidian_plugin_for_todo_flow/ship.sh`
 **What gets deployed:**
 - `main.js` - Compiled plugin code
 - `manifest.json` - Plugin metadata
-- Destination: `/Users/i525277/obsidian_test/testing_20260125081145/.obsidian/plugins/todo-flow/`
+- Destination: `.obsidian/plugins/todo-flow/` in your target vault.
 
 ### 4. Common Issues & Solutions
 
@@ -196,7 +225,7 @@ Build Output:
 └── manifest.json               # Plugin metadata
 
 Test Vault:
-└── /Users/i525277/obsidian_test/testing_20260125081145/
+└── <VAULT_PATH>/
     ├── .obsidian/plugins/todo-flow/  # Deployed plugin
     └── todo-flow.log                  # Debug logs
 ```
