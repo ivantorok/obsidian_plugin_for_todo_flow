@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: TodoFlowSettings = {
     timingMode: 'now',
     fixedStartTime: '09:00',
     keys: DEFAULT_KEYBINDINGS,
-    debug: true,
+    debug: false,
     lastTray: null
 }
 
@@ -50,7 +50,8 @@ export default class TodoFlowPlugin extends Plugin {
         this.logger = new FileLogger(this.app, this.settings.debug);
         this.viewManager = new ViewManager(this.app, this.logger);
 
-        await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build 2026-01-29-0940)`);
+        const buildId = typeof process !== 'undefined' ? (process.env as any).BUILD_ID : 'unknown';
+        await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build ${buildId})`);
         console.log('[Todo Flow] Logger initialized');
 
         this.addSettingTab(new TodoFlowSettingTab(this.app, this));
@@ -431,6 +432,8 @@ export default class TodoFlowPlugin extends Plugin {
                 this.settings.keys = Object.assign({}, DEFAULT_KEYBINDINGS);
                 console.log('[Todo Flow] Migrated settings to final corrected "dfjk" + Duration layout.');
             }
+
+            console.log('[Todo Flow] Final resolved keys:', this.settings.keys);
         }
     }
 
@@ -600,6 +603,7 @@ class TodoFlowSettingTab extends PluginSettingTab {
         this.addKeySetting(containerEl, 'createTask', 'Create Task');
         this.addKeySetting(containerEl, 'quickAdd', 'Quick Add to Stack');
         this.addKeySetting(containerEl, 'rename', 'Rename Task');
+        this.addKeySetting(containerEl, 'editStartTime', 'Set Start Time');
         this.addKeySetting(containerEl, 'deleteTask', 'Delete Task');
         this.addKeySetting(containerEl, 'export', 'Export to Note');
 

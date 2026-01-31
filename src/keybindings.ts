@@ -81,9 +81,6 @@ export class KeybindingManager {
             if (Array.isArray(combos) && combos.some(combo => this.matchesBinding(combo, e))) {
                 const action = this.mapToActions(settingKey);
                 if (action) {
-                    if (this.settings.debug) {
-                        console.debug(`[TODO_FLOW_TRACE] Key matched: ${e.key} (code: ${e.code}) -> ${action}`);
-                    }
                     return action;
                 }
             }
@@ -124,22 +121,30 @@ export class KeybindingManager {
         const requiredKey = parts[parts.length - 1]!;
         const requiredModifiers = parts.slice(0, -1);
 
+        let match = false;
+
         // 1. Check Key Match
         const isSingleLetter = requiredKey.length === 1 && requiredKey.toLowerCase() !== requiredKey.toUpperCase();
 
         if (isSingleLetter) {
             if (requiredModifiers.length === 0) {
                 // Strict char match for "j" vs "J"
-                if (e.key !== requiredKey) return false;
-                if (e.ctrlKey || e.altKey || e.metaKey) return false;
-                return true;
+                if (e.key === requiredKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                    match = true;
+                }
             } else {
                 // "Shift+f" -> e.key='F'
-                if (e.key.toLowerCase() !== requiredKey.toLowerCase()) return false;
+                if (e.key.toLowerCase() === requiredKey.toLowerCase()) {
+                    match = true;
+                }
             }
         } else {
-            if (requiredKey !== e.key && requiredKey !== e.code) return false;
+            if (requiredKey === e.key || requiredKey === e.code) {
+                match = true;
+            }
         }
+
+        if (!match) return false;
 
         // 2. Check Modifiers
         const hasShift = requiredModifiers.includes('Shift');
@@ -147,24 +152,24 @@ export class KeybindingManager {
         const hasAlt = requiredModifiers.includes('Alt');
         const hasMeta = requiredModifiers.includes('Meta');
 
+        let modifiersMatch = (!!e.ctrlKey === hasCtrl) && (!!e.altKey === hasAlt) && (!!e.metaKey === hasMeta);
+
         if (!!e.shiftKey !== hasShift) {
             // Exception: If the key itself implies shift (e.g. '?' or '!') and matches exactly, allow it.
-            // e.g. binding '?' (no Shift), e.key '?' (Shift true).
-            // Fix: Use length === 1 to include symbols like '?', but exclude control keys like 'Enter'.
             if (requiredKey.length === 1 && e.key === requiredKey && !hasShift && e.shiftKey) {
                 // Allow
             } else {
-                return false;
+                modifiersMatch = false;
             }
         }
-        if (!!e.ctrlKey !== hasCtrl) return false;
-        if (!!e.altKey !== hasAlt) return false;
-        if (!!e.metaKey !== hasMeta) return false;
 
-        if (this.settings.debug && e.key === 'h') {
-            console.log(`[TODO_FLOW_TRACE] matchesBinding check for 'h': binding=${binding}, key=${e.key}, shift=${e.shiftKey}, ctrl=${e.ctrlKey}, alt=${e.altKey}, meta=${e.metaKey}`);
+        if (match && modifiersMatch) {
+            if (this.settings.debug) {
+                console.debug(`[TODO_FLOW_TRACE] MATCHED binding=${binding} for key=${e.key} (code=${e.code})`);
+            }
+            return true;
         }
 
-        return true;
+        return false;
     }
 }

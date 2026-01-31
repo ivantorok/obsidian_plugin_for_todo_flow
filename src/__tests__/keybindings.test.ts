@@ -23,6 +23,7 @@ describe('Keybinding Manager', () => {
         rename: ['e'],
         archive: ['z', 'Z'],
         quickAdd: ['o'],
+        editStartTime: ['s'],
         toggleHelp: ['?']
     };
 

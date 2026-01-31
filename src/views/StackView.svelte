@@ -199,19 +199,29 @@
     }
 
     export async function handleKeyDown(e: KeyboardEvent) {
-        if (debug) console.debug('[TODO_FLOW_TRACE] handleKeyDown entry:', e.key);
+        if (logger && internalSettings.debug) logger.info(`[TODO_FLOW_TRACE] handleKeyDown entry: key="${e.key}", shift=${e.shiftKey}, target=${(e.target as HTMLElement).tagName}, active=${document.activeElement?.tagName}`);
+        
         // Robust Interference Check:
         const target = e.target as HTMLElement;
         const active = document.activeElement as HTMLElement;
 
         // 1. If target is an input/textarea
-        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+            if (logger) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: IGNORED (target is input)`);
+            return;
+        }
         
         // 2. If target is contenteditable (Obsidian Editor)
-        if (target.isContentEditable) return;
+        if (target.isContentEditable) {
+            if (logger) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: IGNORED (target is contentEditable)`);
+            return;
+        }
 
         // 3. Fallback: If active element is contenteditable (sometimes target isn't reliable in bubble)
-        if (active && active.isContentEditable) return;
+        if (active && active.isContentEditable) {
+            if (logger) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: IGNORED (active is contentEditable)`);
+            return;
+        }
 
         // Prevent default scrolling for arrows to avoid moving the page wrapper if Obsidian has one
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
@@ -219,9 +229,8 @@
         }
 
         const action = keyManager.resolveAction(e);
-        console.log(`[Diagnostic] Key: "${e.key}" (code: ${e.code}), Shift: ${e.shiftKey} -> Resolved Action: ${action}`);
+        if (logger && internalSettings.debug) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: resolved action="${action}"`);
         
-        if (debug) console.log(`[TODO_FLOW_TRACE] resolveAction: ${action} for key: ${e.key}`);
         if (!action) return;
 
         // --- HELP LAYER BLOCKING LOGIC ---
