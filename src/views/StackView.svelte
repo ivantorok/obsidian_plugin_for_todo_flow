@@ -200,40 +200,39 @@
         }
     }
 
-    // Touch Handlers
-    function handleTouchStart(e: TouchEvent, taskId: string) {
-        touchStartX = e.touches[0].clientX;
+    // Gesture Handlers
+    function handlePointerStart(e: PointerEvent, taskId: string) {
+        // e.stopPropagation(); 
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        touchStartX = e.clientX;
         touchCurrentX = touchStartX;
         swipingTaskId = taskId;
     }
 
-    function handleTouchMove(e: TouchEvent) {
+    function handlePointerMove(e: PointerEvent) {
         if (!swipingTaskId) return;
-        touchCurrentX = e.touches[0].clientX;
+        touchCurrentX = e.clientX;
         
         const deltaX = Math.abs(touchCurrentX - touchStartX);
 
-        // If swiping horizontally significantly, prevent scrolling
         if (deltaX > 20) {
-            e.preventDefault();
             e.stopPropagation();
         }
     }
 
-    async function handleTouchEnd(e: TouchEvent, task: TaskNode) {
+    async function handlePointerEnd(e: PointerEvent, task: TaskNode) {
         if (!swipingTaskId) return;
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
 
         const deltaX = touchCurrentX - touchStartX;
         const action = resolveSwipe(deltaX);
 
         if (action === 'right') {
-            // Complete
             await historyManager.executeCommand(new ToggleStatusCommand(controller, task.id));
-            if (window.NOTICE) new (window as any).Notice('Task Completed');
+            if ((window as any).Notice) new (window as any).Notice('Task Completed');
         } else if (action === 'left') {
-            // Archive
             await historyManager.executeCommand(new ArchiveCommand(controller, task.id));
-            if (window.NOTICE) new (window as any).Notice('Task Archived');
+            if ((window as any).Notice) new (window as any).Notice('Task Archived');
         }
 
         swipingTaskId = null;
@@ -241,7 +240,7 @@
         touchCurrentX = 0;
     }
 
-    async function handleTap(e: MouseEvent | TouchEvent, task: TaskNode, index: number) {
+    async function handleTap(e: MouseEvent | PointerEvent, task: TaskNode, index: number) {
         const now = Date.now();
         if (isDoubleTap(lastTapTime, now)) {
             // Double Tap -> Anchor
@@ -505,9 +504,9 @@
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === 'done'}
                 onclick={(e) => handleTap(e, task, i)}
-                ontouchstart={(e) => handleTouchStart(e, task.id)}
-                ontouchmove={handleTouchMove}
-                ontouchend={(e) => handleTouchEnd(e, task)}
+                onpointerdown={(e) => handlePointerStart(e, task.id)}
+                onpointermove={handlePointerMove}
+                onpointerup={(e) => handlePointerEnd(e, task)}
                 style:transform={getCardTransform(task.id)}
             >
                 <div class="time-col">

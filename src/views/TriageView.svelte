@@ -50,26 +50,28 @@
         }, 200);
     }
 
-    function handleTouchStart(e: TouchEvent) {
-        e.stopPropagation(); // Prevent Obsidian from picking this up
-        touchStartX = e.touches[0].clientX;
+    function handlePointerStart(e: PointerEvent) {
+        e.stopPropagation();
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        touchStartX = e.clientX;
         touchCurrentX = touchStartX;
         isSwiping = true;
     }
 
-    function handleTouchMove(e: TouchEvent) {
+    function handlePointerMove(e: PointerEvent) {
         if (!isSwiping) return;
         e.stopPropagation();
-        touchCurrentX = e.touches[0].clientX;
+        touchCurrentX = e.clientX;
         
-        // Prevent scrolling while swiping
+        // Prevent default browser behavior if swiping
         if (Math.abs(touchCurrentX - touchStartX) > 10) {
-            e.preventDefault();
+            // e.preventDefault(); // Pointer move doesn't usually need preventDefault for scrolling if touch-action is none
         }
     }
 
-    function handleTouchEnd() {
+    function handlePointerEnd(e: PointerEvent) {
         if (!isSwiping) return;
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
         
         const deltaX = touchCurrentX - touchStartX;
         if (deltaX > SWIPE_THRESHOLD) {
@@ -173,9 +175,9 @@
         <div 
             class="triage-card-wrapper {swipeDirection}"
             transition:slide
-            ontouchstart={handleTouchStart}
-            ontouchmove={handleTouchMove}
-            ontouchend={handleTouchEnd}
+            onpointerdown={handlePointerStart}
+            onpointermove={handlePointerMove}
+            onpointerup={handlePointerEnd}
             style:transform={cardTransform()}
         >
             <Card title={currentTask.title} variant="triage">
