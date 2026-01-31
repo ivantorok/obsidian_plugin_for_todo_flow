@@ -341,8 +341,8 @@ export default class TodoFlowPlugin extends Plugin {
                     return;
                 }
 
-                // 3. Generate Markdown (Wrapped with comments for future "Update" support)
-                const content = serializeStackToMarkdown(tasks, { wrapped: true });
+                // 3. Generate Markdown
+                const content = serializeStackToMarkdown(tasks);
 
                 // 4. Insert at cursor
                 editor.replaceSelection(content);

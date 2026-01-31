@@ -20,13 +20,7 @@ describe('Insert Stack at Cursor (TDD)', () => {
         const content = serializeStackToMarkdown(mockTasks);
         expect(content).toContain('## Daily Stack');
         expect(content).toContain('- [ ] 09:00 [[task-1|Test Task]] (30m)');
-    });
-
-    it('should support wrapped serialization with comments', () => {
-        const content = serializeStackToMarkdown(mockTasks, { wrapped: true });
-        expect(content).toContain('<!-- TODO_FLOW_STACK_START -->');
-        expect(content).toContain('<!-- TODO_FLOW_STACK_END -->');
-        expect(content).toContain('- [ ] 09:00 [[task-1|Test Task]] (30m)');
+        expect(content).not.toContain('<!-- TODO_FLOW_STACK_START -->');
     });
 
     it('should fail if no leaves are available (mocking main.ts logic)', async () => {
