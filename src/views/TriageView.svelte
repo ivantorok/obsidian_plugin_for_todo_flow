@@ -85,6 +85,14 @@
         touchCurrentX = 0;
     }
 
+    function handleTouchBlocking(e: TouchEvent) {
+        // High-level blocking for Obsidian's gesture engine
+        e.stopPropagation();
+        if (isSwiping && Math.abs(touchCurrentX - touchStartX) > 10) {
+            if (e.cancelable) e.preventDefault();
+        }
+    }
+
     const cardTransform = $derived(() => {
         if (!isSwiping) return '';
         const deltaX = touchCurrentX - touchStartX;
@@ -178,7 +186,10 @@
             onpointerdown={handlePointerStart}
             onpointermove={handlePointerMove}
             onpointerup={handlePointerEnd}
+            ontouchstart={handleTouchBlocking}
+            ontouchmove={handleTouchBlocking}
             style:transform={cardTransform()}
+            style:touch-action="none"
         >
             <Card title={currentTask.title} variant="triage">
                 <div class="todo-flow-triage-hint">

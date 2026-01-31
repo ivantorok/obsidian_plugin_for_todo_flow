@@ -242,6 +242,15 @@
         touchCurrentX = 0;
     }
 
+    function handleTouchBlocking(e: TouchEvent) {
+        // High-level blocking for Obsidian's gesture engine
+        e.stopPropagation();
+        if (swipingTaskId && Math.abs(touchCurrentX - touchStartX) > 10) {
+            // Only prevent default if we are swiping horizontally enough
+            if (e.cancelable) e.preventDefault();
+        }
+    }
+
     async function handleTap(e: MouseEvent | PointerEvent, task: TaskNode, index: number) {
         const now = Date.now();
         if (isDoubleTap(lastTapTime, now)) {
@@ -510,7 +519,10 @@
                 onpointerdown={(e) => handlePointerStart(e, task.id)}
                 onpointermove={handlePointerMove}
                 onpointerup={(e) => handlePointerEnd(e, task)}
+                ontouchstart={handleTouchBlocking}
+                ontouchmove={handleTouchBlocking}
                 style:transform={getCardTransform(task.id)}
+                style:touch-action="pan-y"
             >
                 <div class="time-col">
                     {#if editingStartTimeIndex === i}
