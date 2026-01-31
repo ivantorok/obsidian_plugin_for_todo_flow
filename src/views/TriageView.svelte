@@ -51,6 +51,7 @@
     }
 
     function handleTouchStart(e: TouchEvent) {
+        e.stopPropagation(); // Prevent Obsidian from picking this up
         touchStartX = e.touches[0].clientX;
         touchCurrentX = touchStartX;
         isSwiping = true;
@@ -58,6 +59,7 @@
 
     function handleTouchMove(e: TouchEvent) {
         if (!isSwiping) return;
+        e.stopPropagation();
         touchCurrentX = e.touches[0].clientX;
         
         // Prevent scrolling while swiping
@@ -210,6 +212,7 @@
         padding: 2rem;
         background: var(--background-primary);
         gap: 2rem;
+        touch-action: none; /* Disable default browser/Obsidian gestures here */
     }
 
     .triage-card-wrapper {
