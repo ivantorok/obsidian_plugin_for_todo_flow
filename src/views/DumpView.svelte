@@ -42,16 +42,18 @@
 </script>
 
 <div class="todo-flow-dump-container">
-    <Card title="Dump your thoughts" variant="dump">
-        <textarea
-            bind:this={inputEl}
-            bind:value={thought}
-            on:keydown={handleKeyDown}
-            placeholder="Type and press Enter..."
-            class="todo-flow-dump-input"
-        ></textarea>
-        <p class="todo-flow-dump-hint">Type <strong>done</strong> and press Enter to start triage.</p>
-    </Card>
+    <div class="todo-flow-dump-card-wrapper">
+        <Card title="Dump your thoughts" variant="dump">
+            <textarea
+                bind:this={inputEl}
+                bind:value={thought}
+                on:keydown={handleKeyDown}
+                placeholder="Type and press Enter..."
+                class="todo-flow-dump-input"
+            ></textarea>
+            <p class="todo-flow-dump-hint">Type <strong>done</strong> and press Enter to start triage.</p>
+        </Card>
+    </div>
 </div>
 
 <style>
@@ -59,14 +61,21 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        height: 100%;
         width: 100%;
-        overflow-y: auto;
+        min-height: 100%;
         background: var(--background-primary);
-        padding: 2rem;
-        /* Stable centering: fixed 15% from top to prevent keyboard jumping */
-        padding-top: calc(var(--safe-area-inset-top, 0px) + 15vh);
+        padding: 1.5rem;
+        /* Stable buffer for mobile status bars */
+        padding-top: calc(var(--safe-area-inset-top, 0px) + 2rem);
+        padding-bottom: 3rem; /* Extra buffer for keyboard */
         box-sizing: border-box;
+        overflow-y: auto;
+    }
+
+    .todo-flow-dump-card-wrapper {
+        margin: auto; /* Vertically and horizontally stretches to center card while space allows */
+        width: 100%;
+        max-width: 600px;
     }
 
     .todo-flow-dump-hint {
@@ -79,8 +88,7 @@
 
     .todo-flow-dump-input {
         width: 100%;
-        /* Minimal height that grows a bit if needed, but keeps layout centered */
-        min-height: 150px; 
+        min-height: 200px; 
         font-size: 1.5rem;
         border: none;
         outline: none;
