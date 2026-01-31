@@ -1,4 +1,4 @@
-import { Plugin, PluginSettingTab, App, Setting, WorkspaceLeaf, TFolder, TFile } from 'obsidian';
+import { Plugin, PluginSettingTab, App, Setting, WorkspaceLeaf, TFolder, TFile, Platform } from 'obsidian';
 import { DumpView, VIEW_TYPE_DUMP } from './views/DumpView.js';
 import { TriageView, VIEW_TYPE_TRIAGE } from './views/TriageView.js';
 import { StackView, VIEW_TYPE_STACK } from './views/StackView.js';
@@ -9,6 +9,7 @@ import moment from 'moment';
 import { HistoryManager } from './history.js';
 import { SyncService } from './services/SyncService.js';
 import { ReprocessTaskCommand } from './commands/ReprocessTaskCommand.js';
+import { ShakeDetector } from './utils/ShakeDetector.js';
 
 import { DEFAULT_KEYBINDINGS, type KeybindingSettings } from './keybindings.js';
 import { formatKeys, parseKeys } from './utils/settings-utils.js';
@@ -20,6 +21,7 @@ export interface TodoFlowSettings {
     fixedStartTime: string;
     keys: KeybindingSettings;
     debug: boolean;
+    enableShake: boolean;
     lastTray?: string[] | null;
 }
 
@@ -30,6 +32,7 @@ const DEFAULT_SETTINGS: TodoFlowSettings = {
     fixedStartTime: '09:00',
     keys: DEFAULT_KEYBINDINGS,
     debug: false,
+    enableShake: false,
     lastTray: null
 }
 
@@ -42,6 +45,7 @@ export default class TodoFlowPlugin extends Plugin {
     historyManager!: HistoryManager;
     logger!: FileLogger;
     viewManager!: ViewManager;
+    shakeDetector?: ShakeDetector;
 
     async onload() {
         console.log('[Todo Flow] Plugin Loading...');
@@ -349,6 +353,22 @@ export default class TodoFlowPlugin extends Plugin {
                 new (window as any).Notice('Stack inserted!');
             }
         });
+
+        if (this.settings.enableShake) {
+            this.initShakeDetector();
+        }
+    }
+
+    private initShakeDetector() {
+        if (this.shakeDetector) {
+            this.shakeDetector.stop();
+        }
+        this.shakeDetector = new ShakeDetector(() => {
+            this.logger.info('[Shake] Shake detected! Triggering undo.');
+            this.historyManager.undo();
+            new (window as any).Notice('Undo (Shake)');
+        });
+        this.shakeDetector.start();
     }
 
     async activateView(viewType: string, props?: any) {
@@ -625,6 +645,45 @@ class TodoFlowSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.plugin.refreshStackView();
                 }));
+
+        if (Platform.isMobile) {
+            containerEl.createEl('h3', { text: 'Mobile Interactions' });
+
+            new Setting(containerEl)
+                .setName('Shake to Undo')
+                .setDesc('Shake your device to undo the last action')
+                .addToggle(toggle => toggle
+                    .setValue(this.plugin.settings.enableShake)
+                    .onChange(async (value) => {
+                        this.plugin.settings.enableShake = value;
+                        await this.plugin.saveSettings();
+                        if (value) {
+                            // @ts-ignore
+                            this.plugin.initShakeDetector();
+                        } else if (this.plugin.shakeDetector) {
+                            this.plugin.shakeDetector.stop();
+                        }
+                        this.display(); // Refresh to show/hide permission button
+                    }));
+
+            if (this.plugin.settings.enableShake) {
+                new Setting(containerEl)
+                    .setName('Motion Permission')
+                    .setDesc('iOS 13+ requires explicit permission to access motion data')
+                    .addButton(button => button
+                        .setButtonText('Request Permission')
+                        .onClick(async () => {
+                            const granted = await ShakeDetector.requestPermission();
+                            if (granted) {
+                                new (window as any).Notice('Motion permission granted!');
+                                // @ts-ignore
+                                this.plugin.initShakeDetector();
+                            } else {
+                                new (window as any).Notice('Permission denied or failed.');
+                            }
+                        }));
+            }
+        }
 
         containerEl.createEl('h3', { text: 'Navigation' });
         this.addKeySetting(containerEl, 'navUp', 'Move Focus Up');
