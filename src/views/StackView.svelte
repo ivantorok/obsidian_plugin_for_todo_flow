@@ -230,9 +230,11 @@
         if (action === 'right') {
             await historyManager.executeCommand(new ToggleStatusCommand(controller, task.id));
             if ((window as any).Notice) new (window as any).Notice('Task Completed');
+            update();
         } else if (action === 'left') {
             await historyManager.executeCommand(new ArchiveCommand(controller, task.id));
             if ((window as any).Notice) new (window as any).Notice('Task Archived');
+            update();
         }
 
         swipingTaskId = null;
@@ -246,6 +248,7 @@
             // Double Tap -> Anchor
             await historyManager.executeCommand(new ToggleAnchorCommand(controller, task.id));
             if (logger) logger.info(`[StackView] Double-tap Anchor: ${task.title}`);
+            update();
             lastTapTime = 0; // Reset
         } else {
             // Single Tap -> Focus
