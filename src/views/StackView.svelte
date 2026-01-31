@@ -6,11 +6,22 @@
     import moment from 'moment';
     import { KeybindingManager, type KeybindingSettings } from '../keybindings';
     import { type HistoryManager } from '../history.js';
-    import { MoveTaskCommand, ToggleAnchorCommand, ScaleDurationCommand, ToggleStatusCommand, AddTaskCommand, DeleteTaskCommand, ArchiveCommand, RenameTaskCommand, SetStartTimeCommand } from '../commands/stack-commands.js';
+    import {
+        MoveTaskCommand,
+        ToggleAnchorCommand,
+        ScaleDurationCommand,
+        ToggleStatusCommand,
+        AddTaskCommand,
+        DeleteTaskCommand,
+        RenameTaskCommand,
+        SetStartTimeCommand,
+        ArchiveCommand,
+        ReorderToIndexCommand,
+        AdjustDurationCommand
+    } from '../commands/stack-commands.js';
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
     import { resolveSwipe, isDoubleTap } from '../gestures.js';
-
     let { 
         initialTasks, 
         settings, 
@@ -74,9 +85,18 @@
 
     // Touch State (Per task logic usually handled via closures/loops in Svelte)
     let touchStartX = $state(0);
+    let touchStartY = $state(0);
     let touchCurrentX = $state(0);
+    let touchCurrentY = $state(0);
     let lastTapTime = $state(0);
     let swipingTaskId = $state<string | null>(null);
+    let draggingTaskId = $state<string | null>(null);
+    let draggingStartIndex = $state(-1);
+    let dragTargetIndex = $state(-1);
+    let dragOffsetY = $state(0);
+    let startedOnHandle = false;
+    let dragLogged = false;
+    let lastDragEndTime = 0;
 
     onMount(() => {
         if (debug) console.log('[TODO_FLOW_TRACE] onMount entry');
@@ -202,43 +222,115 @@
 
     // Gesture Handlers
     function handlePointerStart(e: PointerEvent, taskId: string) {
-        e.stopPropagation(); // Prevent Obsidian from picking this up
+        // Trace logging
+        if (logger && internalSettings.debug) {
+            logger.info(`[GESTURE] handlePointerStart taskId=${taskId}, target=${(e.target as HTMLElement).className}`);
+        }
+
+        e.stopPropagation(); // Avoid Obsidian's default click-and-drag behaviors
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        
         touchStartX = e.clientX;
+        touchStartY = e.clientY;
         touchCurrentX = touchStartX;
+        touchCurrentY = touchStartY;
         swipingTaskId = taskId;
+        
+        // Detect if we started on the handle for immediate reorder intent
+        const target = e.target as HTMLElement;
+        startedOnHandle = target.closest('.drag-handle') !== null;
+        dragLogged = false;
+
+        // Reset dragging state
+        draggingTaskId = null;
+        draggingStartIndex = -1;
+        dragTargetIndex = -1;
     }
 
     function handlePointerMove(e: PointerEvent) {
-        if (!swipingTaskId) return;
-        touchCurrentX = e.clientX;
+        if (!swipingTaskId && !draggingTaskId) return;
         
-        const deltaX = Math.abs(touchCurrentX - touchStartX);
+        touchCurrentX = e.clientX;
+        touchCurrentY = e.clientY;
+        
+        const dx = Math.abs(touchCurrentX - touchStartX);
+        const dy = Math.abs(touchCurrentY - touchStartY);
 
-        if (deltaX > 20) {
+        // 1. INTENT LOCKING: Deciding between Swipe vs Drag
+        if (!draggingTaskId && (dy > 3 || dx > 3 || startedOnHandle)) {
+            // If we started on the handle, or we moved significantly vertically, or just moved at all vertically
+            if (startedOnHandle || dy > dx) {
+                // LOCK INTO DRAG MODE
+                const index = tasks.findIndex(t => t.id === swipingTaskId);
+                if (index !== -1 && !tasks[index]!.isAnchored) {
+                    draggingTaskId = swipingTaskId;
+                    draggingStartIndex = index;
+                    dragTargetIndex = index;
+                    swipingTaskId = null;
+                    if (logger && internalSettings.debug && !dragLogged) {
+                        logger.info(`[GESTURE] Intent locked: DRAG (taskId: ${draggingTaskId})`);
+                        dragLogged = true;
+                    }
+                }
+            } else if (dx > 20) {
+                // Stay in swipe mode
+                e.stopPropagation();
+            }
+        }
+
+        // 2. REORDER LOGIC (Dragging)
+        if (draggingTaskId) {
+            e.preventDefault(); // Stop scrolling while dragging
             e.stopPropagation();
+            
+            const y = e.clientY;
+            let bestTarget = -1;
+            let minDistance = Infinity;
+            
+            for (let i = 0; i < taskElements.length; i++) {
+                const el = taskElements[i];
+                if (!el) continue;
+                const rect = el.getBoundingClientRect();
+                const centerY = rect.top + rect.height / 2;
+                const dist = Math.abs(y - centerY);
+                
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    bestTarget = i;
+                }
+            }
+            
+            if (bestTarget !== -1 && bestTarget !== dragTargetIndex) {
+                dragTargetIndex = bestTarget;
+            }
         }
     }
 
     async function handlePointerEnd(e: PointerEvent, task: TaskNode) {
-        if (!swipingTaskId) return;
+        if (!swipingTaskId && !draggingTaskId) return;
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
 
+        if (draggingTaskId) {
+            if (dragTargetIndex !== -1 && dragTargetIndex !== draggingStartIndex) {
+                await historyManager.executeCommand(new ReorderToIndexCommand(controller, draggingStartIndex, dragTargetIndex));
+                update();
+            }
+            lastDragEndTime = Date.now();
+            draggingTaskId = null;
+            draggingStartIndex = -1;
+            dragTargetIndex = -1;
+            return;
+        }
+
         const deltaX = touchCurrentX - touchStartX;
-        const action = resolveSwipe(deltaX);
+        const swipe = resolveSwipe(deltaX);
         const index = tasks.findIndex(t => t.id === task.id);
 
         if (index !== -1) {
-            if (action === 'right') {
-                await historyManager.executeCommand(new ToggleStatusCommand(controller, index));
-                if ((window as any).Notice) new (window as any).Notice(`Task: ${task.title} toggled`);
-                update();
-            } else if (action === 'left') {
-                await historyManager.executeCommand(new ArchiveCommand(controller, index, async (t) => {
-                    await onTaskUpdate(t);
-                }));
-                if ((window as any).Notice) new (window as any).Notice(`Archived: ${task.title}`);
-                update();
+            if (swipe === 'right') {
+                await executeGestureAction(settings.swipeRightAction, task, index);
+            } else if (swipe === 'left') {
+                await executeGestureAction(settings.swipeLeftAction, task, index);
             }
         }
 
@@ -246,6 +338,27 @@
         touchStartX = 0;
         touchCurrentX = 0;
     }
+
+    async function executeGestureAction(action: string, task: TaskNode, index: number) {
+        if (!action || action === 'none') return;
+
+        if (action === 'complete') {
+            await historyManager.executeCommand(new ToggleStatusCommand(controller, index));
+            if ((window as any).Notice) new (window as any).Notice(`Task: ${task.title} toggled`);
+            update();
+        } else if (action === 'archive') {
+            await historyManager.executeCommand(new ArchiveCommand(controller, index, async (t) => {
+                await onTaskUpdate(t);
+            }));
+            if ((window as any).Notice) new (window as any).Notice(`Archived: ${task.title}`);
+            update();
+        } else if (action === 'anchor') {
+            await historyManager.executeCommand(new ToggleAnchorCommand(controller, index));
+            if ((window as any).Notice) new (window as any).Notice(`${task.isAnchored ? 'Released' : 'Anchored'}: ${task.title}`);
+            update();
+        }
+    }
+
 
     function handleTouchBlocking(e: TouchEvent) {
         // High-level blocking for Obsidian's gesture engine
@@ -256,26 +369,59 @@
         }
     }
 
-    async function handleTap(e: MouseEvent | PointerEvent, task: TaskNode, index: number) {
+    async function handleTap(e: MouseEvent, task: TaskNode, index: number) {
+        // Prevent click events if we just finished a drag
         const now = Date.now();
-        if (isDoubleTap(lastTapTime, now)) {
-            // Double Tap -> Anchor
-            await historyManager.executeCommand(new ToggleAnchorCommand(controller, index));
-            if (logger) logger.info(`[StackView] Double-tap Anchor: ${task.title}`);
-            update();
-            lastTapTime = 0; // Reset
+        if (now - lastDragEndTime < 300) {
+            if (logger && internalSettings.debug) logger.info(`[GESTURE] handleTap BLOCKED by recent drag (${now - lastDragEndTime}ms)`);
+            return;
+        }
+        
+        const delta = now - lastTapTime;
+        lastTapTime = now; // Update lastTapTime for the next tap
+
+        if (delta < 300) { // Assuming 300ms is the double-tap threshold
+            // Double Tap
+            if (debug) console.log('[GESTURE] Double Tap Detected');
+            await executeGestureAction(settings.doubleTapAction, task, index);
+            lastTapTime = 0; // Reset lastTapTime after a double tap
+            return;
+        }
+
+        // Single Tap logic
+        if (focusedIndex === index) {
+            // If tapping on an already focused item, treat it as a 'CONFIRM' action
+            const navResult = controller.handleEnter(index);
+            if (navResult) {
+                if (navResult.action === 'DRILL_DOWN') {
+                    if (task && onNavigate) {
+                        onNavigate(task.id, index);
+                    }
+                } else if (navResult.action === 'OPEN_FILE' && navResult.path) {
+                    if (onNavigate) {
+                        onNavigate(navResult.path, index);
+                    } else {
+                        onOpenFile(navResult.path);
+                    }
+                }
+            }
         } else {
-            // Single Tap -> Focus
+            // If tapping on a new item, just focus it
             focusedIndex = index;
-            lastTapTime = now;
         }
     }
 
     function getCardTransform(taskId: string) {
-        if (swipingTaskId !== taskId) return '';
-        const deltaX = touchCurrentX - touchStartX;
-        const rotation = deltaX / 20;
-        return `translateX(${deltaX}px) rotate(${rotation}deg)`;
+        if (swipingTaskId === taskId) {
+            const deltaX = touchCurrentX - touchStartX;
+            const rotation = deltaX / 20;
+            return `translateX(${deltaX}px) rotate(${rotation}deg)`;
+        }
+        if (draggingTaskId === taskId) {
+            const deltaY = touchCurrentY - touchStartY;
+            return `translateY(${deltaY}px) scale(1.02) rotate(1deg)`;
+        }
+        return '';
     }
 
     function selectOnFocus(node: HTMLInputElement) {
@@ -520,6 +666,9 @@
                 class:focused={focusedIndex === i}
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === 'done'}
+                class:dragging={draggingTaskId === task.id}
+                class:drop-before={dragTargetIndex === i && i <= draggingStartIndex}
+                class:drop-after={dragTargetIndex === i && i > draggingStartIndex}
                 onclick={(e) => handleTap(e, task, i)}
                 onpointerdown={(e) => handlePointerStart(e, task.id)}
                 onpointermove={handlePointerMove}
@@ -527,8 +676,12 @@
                 ontouchstart={handleTouchBlocking}
                 ontouchmove={handleTouchBlocking}
                 style:transform={getCardTransform(task.id)}
-                style:touch-action="pan-y"
+                style:touch-action={draggingTaskId === task.id ? 'none' : 'pan-y'}
             >
+                <div 
+                    class="drag-handle" 
+                    title="Drag to reorder"
+                >⠿</div>
                 <div class="time-col">
                     {#if editingStartTimeIndex === i}
                         <input 
@@ -563,7 +716,17 @@
                         <div class="title">{task.title}</div>
                     {/if}
                     <div class="duration">
-                        {formatDuration(task.duration)}
+                        <button 
+                            class="duration-btn minus" 
+                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, -15)); update(); }}
+                            title="Decrease Duration (-15m)"
+                        >−</button>
+                        <span class="duration-text">{formatDuration(task.duration)}</span>
+                        <button 
+                            class="duration-btn plus" 
+                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, 15)); update(); }}
+                            title="Increase Duration (+15m)"
+                        >+</button>
                         {#if getMinDuration(task) > 0}
                             <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
                         {/if}
@@ -609,6 +772,9 @@
     }
 
     .todo-flow-task-card {
+        user-select: none;
+        -webkit-user-select: none;
+        position: relative;
         display: flex;
         padding: 1rem;
         background: var(--background-secondary);
@@ -630,6 +796,44 @@
         background: var(--background-secondary-alt);
     }
 
+    .todo-flow-task-card.dragging {
+        opacity: 0.7;
+        transform: scale(1.02);
+        border: 2px solid var(--interactive-accent);
+        background: var(--background-primary-alt);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 1000;
+        cursor: grabbing;
+    }
+
+    .todo-flow-task-card.drop-before {
+        border-top: 3px solid var(--interactive-accent);
+    }
+
+    .todo-flow-task-card.drop-after {
+        border-bottom: 3px solid var(--interactive-accent);
+    }
+
+    .drag-handle {
+        cursor: grab;
+        color: var(--text-muted);
+        padding: 0 0.5rem;
+        opacity: 0.5;
+        font-size: 1.2rem;
+        user-select: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .drag-handle:hover {
+        opacity: 1;
+        color: var(--interactive-accent);
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
     .time-col {
         font-family: var(--font-monospace);
         font-size: 0.9rem;
@@ -649,6 +853,35 @@
     .duration {
         font-size: 0.8rem;
         color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.2rem;
+    }
+
+    .duration-btn {
+        background: var(--background-modifier-border);
+        border: none;
+        border-radius: 4px;
+        color: var(--text-normal);
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+        padding: 0;
+        transition: background 0.1s;
+    }
+
+    .duration-btn:hover {
+        background: var(--background-modifier-border-hover);
+    }
+    
+    .duration-text {
+        font-family: var(--font-monospace);
     }
 
     .anchor-badge {

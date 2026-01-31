@@ -243,7 +243,6 @@ export class StackController {
         if (!this.tasks[index]) return index;
         const taskToMove = this.tasks[index]!;
         const task = { ...taskToMove };
-        const minOfSubtasks = getMinDuration(task);
         const currentOwn = task.originalDuration ?? task.duration;
 
         let seqIndex = DURATION_SEQUENCE.findIndex(d => d >= currentOwn);
@@ -269,6 +268,50 @@ export class StackController {
             return newIndex;
         }
         return index;
+    }
+
+    adjustDuration(index: number, deltaMinutes: number): number {
+        if (!this.tasks[index]) return index;
+        const taskToMove = this.tasks[index]!;
+        const task = { ...taskToMove };
+
+        const currentDuration = task.originalDuration ?? task.duration;
+        task.originalDuration = Math.max(5, currentDuration + deltaMinutes);
+        task.duration = task.originalDuration; // Reset to original before schedule logic
+
+        const newTasks = [...this.tasks];
+        newTasks[index] = task;
+        this.tasks = computeSchedule(newTasks, this.currentTime);
+
+        const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+        if (newIndex !== -1) {
+            this.onTaskUpdate?.(this.tasks[newIndex]!);
+            return newIndex;
+        }
+        return index;
+    }
+
+    moveTaskToIndex(oldIndex: number, newIndex: number): number {
+        if (oldIndex === newIndex) return oldIndex;
+        if (!this.tasks[oldIndex]) return oldIndex;
+        if (this.tasks[oldIndex]?.isAnchored) return oldIndex;
+
+        const taskToMove = this.tasks[oldIndex]!;
+        const newTasks = [...this.tasks];
+
+        // Remove from old
+        newTasks.splice(oldIndex, 1);
+
+        // Adjust newIndex if it was after oldIndex
+        let target = newIndex;
+
+        // Ensure we don't land ON an anchor if possible, or just insert
+        // The scheduler will re-sort if needed, but for manual reordering 
+        // we want to respect the user's intended position in the unanchored sequence.
+        newTasks.splice(target, 0, taskToMove);
+
+        this.tasks = computeSchedule(newTasks, this.currentTime);
+        return this.tasks.findIndex(t => t.id === taskToMove.id);
     }
 
     handleEnter(index: number, forceOpen: boolean = false): { action: 'DRILL_DOWN' | 'OPEN_FILE' | 'GO_BACK'; path?: string; newStack?: TaskNode[] } | null {

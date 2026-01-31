@@ -109,6 +109,33 @@ export class ScaleDurationCommand implements Command {
 }
 
 /**
+ * Command to adjust duration by a fixed delta
+ */
+export class AdjustDurationCommand implements Command {
+    description: string;
+    private controller: StackController;
+    private index: number;
+    private delta: number;
+    public resultIndex: number | null = null;
+
+    constructor(controller: StackController, index: number, delta: number) {
+        this.controller = controller;
+        this.index = index;
+        this.delta = delta;
+        this.description = `Adjust duration by ${delta}m at index ${index}`;
+    }
+
+    execute(): void {
+        this.resultIndex = this.controller.adjustDuration(this.index, this.delta);
+    }
+
+    undo(): void {
+        if (this.resultIndex === null) return;
+        this.controller.adjustDuration(this.resultIndex, -this.delta);
+    }
+}
+
+/**
  * Command to toggle task status (todo/done)
  */
 export class ToggleStatusCommand implements Command {
@@ -255,6 +282,37 @@ export class InsertTaskCommand implements Command {
         if (this.resultIndex !== null) {
             this.controller.removeTask(this.resultIndex);
         }
+    }
+}
+
+/**
+ * Command to move a task to a specific index (Drag & Drop)
+ */
+export class ReorderToIndexCommand implements Command {
+    description: string;
+    private controller: StackController;
+    private oldIndex: number;
+    private newIndex: number;
+    private taskId: string;
+    public resultIndex: number | null = null;
+
+    constructor(controller: StackController, oldIndex: number, newIndex: number) {
+        this.controller = controller;
+        this.oldIndex = oldIndex;
+        this.newIndex = newIndex;
+        const task = controller.getTasks()[oldIndex];
+        this.taskId = task ? task.id : '';
+        this.description = `Reorder task from ${oldIndex} to ${newIndex}`;
+    }
+
+    execute(): void {
+        this.resultIndex = this.controller.moveTaskToIndex(this.oldIndex, this.newIndex);
+    }
+
+    undo(): void {
+        if (this.resultIndex === null) return;
+        // To undo, move from where it is now (resultIndex) back to where it was (oldIndex)
+        this.controller.moveTaskToIndex(this.resultIndex, this.oldIndex);
     }
 }
 

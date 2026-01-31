@@ -12,6 +12,16 @@ const mockTasks: TaskNode[] = [
     { id: 'task-2', title: 'Task 2', duration: 30, status: 'todo', isAnchored: false, children: [] }
 ];
 
+const baseSettings = {
+    keys: DEFAULT_KEYBINDINGS,
+    timingMode: 'now',
+    swipeRightAction: 'complete',
+    swipeLeftAction: 'archive',
+    doubleTapAction: 'anchor',
+    debug: false,
+    enableShake: false
+};
+
 describe('StackView Mobile Gestures Integration', () => {
     let historyManager: any;
 
@@ -37,7 +47,7 @@ describe('StackView Mobile Gestures Integration', () => {
         const { container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
-                settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
+                settings: baseSettings as any,
                 logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
                 now: moment(),
                 onOpenFile: vi.fn(),
@@ -57,7 +67,6 @@ describe('StackView Mobile Gestures Integration', () => {
         // Verify Command
         expect(historyManager.executeCommand).toHaveBeenCalledWith(expect.any(ToggleStatusCommand));
         const cmd = historyManager.executeCommand.mock.calls[0][0];
-        // Check if it has the correct index (0 for first card)
         expect(cmd.index).toBe(0);
     });
 
@@ -66,7 +75,7 @@ describe('StackView Mobile Gestures Integration', () => {
         const { container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
-                settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
+                settings: baseSettings as any,
                 logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
                 now: moment(),
                 onOpenFile: vi.fn(),
@@ -93,7 +102,7 @@ describe('StackView Mobile Gestures Integration', () => {
         const { container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
-                settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
+                settings: baseSettings as any,
                 logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
                 now: moment(),
                 onOpenFile: vi.fn(),

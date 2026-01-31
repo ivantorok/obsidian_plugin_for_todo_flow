@@ -23,6 +23,9 @@ export interface TodoFlowSettings {
     debug: boolean;
     enableShake: boolean;
     lastTray?: string[] | null;
+    swipeLeftAction: string;
+    swipeRightAction: string;
+    doubleTapAction: string;
 }
 
 const DEFAULT_SETTINGS: TodoFlowSettings = {
@@ -33,7 +36,10 @@ const DEFAULT_SETTINGS: TodoFlowSettings = {
     keys: DEFAULT_KEYBINDINGS,
     debug: false,
     enableShake: false,
-    lastTray: null
+    lastTray: null,
+    swipeLeftAction: 'archive',
+    swipeRightAction: 'complete',
+    doubleTapAction: 'anchor'
 }
 
 import { FileLogger } from './logger.js';
@@ -683,6 +689,46 @@ class TodoFlowSettingTab extends PluginSettingTab {
                             }
                         }));
             }
+
+            const gestureOptions = {
+                'archive': 'Archive',
+                'complete': 'Toggle Complete',
+                'anchor': 'Toggle Anchor',
+                'none': 'None'
+            };
+
+            new Setting(containerEl)
+                .setName('Swipe Left Action')
+                .setDesc('Action when swiping left on a task card')
+                .addDropdown(dropdown => dropdown
+                    .addOptions(gestureOptions)
+                    .setValue(this.plugin.settings.swipeLeftAction)
+                    .onChange(async (value) => {
+                        this.plugin.settings.swipeLeftAction = value;
+                        await this.plugin.saveSettings();
+                    }));
+
+            new Setting(containerEl)
+                .setName('Swipe Right Action')
+                .setDesc('Action when swiping right on a task card')
+                .addDropdown(dropdown => dropdown
+                    .addOptions(gestureOptions)
+                    .setValue(this.plugin.settings.swipeRightAction)
+                    .onChange(async (value) => {
+                        this.plugin.settings.swipeRightAction = value;
+                        await this.plugin.saveSettings();
+                    }));
+
+            new Setting(containerEl)
+                .setName('Double Tap Action')
+                .setDesc('Action when double-tapping a task card')
+                .addDropdown(dropdown => dropdown
+                    .addOptions(gestureOptions)
+                    .setValue(this.plugin.settings.doubleTapAction)
+                    .onChange(async (value) => {
+                        this.plugin.settings.doubleTapAction = value;
+                        await this.plugin.saveSettings();
+                    }));
         }
 
         containerEl.createEl('h3', { text: 'Navigation' });
@@ -726,5 +772,4 @@ class TodoFlowSettingTab extends PluginSettingTab {
                     this.plugin.refreshStackView();
                 }));
     }
-
 }
