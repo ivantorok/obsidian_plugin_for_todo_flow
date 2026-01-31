@@ -202,7 +202,7 @@
 
     // Gesture Handlers
     function handlePointerStart(e: PointerEvent, taskId: string) {
-        // e.stopPropagation(); 
+        e.stopPropagation(); // Prevent Obsidian from picking this up
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         touchStartX = e.clientX;
         touchCurrentX = touchStartX;
@@ -570,6 +570,7 @@
         background: var(--background-primary);
         height: 100%;
         overflow-y: auto;
+        touch-action: pan-y; /* Allow vertical scrolling, but we manage horizontal ourselves */
     }
 
     .todo-flow-stack-header {

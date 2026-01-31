@@ -274,8 +274,9 @@ To maintain a native feel on Obsidian Mobile:
 
 ### 1. Gesture Isolation
 Obsidian Mobile uses edge-swipes for sidebars. To prevent conflicts:
-- Use `touch-action: none` on components that handle their own swipes.
-- Call `e.stopPropagation()` in `touchstart` and `touchmove` handlers to prevent Obsidian from seeing the events.
+- Use `touch-action: none` (for Triage-style full control) or `touch-action: pan-y` (for Stack-style lists where vertical scroll is still needed).
+- Call `e.stopPropagation()` in `pointerdown` (or `touchstart`) and `pointermove` handlers.
+- **Critical**: Use Pointer Events (`onpointerdown`) instead of Touch Events (`ontouchstart`) to ensure compatibility with mouse testing.
 
 ### 2. Touch vs Keyboard Parity
 Always provide a touch alternative for keyboard shortcuts:
