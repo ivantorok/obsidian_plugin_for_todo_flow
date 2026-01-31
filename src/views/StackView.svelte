@@ -9,6 +9,7 @@
     import { MoveTaskCommand, ToggleAnchorCommand, ScaleDurationCommand, ToggleStatusCommand, AddTaskCommand, DeleteTaskCommand, ArchiveCommand, RenameTaskCommand, SetStartTimeCommand } from '../commands/stack-commands.js';
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
+    import { resolveSwipe, isDoubleTap } from '../gestures.js';
 
     let { 
         initialTasks, 
@@ -70,6 +71,12 @@
 
     let containerEl: HTMLElement;
     let taskElements: HTMLElement[] = $state([]);
+
+    // Touch State (Per task logic usually handled via closures/loops in Svelte)
+    let touchStartX = $state(0);
+    let touchCurrentX = $state(0);
+    let lastTapTime = $state(0);
+    let swipingTaskId = $state<string | null>(null);
 
     onMount(() => {
         if (debug) console.log('[TODO_FLOW_TRACE] onMount entry');
@@ -191,6 +198,68 @@
             editingStartTimeIndex = -1;
             setTimeout(() => containerEl?.focus(), 50);
         }
+    }
+
+    // Touch Handlers
+    function handleTouchStart(e: TouchEvent, taskId: string) {
+        touchStartX = e.touches[0].clientX;
+        touchCurrentX = touchStartX;
+        swipingTaskId = taskId;
+    }
+
+    function handleTouchMove(e: TouchEvent) {
+        if (!swipingTaskId) return;
+        touchCurrentX = e.touches[0].clientX;
+        
+        const deltaX = Math.abs(touchCurrentX - touchStartX);
+
+        // If swiping horizontally significantly, prevent scrolling
+        if (deltaX > 20) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }
+
+    async function handleTouchEnd(e: TouchEvent, task: TaskNode) {
+        if (!swipingTaskId) return;
+
+        const deltaX = touchCurrentX - touchStartX;
+        const action = resolveSwipe(deltaX);
+
+        if (action === 'right') {
+            // Complete
+            await historyManager.executeCommand(new ToggleStatusCommand(controller, task.id));
+            if (window.NOTICE) new (window as any).Notice('Task Completed');
+        } else if (action === 'left') {
+            // Archive
+            await historyManager.executeCommand(new ArchiveCommand(controller, task.id));
+            if (window.NOTICE) new (window as any).Notice('Task Archived');
+        }
+
+        swipingTaskId = null;
+        touchStartX = 0;
+        touchCurrentX = 0;
+    }
+
+    async function handleTap(e: MouseEvent | TouchEvent, task: TaskNode, index: number) {
+        const now = Date.now();
+        if (isDoubleTap(lastTapTime, now)) {
+            // Double Tap -> Anchor
+            await historyManager.executeCommand(new ToggleAnchorCommand(controller, task.id));
+            if (logger) logger.info(`[StackView] Double-tap Anchor: ${task.title}`);
+            lastTapTime = 0; // Reset
+        } else {
+            // Single Tap -> Focus
+            focusedIndex = index;
+            lastTapTime = now;
+        }
+    }
+
+    function getCardTransform(taskId: string) {
+        if (swipingTaskId !== taskId) return '';
+        const deltaX = touchCurrentX - touchStartX;
+        const rotation = deltaX / 20;
+        return `translateX(${deltaX}px) rotate(${rotation}deg)`;
     }
 
     function selectOnFocus(node: HTMLInputElement) {
@@ -435,7 +504,11 @@
                 class:focused={focusedIndex === i}
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === 'done'}
-                onclick={() => { focusedIndex = i; }}
+                onclick={(e) => handleTap(e, task, i)}
+                ontouchstart={(e) => handleTouchStart(e, task.id)}
+                ontouchmove={handleTouchMove}
+                ontouchend={(e) => handleTouchEnd(e, task)}
+                style:transform={getCardTransform(task.id)}
             >
                 <div class="time-col">
                     {#if editingStartTimeIndex === i}
