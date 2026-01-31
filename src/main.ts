@@ -105,7 +105,7 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.addCommand({
             id: 'open-todo-dump',
-            name: 'XXX_DUMP',
+            name: 'Open Todo Dump',
             callback: () => {
                 this.logger.info('[Command] Executing open-todo-dump');
                 this.activateView(VIEW_TYPE_DUMP);
@@ -114,7 +114,7 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.addCommand({
             id: 'start-triage',
-            name: 'XXX_TRIAGE',
+            name: 'Start Triage',
             callback: async () => {
                 const { TaskQueryService } = await import('./services/TaskQueryService.js');
                 const queryService = new TaskQueryService(this.app, this.logger);
