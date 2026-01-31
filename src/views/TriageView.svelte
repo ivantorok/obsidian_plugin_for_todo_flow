@@ -19,6 +19,12 @@
     let showHelp = $state(false);
     let keyManager: KeybindingManager;
 
+    // Swipe state
+    let touchStartX = $state(0);
+    let touchCurrentX = $state(0);
+    let isSwiping = $state(false);
+    const SWIPE_THRESHOLD = 100;
+
     onMount(() => {
         controller = new TriageController(app, tasks);
         currentTask = controller.getCurrentTask();
@@ -43,6 +49,44 @@
             }
         }, 200);
     }
+
+    function handleTouchStart(e: TouchEvent) {
+        touchStartX = e.touches[0].clientX;
+        touchCurrentX = touchStartX;
+        isSwiping = true;
+    }
+
+    function handleTouchMove(e: TouchEvent) {
+        if (!isSwiping) return;
+        touchCurrentX = e.touches[0].clientX;
+        
+        // Prevent scrolling while swiping
+        if (Math.abs(touchCurrentX - touchStartX) > 10) {
+            e.preventDefault();
+        }
+    }
+
+    function handleTouchEnd() {
+        if (!isSwiping) return;
+        
+        const deltaX = touchCurrentX - touchStartX;
+        if (deltaX > SWIPE_THRESHOLD) {
+            next('right');
+        } else if (deltaX < -SWIPE_THRESHOLD) {
+            next('left');
+        }
+        
+        isSwiping = false;
+        touchStartX = 0;
+        touchCurrentX = 0;
+    }
+
+    const cardTransform = $derived(() => {
+        if (!isSwiping) return '';
+        const deltaX = touchCurrentX - touchStartX;
+        const rotation = deltaX / 20; // Subtle rotation
+        return `translateX(${deltaX}px) rotate(${rotation}deg)`;
+    });
 
     export function addTaskToQueue(task: TaskNode) {
         if (logger) logger.info(`[TriageView.svelte] addTaskToQueue called with: ${task.title}`);
@@ -127,6 +171,10 @@
         <div 
             class="triage-card-wrapper {swipeDirection}"
             transition:slide
+            ontouchstart={handleTouchStart}
+            ontouchmove={handleTouchMove}
+            ontouchend={handleTouchEnd}
+            style:transform={cardTransform()}
         >
             <Card title={currentTask.title} variant="triage">
                 <div class="todo-flow-triage-hint">
