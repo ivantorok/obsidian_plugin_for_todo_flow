@@ -41,7 +41,8 @@ npm run e2e:setup        # Setup test vault only
 cat .test-vault-launch.log
 ```
 
-For detailed E2E testing documentation, see [E2E_TESTING.md](./E2E_TESTING.md).
+For detailed E2E testing documentation, including **troubleshooting git hooks and large file issues**, see [E2E_TESTING.md](./E2E_TESTING.md).
+See especially the [Lessons Learned & Gotchas](./E2E_TESTING.md#lessons-learned--gotchas) section if you encounter push rejections.
 
 ---
 

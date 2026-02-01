@@ -115,4 +115,34 @@ This setup is ready for GitHub Actions.
   run: npm run e2e
   env:
     CI: true
+
+---
+
+## 🎓 Lessons Learned & Gotchas
+
+### 1. Git Hooks & WDIO
+The `husky` pre-push hook can conflict with WebdriverIO if parameters are passed incorrectly.
+*   **Issue**: `npm run e2e` in a hook might receive git references as arguments, causing WDIO to think they are test files (e.g., `Error: spec file(s) refs/heads/main not found`).
+*   **Fix**: Ensure your hook script ignores arguments or use `npm run e2e --` to isolate flags.
+*   **Workaround**: Use `git push --no-verify` if you are certain tests pass and the hook is misbehaving.
+
+### 2. Large Binary Files (.obsidian-cache)
+WebdriverIO (via `wdio-obsidian-service`) downloads a full Electron/Obsidian binary to `.obsidian-cache`.
+*   **Critical**: This directory **MUST** be in `.gitignore`. The binary is ~300MB+ and will be rejected by GitHub (File size limit: 100MB).
+*   **Fix**: Add `.obsidian-cache/` to `.gitignore` and ensure it's removed from the git index (`git rm -r --cached .obsidian-cache`).
+
+### 3. Test Runner Separation
+We use **Vitest** for unit tests and **WebdriverIO** for E2E.
+*   **Conflict**: If Vitest is configured to run all files in `tests/`, it might try to execute WDIO specs, causing "ReferenceError: browser is not defined".
+*   **Fix**: Explicitly exclude E2E directories in `vitest.config.ts`:
+    ```typescript
+    exclude: ['**/node_modules/**', 'tests/e2e/**']
+    ```
+
+### 4. Manual Testing Magic
+The `npm run e2e:open` command is NOT just a shortcut for `obsidian .test-vault`.
+*   It uses WebdriverIO to launch the app.
+*   **Why?**: This is the **only reliable way** to programmatically bypass the "Trust this vault" prompt on macOS/Linux without manual clicks.
+*   It runs a special spec (`manual-open.spec.ts`) that simply hangs open for an hour.
+
 ```
