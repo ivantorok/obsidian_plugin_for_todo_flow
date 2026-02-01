@@ -121,10 +121,15 @@ This setup is ready for GitHub Actions.
 ## 🎓 Lessons Learned & Gotchas
 
 ### 1. Git Hooks & WDIO
-The `husky` pre-push hook can conflict with WebdriverIO if parameters are passed incorrectly.
-*   **Issue**: `npm run e2e` in a hook might receive git references as arguments, causing WDIO to think they are test files (e.g., `Error: spec file(s) refs/heads/main not found`).
-*   **Fix**: Ensure your hook script ignores arguments or use `npm run e2e --` to isolate flags.
-*   **Workaround**: Use `git push --no-verify` if you are certain tests pass and the hook is misbehaving.
+The `husky` pre-push hook can conflict with WebdriverIO if parameters or stdin are passed incorrectly.
+*   **Issue 1 (Arguments)**: Git passes branch references as positional arguments, causing WDIO to think they are test files (e.g., `Error: spec file(s) refs/heads/main not found`).
+*   **Issue 2 (Stdin)**: Git pipes commit information into the hook's stdin. The WebdriverIO CLI reads stdin and attempts to parse it as file names.
+*   **Fix**: Isolate the test execution by clearing arguments and redirecting stdin.
+    ```bash
+    # Inside .husky/pre-push
+    set --               # Clear $1, $2...
+    npm run e2e < /dev/null
+    ```
 
 ### 2. Large Binary Files (.obsidian-cache)
 WebdriverIO (via `wdio-obsidian-service`) downloads a full Electron/Obsidian binary to `.obsidian-cache`.

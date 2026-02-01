@@ -32,11 +32,11 @@ npm test src/__tests__/logger.test.ts
 # Watch mode (auto-rerun on changes)
 npm test -- --watch
 
-# E2E Tests (Playwright)
-npm run e2e              # Automated E2E tests with Playwright
+# E2E Tests (WebdriverIO)
+npm run e2e              # Automated E2E tests with WebdriverIO
 npm run e2e:open         # Manual verification in isolated environment
 npm run e2e:setup        # Setup test vault only
-npm run e2e -- --spec tests/e2e/functional.spec.ts # Run specific E2E spec
+npm run e2e -- --spec tests/e2e/journey_a.spec.ts # Run specific E2E spec
 
 # View E2E logs
 cat .test-vault-launch.log
@@ -331,5 +331,5 @@ export function resolveSwipe(deltaX: number, threshold: number) {
 
 ---
 
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-02-01
 **Maintained By:** Development Team
