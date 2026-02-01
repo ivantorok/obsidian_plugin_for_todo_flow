@@ -29,11 +29,12 @@ export class SmartImportService {
     /**
      * Extracts links from sourcePath and appends them to CurrentStack.md if not already present.
      */
-    async importLinksToDailyStack(sourcePath: string): Promise<number> {
+    async importLinksToDailyStack(sourcePath: string, targetFolder: string = 'todo-flow'): Promise<number> {
         const links = this.getOutboundLinks(sourcePath);
         if (links.length === 0) return 0;
 
-        const dailyFile = 'CurrentStack.md';
+        const dailyFile = `${targetFolder}/CurrentStack.md`;
+        if (this.logger) this.logger.info(`[SmartImportService] Daily stack path: ${dailyFile}`);
         const existingIds = await this.persistence.loadStackIds(dailyFile);
 
         const mergedIds = [...existingIds];

@@ -286,7 +286,7 @@ export default class TodoFlowPlugin extends Plugin {
                 }
 
                 const service = new SmartImportService(this.app, this.logger);
-                const count = await service.importLinksToDailyStack(activeFile.path);
+                const count = await service.importLinksToDailyStack(activeFile.path, this.settings.targetFolder);
 
                 if (count > 0) {
                     new Notice(`Added ${count} tasks to daily stack.`);

@@ -1,30 +1,48 @@
 import { browser, expect, $, $$ } from '@wdio/globals';
+import fs from 'fs';
+import path from 'path';
 
 describe('Journey E: Smart Imports', () => {
     beforeEach(async function () {
         // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
+
+        // Enable debug logging
+        await browser.execute(() => {
+            // @ts-ignore
+            const plugin = app.plugins.plugins['todo-flow'];
+            if (plugin) {
+                plugin.settings.debug = true;
+                plugin.saveSettings();
+            }
+        });
     });
 
     async function createNote(path: string, content: string) {
         // @ts-ignore
         await browser.execute(async (p: string, c: string) => {
             // @ts-ignore
-            if (!app.vault.getAbstractFileByPath(p)) {
+            const file = app.vault.getAbstractFileByPath(p);
+            if (file) {
+                // @ts-ignore
+                await app.vault.modify(file, c);
+            } else {
                 // @ts-ignore
                 await app.vault.create(p, c);
             }
         }, path, content);
+        // @ts-ignore
+        await browser.pause(500);
     }
 
-    async function openFile(path: string) {
+    async function openFile(filename: string) {
         // @ts-ignore
         await browser.execute((p: string) => {
             // @ts-ignore
             app.workspace.openLinkText(p, '', false);
-        }, path);
+        }, filename);
         // @ts-ignore
-        await browser.pause(500);
+        await browser.pause(1000);
     }
 
     it('should bulk import linked files and avoid duplicates', async () => {
@@ -82,6 +100,7 @@ describe('Journey E: Smart Imports', () => {
                 // @ts-ignore
                 return view.getTasks().map(t => t.title);
             });
+            console.log(`[Test] Current tasks in stack: ${JSON.stringify(currentTasks)}`);
             return currentTasks.includes('Linked A') && currentTasks.includes('Linked B');
         }, { timeout: 10000, timeoutMsg: 'Tasks did not appear in stack after import' });
 

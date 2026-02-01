@@ -19,6 +19,15 @@ export class StackPersistenceService {
 
         const file = this.app.vault.getAbstractFileByPath(filePath);
 
+        // Ensure directory exists
+        const lastSlash = filePath.lastIndexOf('/');
+        if (lastSlash !== -1) {
+            const folderPath = filePath.substring(0, lastSlash);
+            if (!await this.app.vault.adapter.exists(folderPath)) {
+                await this.app.vault.adapter.mkdir(folderPath);
+            }
+        }
+
         // Relaxed check for TFile to support mocks
         if (file && (file instanceof TFile || (file as any).extension === 'md')) {
             await this.app.vault.modify(file as TFile, content);
