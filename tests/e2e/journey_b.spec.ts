@@ -248,4 +248,84 @@ describe('Journey B: Stack Mechanics', () => {
 
         console.log('[Test] ✅ Task completion toggle works correctly');
     });
+
+    it.skip('should rename task with e key', async () => {
+        await setupStackWithTasks(['Original Name']);
+
+        // Get initial title
+        let title = await browser.execute(() => {
+            // @ts-ignore
+            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
+            return view.getTasks()[0].title;
+        });
+        expect(title).toBe('Original Name');
+
+        // Press e to start rename
+        await browser.keys(['e']);
+        await browser.pause(500);
+
+        // Find the input field and change the name
+        const input = await $('.todo-flow-title-input');
+        await input.waitForDisplayed({ timeout: 2000 });
+        await input.setValue('Renamed Task');
+        await browser.keys(['Enter']);
+        await browser.pause(500);
+
+        // Verify the title changed
+        title = await browser.execute(() => {
+            // @ts-ignore
+            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
+            return view.getTasks()[0].title;
+        });
+        expect(title).toBe('Renamed Task');
+
+        console.log('[Test] ✅ Rename works correctly');
+    });
+
+    it('should archive task with z key', async () => {
+        await setupStackWithTasks(['Archive Me']);
+
+        // Verify task exists
+        let taskCount = await browser.execute(() => {
+            // @ts-ignore
+            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
+            return view.getTasks().length;
+        });
+        expect(taskCount).toBe(1);
+
+        // Archive with z
+        await browser.keys(['z']);
+        await browser.pause(500);
+
+        // Verify task is gone
+        taskCount = await browser.execute(() => {
+            // @ts-ignore
+            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
+            return view.getTasks().length;
+        });
+        expect(taskCount).toBe(0);
+
+        console.log('[Test] ✅ Archive works correctly');
+    });
+
+    it('should export stack with Shift+E', async () => {
+        await setupStackWithTasks(['Export Task 1', 'Export Task 2']);
+
+        // Trigger export with Shift+E
+        await browser.keys(['E']); // Capital E = Shift+E
+        await browser.pause(1000);
+
+        // Verify clipboard contains markdown (check via execute)
+        const clipboardContent = await browser.execute(async () => {
+            // @ts-ignore
+            return await navigator.clipboard.readText();
+        });
+
+        // Verify it contains our tasks
+        expect(clipboardContent).toContain('Export Task 1');
+        expect(clipboardContent).toContain('Export Task 2');
+
+        console.log('[Test] ✅ Export works correctly');
+        console.log('[Test] Clipboard:', clipboardContent.substring(0, 100));
+    });
 });
