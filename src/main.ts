@@ -292,7 +292,7 @@ export default class TodoFlowPlugin extends Plugin {
                 const content = exportService.formatExport(tasks);
 
                 await navigator.clipboard.writeText(content);
-                new Notice('Exported completed tasks copied to clipboard!');
+                new (window as any).Notice('Stack exported and copied to clipboard!');
 
                 // Optional: Save to file if exportFolder is configured
                 if (this.settings.exportFolder) {

@@ -369,7 +369,7 @@ export class StackView extends ItemView {
                     const content = exportService.formatExport(tasks);
 
                     await navigator.clipboard.writeText(content);
-                    new (window as any).Notice('Exported completed tasks copied to clipboard!');
+                    new (window as any).Notice('Stack exported and copied to clipboard!');
 
                     if (this.settings.exportFolder) {
                         try {

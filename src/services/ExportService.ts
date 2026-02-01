@@ -6,18 +6,16 @@ export class ExportService {
      * Only includes completed (done) tasks.
      */
     formatExport(tasks: TaskNode[]): string {
-        const completedTasks = tasks.filter(t => t.status === 'done');
-
-        if (completedTasks.length === 0) {
-            return "No completed tasks to export.\n";
+        if (tasks.length === 0) {
+            return "No tasks to export.\n";
         }
 
-        let output = `## Exported Tasks - ${new Date().toLocaleDateString()}\n\n`;
+        let output = "";
 
-        for (const task of completedTasks) {
+        for (const task of tasks) {
+            const checkbox = task.status === 'done' ? '[x]' : '[ ]';
             const timeStr = task.startTime ? task.startTime.format('HH:mm') : '--:--';
-            const durationStr = task.duration ? `${task.duration}m` : '0m';
-            output += `- [x] ${timeStr} [[${task.id}|${task.title}]] (${durationStr})\n`;
+            output += `- ${checkbox} ${timeStr} [[${task.id}|${task.title}]]\n`;
         }
 
         return output;
