@@ -2,14 +2,18 @@ import { browser, expect, $ } from '@wdio/globals';
 
 describe('Journey A: Dump & Triage', () => {
     beforeEach(async function () {
+        // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
     });
 
     it('should complete the full Dump -> Triage -> Stack flow', async () => {
         // 1. Open Dump View
+        // @ts-ignore
         await browser.execute('app.commands.executeCommandById("todo-flow:open-todo-dump")');
 
+        // @ts-ignore
         await browser.waitUntil(async () => {
+            // @ts-ignore
             return await browser.execute(() => {
                 // @ts-ignore
                 return app.workspace.getLeavesOfType('todo-flow-dump-view').length > 0;
@@ -22,23 +26,32 @@ describe('Journey A: Dump & Triage', () => {
         // 2. Input Tasks
         await dumpInput.click();
         await dumpInput.setValue('Task 1');
+        // @ts-ignore
         await browser.keys(['Enter']);
+        // @ts-ignore
         await browser.pause(500);
 
         await dumpInput.setValue('Task 2');
+        // @ts-ignore
         await browser.keys(['Enter']);
+        // @ts-ignore
         await browser.pause(500);
 
         await dumpInput.setValue('Task 3');
+        // @ts-ignore
         await browser.keys(['Enter']);
+        // @ts-ignore
         await browser.pause(500);
 
         // 3. Finish Dump - triggers Triage
         await dumpInput.setValue('done');
+        // @ts-ignore
         await browser.keys(['Enter']);
 
         // 4. Verify Triage View Opens
+        // @ts-ignore
         await browser.waitUntil(async () => {
+            // @ts-ignore
             return await browser.execute(() => {
                 // @ts-ignore
                 return app.workspace.getLeavesOfType('todo-flow-triage-view').length > 0;
@@ -49,29 +62,41 @@ describe('Journey A: Dump & Triage', () => {
         await expect(triageCard).toExist();
 
         // Task 1: Keep (k or ArrowRight)
+        // @ts-ignore
         await browser.keys(['k']);
+        // @ts-ignore
         await browser.pause(500);
 
         // Task 2: Archive (j or ArrowLeft)
+        // @ts-ignore
         await browser.keys(['j']);
+        // @ts-ignore
         await browser.pause(500);
 
         // UNDO: Bring Task 2 back with 'u'
+        // @ts-ignore
         await browser.keys(['u']);
+        // @ts-ignore
         await browser.pause(500);
         console.log('[Test] ✅ Undo works - Task 2 should be back');
 
         // Task 2 again: Keep it this time
+        // @ts-ignore
         await browser.keys(['k']);
+        // @ts-ignore
         await browser.pause(500);
 
         // Task 3: Keep (k)
         // This is the LAST task - after swiping, triage should complete
+        // @ts-ignore
         await browser.keys(['k']);
+        // @ts-ignore
         await browser.pause(1000); // Extra time for completion callback
 
         // 6. Verify Stack View Opens
+        // @ts-ignore
         await browser.waitUntil(async () => {
+            // @ts-ignore
             return await browser.execute(() => {
                 // @ts-ignore
                 return app.workspace.getLeavesOfType('todo-flow-stack-view').length > 0;
@@ -82,6 +107,7 @@ describe('Journey A: Dump & Triage', () => {
         await expect(stackView).toExist();
 
         // 7. Verify Task Content
+        // @ts-ignore
         const titles = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;

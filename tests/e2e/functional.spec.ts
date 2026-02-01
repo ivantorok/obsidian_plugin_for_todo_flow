@@ -1,13 +1,15 @@
-import { browser, expect } from '@wdio/globals';
+import { browser, expect, $ } from '@wdio/globals';
 
 describe('Functional Tests: Commands & Settings', () => {
     before(async function () {
         // Ensure we are in the correct context
+        // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
     });
 
     it('should open Daily Stack view via command', async () => {
         // 1. Execute the command to open the stack
+        // @ts-ignore
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
 
         // 2. Wait for the view to appear (it might take a split second)
@@ -18,7 +20,9 @@ describe('Functional Tests: Commands & Settings', () => {
 
         // Let's use browser.execute to check the internal state of Obsidian workspace
         // This is more robust than relying on DOM classes that might change.
+        // @ts-ignore
         await browser.waitUntil(async () => {
+            // @ts-ignore
             return await browser.execute(() => {
                 // @ts-ignore
                 const leaves = app.workspace.getLeavesOfType('todo-flow-stack-view');
@@ -38,6 +42,7 @@ describe('Functional Tests: Commands & Settings', () => {
 
     it('should toggle Developer Mode setting', async () => {
         // 1. Get initial state
+        // @ts-ignore
         const initialState = await browser.execute(() => {
             // @ts-ignore
             return app.plugins.plugins['obsidian_plugin_for_todo_flow']?.settings?.debug ?? app.plugins.plugins['todo-flow']?.settings?.debug;
@@ -46,9 +51,11 @@ describe('Functional Tests: Commands & Settings', () => {
         console.log(`[Test] Initial Debug State: ${initialState}`);
 
         // 2. Execute Toggle Command
+        // @ts-ignore
         await browser.execute('app.commands.executeCommandById("todo-flow:toggle-dev-mode")');
 
         // 3. Get new state
+        // @ts-ignore
         const newState = await browser.execute(() => {
             // @ts-ignore
             return app.plugins.plugins['obsidian_plugin_for_todo_flow']?.settings?.debug ?? app.plugins.plugins['todo-flow']?.settings?.debug;

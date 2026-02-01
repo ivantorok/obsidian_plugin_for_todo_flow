@@ -304,7 +304,15 @@ export class StackView extends ItemView {
                     this.app.workspace.requestSaveLayout();
 
                     // PERSISTENCE: Debounced save to CurrentStack.md
-                    if (this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
+                    const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+                    if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
+                        // Guard: Don't save empty stack if we are just starting up or if we haven't finished loading yet.
+                        // This avoids overwriting a valid CurrentStack.md with [] before setState finishes.
+                        if (tasks.length === 0 && (!this.lastSavedIds || this.lastSavedIds.length === 0)) {
+                            if (this.settings.keys.debug) this.logger.info(`[StackView] Skipping persistence of empty initial stack.`);
+                            return;
+                        }
+
                         const currentIds = tasks.map(t => `${t.id}:${t.status}`);
                         const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
 
@@ -313,8 +321,9 @@ export class StackView extends ItemView {
                                 window.clearTimeout(this.saveTimeout);
                             }
                             this.saveTimeout = window.setTimeout(async () => {
-                                this.logger.info(`[StackView] Persisting stack changes to CurrentStack.md (Debounced)`);
-                                await this.persistenceService.saveStack(tasks, 'CurrentStack.md');
+                                const savePath = (this.rootPath && this.rootPath.includes('CurrentStack.md')) ? this.rootPath : persistencePath;
+                                this.logger.info(`[StackView] Persisting stack changes to ${savePath} (Debounced)`);
+                                await this.persistenceService.saveStack(tasks, savePath);
                                 this.lastSavedIds = currentIds;
                                 this.saveTimeout = null;
                             }, 500);

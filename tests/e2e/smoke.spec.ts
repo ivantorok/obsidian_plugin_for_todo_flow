@@ -1,8 +1,9 @@
-import { browser, expect } from '@wdio/globals';
+import { browser, expect, $ } from '@wdio/globals';
 
 describe('Smoke Test: Obsidian Plugin Loading', () => {
     before(async function () {
         console.log('[Test] Reloading Obsidian with test vault...');
+        // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
     });
 

@@ -169,6 +169,7 @@
 
 
     function startRename(index: number) {
+        if (logger) logger.info(`[StackView] startRename called for index ${index}`);
         editingIndex = index;
     }
 
@@ -539,6 +540,7 @@
 
         switch (action) {
               case 'RENAME':
+                if (logger) logger.info(`[RENAME] Action triggered via keyboard for index ${focusedIndex}`);
                 startRename(focusedIndex);
                 break;
                 
@@ -699,6 +701,7 @@
                 class:focused={focusedIndex === i}
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === 'done'}
+                class:is-missing={task.isMissing}
                 class:dragging={draggingTaskId === task.id}
                 class:drop-before={dragTargetIndex === i && i !== draggingStartIndex && i <= draggingStartIndex}
                 class:drop-after={dragTargetIndex === i && i !== draggingStartIndex && i > draggingStartIndex}
@@ -747,7 +750,7 @@
                             use:selectOnFocus
                         />
                     {:else}
-                        <div class="title">{task.title}</div>
+                        <div class="title" onclick={() => startRename(i)} title={task.isMissing ? "Note missing" : "Click to rename"} role="button" tabindex="0">{#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span> {/if}{task.title}</div>
                     {/if}
                     <div class="duration">
                         <button 
@@ -786,6 +789,15 @@
                 </div>
                 {#if task.isAnchored}
                     <div class="anchor-badge">⚓</div>
+                {/if}
+                {#if task.isMissing}
+                    <button 
+                        class="remove-orphan-btn" 
+                        onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new DeleteTaskCommand(controller, i)); update(); }}
+                        title="Remove missing task from stack"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 {/if}
             </div>
         {/each}
@@ -915,6 +927,20 @@
     .title {
         font-weight: 500;
         color: var(--text-normal);
+        text-align: left;
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        font-size: 1.1rem;
+        width: 100%;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .title:hover {
+        color: var(--text-accent);
     }
 
     .duration {
@@ -969,8 +995,40 @@
     .is-done {
         opacity: 0.5;
     }
-    .is-done .title {
+    .is-done .title, .is-done .title-btn {
         text-decoration: line-through;
+    }
+
+    .is-missing {
+        opacity: 0.4;
+        background: var(--background-primary-alt);
+        border: 1px dashed var(--text-error);
+    }
+    .is-missing .title {
+        color: var(--text-error);
+        cursor: default;
+    }
+    .missing-icon {
+        margin-right: 0.5rem;
+    }
+
+    .remove-orphan-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        opacity: 0.6;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .remove-orphan-btn:hover {
+        opacity: 1;
+        color: var(--text-error);
+        background: var(--background-modifier-error-hover);
     }
 
     .todo-flow-title-input {

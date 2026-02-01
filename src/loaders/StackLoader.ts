@@ -79,21 +79,8 @@ export class StackLoader {
     async loadSpecificFiles(ids: string[]): Promise<TaskNode[]> {
         if (this.logger) await this.logger.info(`[StackLoader] loadSpecificFiles() entry with ${ids.length} IDs.`);
 
-        const files: TFile[] = [];
-        for (const id of ids) {
-            const file = this.app.vault.getAbstractFileByPath(id);
-            if (file instanceof TFile && file.extension === 'md') {
-                files.push(file);
-                if (this.logger) await this.logger.info(`[StackLoader] RESOLVED: ${id}`);
-            } else {
-                if (this.logger) await this.logger.info(`[StackLoader] FAILED: ${id} (Not found or not markdown)`);
-            }
-        }
-
-        if (this.logger) await this.logger.info(`[StackLoader] Total Resolved: ${files.length} valid files.`);
-
         const { GraphBuilder } = await import('../GraphBuilder.js');
         const builder = new GraphBuilder(this.app);
-        return await builder.buildGraph(files);
+        return await builder.buildGraph(ids);
     }
 }

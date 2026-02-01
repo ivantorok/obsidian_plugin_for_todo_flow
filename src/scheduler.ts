@@ -10,6 +10,7 @@ export interface TaskNode {
     status: 'todo' | 'done';
     children: TaskNode[];
     trace?: string[]; // Audit trail for duration roll-up
+    isMissing?: boolean;
 }
 
 /**

@@ -42,13 +42,17 @@ vi.mock('../GraphBuilder.js', () => {
         GraphBuilder: class {
             async buildGraph(files: any[]) {
                 // Return files as simple task nodes
-                return files.map(f => ({
-                    id: f.path,
-                    title: f.basename,
-                    status: 'todo',
-                    duration: 30,
-                    children: []
-                }));
+                return files.map(f => {
+                    const id = typeof f === 'string' ? f : f.path;
+                    const basename = typeof f === 'string' ? f.split('/').pop()?.replace('.md', '') : f.basename;
+                    return {
+                        id: id,
+                        title: basename,
+                        status: 'todo',
+                        duration: 30,
+                        children: []
+                    };
+                });
             }
         }
     };
@@ -112,9 +116,5 @@ describe('Session Isolation (Tray Concept)', () => {
         expect(ids).toContain(fileB.path);
         expect(ids).toContain(fileC.path);
         expect(ids).not.toContain(fileA.path);
-
-        // Verify we only requested the files in the tray
-        expect(mockGetAbstractFileByPath).toHaveBeenCalledWith(fileB.path);
-        expect(mockGetAbstractFileByPath).toHaveBeenCalledWith(fileC.path);
     });
 });

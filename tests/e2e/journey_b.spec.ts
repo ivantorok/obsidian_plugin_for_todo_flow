@@ -2,14 +2,35 @@ import { browser, expect, $ } from '@wdio/globals';
 
 describe('Journey B: Stack Mechanics', () => {
     beforeEach(async function () {
+        // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
     });
+
+    // Helper to ensure Stack View is focused
+    async function focusStack() {
+        // @ts-ignore
+        await browser.execute(() => {
+            // @ts-ignore
+            const leaf = app.workspace.getLeavesOfType('todo-flow-stack-view')[0];
+            if (leaf) {
+                // @ts-ignore
+                app.workspace.setActiveLeaf(leaf, { focus: true });
+                const container = document.querySelector('.todo-flow-stack-container') as HTMLElement;
+                if (container) container.focus();
+            }
+        });
+        // @ts-ignore
+        await browser.pause(300);
+    }
 
     // Helper function to create tasks via Dump → Triage → Stack flow
     async function setupStackWithTasks(taskNames: string[]) {
         // Open Dump
+        // @ts-ignore
         await browser.execute('app.commands.executeCommandById("todo-flow:open-todo-dump")');
+        // @ts-ignore
         await browser.waitUntil(async () => {
+            // @ts-ignore
             return await browser.execute(() => {
                 // @ts-ignore
                 return app.workspace.getLeavesOfType('todo-flow-dump-view').length > 0;
@@ -21,16 +42,21 @@ describe('Journey B: Stack Mechanics', () => {
         // Create tasks
         for (const taskName of taskNames) {
             await dumpInput.setValue(taskName);
+            // @ts-ignore
             await browser.keys(['Enter']);
+            // @ts-ignore
             await browser.pause(300);
         }
 
         // Trigger Triage
         await dumpInput.setValue('done');
+        // @ts-ignore
         await browser.keys(['Enter']);
 
         // Wait for Triage
+        // @ts-ignore
         await browser.waitUntil(async () => {
+            // @ts-ignore
             return await browser.execute(() => {
                 // @ts-ignore
                 return app.workspace.getLeavesOfType('todo-flow-triage-view').length > 0;
@@ -39,18 +65,23 @@ describe('Journey B: Stack Mechanics', () => {
 
         // Keep all tasks (k for each)
         for (let i = 0; i < taskNames.length; i++) {
+            // @ts-ignore
             await browser.keys(['k']);
+            // @ts-ignore
             await browser.pause(500);
         }
 
         // Wait for Stack
+        // @ts-ignore
         await browser.waitUntil(async () => {
+            // @ts-ignore
             return await browser.execute(() => {
                 // @ts-ignore
                 return app.workspace.getLeavesOfType('todo-flow-stack-view').length > 0;
             });
         }, { timeout: 5000 });
 
+        // @ts-ignore
         await browser.pause(500); // Let Stack settle
     }
 
@@ -58,6 +89,7 @@ describe('Journey B: Stack Mechanics', () => {
         await setupStackWithTasks(['Task 1', 'Task 2', 'Task 3']);
 
         // Check initial focus (should be 0)
+        // @ts-ignore
         let focusIndex = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -66,9 +98,12 @@ describe('Journey B: Stack Mechanics', () => {
         expect(focusIndex).toBe(0);
 
         // Navigate down with j
+        // @ts-ignore
         await browser.keys(['j']);
+        // @ts-ignore
         await browser.pause(200);
 
+        // @ts-ignore
         focusIndex = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -77,9 +112,12 @@ describe('Journey B: Stack Mechanics', () => {
         expect(focusIndex).toBe(1);
 
         // Navigate down again
+        // @ts-ignore
         await browser.keys(['j']);
+        // @ts-ignore
         await browser.pause(200);
 
+        // @ts-ignore
         focusIndex = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -88,9 +126,12 @@ describe('Journey B: Stack Mechanics', () => {
         expect(focusIndex).toBe(2);
 
         // Navigate up with k
+        // @ts-ignore
         await browser.keys(['k']);
+        // @ts-ignore
         await browser.pause(200);
 
+        // @ts-ignore
         focusIndex = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -105,37 +146,49 @@ describe('Journey B: Stack Mechanics', () => {
         await setupStackWithTasks(['Task A', 'Task B', 'Task C']);
 
         // Get initial order
+        // @ts-ignore
         let titles = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
+            // @ts-ignore
             return view.getTasks().map(t => t.title);
         });
         console.log('[Test] Initial order:', titles);
         expect(titles).toEqual(['Task A', 'Task B', 'Task C']);
 
         // Focus on Task B (index 1)
+        // @ts-ignore
         await browser.keys(['j']);
+        // @ts-ignore
         await browser.pause(200);
 
         // Move Task B up with Shift+K
+        // @ts-ignore
         await browser.keys(['K']);
+        // @ts-ignore
         await browser.pause(500);
 
+        // @ts-ignore
         titles = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
+            // @ts-ignore
             return view.getTasks().map(t => t.title);
         });
         console.log('[Test] After move up:', titles);
         expect(titles).toEqual(['Task B', 'Task A', 'Task C']);
 
         // Move Task B down with Shift+J
+        // @ts-ignore
         await browser.keys(['J']);
+        // @ts-ignore
         await browser.pause(500);
 
+        // @ts-ignore
         titles = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
+            // @ts-ignore
             return view.getTasks().map(t => t.title);
         });
         console.log('[Test] After move down:', titles);
@@ -148,6 +201,7 @@ describe('Journey B: Stack Mechanics', () => {
         await setupStackWithTasks(['Duration Test']);
 
         // Get initial duration (default 30)
+        // @ts-ignore
         let duration = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -157,9 +211,12 @@ describe('Journey B: Stack Mechanics', () => {
         expect(duration).toBe(30);
 
         // Increase with f
+        // @ts-ignore
         await browser.keys(['f']);
+        // @ts-ignore
         await browser.pause(300);
 
+        // @ts-ignore
         duration = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -169,9 +226,12 @@ describe('Journey B: Stack Mechanics', () => {
         expect(duration).toBe(45);
 
         // Decrease with d
+        // @ts-ignore
         await browser.keys(['d']);
+        // @ts-ignore
         await browser.pause(300);
 
+        // @ts-ignore
         duration = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -187,6 +247,7 @@ describe('Journey B: Stack Mechanics', () => {
         await setupStackWithTasks(['Anchor Test']);
 
         // Check initial state
+        // @ts-ignore
         let isAnchored = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -195,9 +256,12 @@ describe('Journey B: Stack Mechanics', () => {
         expect(isAnchored).toBe(false);
 
         // Toggle anchor with Shift+F
+        // @ts-ignore
         await browser.keys(['F']);
+        // @ts-ignore
         await browser.pause(500);
 
+        // @ts-ignore
         isAnchored = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -206,9 +270,12 @@ describe('Journey B: Stack Mechanics', () => {
         expect(isAnchored).toBe(true);
 
         // Toggle off
+        // @ts-ignore
         await browser.keys(['F']);
+        // @ts-ignore
         await browser.pause(500);
 
+        // @ts-ignore
         isAnchored = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -223,9 +290,12 @@ describe('Journey B: Stack Mechanics', () => {
         await setupStackWithTasks(['Toggle Test']);
 
         // COMPLETE: Mark done with x
+        // @ts-ignore
         await browser.keys(['x']);
+        // @ts-ignore
         await browser.pause(500);
 
+        // @ts-ignore
         let status = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -235,9 +305,12 @@ describe('Journey B: Stack Mechanics', () => {
         console.log('[Test] ✅ Mark as done works');
 
         // UNCOMPLETE: Toggle back to todo with x
+        // @ts-ignore
         await browser.keys(['x']);
+        // @ts-ignore
         await browser.pause(500);
 
+        // @ts-ignore
         status = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -249,10 +322,11 @@ describe('Journey B: Stack Mechanics', () => {
         console.log('[Test] ✅ Task completion toggle works correctly');
     });
 
-    it.skip('should rename task with e key', async () => {
+    it('should rename task with e key', async () => {
         await setupStackWithTasks(['Original Name']);
 
         // Get initial title
+        // @ts-ignore
         let title = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -260,24 +334,52 @@ describe('Journey B: Stack Mechanics', () => {
         });
         expect(title).toBe('Original Name');
 
-        // Press e to start rename
+        // Focus the stack and press 'e' to start rename
+        // @ts-ignore
+        await browser.execute(() => {
+            // @ts-ignore
+            const leaf = app.workspace.getLeavesOfType('todo-flow-stack-view')[0];
+            if (leaf) {
+                // @ts-ignore
+                app.workspace.setActiveLeaf(leaf, { focus: true });
+                const container = document.querySelector('.todo-flow-stack-container');
+                if (container) (container as HTMLElement).focus();
+            }
+        });
+        // @ts-ignore
         await browser.keys(['e']);
-        await browser.pause(500);
+        // @ts-ignore
+        await browser.pause(1000);
 
-        // Find the input field and change the name
         const input = await $('.todo-flow-title-input');
         await input.waitForDisplayed({ timeout: 2000 });
-        await input.setValue('Renamed Task');
+
+        // User workflow: ArrowRight to deselect and go to end, then add space and text
+        // @ts-ignore
+        await browser.keys(['ArrowRight']);
+        // @ts-ignore
+        await browser.pause(200);
+        // @ts-ignore
+        await browser.keys([' ']);
+        // @ts-ignore
+        await browser.pause(200);
+        // @ts-ignore
+        await browser.keys(['R', 'e', 'n', 'a', 'm', 'e', 'd']);
+        // @ts-ignore
+        await browser.pause(200);
+        // @ts-ignore
         await browser.keys(['Enter']);
+        // @ts-ignore
         await browser.pause(500);
 
-        // Verify the title changed
+        // Verify the title changed: "Original Name Renamed"
+        // @ts-ignore
         title = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
             return view.getTasks()[0].title;
         });
-        expect(title).toBe('Renamed Task');
+        expect(title).toBe('Original Name Renamed');
 
         console.log('[Test] ✅ Rename works correctly');
     });
@@ -286,6 +388,7 @@ describe('Journey B: Stack Mechanics', () => {
         await setupStackWithTasks(['Archive Me']);
 
         // Verify task exists
+        // @ts-ignore
         let taskCount = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -294,10 +397,13 @@ describe('Journey B: Stack Mechanics', () => {
         expect(taskCount).toBe(1);
 
         // Archive with z
+        // @ts-ignore
         await browser.keys(['z']);
+        // @ts-ignore
         await browser.pause(500);
 
         // Verify task is gone
+        // @ts-ignore
         taskCount = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
@@ -312,10 +418,13 @@ describe('Journey B: Stack Mechanics', () => {
         await setupStackWithTasks(['Export Task 1', 'Export Task 2']);
 
         // Trigger export with Shift+E
+        // @ts-ignore
         await browser.keys(['E']); // Capital E = Shift+E
+        // @ts-ignore
         await browser.pause(1000);
 
         // Verify clipboard contains markdown (check via execute)
+        // @ts-ignore
         const clipboardContent = await browser.execute(async () => {
             // @ts-ignore
             return await navigator.clipboard.readText();

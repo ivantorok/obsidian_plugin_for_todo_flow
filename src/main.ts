@@ -70,6 +70,24 @@ export default class TodoFlowPlugin extends Plugin {
         await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build ${buildId})`);
         console.log('[Todo Flow] Logger initialized');
 
+        // Watch for external modifications to CurrentStack.md (Robustness)
+        this.registerEvent(
+            this.app.vault.on('modify', async (file) => {
+                const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+                if (file instanceof TFile && file.path === persistencePath) {
+                    if (this.stackPersistenceService.isExternalUpdate(file.path)) {
+                        this.logger.info(`[Robustness] External modification detected on ${file.path}. Triggering reload.`);
+                        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK);
+                        for (const leaf of leaves) {
+                            if (leaf.view instanceof StackView) {
+                                await leaf.view.reload();
+                            }
+                        }
+                    }
+                }
+            })
+        );
+
         this.addSettingTab(new TodoFlowSettingTab(this.app, this));
 
         this.app.workspace.onLayoutReady(() => {
@@ -186,17 +204,18 @@ export default class TodoFlowPlugin extends Plugin {
             id: 'open-daily-stack',
             name: 'Open Daily Stack',
             callback: async () => {
-                // 1. Try to load from "CurrentStack.md"
-                const savedIds = await this.stackPersistenceService.loadStackIds('CurrentStack.md');
+                // 1. Try to load from "todo-flow/CurrentStack.md"
+                const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+                const savedIds = await this.stackPersistenceService.loadStackIds(persistencePath);
 
                 if (savedIds.length > 0) {
-                    await this.activateStack(savedIds, 'CurrentStack.md');
+                    await this.activateStack(savedIds, persistencePath);
                 } else if (this.settings.lastTray && this.settings.lastTray.length > 0) {
                     // 2. Fallback to settings.lastTray (Migration path)
-                    await this.activateStack(this.settings.lastTray, 'CurrentStack.md'); // Save to file next time
+                    await this.activateStack(this.settings.lastTray, persistencePath); // Save to file next time
                 } else {
-                    // 3. Fallback to Shortlist BUT use CurrentStack.md as backing file
-                    await this.activateStack('QUERY:SHORTLIST', 'CurrentStack.md'); // Pass backing file
+                    // 3. Fallback to Shortlist BUT use persistencePath as backing file
+                    await this.activateStack('QUERY:SHORTLIST', persistencePath); // Pass backing file
                 }
             }
         });
@@ -223,7 +242,8 @@ export default class TodoFlowPlugin extends Plugin {
                 if (!confirmed) return;
 
                 this.logger.info('[main] Clearing Daily Stack');
-                await this.stackPersistenceService.saveStack([], 'CurrentStack.md');
+                const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+                await this.stackPersistenceService.saveStack([], persistencePath);
 
                 const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
                 if (leaf && leaf.view && (leaf.view as any).reload) {
@@ -270,8 +290,11 @@ export default class TodoFlowPlugin extends Plugin {
 
                 if (count > 0) {
                     new Notice(`Added ${count} tasks to daily stack.`);
-                    this.refreshStackView();
+                    const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+                    const savedIds = await this.stackPersistenceService.loadStackIds(persistencePath);
+                    await this.activateStack(savedIds, persistencePath);
                 } else {
+                    new Notice('No new linked tasks found.');
                 }
             }
         });

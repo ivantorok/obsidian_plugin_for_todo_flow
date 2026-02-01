@@ -1,4 +1,4 @@
-import { type App, type TFile } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import { type TaskNode } from './scheduler.js';
 import { resolveTaskTitle, getFirstNonMetadataLine } from './utils/title-resolver.js';
 import { DateParser } from './utils/DateParser.js';
@@ -7,15 +7,29 @@ import moment from 'moment';
 export class GraphBuilder {
     constructor(private app: App) { }
 
-    async buildGraph(files: TFile[]): Promise<TaskNode[]> {
-        // We only want to process files that are passed in as "roots" or found in the folder.
-        // But for a graph, we need to resolve children even if they are NOT in the initial file list?
-        // The requirements say: "Uses files in one specific folder".
-        // But "Whenever a file is linked, the we consider it as a sub task." 
-        // This usually implies following links even outside the folder, OR just within.
-        // Let's assume we follow links to any valid file in the vault to be safe/powerful.
+    async buildGraph(files: (TFile | string)[]): Promise<TaskNode[]> {
+        return Promise.all(files.map(f => {
+            if (typeof f === 'string') {
+                const resolved = this.app.vault.getAbstractFileByPath(f);
+                if (resolved && (resolved instanceof TFile || (resolved as any).extension)) return this.buildNode(resolved as TFile, []);
+                return this.createMissingNode(f);
+            }
+            return this.buildNode(f, []);
+        }));
+    }
 
-        return Promise.all(files.map(file => this.buildNode(file, [])));
+    private createMissingNode(path: string): TaskNode {
+        const parts = path.split('/');
+        const filename = parts[parts.length - 1] || path;
+        return {
+            id: path,
+            title: `[MISSING] ${filename}`,
+            duration: 30,
+            status: 'todo',
+            isAnchored: false,
+            children: [],
+            isMissing: true
+        };
     }
 
     private async buildNode(file: TFile, visitedPath: string[]): Promise<TaskNode> {

@@ -93,7 +93,7 @@ These flows represent the core value loops of the application and will be implem
     -   Finish Triage.
 6.  **Transition**: Verify Daily Stack View opens with the shortlisted tasks.
 
-### Journey B: Stack Mechanics (The Workbench)
+### Journey B: Stack Mechanics (The Workbench) ✅
 1.  **Navigation**: Move focus Up (`k`) and Down (`j`).
 2.  **Reorder**: Move items Up (`Shift+K`) and Down (`Shift+J`).
 3.  **Timing**:
@@ -109,7 +109,7 @@ These flows represent the core value loops of the application and will be implem
     -   Complete a task (`x`).
 6.  **Output**: Export the stack (`Shift+E`).
 
-### Journey C: Deep Work (Files & Drilling)
+### Journey C: Deep Work (Files & Drilling) ✅
 1.  **Contextual Load**:
     -   Open a file for Triage (`triage-file`).
     -   Open a file for Stack (`open-file-as-stack`).
@@ -123,3 +123,24 @@ These flows represent the core value loops of the application and will be implem
     -   Change duration of the child task.
     -   Navigate back to Main Stack (`h`).
     -   **Verify**: Parent task duration has updated to reflect the child's change.
+
+### Journey D: Mobile Gestures ✅
+1.  **Selection**: Focus a task card.
+2.  **Swiping**: 
+    -   Swipe Right (> 80px) to **Complete** task.
+    -   Swipe Left (> 80px) to **Archive** task.
+3.  **Haptics**: (Optional) Verify subtle feedback during swipe.
+4.  **Double Tap**:
+    -   Double tap a task card to **Toggle Anchor**.
+5.  **Manual Reordering**:
+    -   Long press / drag from `Drag Handle` (⠿).
+    -   Move vertically and release to reorder.
+
+### Journey E: Smart Imports (Discovery & Bulk Actions) ⏳
+1.  **Preparation**:
+    -   Create a note with multiple `[[Internal Links]]`.
+2.  **Scanning**:
+    -   Run `Add Linked Files to Stack` command.
+3.  **Verification**:
+    -   Ensure all linked files appear in the Daily Stack.
+    -   Ensure duplicates are NOT added if already in the stack.

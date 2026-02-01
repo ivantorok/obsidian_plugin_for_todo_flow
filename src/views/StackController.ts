@@ -79,7 +79,7 @@ export class StackController {
     }
 
     toggleAnchor(index: number, startTime?: moment.Moment): number {
-        if (!this.tasks[index]) return index;
+        if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const task = { ...taskToMove };
         task.isAnchored = !task.isAnchored;
@@ -103,7 +103,7 @@ export class StackController {
     }
 
     toggleStatus(index: number): number {
-        if (!this.tasks[index]) return index;
+        if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const task = { ...taskToMove };
         task.status = task.status === 'todo' ? 'done' : 'todo';
@@ -121,7 +121,7 @@ export class StackController {
     }
 
     updateTaskTitle(index: number, newTitle: string): number {
-        if (!this.tasks[index]) return index;
+        if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const oldTitle = taskToMove.title;
         const task = { ...taskToMove };
@@ -143,7 +143,7 @@ export class StackController {
     }
 
     updateTaskMetadata(index: number, updates: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined }): number {
-        if (!this.tasks[index]) return index;
+        if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const task = { ...taskToMove };
 
@@ -240,7 +240,7 @@ export class StackController {
     // I'll keep the method but remove the binding.
 
     scaleDuration(index: number, direction: 'up' | 'down'): number {
-        if (!this.tasks[index]) return index;
+        if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const task = { ...taskToMove };
         const currentOwn = task.originalDuration ?? task.duration;
@@ -271,7 +271,7 @@ export class StackController {
     }
 
     adjustDuration(index: number, deltaMinutes: number): number {
-        if (!this.tasks[index]) return index;
+        if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const task = { ...taskToMove };
 
@@ -318,6 +318,7 @@ export class StackController {
         if (!this.tasks[index]) return null;
 
         const task = this.tasks[index]!;
+        if (task.isMissing) return null;
 
         if (task.children && task.children.length > 0) {
             if (forceOpen) {
