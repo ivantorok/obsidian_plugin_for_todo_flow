@@ -2,8 +2,8 @@ import { type TaskNode } from '../scheduler.js';
 
 export class ExportService {
     /**
-     * Formats a list of tasks into a markdown string for export.
-     * Only includes completed (done) tasks.
+     * Formats the entire task stack into a markdown string.
+     * Includes both pending and completed tasks for logging purposes.
      */
     formatExport(tasks: TaskNode[]): string {
         if (tasks.length === 0) {
@@ -15,7 +15,8 @@ export class ExportService {
         for (const task of tasks) {
             const checkbox = task.status === 'done' ? '[x]' : '[ ]';
             const timeStr = task.startTime ? task.startTime.format('HH:mm') : '--:--';
-            output += `- ${checkbox} ${timeStr} [[${task.id}|${task.title}]]\n`;
+            const durationStr = task.duration ? `${task.duration}m` : '0m';
+            output += `- ${checkbox} ${timeStr} [[${task.id}|${task.title}]] (${durationStr})\n`;
         }
 
         return output;

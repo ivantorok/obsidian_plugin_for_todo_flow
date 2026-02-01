@@ -278,7 +278,7 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.addCommand({
             id: 'export-current-stack',
-            name: 'Export Current Stack',
+            name: 'Export to Note',
             callback: async () => {
                 const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK);
                 if (leaves.length === 0 || !leaves[0]) {
