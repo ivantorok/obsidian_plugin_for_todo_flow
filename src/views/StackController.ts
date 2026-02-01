@@ -319,16 +319,27 @@ export class StackController {
 
         const task = this.tasks[index]!;
 
-        if (!forceOpen && task.children && task.children.length > 0) {
+        if (task.children && task.children.length > 0) {
+            if (forceOpen) {
+                return {
+                    action: 'OPEN_FILE',
+                    path: task.id
+                };
+            }
             return {
                 action: 'DRILL_DOWN',
                 newStack: task.children
             };
         } else {
-            return {
-                action: 'OPEN_FILE',
-                path: task.id
-            };
+            // It's a leaf.
+            if (forceOpen) {
+                return {
+                    action: 'OPEN_FILE',
+                    path: task.id
+                };
+            }
+            // Non-forced Enter on a leaf does nothing to avoid trapping focus in editor
+            return null;
         }
     }
 }
