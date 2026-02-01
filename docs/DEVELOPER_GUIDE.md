@@ -1,6 +1,8 @@
 # Developer Workflow Guide
 
 ## Quick Reference
+- **[Working Agreement](./protocol/WORKING_AGREEMENT.md)**: How we interact and what to expect from our development loop.
+- **[Backlog](./BACKLOG.md)**: Current roadmap and reported issues.
 
 ### Build & Deploy
 ```bash
