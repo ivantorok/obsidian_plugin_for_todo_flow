@@ -232,4 +232,56 @@ describe('StackView Drag & Drop TDD', () => {
         // Should swap 0 and 1
         expect(callArgs.newIndex).toBe(1);
     });
+
+    it('should update focusedIndex after a successful drag-and-drop', async () => {
+        const onOpenFile = vi.fn();
+        const { container, component } = render(StackView, {
+            props: {
+                initialTasks: mockTasks,
+                settings: baseSettings as any,
+                logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
+                now: moment(),
+                onOpenFile,
+                onTaskUpdate: vi.fn(),
+                historyManager
+            }
+        });
+        await tick();
+
+        const cards = container.querySelectorAll('.todo-flow-task-card');
+        const handle1 = cards[0]!.querySelector('.drag-handle') as HTMLElement;
+
+        // Mock positions
+        cards.forEach((card, i) => {
+            card.getBoundingClientRect = vi.fn(() => ({
+                top: i * 100,
+                bottom: (i + 1) * 100,
+                height: 100
+            } as DOMRect));
+        });
+
+        // 1. Start dragging first task
+        await fireEvent.pointerDown(handle1, { clientY: 50, pointerId: 1 });
+        await tick();
+
+        // 2. Move to second position (y=150)
+        await fireEvent.pointerMove(handle1, { clientY: 150, pointerId: 1 });
+        await tick();
+
+        // 3. Drop
+        await fireEvent.pointerUp(handle1, { clientY: 150, pointerId: 1 });
+        await tick();
+
+        // 4. Verify focusedIndex matches the new position (index 1)
+        const focusedCard = container.querySelector('.todo-flow-task-card.focused');
+        const taskCards = container.querySelectorAll('.todo-flow-task-card');
+
+        // Find which index has the 'focused' class
+        let focusedIndex = -1;
+        taskCards.forEach((card, i) => {
+            if (card.classList.contains('focused')) focusedIndex = i;
+        });
+
+        expect(focusedIndex).toBe(1);
+    });
 });

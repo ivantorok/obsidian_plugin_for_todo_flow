@@ -118,6 +118,7 @@ describe('Stack Persistence', () => {
             mockSettings,
             mockHistoryManager,
             mockLogger,
+            { saveStack: vi.fn(), loadStackIds: vi.fn() } as any,
             vi.fn(), // onTaskUpdate
             vi.fn()  // onTaskCreate
         );

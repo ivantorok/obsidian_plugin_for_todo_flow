@@ -121,6 +121,7 @@ describe('StackView Integration', () => {
             { debug: false } as any,
             mockHistoryManager,
             mockLogger,
+            { saveStack: vi.fn(), loadStackIds: vi.fn() } as any,
             vi.fn(),
             vi.fn()
         );

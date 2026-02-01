@@ -34,6 +34,7 @@
         onStackChange,
 
         openQuickAddModal,
+        openDurationPicker,
         onNavigate,
         onGoBack,
         onExport,
@@ -301,6 +302,8 @@
             }
             
             if (bestTarget !== -1 && bestTarget !== dragTargetIndex) {
+                // Potential Haptic Feedback point:
+                // if (window.obsidian?.haptics) window.obsidian.haptics.impact('light');
                 dragTargetIndex = bestTarget;
             }
         }
@@ -311,15 +314,16 @@
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
 
         if (draggingTaskId) {
-            if (dragTargetIndex !== -1 && dragTargetIndex !== draggingStartIndex) {
-                await historyManager.executeCommand(new ReorderToIndexCommand(controller, draggingStartIndex, dragTargetIndex));
+            if (dragTargetIndex !== -1 && dragTargetIndex !== draggingStartIndex && dragTargetIndex < tasks.length) {
+                const command = new ReorderToIndexCommand(controller, draggingStartIndex, dragTargetIndex);
+                await historyManager.executeCommand(command);
+                focusedIndex = dragTargetIndex; // Selection follows task
                 update();
             }
-            lastDragEndTime = Date.now();
             draggingTaskId = null;
             draggingStartIndex = -1;
             dragTargetIndex = -1;
-            return;
+            dragLogged = false;
         }
 
         const deltaX = touchCurrentX - touchStartX;
@@ -648,6 +652,7 @@
 <!-- Make container focusable and attach listener -->
 <div 
     class="todo-flow-stack-container" 
+    class:is-dragging={draggingTaskId !== null}
     bind:this={containerEl}
     onkeydown={handleKeyDown}
     tabindex="0"
@@ -667,8 +672,8 @@
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === 'done'}
                 class:dragging={draggingTaskId === task.id}
-                class:drop-before={dragTargetIndex === i && i <= draggingStartIndex}
-                class:drop-after={dragTargetIndex === i && i > draggingStartIndex}
+                class:drop-before={dragTargetIndex === i && i !== draggingStartIndex && i <= draggingStartIndex}
+                class:drop-after={dragTargetIndex === i && i !== draggingStartIndex && i > draggingStartIndex}
                 onclick={(e) => handleTap(e, task, i)}
                 onpointerdown={(e) => handlePointerStart(e, task.id)}
                 onpointermove={handlePointerMove}
@@ -717,16 +722,34 @@
                     {/if}
                     <div class="duration">
                         <button 
+                            class="duration-btn minus small" 
+                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, -5)); update(); }}
+                            title="Decrease Duration (-5m)"
+                        >−5</button>
+                        <button 
                             class="duration-btn minus" 
                             onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, -15)); update(); }}
                             title="Decrease Duration (-15m)"
                         >−</button>
-                        <span class="duration-text">{formatDuration(task.duration)}</span>
+                        <span 
+                            class="duration-text clickable" 
+                            onclick={(e) => { e.stopPropagation(); openDurationPicker(i); }}
+                            onkeydown={(e) => { if (e.key === 'Enter') openDurationPicker(i); }}
+                            tabindex="0"
+                            role="button"
+                        >
+                            {formatDuration(task.duration)}
+                        </span>
                         <button 
                             class="duration-btn plus" 
                             onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, 15)); update(); }}
                             title="Increase Duration (+15m)"
                         >+</button>
+                        <button 
+                            class="duration-btn plus small" 
+                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, 5)); update(); }}
+                            title="Increase Duration (+5m)"
+                        >+5</button>
                         {#if getMinDuration(task) > 0}
                             <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
                         {/if}
@@ -739,18 +762,33 @@
         {/each}
     </div>
     <!-- Help Overlay -->
-    {#if showHelp}
-        <HelpModal {keys} settings={internalSettings} />
-    {/if}
+    <div class="footer-controls">
+        <button class="icon-button" onclick={onExport} title="Export completed tasks">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+        {#if showHelp}
+            <HelpModal {keys} settings={internalSettings} />
+        {/if}
+    </div>
 </div>
 
 <style>
     .todo-flow-stack-container {
         padding: 2rem;
         background: var(--background-primary);
+        outline: none;
+        user-select: text;
         height: 100%;
         overflow-y: auto;
-        touch-action: pan-y; /* Allow vertical scrolling, but we manage horizontal ourselves */
+        touch-action: pan-y;
+    }
+
+    .todo-flow-stack-container.is-dragging {
+        user-select: none !important;
+    }
+
+    .todo-flow-stack-container.is-dragging * {
+        user-select: none !important;
     }
 
     .todo-flow-stack-header {
@@ -860,22 +898,27 @@
     }
 
     .duration-btn {
-        background: var(--background-modifier-border);
-        border: none;
+        background: var(--background-secondary);
+        border: 1px solid var(--background-modifier-border);
+        color: var(--text-muted);
         border-radius: 4px;
-        color: var(--text-normal);
-        width: 20px;
-        height: 20px;
+        padding: 0 0.5rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        font-size: 1rem;
-        line-height: 1;
-        padding: 0;
-        transition: background 0.1s;
+        min-width: 24px;
+        height: 24px;
     }
 
+    .duration-btn.small {
+        font-size: 0.65rem;
+        min-width: 20px;
+        height: 20px;
+        opacity: 0.7;
+    }    
     .duration-btn:hover {
         background: var(--background-modifier-border-hover);
     }

@@ -88,7 +88,7 @@ describe('StackView Reload Logic', () => {
         // Reset mocks
         vi.clearAllMocks();
 
-        view = new StackView(mockLeaf, mockSettings, mockHistory, mockLogger, vi.fn(), vi.fn());
+        view = new StackView(mockLeaf, mockSettings, mockHistory, mockLogger, { saveStack: vi.fn(), loadStackIds: vi.fn() } as any, vi.fn(), vi.fn());
     });
 
     it('should reload explicit IDs if they were previously set', async () => {

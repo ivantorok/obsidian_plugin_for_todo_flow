@@ -441,3 +441,44 @@ export class SetStartTimeCommand implements Command {
         }
     }
 }
+/**
+ * Command to set a task's duration explicitly
+ */
+export class SetDurationCommand implements Command {
+    description: string;
+    private controller: StackController;
+    private taskId: string;
+    private oldDuration: number;
+    private newDuration: number;
+    public resultIndex: number | null = null;
+
+    constructor(controller: StackController, index: number, durationMinutes: number) {
+        this.controller = controller;
+        const task = controller.getTasks()[index];
+        if (!task) throw new Error(`Task not found at index ${index}`);
+
+        this.taskId = task.id;
+        this.oldDuration = task.duration;
+        this.newDuration = durationMinutes;
+
+        this.description = `Set duration of "${task.title}" to ${durationMinutes}m`;
+    }
+
+    execute(): void {
+        const index = this.controller.getTasks().findIndex(t => t.id === this.taskId);
+        if (index !== -1) {
+            this.resultIndex = this.controller.updateTaskMetadata(index, {
+                duration: this.newDuration
+            });
+        }
+    }
+
+    undo(): void {
+        const index = this.controller.getTasks().findIndex(t => t.id === this.taskId);
+        if (index !== -1) {
+            this.controller.updateTaskMetadata(index, {
+                duration: this.oldDuration
+            });
+        }
+    }
+}

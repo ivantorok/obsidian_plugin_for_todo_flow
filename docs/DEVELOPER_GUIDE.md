@@ -49,10 +49,19 @@ Edit `.env` to set your local vault path:
 ```bash
 VAULT_PATH="/Users/i525277/DemoVault" # Mac example
 # VAULT_PATH="/home/ivan/Documents/Vault" # Linux example
+
+# Optional: Configure multiple vaults for automatic syncing
+LOCAL_VAULTS="/Users/i525277/DemoVault /Users/i525277/Vault2 /Users/i525277/Vault3"
 ```
 
+**Multi-Vault Sync**:
+- If `LOCAL_VAULTS` is defined, `npm run copy` syncs to all listed vaults
+- If not defined, falls back to auto-discovery (searches home directory)
+- Each vault path should be quoted and space-separated
+- Only vaults with the plugin already installed will be synced
+
 ### 2. OS-Aware Scripts
-- `npm run copy`: Automatically uses `$VAULT_PATH` from your `.env`.
+- `npm run copy`: Syncs to all vaults in `LOCAL_VAULTS` (or auto-discovers if not set)
 - `./reset_and_launch.sh`: Detects your OS and uses the correct command to launch Obsidian with your configured vault.
 
 ### Debugging

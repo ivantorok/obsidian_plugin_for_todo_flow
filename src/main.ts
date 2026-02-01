@@ -1,4 +1,4 @@
-import { Plugin, PluginSettingTab, App, Setting, WorkspaceLeaf, TFolder, TFile, Platform } from 'obsidian';
+import { Plugin, PluginSettingTab, App, Setting, WorkspaceLeaf, TFolder, TFile, Platform, Notice } from 'obsidian';
 import { DumpView, VIEW_TYPE_DUMP } from './views/DumpView.js';
 import { TriageView, VIEW_TYPE_TRIAGE } from './views/TriageView.js';
 import { StackView, VIEW_TYPE_STACK } from './views/StackView.js';
@@ -7,9 +7,13 @@ import { parseTitleFromFilename, updateMetadataField, generateFilename, serializ
 import { GraphBuilder } from './GraphBuilder.js';
 import moment from 'moment';
 import { HistoryManager } from './history.js';
+import { NavigationManager } from './navigation/NavigationManager.js';
+import { SmartImportService } from './services/SmartImportService.js';
+import { ExportService } from './services/ExportService.js';
 import { SyncService } from './services/SyncService.js';
 import { ReprocessTaskCommand } from './commands/ReprocessTaskCommand.js';
 import { ShakeDetector } from './utils/ShakeDetector.js';
+import { StackPersistenceService } from './services/StackPersistenceService.js';
 
 import { DEFAULT_KEYBINDINGS, type KeybindingSettings } from './keybindings.js';
 import { formatKeys, parseKeys } from './utils/settings-utils.js';
@@ -52,6 +56,7 @@ export default class TodoFlowPlugin extends Plugin {
     logger!: FileLogger;
     viewManager!: ViewManager;
     shakeDetector?: ShakeDetector;
+    stackPersistenceService!: StackPersistenceService;
 
     async onload() {
         console.log('[Todo Flow] Plugin Loading...');
@@ -59,6 +64,7 @@ export default class TodoFlowPlugin extends Plugin {
         this.historyManager = new HistoryManager();
         this.logger = new FileLogger(this.app, this.settings.debug);
         this.viewManager = new ViewManager(this.app, this.logger);
+        this.stackPersistenceService = new StackPersistenceService(this.app);
 
         const buildId = typeof process !== 'undefined' ? (process.env as any).BUILD_ID : 'unknown';
         await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build ${buildId})`);
@@ -94,7 +100,7 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.registerView(
             VIEW_TYPE_STACK,
-            (leaf) => new StackView(leaf, this.settings, this.historyManager, this.logger, (task) => {
+            (leaf) => new StackView(leaf, this.settings, this.historyManager, this.logger, this.stackPersistenceService, (task) => {
                 this.syncTaskToNote(task);
             }, (title, options) => {
                 return this.onCreateTask(title, options);
@@ -175,17 +181,55 @@ export default class TodoFlowPlugin extends Plugin {
             }
         });
 
+
         this.addCommand({
             id: 'open-daily-stack',
             name: 'Open Daily Stack',
             callback: async () => {
-                // Check for saved tray
-                if (this.settings.lastTray && this.settings.lastTray.length > 0) {
-                    await this.activateStack(this.settings.lastTray);
+                // 1. Try to load from "CurrentStack.md"
+                const savedIds = await this.stackPersistenceService.loadStackIds('CurrentStack.md');
+
+                if (savedIds.length > 0) {
+                    await this.activateStack(savedIds, 'CurrentStack.md');
+                } else if (this.settings.lastTray && this.settings.lastTray.length > 0) {
+                    // 2. Fallback to settings.lastTray (Migration path)
+                    await this.activateStack(this.settings.lastTray, 'CurrentStack.md'); // Save to file next time
                 } else {
-                    // Default to Shortlisted items
-                    await this.activateStack('QUERY:SHORTLIST');
+                    // 3. Fallback to Shortlist BUT use CurrentStack.md as backing file
+                    await this.activateStack('QUERY:SHORTLIST', 'CurrentStack.md'); // Pass backing file
                 }
+            }
+        });
+
+        this.addCommand({
+            id: 'add-task-to-stack',
+            name: 'Add Task to Stack',
+            callback: () => {
+                const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
+                if (leaf && leaf.view && (leaf.view as any).openAddModal) {
+                    (leaf.view as any).openAddModal();
+                    this.app.workspace.revealLeaf(leaf);
+                } else {
+                    new (window as any).Notice('Please open the Daily Stack view first.');
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'clear-daily-stack',
+            name: 'Clear Daily Stack',
+            callback: async () => {
+                const confirmed = await (window as any).confirm('Are you sure you want to clear the entire daily stack?');
+                if (!confirmed) return;
+
+                this.logger.info('[main] Clearing Daily Stack');
+                await this.stackPersistenceService.saveStack([], 'CurrentStack.md');
+
+                const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
+                if (leaf && leaf.view && (leaf.view as any).reload) {
+                    await (leaf.view as any).reload();
+                }
+                new (window as any).Notice('Daily Stack cleared.');
             }
         });
 
@@ -207,7 +251,60 @@ export default class TodoFlowPlugin extends Plugin {
                     const content = editor.getValue();
                     const service = new SyncService(this.app);
                     const count = await service.syncExportToVault(content);
-                    new (window as any).Notice(`Synced ${count} tasks from export.`);
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'add-linked-docs-to-stack',
+            name: 'Add Linked Docs to Stack',
+            callback: async () => {
+                const activeFile = this.app.workspace.getActiveFile();
+                if (!activeFile) {
+                    new Notice('Open a file first to import links.');
+                    return;
+                }
+
+                const service = new SmartImportService(this.app, this.logger);
+                const count = await service.importLinksToDailyStack(activeFile.path);
+
+                if (count > 0) {
+                    new Notice(`Added ${count} tasks to daily stack.`);
+                    this.refreshStackView();
+                } else {
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'export-current-stack',
+            name: 'Export Current Stack',
+            callback: async () => {
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK);
+                if (leaves.length === 0 || !leaves[0]) {
+                    new Notice('Open the Stack View first.');
+                    return;
+                }
+                const stackView = leaves[0].view as StackView;
+                const tasks = stackView.getTasks();
+
+                const exportService = new ExportService();
+                const content = exportService.formatExport(tasks);
+
+                await navigator.clipboard.writeText(content);
+                new Notice('Exported completed tasks copied to clipboard!');
+
+                // Optional: Save to file if exportFolder is configured
+                if (this.settings.exportFolder) {
+                    try {
+                        const fileName = `Export-${moment().format('YYYY-MM-DD-HHmm')}.md`;
+                        const folderPath = this.settings.exportFolder.endsWith('/') ? this.settings.exportFolder : this.settings.exportFolder + '/';
+                        const fullPath = folderPath + fileName;
+                        await this.app.vault.create(fullPath, content);
+                        new Notice(`Export saved to ${fullPath}`);
+                    } catch (e) {
+                        this.logger.error(`Export file creation failed: ${e}`);
+                    }
                 }
             }
         });
@@ -412,17 +509,17 @@ export default class TodoFlowPlugin extends Plugin {
         workspace.revealLeaf(leaf);
     }
 
-    async activateStack(input: string | string[]) {
+    async activateStack(input: string | string[], backingFile?: string) {
         const { workspace } = this.app;
         let leaf: WorkspaceLeaf;
 
         this.logger.info(`[main.ts] activateStack target: ${Array.isArray(input) ? `EXPLICIT LIST (${input.length} IDs)` : input}`);
 
-        // PERSISTENCE: If this is an explicit tray (list of IDs), save it
-        if (Array.isArray(input)) {
-            this.settings.lastTray = input;
-            await this.saveData(this.settings);
-        }
+        /* 
+           PERSISTENCE CHANGE: 
+           We no longer strictly rely on settings.lastTray for persistence. 
+           If backingFile is provided, we use that.
+        */
 
         // Try to find existing stack view
         const leaves = workspace.getLeavesOfType(VIEW_TYPE_STACK);
@@ -436,10 +533,32 @@ export default class TodoFlowPlugin extends Plugin {
 
         if (Array.isArray(input)) {
             // Explicit ID mode
+            // If checking persistence, we still update lastTray as a backup? Maybe safe for now.
+            this.settings.lastTray = input;
+            await this.saveData(this.settings);
+
             state.state = { ids: input };
+            if (backingFile) {
+                state.state.rootPath = backingFile;
+            }
         } else {
             // Folder / Query mode
-            state.state = { rootPath: input };
+            if (backingFile) {
+                // Special case: Loading from source but wanting to persist to a file.
+                // We should resolve the IDs now so the view starts in "Explicit file-backed" mode.
+                this.logger.info(`[main.ts] Resolving source "${input}" for backing file "${backingFile}"`);
+                const { StackLoader } = await import('./loaders/StackLoader.js');
+                const loader = new StackLoader(this.app, this.logger);
+                const tasks = await loader.load(input);
+                const ids = tasks.map(t => t.id);
+
+                state.state = {
+                    ids: ids,
+                    rootPath: backingFile
+                };
+            } else {
+                state.state = { rootPath: input };
+            }
         }
 
         await leaf.setViewState({
@@ -534,6 +653,30 @@ export default class TodoFlowPlugin extends Plugin {
             return updated;
         });
     }
+
+    // Assuming StackView class exists elsewhere in the full document
+    // and has getDisplayText() and getState() methods.
+    // The following methods are inserted into the StackView class.
+    // This is a placeholder as StackView is not in the provided content.
+    // If StackView were present, the insertion would be:
+    /*
+    class StackView extends ItemView {
+        // ... existing properties and methods ...
+
+        getDisplayText() {
+            return "Daily Stack";
+        }
+
+        getTasks(): TaskNode[] {
+            return this.tasks; // Assuming 'this.tasks' holds the current tasks in StackView
+        }
+
+        getState(): Record<string, unknown> {
+            // ... existing getState implementation ...
+        }
+        // ... rest of StackView class ...
+    }
+    */
 
     onCreateTask(title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): TaskNode {
         const filename = generateFilename(title);

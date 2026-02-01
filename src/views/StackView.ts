@@ -5,7 +5,7 @@ import { computeSchedule, type TaskNode } from '../scheduler.js';
 import { type KeybindingSettings, DEFAULT_KEYBINDINGS } from '../keybindings.js';
 import { formatKeys, parseKeys } from '../utils/settings-utils.js';
 import { type HistoryManager } from '../history.js';
-import { serializeStackToMarkdown } from '../persistence.js';
+import { serializeStackToMarkdown, parseTitleFromFilename } from '../persistence.js';
 import { FileLogger } from '../logger.js';
 import { StackLoader } from '../loaders/StackLoader.js';
 import { NavigationManager } from '../navigation/NavigationManager.js';
@@ -13,6 +13,10 @@ import { type TodoFlowSettings } from '../main.js';
 import { QuickAddModal } from '../ui/QuickAddModal.js';
 import { InsertTaskCommand } from '../commands/stack-commands.js';
 import { ReprocessTaskCommand } from '../commands/ReprocessTaskCommand.js';
+import { StackPersistenceService } from '../services/StackPersistenceService.js';
+import { DurationPickerModal } from '../ui/DurationPickerModal.js';
+import { ExportService } from '../services/ExportService.js';
+import { SetDurationCommand } from '../commands/stack-commands.js';
 import moment from 'moment';
 
 export const VIEW_TYPE_STACK = "todo-flow-stack-view";
@@ -29,12 +33,14 @@ export class StackView extends ItemView {
     onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode;
     loader: StackLoader;
     navManager: NavigationManager;
+    persistenceService: StackPersistenceService;
 
-    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode) {
+    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode) {
         super(leaf);
         this.settings = settings;
         this.historyManager = historyManager;
         this.logger = logger;
+        this.persistenceService = persistenceService;
         this.onTaskUpdate = onTaskUpdate;
         this.onTaskCreate = onTaskCreate;
 
@@ -54,6 +60,10 @@ export class StackView extends ItemView {
         return "Daily Stack";
     }
 
+    getTasks(): TaskNode[] {
+        return this.tasks;
+    }
+
     getState(): Record<string, unknown> {
         const navState = this.navManager.getState();
         return {
@@ -63,90 +73,116 @@ export class StackView extends ItemView {
     }
 
     async setState(state: any, result: any): Promise<void> {
-        if (this.logger) await this.logger.info(`[StackView] setState triggered. State keys: ${Object.keys(state || {}).join(', ')}`);
-
         const now = this.getNow();
-        if (this.logger) await this.logger.info(`[StackView] Schedule Basis: ${now.format('YYYY-MM-DD HH:mm')} (Mode: ${this.settings.timingMode})`);
-
-        if (!state) {
-            if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] setState received null/undefined state.`);
-        } else if (!state.rootPath && !state.ids) {
-            if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] setState received valid state object but MISSING rootPath OR ids. Keys: ${JSON.stringify(state)}`);
-        }
 
         if (state && (state.rootPath || state.ids)) {
-
             let rawTasks: TaskNode[] = [];
 
-            // Case 1: Restore from full Navigation History (Feature)
+            // Case 1: Restore from full Navigation History
             const hasHistory = state.navState?.history && state.navState.history.length > 0;
             const hasStack = state.navState?.currentStack && state.navState.currentStack.length > 0;
 
             if (state.navState && (hasHistory || hasStack)) {
-                if (this.logger) await this.logger.info(`[StackView] Restoring full navigation state (Depth: ${state.navState.history?.length || 0})`);
-
-                // Restore the manager's state directly
                 this.navManager.setState(state.navState);
-
-                // Sync local view state
                 this.tasks = this.navManager.getCurrentStack();
-                this.rootPath = state.rootPath || state.navState.currentSource; // Fallback or sync
+                this.rootPath = state.rootPath || state.navState.currentSource;
 
-                if (this.logger) await this.logger.info(`[StackView] State restored. Current Stack: ${this.tasks.length} items.`);
-
-                // Update component
                 if (this.component && this.component.setTasks) {
                     this.component.setTasks(this.tasks);
-                    // attempt to restore focus if saved
                     if (state.navState.currentFocusedIndex !== undefined) {
                         this.component.setFocus(state.navState.currentFocusedIndex);
                     }
                 }
-
-                return; // early exit, we are done
+                return;
             }
 
-            // Case 2: Standard Load (Root or Explicit)
+            // Case 2: Standard Load
             if (state.rootPath === 'QUERY:SHORTLIST') {
-                if (this.logger) await this.logger.info(`[StackView] Loading shortlisted tasks...`);
                 rawTasks = await this.loader.loadShortlisted();
-                if (this.logger) await this.logger.info(`[StackView] Loaded ${rawTasks.length} shortlisted tasks.`);
                 this.rootPath = 'QUERY:SHORTLIST';
             } else if (state.ids && Array.isArray(state.ids)) {
-                // EXPLICIT MODE (Session Isolation)
-                if (this.logger) await this.logger.info(`[StackView] EXPLICIT MODE: Loading ${state.ids.length} tasks into Tray.`);
-
                 this.currentTaskIds = state.ids;
-
                 rawTasks = await this.loader.loadSpecificFiles(state.ids);
-                this.rootPath = `EXPLICIT:${state.ids.length}`;
+                if (state.rootPath && !state.rootPath.startsWith('EXPLICIT')) {
+                    this.rootPath = state.rootPath;
+                } else {
+                    this.rootPath = `EXPLICIT:${state.ids.length}`;
+                }
             } else {
-                if (this.logger) await this.logger.info(`[StackView] PATH MODE: Loading tasks from ${state.rootPath}`);
                 this.rootPath = state.rootPath;
-                // Load initial stack via unified loader
                 rawTasks = await this.loader.load(state.rootPath);
             }
 
-            if (rawTasks.length === 0) {
-                if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Loaded 0 tasks for rootPath="${this.rootPath}". Is directory empty or invalid?`);
-            }
-
             const initialTasks = computeSchedule(rawTasks, now);
-            await this.logStackDetails(initialTasks, 'Initial Load');
-
-            // Update NavigationManager
             this.navManager.setStack(initialTasks, this.rootPath!);
-
-            // Update local tasks state
             this.tasks = this.navManager.getCurrentStack();
 
-            // Update component if mounted
             if (this.component && this.component.setTasks) {
                 this.component.setTasks(this.tasks);
+            }
+
+            // PERSISTENCE: Ensure "CurrentStack.md" is created/updated on load
+            if (this.rootPath === 'CurrentStack.md') {
+                try {
+                    await this.persistenceService.saveStack(this.tasks, 'CurrentStack.md');
+                } catch (e) {
+                    if (this.logger) this.logger.error(`[StackView] Failed to save CurrentStack.md: ${e}`);
+                    new (window as any).Notice(`Error creating CurrentStack.md: ${e}`);
+                }
             }
         }
 
         await super.setState(state, result);
+    }
+
+    openAddModal() {
+        if (this.logger) this.logger.info('[StackView] Opening Quick Add Modal via Command');
+        new QuickAddModal(this.app, async (result: any) => {
+            if (this.logger) this.logger.info(`[StackView] QuickAdd Result: ${JSON.stringify(result)}`);
+
+            let newNode: TaskNode | null = null;
+
+            if (result.isNew) {
+                // Create new task node
+                newNode = this.onTaskCreate(result.title, { duration: 30 });
+            } else if (result.file) {
+                // Existing file
+                const file = result.file;
+                newNode = {
+                    id: file.path,
+                    title: parseTitleFromFilename(file.name),
+                    duration: 30,
+                    status: 'todo' as const,
+                    isAnchored: false,
+                    children: []
+                };
+                // Resolve metadata
+                const metadata = await this.loader.parser.resolveTaskMetadata(file.path);
+                if (metadata) {
+                    newNode = { ...newNode, ...metadata } as TaskNode;
+                }
+            }
+
+            if (newNode) {
+                // Add to TOP of stack
+                this.tasks.unshift(newNode);
+
+                // Update navigation manager
+                this.navManager.setStack(this.tasks, this.rootPath!);
+
+                // Update Component
+                if (this.component && this.component.setTasks) {
+                    this.component.setTasks(this.tasks);
+                }
+
+                // Trigger Persistence
+                if (this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
+                    await this.persistenceService.saveStack(this.tasks, 'CurrentStack.md');
+                }
+
+                this.app.workspace.requestSaveLayout();
+            }
+        }).open();
     }
 
     async reload(): Promise<void> {
@@ -238,6 +274,17 @@ export class StackView extends ItemView {
             }
         });
 
+        // Start Time Update Interval (every 60s) for "Flexible/Now" mode
+        this.registerInterval(
+            window.setInterval(() => {
+                if (this.component && this.component.updateNow) {
+                    // Only log if debug is strictly on to avoid noise
+                    // if (this.settings.debug) this.logger.info('[StackView] Tick: Updating Now time');
+                    this.component.updateNow(this.getNow());
+                }
+            }, 60 * 1000)
+        );
+
         this.component = mount(StackViewSvelte, {
             target: this.contentEl,
             props: {
@@ -248,10 +295,20 @@ export class StackView extends ItemView {
                 logger: this.logger,
                 onTaskUpdate: this.onTaskUpdate,
                 onTaskCreate: this.onTaskCreate,
-                onStackChange: (tasks: TaskNode[]) => {
+                onStackChange: async (tasks: TaskNode[]) => {
                     this.tasks = tasks;
                     this.navManager.setStack(tasks, this.rootPath!);
                     this.app.workspace.requestSaveLayout();
+
+                    // PERSISTENCE: If we are viewing the default stack file or explicit IDs, save to CurrentStack.md
+                    // We assume that if rootPath is 'CurrentStack.md' (or whatever setting), we save.
+                    // For now, let's hardcode the check or logic.
+                    // Actually, if we are in "Daily Stack" mode (which we want to be file backed), rootPath should be that file.
+
+                    if (this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
+                        this.logger.info(`[StackView] Persisting stack changes to CurrentStack.md`);
+                        await this.persistenceService.saveStack(tasks, 'CurrentStack.md');
+                    }
                 },
                 // openTaskModal: Removed in favor of QuickAddModal unification
                 openQuickAddModal: (currentIndex: number) => {
@@ -290,6 +347,41 @@ export class StackView extends ItemView {
                             }
                         }
                     }).open();
+                },
+                openDurationPicker: (index: number) => {
+                    new DurationPickerModal(this.app, async (minutes: number) => {
+                        if (this.component) {
+                            const controller = this.component.getController();
+                            if (controller) {
+                                const cmd = new SetDurationCommand(controller, index, minutes);
+                                await this.historyManager.executeCommand(cmd);
+
+                                if (this.component.update) {
+                                    this.component.update();
+                                }
+                            }
+                        }
+                    }).open();
+                },
+                onExport: async () => {
+                    const tasks = this.getTasks();
+                    const exportService = new ExportService();
+                    const content = exportService.formatExport(tasks);
+
+                    await navigator.clipboard.writeText(content);
+                    new (window as any).Notice('Exported completed tasks copied to clipboard!');
+
+                    if (this.settings.exportFolder) {
+                        try {
+                            const fileName = `Export-${moment().format('YYYY-MM-DD-HHmm')}.md`;
+                            const folderPath = this.settings.exportFolder.endsWith('/') ? this.settings.exportFolder : this.settings.exportFolder + '/';
+                            const fullPath = folderPath + fileName;
+                            await this.app.vault.create(fullPath, content);
+                            new (window as any).Notice(`Export saved to ${fullPath}`);
+                        } catch (e) {
+                            this.logger.error(`Export file creation failed: ${e}`);
+                        }
+                    }
                 },
                 onOpenFile: (path: string) => {
                     this.app.workspace.openLinkText(path, '', true);
@@ -381,23 +473,6 @@ export class StackView extends ItemView {
                         this.logger.warn(`[StackView] Cannot go back. Result success: ${success}`);
                     }
                     this.logger.info(`[StackView] ========== GO BACK FINISHED ==========`);
-                },
-                onExport: async (tasks: TaskNode[]) => {
-                    const content = serializeStackToMarkdown(tasks);
-                    const filename = `Stack Export ${moment().format('YYYY-MM-DD HHmm')}.md`;
-
-                    let path = filename;
-                    if (this.settings.exportFolder) {
-                        // Ensure folder exists
-                        const adapter = this.app.vault.adapter;
-                        if (!(await adapter.exists(this.settings.exportFolder))) {
-                            await this.app.vault.createFolder(this.settings.exportFolder);
-                        }
-                        path = `${this.settings.exportFolder}/${filename}`;
-                    }
-
-                    await this.app.vault.create(path, content);
-                    new (window as any).Notice(`Stack saved to ${path} `);
                 }
             }
         });

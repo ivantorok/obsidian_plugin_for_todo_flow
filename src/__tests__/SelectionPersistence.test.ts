@@ -92,7 +92,7 @@ describe('StackView Selection Persistence', () => {
 
         vi.clearAllMocks();
 
-        view = new StackView(mockLeaf, mockSettings, mockHistory, mockLogger, vi.fn(), vi.fn());
+        view = new StackView(mockLeaf, mockSettings, mockHistory, mockLogger, { saveStack: vi.fn(), loadStackIds: vi.fn() } as any, vi.fn(), vi.fn());
 
         // Manual component mount mock since we can't fully mock Svelte lifecycle easily here
         view.component = mocks.component;
