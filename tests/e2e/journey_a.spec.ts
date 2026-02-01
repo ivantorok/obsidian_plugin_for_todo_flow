@@ -48,15 +48,21 @@ describe('Journey A: Dump & Triage', () => {
         const triageCard = await $('.triage-card-wrapper');
         await expect(triageCard).toExist();
 
-        // 5. Perform Triage Actions
-        // Correct keybindings: k/ArrowRight = Keep, j/ArrowLeft = Archive
-
         // Task 1: Keep (k or ArrowRight)
         await browser.keys(['k']);
         await browser.pause(500);
 
         // Task 2: Archive (j or ArrowLeft)
         await browser.keys(['j']);
+        await browser.pause(500);
+
+        // UNDO: Bring Task 2 back with 'u'
+        await browser.keys(['u']);
+        await browser.pause(500);
+        console.log('[Test] ✅ Undo works - Task 2 should be back');
+
+        // Task 2 again: Keep it this time
+        await browser.keys(['k']);
         await browser.pause(500);
 
         // Task 3: Keep (k)
@@ -85,10 +91,12 @@ describe('Journey A: Dump & Triage', () => {
 
         console.log('[Test] Final Stack Titles:', titles);
 
+        // After undo, all 3 tasks should be in the stack
         expect(titles).toContain('Task 1');
+        expect(titles).toContain('Task 2');
         expect(titles).toContain('Task 3');
-        expect(titles).not.toContain('Task 2');
+        expect(titles.length).toBe(3);
 
-        console.log('[Test] ✅ Journey A completed successfully.');
+        console.log('[Test] ✅ Journey A completed successfully with undo test.');
     });
 });
