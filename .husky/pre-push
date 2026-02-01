@@ -1,8 +1,10 @@
+echo "DEBUG: pre-push arguments: $@"
+echo "DEBUG: pre-push stdin:"
+cat -
+
 # Run unit tests
 npm test || exit 1
 
 # Run E2E tests
-# We use 'set --' to clear positional arguments ($1, $2, etc.) 
-# passed by Git (remote name, URL, etc.) so WDIO doesn't get confused.
 set --
 npm run e2e || exit 1

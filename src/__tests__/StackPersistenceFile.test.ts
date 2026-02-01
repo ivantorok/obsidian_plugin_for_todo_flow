@@ -21,7 +21,8 @@ const mockVault = {
 const mockApp = {
     vault: mockVault,
     metadataCache: {
-        getFileCache: vi.fn()
+        getFileCache: vi.fn(),
+        getFirstLinkpathDest: vi.fn()
     }
 } as unknown as App;
 
