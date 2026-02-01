@@ -98,6 +98,13 @@ rm <VAULT_PATH>/todo-flow.log
 
 ### 1. Development Cycle
 
+#### The Backlog-First Workflow (Preferred)
+For complex bugs or feature requests, use the protocol documented in [BACKLOG.md](./BACKLOG.md):
+1. **Report**: Create a spec in `docs/backlog/` using the [TEMPLATE.md](./backlog/TEMPLATE.md).
+2. **Review**: The AI picks up the item and creates an `implementation_plan.md`.
+3. **TDD**: A failing test is written *before* any implementation code.
+4. **Complete**: Once tests pass, the item is moved to the archive.
+
 #### Step 1: Write Test (RED)
 ```bash
 # Create/edit test file
