@@ -36,6 +36,7 @@ npm test -- --watch
 npm run e2e              # Automated E2E tests with Playwright
 npm run e2e:open         # Manual verification in isolated environment
 npm run e2e:setup        # Setup test vault only
+npm run e2e -- --spec tests/e2e/functional.spec.ts # Run specific E2E spec
 
 # View E2E logs
 cat .test-vault-launch.log
