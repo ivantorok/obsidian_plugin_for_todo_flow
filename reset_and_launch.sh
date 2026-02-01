@@ -43,9 +43,9 @@ try {
 
 echo "[Dev] Starting Obsidian..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    open -a Obsidian --args "$VAULT_PATH" &
+    open -a Obsidian --args --vault "$VAULT_PATH" &
 else
-    obsidian "$VAULT_PATH" &
+    obsidian --vault "$VAULT_PATH" &
 fi
 PID=$!
 echo "[Dev] Obsidian launched (PID: $PID) with vault: $VAULT_PATH"

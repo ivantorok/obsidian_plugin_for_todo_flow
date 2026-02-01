@@ -34,6 +34,8 @@ export class StackView extends ItemView {
     loader: StackLoader;
     navManager: NavigationManager;
     persistenceService: StackPersistenceService;
+    private lastSavedIds: string[] = [];
+    private saveTimeout: number | null = null;
 
     constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode) {
         super(leaf);
@@ -125,6 +127,7 @@ export class StackView extends ItemView {
             if (this.rootPath === 'CurrentStack.md') {
                 try {
                     await this.persistenceService.saveStack(this.tasks, 'CurrentStack.md');
+                    this.lastSavedIds = this.tasks.map(t => `${t.id}:${t.status}`);
                 } catch (e) {
                     if (this.logger) this.logger.error(`[StackView] Failed to save CurrentStack.md: ${e}`);
                     new (window as any).Notice(`Error creating CurrentStack.md: ${e}`);
@@ -295,19 +298,27 @@ export class StackView extends ItemView {
                 logger: this.logger,
                 onTaskUpdate: this.onTaskUpdate,
                 onTaskCreate: this.onTaskCreate,
-                onStackChange: async (tasks: TaskNode[]) => {
+                onStackChange: (tasks: TaskNode[]) => {
                     this.tasks = tasks;
                     this.navManager.setStack(tasks, this.rootPath!);
                     this.app.workspace.requestSaveLayout();
 
-                    // PERSISTENCE: If we are viewing the default stack file or explicit IDs, save to CurrentStack.md
-                    // We assume that if rootPath is 'CurrentStack.md' (or whatever setting), we save.
-                    // For now, let's hardcode the check or logic.
-                    // Actually, if we are in "Daily Stack" mode (which we want to be file backed), rootPath should be that file.
-
+                    // PERSISTENCE: Debounced save to CurrentStack.md
                     if (this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
-                        this.logger.info(`[StackView] Persisting stack changes to CurrentStack.md`);
-                        await this.persistenceService.saveStack(tasks, 'CurrentStack.md');
+                        const currentIds = tasks.map(t => `${t.id}:${t.status}`);
+                        const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
+
+                        if (idsChanged) {
+                            if (this.saveTimeout) {
+                                window.clearTimeout(this.saveTimeout);
+                            }
+                            this.saveTimeout = window.setTimeout(async () => {
+                                this.logger.info(`[StackView] Persisting stack changes to CurrentStack.md (Debounced)`);
+                                await this.persistenceService.saveStack(tasks, 'CurrentStack.md');
+                                this.lastSavedIds = currentIds;
+                                this.saveTimeout = null;
+                            }, 500);
+                        }
                     }
                 },
                 // openTaskModal: Removed in favor of QuickAddModal unification
@@ -414,6 +425,8 @@ export class StackView extends ItemView {
                             this.component.setTasks(this.tasks);
                             this.logger.info(`[StackView] component.setTasks() completed`);
 
+                            this.lastSavedIds = this.tasks.map(t => `${t.id}:${t.status}`);
+
                             // New stack starts with focus at 0
                             if (this.component.setFocus) {
                                 this.logger.info(`[StackView] Calling component.setFocus(0)`);
@@ -422,6 +435,13 @@ export class StackView extends ItemView {
                         } else {
                             this.logger.warn(`[StackView] WARNING: component or component.setTasks is undefined!`);
                         }
+
+                        // Update leaf state for history
+                        await this.leaf.setViewState({
+                            type: VIEW_TYPE_STACK,
+                            state: this.getState()
+                        }, { history: true });
+
                         this.logger.info(`[StackView] Drilled down successfully. New stack size: ${this.tasks.length}`);
                     } else {
                         this.logger.warn(`[StackView] Could not drill down into: ${path}. Falling back to opening file.`);
@@ -458,7 +478,8 @@ export class StackView extends ItemView {
                             this.component.setTasks(this.tasks);
                             this.logger.info(`[StackView] component.setTasks() completed`);
 
-                            // Restore focus
+                            this.lastSavedIds = this.tasks.map(t => `${t.id}:${t.status}`);
+
                             if (this.component.setFocus) {
                                 this.logger.info(`[StackView] Calling component.setFocus(${focusedIndex})`);
                                 this.component.setFocus(focusedIndex);
@@ -468,6 +489,13 @@ export class StackView extends ItemView {
                             this.logger.warn(`[StackView]   - component exists: ${!!this.component}`);
                             this.logger.warn(`[StackView]   - component.setTasks exists: ${!!(this.component && this.component.setTasks)}`);
                         }
+
+                        // Update leaf state for history
+                        await this.leaf.setViewState({
+                            type: VIEW_TYPE_STACK,
+                            state: this.getState()
+                        }, { history: true });
+
                         this.logger.info(`[StackView] Go back completed. Restored focus to ${focusedIndex}`);
                     } else {
                         this.logger.warn(`[StackView] Cannot go back. Result success: ${success}`);
@@ -529,6 +557,9 @@ export class StackView extends ItemView {
     }
 
     async onClose() {
+        if (this.saveTimeout) {
+            window.clearTimeout(this.saveTimeout);
+        }
         if (this.component) {
             unmount(this.component);
         }

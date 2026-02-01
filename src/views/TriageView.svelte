@@ -13,7 +13,7 @@
     let { app, tasks: initialTasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal, logger } = $props();
     
     let controller: TriageController;
-    let tasks = $state<TaskNode[]>([...initialTasks]);
+    let tasks = $state<TaskNode[]>([...(initialTasks || [])]);
     let currentTask = $state<TaskNode | null>(null);
     let swipeDirection = $state<'left' | 'right' | null>(null);
     let showHelp = $state(false);
@@ -34,15 +34,22 @@
             durationUp: ['ArrowRight'], durationDown: ['ArrowLeft'], 
             undo: ['u'], confirm: [], cancel: [] 
         });
+
+        return () => {
+            if (triageTimer) clearTimeout(triageTimer);
+        };
     });
 
+    let triageTimer: any = null;
     function next(direction: 'left' | 'right') {
         swipeDirection = direction;
-        setTimeout(async () => {
+        if (triageTimer) clearTimeout(triageTimer);
+        triageTimer = setTimeout(async () => {
             await historyManager.executeCommand(new SwipeCommand(controller, direction));
             
             currentTask = controller.getCurrentTask();
             swipeDirection = null;
+            triageTimer = null;
 
             if (!currentTask) {
                 onComplete(controller.getResults());

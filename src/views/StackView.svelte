@@ -98,6 +98,8 @@
     let startedOnHandle = false;
     let dragLogged = false;
     let lastDragEndTime = 0;
+    let focusTimer: any = null;
+    let tapTimer: any = null;
 
     onMount(() => {
         if (debug) console.log('[TODO_FLOW_TRACE] onMount entry');
@@ -108,6 +110,11 @@
         if (containerEl && !window.navigator.userAgent.includes('HappyDOM')) {
             containerEl.focus();
         }
+
+        return () => {
+            if (focusTimer) clearTimeout(focusTimer);
+            if (tapTimer) clearTimeout(tapTimer);
+        };
     });
 
     $effect(() => {
@@ -195,7 +202,11 @@
             editingIndex = -1;
             activeRenameId = null;
             // Refocus the container
-            setTimeout(() => containerEl?.focus(), 50);
+            if (focusTimer) clearTimeout(focusTimer);
+            focusTimer = setTimeout(() => {
+                containerEl?.focus();
+                focusTimer = null;
+            }, 50);
         }
     }
     
@@ -217,7 +228,11 @@
             new (window as any).Notice(`Invalid time: ${newTime}`);
         } finally {
             editingStartTimeIndex = -1;
-            setTimeout(() => containerEl?.focus(), 50);
+            if (focusTimer) clearTimeout(focusTimer);
+            focusTimer = setTimeout(() => {
+                containerEl?.focus();
+                focusTimer = null;
+            }, 50);
         }
     }
 
@@ -387,6 +402,13 @@
         if (delta < 300) { // Assuming 300ms is the double-tap threshold
             // Double Tap
             if (debug) console.log('[GESTURE] Double Tap Detected');
+            
+            // Clear any pending single-tap navigate timer
+            if (tapTimer) {
+                clearTimeout(tapTimer);
+                tapTimer = null;
+            }
+
             await executeGestureAction(settings.doubleTapAction, task, index);
             lastTapTime = 0; // Reset lastTapTime after a double tap
             return;
@@ -395,20 +417,26 @@
         // Single Tap logic
         if (focusedIndex === index) {
             // If tapping on an already focused item, treat it as a 'CONFIRM' action
-            const navResult = controller.handleEnter(index);
-            if (navResult) {
-                if (navResult.action === 'DRILL_DOWN') {
-                    if (task && onNavigate) {
-                        onNavigate(task.id, index);
-                    }
-                } else if (navResult.action === 'OPEN_FILE' && navResult.path) {
-                    if (onNavigate) {
-                        onNavigate(navResult.path, index);
-                    } else {
-                        onOpenFile(navResult.path);
+            // but DELAY it slightly to allow for a second tap to anchor.
+            if (tapTimer) clearTimeout(tapTimer);
+            
+            tapTimer = setTimeout(() => {
+                tapTimer = null;
+                const navResult = controller.handleEnter(index);
+                if (navResult) {
+                    if (navResult.action === 'DRILL_DOWN') {
+                        if (task && onNavigate) {
+                            onNavigate(task.id, index);
+                        }
+                    } else if (navResult.action === 'OPEN_FILE' && navResult.path) {
+                        if (onNavigate) {
+                            onNavigate(navResult.path, index);
+                        } else {
+                            onOpenFile(navResult.path);
+                        }
                     }
                 }
-            }
+            }, 250); // 250ms window to catch a double-tap
         } else {
             // If tapping on a new item, just focus it
             focusedIndex = index;
@@ -686,6 +714,7 @@
                 <div 
                     class="drag-handle" 
                     title="Drag to reorder"
+                    style="touch-action: none;"
                 >⠿</div>
                 <div class="time-col">
                     {#if editingStartTimeIndex === i}

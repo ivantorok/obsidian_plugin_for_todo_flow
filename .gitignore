@@ -7,3 +7,5 @@ main.js
 docs/archive/
 
 artifacts/
+.obsidian-cache/
+.test-vault/

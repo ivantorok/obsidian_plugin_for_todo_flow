@@ -23,7 +23,7 @@ git push
 
 ### Testing
 ```bash
-# Run all tests
+# Run all unit tests
 npm test
 
 # Run specific test file
@@ -31,7 +31,17 @@ npm test src/__tests__/logger.test.ts
 
 # Watch mode (auto-rerun on changes)
 npm test -- --watch
+
+# E2E Tests (Playwright)
+npm run e2e              # Automated E2E tests with Playwright
+npm run e2e:open         # Manual verification in isolated environment
+npm run e2e:setup        # Setup test vault only
+
+# View E2E logs
+cat .test-vault-launch.log
 ```
+
+For detailed E2E testing documentation, see [E2E_TESTING.md](./E2E_TESTING.md).
 
 ---
 

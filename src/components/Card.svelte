@@ -1,6 +1,5 @@
 <script lang="ts">
-   export let title: string | undefined = undefined;
-   export let variant: 'default' | 'triage' | 'dump' = 'default';
+    let { title = undefined, variant = 'default' } = $props();
 </script>
 
 <div class="todo-flow-card variant-{variant}">

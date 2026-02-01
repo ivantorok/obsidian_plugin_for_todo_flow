@@ -37,6 +37,8 @@
     "skipLibCheck": true,
   },
   "exclude": [
-    "sandbox"
+    "sandbox",
+    "tests/e2e/**/*",
+    "wdio.conf.mts"
   ]
 }
