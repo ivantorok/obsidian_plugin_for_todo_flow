@@ -292,6 +292,7 @@ export class StackController {
     }
 
     moveTaskToIndex(oldIndex: number, newIndex: number): number {
+        console.log(`[StackController] moveTaskToIndex(oldIndex: ${oldIndex}, newIndex: ${newIndex})`);
         if (oldIndex === newIndex) return oldIndex;
         if (!this.tasks[oldIndex]) return oldIndex;
         if (this.tasks[oldIndex]?.isAnchored) return oldIndex;
@@ -301,17 +302,17 @@ export class StackController {
 
         // Remove from old
         newTasks.splice(oldIndex, 1);
+        console.log(`[StackController] After splice-out: ${newTasks.map(t => t.title).join(', ')}`);
 
         // Adjust newIndex if it was after oldIndex
         let target = newIndex;
-
-        // Ensure we don't land ON an anchor if possible, or just insert
-        // The scheduler will re-sort if needed, but for manual reordering 
-        // we want to respect the user's intended position in the unanchored sequence.
         newTasks.splice(target, 0, taskToMove);
+        console.log(`[StackController] After splice-in: ${newTasks.map(t => t.title).join(', ')}`);
 
         this.tasks = computeSchedule(newTasks, this.currentTime);
-        return this.tasks.findIndex(t => t.id === taskToMove.id);
+        const finalIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+        console.log(`[StackController] Final order: ${this.tasks.map(t => t.title).join(', ')} (moved task now at ${finalIndex})`);
+        return finalIndex;
     }
 
     handleEnter(index: number, forceOpen: boolean = false): { action: 'DRILL_DOWN' | 'OPEN_FILE' | 'GO_BACK'; path?: string; newStack?: TaskNode[] } | null {

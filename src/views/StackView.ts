@@ -388,7 +388,7 @@ export class StackView extends ItemView {
                     const exportService = new ExportService();
                     const content = exportService.formatExport(tasks);
 
-                    await navigator.clipboard.writeText(content);
+                    (this.app as any).copyToClipboard(content);
                     new (window as any).Notice('Stack exported and copied to clipboard!');
 
                     if (this.settings.exportFolder) {

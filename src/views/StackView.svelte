@@ -239,7 +239,6 @@
 
     // Gesture Handlers
     function handlePointerStart(e: PointerEvent, taskId: string) {
-        // Trace logging
         if (logger && internalSettings.debug) {
             logger.info(`[GESTURE] handlePointerStart taskId=${taskId}, target=${(e.target as HTMLElement).className}`);
         }
@@ -256,12 +255,34 @@
         // Detect if we started on the handle for immediate reorder intent
         const target = e.target as HTMLElement;
         startedOnHandle = target.closest('.drag-handle') !== null;
+        // console.log(`[GESTURE] startedOnHandle=${startedOnHandle}`);
         dragLogged = false;
 
         // Reset dragging state
         draggingTaskId = null;
         draggingStartIndex = -1;
         dragTargetIndex = -1;
+
+        // HOLD TO DRAG: If not on handle, allow long-press to start drag
+        if (!startedOnHandle) {
+            if (tapTimer) clearTimeout(tapTimer);
+            tapTimer = setTimeout(() => {
+                if (swipingTaskId === taskId && !draggingTaskId) {
+                    const dx = Math.abs(touchCurrentX - touchStartX);
+                    const dy = Math.abs(touchCurrentY - touchStartY);
+                    if (dx < 20 && dy < 20) {
+                         const index = tasks.findIndex(t => t.id === swipingTaskId);
+                         if (index !== -1 && !tasks[index]!.isAnchored) {
+                            draggingTaskId = swipingTaskId;
+                            draggingStartIndex = index;
+                            dragTargetIndex = index;
+                            swipingTaskId = null;
+                            if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('medium');
+                         }
+                    }
+                }
+            }, 350);
+        }
     }
 
     function handlePointerMove(e: PointerEvent) {
@@ -275,8 +296,8 @@
 
         // 1. INTENT LOCKING: Deciding between Swipe vs Drag
         if (!draggingTaskId && (dy > 3 || dx > 3 || startedOnHandle)) {
-            // If we started on the handle, or we moved significantly vertically, or just moved at all vertically
-            if (startedOnHandle || dy > dx) {
+            // If we started on the handle, or we moved significantly vertically
+            if (startedOnHandle || dy > (dx * 1.5)) { 
                 // LOCK INTO DRAG MODE
                 const index = tasks.findIndex(t => t.id === swipingTaskId);
                 if (index !== -1 && !tasks[index]!.isAnchored) {
@@ -318,14 +339,15 @@
             }
             
             if (bestTarget !== -1 && bestTarget !== dragTargetIndex) {
-                // Potential Haptic Feedback point:
-                // if (window.obsidian?.haptics) window.obsidian.haptics.impact('light');
+                if (!(window as any)._logs) (window as any)._logs = [];
+                (window as any)._logs.push(`[GESTURE] dragTargetIndex changed: ${dragTargetIndex} -> ${bestTarget}`);
                 dragTargetIndex = bestTarget;
             }
         }
     }
 
     async function handlePointerEnd(e: PointerEvent, task: TaskNode) {
+        // console.log(`[GESTURE] handlePointerEnd task=${task.title}, draggingTaskId=${draggingTaskId}`);
         if (!swipingTaskId && !draggingTaskId) return;
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
 
@@ -340,10 +362,18 @@
             draggingStartIndex = -1;
             dragTargetIndex = -1;
             dragLogged = false;
+            lastDragEndTime = Date.now();
+            
+            // IMPORTANT: If we just finished a drag, we don't want to trigger a swipe
+            swipingTaskId = null;
+            touchStartX = 0;
+            touchCurrentX = 0;
+            return;
         }
 
         const deltaX = touchCurrentX - touchStartX;
-        const swipe = resolveSwipe(deltaX);
+        const deltaY = touchCurrentY - touchStartY;
+        const swipe = resolveSwipe(deltaX, deltaY);
         const index = tasks.findIndex(t => t.id === task.id);
 
         if (index !== -1) {
@@ -383,8 +413,13 @@
     function handleTouchBlocking(e: TouchEvent) {
         // High-level blocking for Obsidian's gesture engine
         e.stopPropagation();
-        if (swipingTaskId && Math.abs(touchCurrentX - touchStartX) > 10) {
-            // Only prevent default if we are swiping horizontally enough
+        const dx = Math.abs(touchCurrentX - touchStartX);
+        const dy = Math.abs(touchCurrentY - touchStartY);
+
+        if (draggingTaskId) {
+            if (e.cancelable) e.preventDefault();
+        } else if (swipingTaskId && (dx > 10 || dy > 10)) {
+            // Only prevent default if we have started a clear gesture
             if (e.cancelable) e.preventDefault();
         }
     }
@@ -709,10 +744,8 @@
                 onpointerdown={(e) => handlePointerStart(e, task.id)}
                 onpointermove={handlePointerMove}
                 onpointerup={(e) => handlePointerEnd(e, task)}
-                ontouchstart={handleTouchBlocking}
-                ontouchmove={handleTouchBlocking}
                 style:transform={getCardTransform(task.id)}
-                style:touch-action={draggingTaskId === task.id ? 'none' : 'pan-y'}
+                style:touch-action={swipingTaskId === task.id || draggingTaskId === task.id ? 'none' : 'pan-y'}
             >
                 <div 
                     class="drag-handle" 
@@ -804,7 +837,10 @@
     </div>
     <!-- Help Overlay -->
     <div class="footer-controls">
-        <button class="icon-button" onclick={onExport} title="Export completed tasks">
+        <button class="icon-button plus-btn" onclick={() => openQuickAddModal(focusedIndex)} title="Add Task">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button class="icon-button export-btn" onclick={onExport} title="Export completed tasks">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
         {#if showHelp}
@@ -1051,5 +1087,49 @@
         font-size: 0.9rem;
         padding: 0 2px;
         border-radius: 4px;
+    }
+    .footer-controls {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: linear-gradient(transparent, var(--background-primary) 60%);
+        pointer-events: none;
+        z-index: 100;
+    }
+
+    .footer-controls .icon-button {
+        pointer-events: auto;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--interactive-accent);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .footer-controls .icon-button:hover {
+        transform: scale(1.1);
+        background: var(--interactive-accent-hover);
+    }
+
+    .footer-controls .icon-button.export-btn {
+        background: var(--background-modifier-border);
+        color: var(--text-muted);
+    }
+
+    .footer-controls .icon-button.export-btn:hover {
+        background: var(--background-modifier-border-hover);
+        color: var(--text-normal);
     }
 </style>
