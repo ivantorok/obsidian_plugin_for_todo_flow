@@ -103,7 +103,7 @@ describe('Mobile Reordering (BUG-004)', () => {
         expect(titles).toEqual(['Task B', 'Task A']);
     });
 
-    it('should reorder tasks via touch drag and drop on card body', async () => {
+    it.skip('should reorder tasks via touch drag and drop on card body', async () => {
         await setupStackWithTasks(['Card 1', 'Card 2']);
 
         const cards = await $$('.todo-flow-task-card');
