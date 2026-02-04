@@ -15,7 +15,6 @@ describe('Mobile: Smart Duration Sequence', () => {
             const plugin = app.plugins.plugins['todo-flow'];
             if (plugin) {
                 plugin.settings.targetFolder = 'todo-flow';
-                plugin.settings.keys = { ...plugin.settings.keys, debug: true };
                 await plugin.saveSettings();
             }
         });
