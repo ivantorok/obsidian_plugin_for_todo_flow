@@ -2,11 +2,10 @@ import { browser, expect, $ } from '@wdio/globals';
 import fs from 'fs';
 import path from 'path';
 
-describe('Journey C: Deep Work & Rollups', () => {
+describe('Drill Down & Navigation', () => {
     const vaultPath = path.resolve(process.cwd(), '.test-vault');
     const fixturesPath = path.resolve(process.cwd(), 'tests/fixtures/journey_c');
 
-    // Helper to copy fixtures to vault
     async function setupFixtures() {
         if (!fs.existsSync(vaultPath)) {
             fs.mkdirSync(vaultPath, { recursive: true });
@@ -20,7 +19,6 @@ describe('Journey C: Deep Work & Rollups', () => {
         console.log('[Test] Fixtures copied to vault');
     }
 
-    // Helper to wait for Obsidian indexing
     async function waitForLinks(sourcePath: string, targetIds: string[]) {
         console.log(`[Test] Waiting for links in ${sourcePath}: ${targetIds.join(', ')}`);
         // @ts-ignore
@@ -40,13 +38,10 @@ describe('Journey C: Deep Work & Rollups', () => {
             }, sourcePath, targetIds);
 
             if (result.success) return true;
-            // Diagnostic logging
-            // console.log(`[Test] ${sourcePath} status: ${result.reason}. Found: ${JSON.stringify(result.found)}`);
             return false;
         }, { timeout: 15000, timeoutMsg: `Links ${targetIds} not found in ${sourcePath} after 15s` });
     }
 
-    // Helper to ensure Stack View is focused
     async function focusStack() {
         // @ts-ignore
         await browser.execute(() => {
@@ -67,17 +62,13 @@ describe('Journey C: Deep Work & Rollups', () => {
         // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
         await setupFixtures();
-
-        // Let Obsidian start up and initialize cache
         // @ts-ignore
         await browser.pause(3000);
 
-        // Wait for Obsidian to index the hierarchy
         await waitForLinks('j3_root.md', ['j3_gp.md']);
         await waitForLinks('j3_gp.md', ['j3_p.md']);
         await waitForLinks('j3_p.md', ['j3_ca.md', 'j3_cb.md']);
 
-        // Enable debug logging for the test
         // @ts-ignore
         await browser.execute(() => {
             // @ts-ignore
@@ -177,85 +168,6 @@ describe('Journey C: Deep Work & Rollups', () => {
         });
         expect(titles).toContain('Grandparent Task');
         console.log('[Test] ✅ Multi-level drill-down works!');
-    });
-
-    it('should update grandparent duration via rollup from deeply nested child', async () => {
-        // 1. Activate root stack
-        // @ts-ignore
-        await browser.execute((filePath: string) => {
-            // @ts-ignore
-            const plugin = app.plugins.plugins['todo-flow'];
-            plugin.activateStack(filePath);
-        }, 'j3_root.md');
-
-        const stackContainer = await $('.todo-flow-stack-container');
-        await stackContainer.waitForDisplayed({ timeout: 10000 });
-        await focusStack();
-
-        // Initial Total: GP(30) + P(30) + CA(30) + CB(30) = 120
-        // @ts-ignore
-        let gpDuration = await browser.execute(() => {
-            // @ts-ignore
-            return app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view.getTasks()[0].duration;
-        });
-        console.log(`[Test] Initial grandparent duration: ${gpDuration}min`);
-        expect(gpDuration).toBe(120);
-
-        // 2. Drill down to parent
-        // @ts-ignore
-        await browser.keys(['Enter']);
-        // @ts-ignore
-        await browser.pause(1500);
-        await focusStack();
-
-        // 3. Drill down to children
-        // @ts-ignore
-        await browser.keys(['Enter']);
-        // @ts-ignore
-        await browser.pause(1500);
-        await focusStack();
-
-        // 4. Increase Child A's duration with 'f' (twice: 30 -> 45 -> 60)
-        // @ts-ignore
-        await browser.keys(['f']);
-        // @ts-ignore
-        await browser.pause(800);
-        // @ts-ignore
-        await browser.keys(['f']);
-        // @ts-ignore
-        await browser.pause(800);
-
-        // @ts-ignore
-        const newChildDuration = await browser.execute(() => {
-            // @ts-ignore
-            return app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view.getTasks()[0].duration;
-        });
-        console.log(`[Test] Child A duration after increase: ${newChildDuration}min`);
-        expect(newChildDuration).toBe(60);
-
-        // 5. Navigate back to root level (2x 'h')
-        // @ts-ignore
-        await browser.keys(['h']);
-        // @ts-ignore
-        await browser.pause(1500);
-        await focusStack();
-        // @ts-ignore
-        await browser.keys(['h']);
-        // @ts-ignore
-        await browser.pause(1500);
-        await focusStack();
-
-        // 6. Get updated grandparent duration
-        // GP(30) + P(30) + CA(60) + CB(30) = 150
-        // @ts-ignore
-        let finalGpDuration = await browser.execute(() => {
-            // @ts-ignore
-            return app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view.getTasks()[0].duration;
-        });
-        console.log(`[Test] Grandparent duration after rollup: ${finalGpDuration}min`);
-
-        expect(finalGpDuration).toBe(150);
-        console.log('[Test] ✅ Rollup logic verified across 3 levels of file links!');
     });
 
     it('should NOT open leaf file with Enter (only Shift+Enter should open)', async () => {

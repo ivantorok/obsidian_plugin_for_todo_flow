@@ -3,6 +3,10 @@ set -e
 
 echo "🚢 Shipping Todo Flow..."
 
+# 0. Increment Version
+echo "📈 Incrementing Version..."
+node scripts/version_bump.mjs
+
 # 1. Run Tests
 echo "🧪 Running Tests..."
 npm run test -- --run

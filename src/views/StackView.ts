@@ -388,9 +388,6 @@ export class StackView extends ItemView {
                     const exportService = new ExportService();
                     const content = exportService.formatExport(tasks);
 
-                    (this.app as any).copyToClipboard(content);
-                    new (window as any).Notice('Stack exported and copied to clipboard!');
-
                     if (this.settings.exportFolder) {
                         try {
                             const fileName = `Export-${moment().format('YYYY-MM-DD-HHmm')}.md`;
@@ -398,9 +395,12 @@ export class StackView extends ItemView {
                             const fullPath = folderPath + fileName;
                             await this.app.vault.create(fullPath, content);
                             new (window as any).Notice(`Export saved to ${fullPath}`);
-                        } catch (e) {
-                            this.logger.error(`Export file creation failed: ${e}`);
+                        } catch (err) {
+                            console.error('Export failed:', err);
+                            new (window as any).Notice('Failed to save export file.');
                         }
+                    } else {
+                        new (window as any).Notice('Please configure an Export Folder in settings.');
                     }
                 },
                 onOpenFile: (path: string) => {

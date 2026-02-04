@@ -314,20 +314,20 @@ export default class TodoFlowPlugin extends Plugin {
                 const exportService = new ExportService();
                 const content = exportService.formatExport(tasks);
 
-                await navigator.clipboard.writeText(content);
-                new (window as any).Notice('Stack exported and copied to clipboard!');
-
-                // Optional: Save to file if exportFolder is configured
+                // Save to file if exportFolder is configured
                 if (this.settings.exportFolder) {
                     try {
                         const fileName = `Export-${moment().format('YYYY-MM-DD-HHmm')}.md`;
                         const folderPath = this.settings.exportFolder.endsWith('/') ? this.settings.exportFolder : this.settings.exportFolder + '/';
                         const fullPath = folderPath + fileName;
                         await this.app.vault.create(fullPath, content);
-                        new Notice(`Export saved to ${fullPath}`);
-                    } catch (e) {
-                        this.logger.error(`Export file creation failed: ${e}`);
+                        new Notice(`Stack exported to ${fullPath}`);
+                    } catch (err) {
+                        console.error('Export failed:', err);
+                        new Notice('Failed to save export file. Check console for details.');
                     }
+                } else {
+                    new Notice('Please configure an Export Folder in settings to save exports.');
                 }
             }
         });

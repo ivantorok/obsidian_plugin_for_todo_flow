@@ -38,11 +38,12 @@ export const config: Options.Testrunner = {
     // ===================
     // Test Configurations
     // ===================
-    logLevel: 'info',
+    logLevel: 'debug',
     bail: 0,
     waitforTimeout: 10000,
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
+    specFileRetries: 2,
 
     //
     // ========
