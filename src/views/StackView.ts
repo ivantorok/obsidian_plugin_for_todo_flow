@@ -30,14 +30,14 @@ export class StackView extends ItemView {
     historyManager: HistoryManager;
     logger: FileLogger;
     onTaskUpdate: (task: TaskNode) => void | Promise<void>;
-    onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode;
+    onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => Promise<TaskNode>;
     loader: StackLoader;
     navManager: NavigationManager;
     persistenceService: StackPersistenceService;
     private lastSavedIds: string[] = [];
     private saveTimeout: number | null = null;
 
-    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => TaskNode) {
+    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }) => Promise<TaskNode>) {
         super(leaf);
         this.settings = settings;
         this.historyManager = historyManager;
@@ -147,7 +147,7 @@ export class StackView extends ItemView {
 
             if (result.isNew) {
                 // Create new task node
-                newNode = this.onTaskCreate(result.title, { duration: 30 });
+                newNode = await this.onTaskCreate(result.title, { duration: 30 });
             } else if (result.file) {
                 // Existing file
                 const file = result.file;
@@ -342,7 +342,7 @@ export class StackView extends ItemView {
                             if (result.duration !== undefined) options.duration = result.duration;
                             if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
 
-                            nodeToInsert = this.onTaskCreate(result.title, options);
+                            nodeToInsert = await this.onTaskCreate(result.title, options);
                         } else if (result.type === 'file' && result.file) {
                             // Load the specific file as a TaskNode
                             const nodes = await this.loader.loadSpecificFiles([result.file.path]);

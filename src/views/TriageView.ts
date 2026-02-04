@@ -18,7 +18,7 @@ export class TriageView extends ItemView {
     onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void;
     historyManager: HistoryManager;
     logger: FileLogger | undefined;
-    onCreateTask: (title: string, options?: any) => TaskNode;
+    onCreateTask: (title: string, options?: any) => Promise<TaskNode>;
 
     constructor(
         leaf: WorkspaceLeaf,
@@ -27,7 +27,7 @@ export class TriageView extends ItemView {
         historyManager: HistoryManager,
         logger: FileLogger | undefined,
         onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void,
-        onCreateTask: (title: string, options?: any) => TaskNode
+        onCreateTask: (title: string, options?: any) => Promise<TaskNode>
     ) {
         super(leaf);
         this.tasks = tasks;
@@ -82,7 +82,10 @@ export class TriageView extends ItemView {
                                 if (result.duration !== undefined) options.duration = result.duration;
                                 if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
 
-                                const newNode = this.onCreateTask(result.title, options);
+                                if (result.duration !== undefined) options.duration = result.duration;
+                                if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+
+                                const newNode = await this.onCreateTask(result.title, options);
                                 if (newNode && this.component) {
                                     if (this.logger) this.logger.info(`[TriageView] Adding NEW node to queue: ${newNode.id}`);
                                     if (typeof this.component.addTaskToQueue === 'function') {

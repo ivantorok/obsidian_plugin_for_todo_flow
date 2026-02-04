@@ -701,7 +701,7 @@ export default class TodoFlowPlugin extends Plugin {
     }
     */
 
-    onCreateTask(title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): TaskNode {
+    async onCreateTask(title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): Promise<TaskNode> {
         const filename = generateFilename(title);
         const path = `${this.settings.targetFolder}/${filename}`;
 
@@ -731,8 +731,8 @@ export default class TodoFlowPlugin extends Plugin {
         }
         fileContent += `\n---\n# ${title}`;
 
-        // Asynchronously create the file in the vault
-        this.app.vault.create(path, fileContent);
+        // Asynchronously create the file in the vault AND await it
+        await this.app.vault.create(path, fileContent);
 
         return newNode;
     }
