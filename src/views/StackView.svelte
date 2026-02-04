@@ -787,14 +787,13 @@
                     {/if}
                     <div class="duration">
                         <button 
-                            class="duration-btn minus small" 
-                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, -5)); update(); }}
-                            title="Decrease Duration (-5m)"
-                        >−5</button>
-                        <button 
                             class="duration-btn minus" 
-                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, -15)); update(); }}
-                            title="Decrease Duration (-15m)"
+                            onpointerdown={(e) => { 
+                                e.stopPropagation(); 
+                                historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'down')); 
+                                update(); 
+                            }}
+                            title="Decrease Duration"
                         >−</button>
                         <span 
                             class="duration-text clickable" 
@@ -807,14 +806,13 @@
                         </span>
                         <button 
                             class="duration-btn plus" 
-                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, 15)); update(); }}
-                            title="Increase Duration (+15m)"
+                            onpointerdown={(e) => { 
+                                e.stopPropagation(); 
+                                historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up')); 
+                                update(); 
+                            }}
+                            title="Increase Duration"
                         >+</button>
-                        <button 
-                            class="duration-btn plus small" 
-                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new AdjustDurationCommand(controller, i, 5)); update(); }}
-                            title="Increase Duration (+5m)"
-                        >+5</button>
                         {#if getMinDuration(task) > 0}
                             <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
                         {/if}
