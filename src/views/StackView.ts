@@ -145,10 +145,10 @@ export class StackView extends ItemView {
 
             let newNode: TaskNode | null = null;
 
-            if (result.isNew) {
+            if (result.type === 'new') {
                 // Create new task node
                 newNode = await this.onTaskCreate(result.title, { duration: 30 });
-            } else if (result.file) {
+            } else if (result.type === 'file' && result.file) {
                 // Existing file
                 const file = result.file;
                 newNode = {

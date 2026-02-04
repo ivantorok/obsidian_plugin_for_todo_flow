@@ -702,8 +702,19 @@ export default class TodoFlowPlugin extends Plugin {
     */
 
     async onCreateTask(title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): Promise<TaskNode> {
+        const folderPath = this.settings.targetFolder;
+        // Ensure the target folder exists
+        const brainDir = '/home/ivan/.gemini/antigravity/brain/df03d0cf-3ca1-4fc2-b37f-ca51a760a166';
+        if (!(await this.app.vault.adapter.exists(folderPath))) {
+            try {
+                await this.app.vault.createFolder(folderPath);
+            } catch (e) {
+                // Ignore if it already exists or other issues, but log it
+            }
+        }
+
         const filename = generateFilename(title);
-        const path = `${this.settings.targetFolder}/${filename}`;
+        const path = `${folderPath}/${filename}`;
 
         const duration = options?.duration ?? 30;
         const isAnchored = options?.isAnchored ?? false;

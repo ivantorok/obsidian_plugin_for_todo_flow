@@ -113,7 +113,7 @@ describe('Async File Creation in StackView', () => {
         expect(capturedCallback).toBeDefined();
 
         // Simulate user choosing to create a new task
-        const promise = capturedCallback({ isNew: true, title: 'Async Task' });
+        const promise = capturedCallback({ type: 'new', title: 'Async Task' });
 
         // Assert: Stack should verify it hasn't updated yet (if we could check internal state easily, 
         // but tasks is public so we can)
