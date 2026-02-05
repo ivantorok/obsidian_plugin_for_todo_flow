@@ -36,7 +36,8 @@ const mocks = vi.hoisted(() => ({
         getCurrentStack: vi.fn().mockReturnValue([]),
         drillDown: vi.fn(),
         goBack: vi.fn(),
-        getState: vi.fn().mockReturnValue({ history: [], currentSource: '' })
+        getState: vi.fn().mockReturnValue({ history: [], currentSource: '' }),
+        setState: vi.fn()
     }
 }));
 
@@ -56,6 +57,7 @@ vi.mock('../navigation/NavigationManager.js', () => ({
         drillDown = mocks.navManager.drillDown;
         goBack = mocks.navManager.goBack;
         getState = mocks.navManager.getState;
+        setState = mocks.navManager.setState;
     }
 }));
 

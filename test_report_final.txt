@@ -1,0 +1,254 @@
+
+> obsidian_plugin_for_todo_flow@1.0.7 test
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/home/ivan/obsidian_plugin_for_todo_flow[39m
+
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:44:34 This reference only captures the initial value of `settings`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:45:29 This reference only captures the initial value of `now`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:744:0 noninteractive element cannot have nonnegative tabIndex value
+https://svelte.dev/e/a11y_no_noninteractive_tabindex
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:744:0 Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:759:12 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:759:12 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:813:24 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:1032:4 Unused CSS selector ".duration-btn.small"
+https://svelte.dev/e/css_unused_selector
+11:03:43 AM [vite-plugin-svelte] src/views/StackView.svelte:1059:21 Unused CSS selector ".is-done .title-btn"
+https://svelte.dev/e/css_unused_selector
+11:03:44 AM [vite-plugin-svelte] src/components/Card.svelte:11:7 Using `<slot>` to render parent content is deprecated. Use `{@render ...}` tags instead
+https://svelte.dev/e/slot_element_deprecated
+11:03:44 AM [vite-plugin-svelte] src/components/Card.svelte:16:11 Using `<slot>` to render parent content is deprecated. Use `{@render ...}` tags instead
+https://svelte.dev/e/slot_element_deprecated
+11:03:44 AM [vite-plugin-svelte] src/views/TriageView.svelte:16:40 This reference only captures the initial value of `initialTasks`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+ [32m✓[39m src/__tests__/SelectionPersistence.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/__tests__/StackDragAndDrop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 377[2mms[22m[39m
+[90mstdout[2m | src/__tests__/MobileCommands.test.ts[2m > [22m[2mAdd Task Command[2m > [22m[2mshould register "Add Task to Stack" command
+[22m[39m[Todo Flow] Plugin Loading...
+
+[90mstdout[2m | src/__tests__/MobileCommands.test.ts[2m > [22m[2mAdd Task Command[2m > [22m[2mshould register "Add Task to Stack" command
+[22m[39m[Todo Flow] Logger initialized
+[Todo Flow] Registering Views...
+[Todo Flow] Registering reprocess-nlp command
+
+ [32m✓[39m src/__tests__/MobileCommands.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m src/__tests__/components/Card.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+[90mstdout[2m | src/__tests__/ui_workbench.test.ts[2m > [22m[2mUI Workbench: Interaction & Stability[2m > [22m[2mStackView: Should NOT respond to keys when typing in a contenteditable (Editor)
+[22m[39m[TODO_FLOW_TRACE] onMount entry
+
+ [32m✓[39m src/__tests__/help_layer.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 386[2mms[22m[39m
+     [33m[2m✓[22m[39m should toggle help overlay on "?" keypress and block interaction [33m 313[2mms[22m[39m
+[90mstdout[2m | src/__tests__/ui_workbench.test.ts[2m > [22m[2mUI Workbench: Interaction & Stability[2m > [22m[2mStackView: Should distinguish between j (nav) and Shift+J (move)
+[22m[39m[TODO_FLOW_TRACE] onMount entry
+
+[90mstdout[2m | src/__tests__/ui_workbench.test.ts[2m > [22m[2mUI Workbench: Interaction & Stability[2m > [22m[2mStackView: Should distinguish between j (nav) and Shift+J (move)
+[22m[39m[TODO_FLOW_TRACE] update() entry. Current tasks: [33m2[39m
+[TODO_FLOW_TRACE] update() complete. New tasks: [33m2[39m
+
+ [32m✓[39m src/__tests__/ui_workbench.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 744[2mms[22m[39m
+ [32m✓[39m src/__tests__/workflow_scenarios.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1227[2mms[22m[39m
+     [33m[2m✓[22m[39m Scenario 1: User exports the Daily Stack to a markdown note [33m 637[2mms[22m[39m
+     [33m[2m✓[22m[39m Scenario 3: User Reorders task (Shift+J) skipping over an Anchor (Reordering Collision) [33m 353[2mms[22m[39m
+ [32m✓[39m src/__tests__/go_back_regression.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1411[2mms[22m[39m
+     [33m[2m✓[22m[39m should show parent tasks after drilling down and going back [33m 713[2mms[22m[39m
+     [33m[2m✓[22m[39m should maintain task state after go back [33m 308[2mms[22m[39m
+ [32m✓[39m src/__tests__/ComponentViews.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 410[2mms[22m[39m
+     [33m[2m✓[22m[39m should render task title [33m 316[2mms[22m[39m
+ [32m✓[39m src/__tests__/ShakeDetector.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 173[2mms[22m[39m
+ [32m✓[39m src/__tests__/StackViewMobileGestures.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 385[2mms[22m[39m
+ [32m✓[39m src/__tests__/navigation.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 221[2mms[22m[39m
+ [32m✓[39m src/__tests__/scheduler.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+[90mstdout[2m | src/__tests__/anchor_collision.test.ts[2m > [22m[2mAnchor Collision (Rocks Pushing Rocks)[2m > [22m[2mexpanding upstream anchor should push downstream anchor
+[22m[39mTask A: 09:00 - 90m
+Task B: 10:30 (Expected 10:30)
+
+ [32m✓[39m src/__tests__/anchor_collision.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m src/__tests__/DumpView.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 234[2mms[22m[39m
+ [32m✓[39m src/__tests__/help_layer_integrity.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 546[2mms[22m[39m
+     [33m[2m✓[22m[39m should render correct key labels from props [33m 375[2mms[22m[39m
+ [32m✓[39m src/__tests__/rollup_logic.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m src/__tests__/stack_view_integration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+[90mstdout[2m | src/__tests__/pipeline_flow.test.ts[2m > [22m[2mPipeline Integration[2m > [22m[2mshould flow from Dump -> Triage -> Shortlist -> Stack
+[22m[39mMock Create called: todo-flow/2026-02-05-1104-r0lk-My-Idea.md
+
+ [32m✓[39m src/__tests__/pipeline_flow.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 297[2mms[22m[39m
+ [32m✓[39m src/__tests__/constraints.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/__tests__/InsertStack.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 105[2mms[22m[39m
+ [32m✓[39m src/__tests__/persistence_sync.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 209[2mms[22m[39m
+[90mstdout[2m | src/__tests__/go_back.test.ts[2m > [22m[2mNavigationManager - Go Back with Focus[2m > [22m[2mshould go back to previous stack and restore focus
+[22m[39m[NavigationManager] push history. Current stack size: 2, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+ [32m✓[39m src/__tests__/go_back.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+[90mstdout[2m | src/__tests__/StackControllerPlanning.test.ts[2m > [22m[2mStackController - Planning Features (TDD)[2m > [22m[2mshould reorder a task to a specific index
+[22m[39m[StackController] moveTaskToIndex(oldIndex: 0, newIndex: 1)
+[StackController] After splice-out: Task 2, Task 3, Task 4
+[StackController] After splice-in: Task 2, Task 1, Task 3, Task 4
+[StackController] Final order: Task 2, Task 1, Task 3, Task 4 (moved task now at 1)
+
+[90mstdout[2m | src/__tests__/StackControllerPlanning.test.ts[2m > [22m[2mStackController - Planning Features (TDD)[2m > [22m[2mshould move task around anchors correctly
+[22m[39m[StackController] moveTaskToIndex(oldIndex: 0, newIndex: 3)
+[StackController] After splice-out: Task 2, Task 3, Task 4
+[StackController] After splice-in: Task 2, Task 3, Task 4, Task 1
+[StackController] Final order: Task 2, Task 4, Task 3, Task 1 (moved task now at 3)
+
+[90mstdout[2m | src/__tests__/StackControllerPlanning.test.ts[2m > [22m[2mStackController - Planning Features (TDD)[2m > [22m[2mshould refuse to move an anchored task
+[22m[39m[StackController] moveTaskToIndex(oldIndex: 2, newIndex: 0)
+
+ [32m✓[39m src/__tests__/StackControllerPlanning.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 301[2mms[22m[39m
+ [32m✓[39m src/__tests__/TriageQuickAdd.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m src/__tests__/archive.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 143[2mms[22m[39m
+ [32m✓[39m src/__tests__/DateParser.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 274[2mms[22m[39m
+[90mstdout[2m | src/__tests__/AutoNLP.test.ts[2m > [22m[2mAuto-NLP Triggers[2m > [22m[2mRenameTaskCommand Auto-NLP[2m > [22m[2mshould extract metadata when renaming to a string with NLP hints
+[22m[39m[RenameTaskCommand] Executing for ID task-1.md. New Title: "New Title"
+[RenameTaskCommand] Applying extra metadata for ID task-1.md
+[StackController] updateTaskMetadata index 0 -> 0. Updates: {"startTime":"2026-02-05T13:00:00.000Z","duration":60,"isAnchored":true}
+
+[90mstdout[2m | src/__tests__/AutoNLP.test.ts[2m > [22m[2mAuto-NLP Triggers[2m > [22m[2mRenameTaskCommand Auto-NLP[2m > [22m[2mshould revert metadata when undoing a rename that had NLP
+[22m[39m[RenameTaskCommand] Executing for ID task-1.md. New Title: "New Title"
+[RenameTaskCommand] Applying extra metadata for ID task-1.md
+[StackController] updateTaskMetadata index 0 -> 0. Updates: {"startTime":"2026-02-05T13:00:00.000Z","duration":60,"isAnchored":true}
+[StackController] updateTaskMetadata index 0 -> 0. Updates: {"startTime":"2026-02-05T10:04:34.889Z","duration":30,"isAnchored":false}
+
+ [32m✓[39m src/__tests__/AutoNLP.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+ [32m✓[39m src/__tests__/dump_view_ui.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 161[2mms[22m[39m
+ [32m✓[39m src/__tests__/SmartImport.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/__tests__/ghost_scheduling.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/__tests__/stack_loader_integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 78[2mms[22m[39m
+ [32m✓[39m src/__tests__/ViewManager.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/__tests__/stack.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m src/__tests__/history.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m src/__tests__/navigation_manager.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/__tests__/PersistenceOptimization.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 160[2mms[22m[39m
+ [32m✓[39m src/__tests__/task_query_service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+[90mstdout[2m | src/__tests__/SetStartTime.test.ts[2m > [22m[2mSetStartTimeCommand[2m > [22m[2mshould anchor a task at a specific time
+[22m[39m[StackController] updateTaskMetadata index 0 -> 0. Updates: {"startTime":"2026-01-31T09:30:00.000Z","isAnchored":true}
+
+[90mstdout[2m | src/__tests__/SetStartTime.test.ts[2m > [22m[2mSetStartTimeCommand[2m > [22m[2mshould support undo/redo
+[22m[39m[StackController] updateTaskMetadata index 0 -> 0. Updates: {"startTime":"2026-01-31T10:00:00.000Z","isAnchored":true}
+
+[90mstdout[2m | src/__tests__/SetStartTime.test.ts[2m > [22m[2mSetStartTimeCommand[2m > [22m[2mshould support undo/redo
+[22m[39m[StackController] updateTaskMetadata index 0 -> 0. Updates: {"startTime":"2026-01-31T08:00:00.000Z","isAnchored":false}
+
+[90mstdout[2m | src/__tests__/SetStartTime.test.ts[2m > [22m[2mSetStartTimeCommand[2m > [22m[2mshould support undo/redo
+[22m[39m[StackController] updateTaskMetadata index 0 -> 0. Updates: {"startTime":"2026-01-31T10:00:00.000Z","isAnchored":true}
+
+ [32m✓[39m src/__tests__/SetStartTime.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 148[2mms[22m[39m
+ [32m✓[39m src/__tests__/persistence.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 95[2mms[22m[39m
+ [32m✓[39m src/__tests__/dump.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32m✓[39m src/__tests__/keybindings.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/__tests__/logger.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+ [32m✓[39m src/__tests__/settings_ui.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m src/__tests__/TriageSwipe.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m src/__tests__/triage.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 107[2mms[22m[39m
+ [32m✓[39m src/__tests__/keybinding_collision.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m src/__tests__/StackPersistence.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 179[2mms[22m[39m
+ [32m✓[39m src/__tests__/link_resolution.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m src/__tests__/filename.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/__tests__/StackMobile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m src/__tests__/export_formatting.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m src/__tests__/task_name_resolution.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 145[2mms[22m[39m
+[90mstdout[2m | src/__tests__/drill_down.test.ts[2m > [22m[2mNavigationManager - Drill Down[2m > [22m[2mshould drill down into task with children
+[22m[39m[NavigationManager] push history. Current stack size: 1, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+[90mstdout[2m | src/__tests__/drill_down.test.ts[2m > [22m[2mNavigationManager - Drill Down[2m > [22m[2mshould push current stack to history when drilling down
+[22m[39m[NavigationManager] push history. Current stack size: 1, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+[90mstdout[2m | src/__tests__/drill_down.test.ts[2m > [22m[2mNavigationManager - Drill Down[2m > [22m[2mshould update current source when drilling down
+[22m[39m[NavigationManager] push history. Current stack size: 1, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+ [32m✓[39m src/__tests__/drill_down.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 140[2mms[22m[39m
+ [32m✓[39m src/__tests__/repro_jump_bug.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 43[2mms[22m[39m
+[90mstdout[2m | src/__tests__/session_isolation.test.ts[2m > [22m[2mSession Isolation (Tray Concept)[2m > [22m[2mloadSpecificFiles loads ONLY the requested files, ignoring others
+[22m[39m[StackLoader] loadSpecificFiles() entry with 2 IDs.
+
+ [32m✓[39m src/__tests__/session_isolation.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 28[2mms[22m[39m
+[90mstdout[2m | src/__tests__/CommandRegistration.test.ts[2m > [22m[2mTodoFlowPlugin Command Registration[2m > [22m[2mshould register "open-settings" command on load
+[22m[39m[Todo Flow] Plugin Loading...
+
+[90mstdout[2m | src/__tests__/CommandRegistration.test.ts[2m > [22m[2mTodoFlowPlugin Command Registration[2m > [22m[2mshould register "open-settings" command on load
+[22m[39m[Todo Flow] Logger initialized
+[Todo Flow] Registering Views...
+[Todo Flow] Registering reprocess-nlp command
+
+[90mstdout[2m | src/__tests__/CommandRegistration.test.ts[2m > [22m[2mTodoFlowPlugin Command Registration[2m > [22m[2mshould open settings tab when "open-settings" command is executed
+[22m[39m[Todo Flow] Plugin Loading...
+
+[90mstdout[2m | src/__tests__/CommandRegistration.test.ts[2m > [22m[2mTodoFlowPlugin Command Registration[2m > [22m[2mshould open settings tab when "open-settings" command is executed
+[22m[39m[Todo Flow] Logger initialized
+[Todo Flow] Registering Views...
+[Todo Flow] Registering reprocess-nlp command
+
+ [32m✓[39m src/__tests__/CommandRegistration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m src/__tests__/StackPersistenceFile.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32m✓[39m src/__tests__/stack_loader.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m src/__tests__/rollup_lab.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m src/__tests__/link_parser_metadata.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m src/__tests__/graph.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m src/__tests__/QuickAdd.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/__tests__/NLP_Persistence.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+[90mstdout[2m | src/__tests__/stack_persistence_regression.test.ts[2m > [22m[2mReproduction: Stack Persistence & Focus[2m > [22m[2mshould restore exact stack state (archive bug fix)
+[22m[39m[NavigationManager] push history. Current stack size: 2, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+[90mstdout[2m | src/__tests__/stack_persistence_regression.test.ts[2m > [22m[2mReproduction: Stack Persistence & Focus[2m > [22m[2mshould track focus by ID and restore correctly even if stack reorders
+[22m[39m[NavigationManager] push history. Current stack size: 2, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+ [32m✓[39m src/__tests__/stack_persistence_regression.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m src/__tests__/sync_service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/__tests__/link_parser.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/__tests__/TriageOpen.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m src/__tests__/QuickAddUX.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+[90mstdout[2m | src/__tests__/StackPlanningCommands.test.ts[2m > [22m[2mStack Planning Commands (TDD)[2m > [22m[2mReorderToIndexCommand should execute and undo
+[22m[39m[StackController] moveTaskToIndex(oldIndex: 0, newIndex: 1)
+[StackController] After splice-out: Task 2
+[StackController] After splice-in: Task 2, Task 1
+[StackController] Final order: Task 2, Task 1 (moved task now at 1)
+[StackController] moveTaskToIndex(oldIndex: 1, newIndex: 0)
+[StackController] After splice-out: Task 2
+[StackController] After splice-in: Task 1, Task 2
+[StackController] Final order: Task 1, Task 2 (moved task now at 0)
+
+ [32m✓[39m src/__tests__/StackPlanningCommands.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 138[2mms[22m[39m
+ [32m✓[39m src/__tests__/NLP_Integration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 116[2mms[22m[39m
+ [32m✓[39m src/__tests__/ExportService.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 177[2mms[22m[39m
+[90mstdout[2m | src/__tests__/navigation_explicit.test.ts[2m > [22m[2mNavigationManager - Explicit Mode (TDD)[2m > [22m[2mgoBack should reload SPECIFIC FILES when previous source was EXPLICIT
+[22m[39m[NavigationManager] push history. Current stack size: 2, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+[90mstdout[2m | src/__tests__/navigation_explicit.test.ts[2m > [22m[2mNavigationManager - Explicit Mode (TDD)[2m > [22m[2mgoBack should default to standard load for non-explicit sources
+[22m[39m[NavigationManager] push history. Current stack size: 1, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+ [32m✓[39m src/__tests__/navigation_explicit.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 137[2mms[22m[39m
+ [32m✓[39m src/__tests__/persistence_advanced.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 139[2mms[22m[39m
+ [32m✓[39m src/__tests__/ReprocessNLP.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m src/__tests__/greedy_duration.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+[90mstdout[2m | src/__tests__/navigation_sync.test.ts[2m > [22m[2mNavigationManager - Refresh on Go Back[2m > [22m[2mshould refresh the stack when going back to reflect metadata changes
+[22m[39m[NavigationManager] push history. Current stack size: 1, History index before: 0
+[NavigationManager] history pushed. Now depth: 1
+
+ [32m✓[39m src/__tests__/navigation_sync.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m src/__tests__/StackViewReload.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/__tests__/title_resolution.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m src/__tests__/metadata_preservation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/__tests__/async_file_creation.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 20[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m82 passed[39m[22m[90m (82)[39m
+[2m      Tests [22m [1m[32m268 passed[39m[22m[90m (268)[39m
+[2m   Start at [22m 11:03:39
+[2m   Duration [22m 137.91s[2m (transform 10.48s, setup 6.99s, import 57.24s, tests 12.54s, environment 210.59s)[22m
+
