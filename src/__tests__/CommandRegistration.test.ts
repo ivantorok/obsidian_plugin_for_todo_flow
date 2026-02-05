@@ -21,6 +21,10 @@ vi.mock('obsidian', () => {
             adapter: { exists: vi.fn() },
             process: vi.fn().mockResolvedValue({}),
             create: vi.fn()
+        },
+        metadataCache: {
+            on: vi.fn(),
+            getFileCache: vi.fn()
         }
     };
 
@@ -28,6 +32,7 @@ vi.mock('obsidian', () => {
         workspace = mockAppInstance.workspace;
         setting = mockAppInstance.setting;
         vault = mockAppInstance.vault;
+        metadataCache = mockAppInstance.metadataCache;
     }
 
     return {
