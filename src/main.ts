@@ -745,6 +745,9 @@ export default class TodoFlowPlugin extends Plugin {
         }
         fileContent += `\n---\n# ${title}`;
 
+        // Inform persistence service this is an internal write to avoid race with watcher
+        this.stackPersistenceService.recordInternalWrite(path);
+
         // Asynchronously create the file in the vault AND await it
         await this.app.vault.create(path, fileContent);
 
