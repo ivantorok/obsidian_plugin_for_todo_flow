@@ -2,6 +2,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { NavigationManager } from '../navigation/NavigationManager.js';
 import { type TaskNode } from '../scheduler.js';
+import { type StackPersistenceService } from '../services/StackPersistenceService.js';
+import { type StackLoader } from '../loaders/StackLoader.js';
 
 // Mock Tasks
 const mockTasks: TaskNode[] = [
@@ -17,10 +19,21 @@ const mockLoader = {
     parser: {}
 } as any;
 
+const mockApp = {
+    metadataCache: {
+        on: vi.fn(),
+        offref: vi.fn()
+    }
+} as any;
+
+const mockPersistence = {
+    isExternalUpdate: vi.fn().mockReturnValue(true)
+} as any;
+
 describe('Reproduction: Stack Persistence & Focus', () => {
 
     it('should restore exact stack state (archive bug fix)', async () => {
-        const nav = new NavigationManager(mockLoader);
+        const nav = new NavigationManager(mockApp, mockLoader as unknown as StackLoader, mockPersistence as unknown as StackPersistenceService);
         mockLoader.load.mockResolvedValue([...mockTasks]);
 
         // 1. Setup Stack
@@ -48,7 +61,10 @@ describe('Reproduction: Stack Persistence & Focus', () => {
         // This simulates a schedule change (e.g. time passing)
         const reverser = (tasks: TaskNode[]) => [...tasks].reverse();
 
-        const nav = new NavigationManager(mockLoader, reverser);
+        // Initial Load
+        // Input: [A, B] (setStack bypasses preprocessor)
+        // View: Index 0=A, Index 1=B
+        const nav = new NavigationManager(mockApp, mockLoader as unknown as StackLoader, mockPersistence as unknown as StackPersistenceService, reverser);
 
         const tasks: TaskNode[] = [
             { id: 'A', title: 'A', duration: 10, status: 'todo' as const, isAnchored: false, children: [] }, // Index 0

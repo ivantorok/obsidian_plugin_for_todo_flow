@@ -49,9 +49,24 @@ export class StackView extends ItemView {
         // Initialize navigation services
         this.loader = new StackLoader(this.app, this.logger);
         this.navManager = new NavigationManager(
+            this.app,
             this.loader,
+            this.persistenceService,
             (tasks) => computeSchedule(tasks, moment())
         );
+
+        // Listen for centralized state changes
+        this.navManager.onStackChange((state) => {
+            if (this.logger) this.logger.info(`[StackView] State change detected in NavigationManager. Updating view.`);
+            this.tasks = state.currentStack;
+
+            if (this.component && this.component.setTasks) {
+                this.component.setTasks(this.tasks);
+                if (state.currentFocusedIndex !== undefined) {
+                    this.component.setFocus(state.currentFocusedIndex);
+                }
+            }
+        });
     }
 
     getViewType() {
@@ -104,46 +119,31 @@ export class StackView extends ItemView {
 
             // Case 2: Standard Load
             if (this.logger) await this.logger.info(`[StackView] Loading from DISK (Case 2).`);
+
+            // Delegate logic to navManager
             if (state.rootPath === 'QUERY:SHORTLIST') {
                 rawTasks = await this.loader.loadShortlisted();
                 this.rootPath = 'QUERY:SHORTLIST';
             } else if (state.ids && Array.isArray(state.ids)) {
                 this.currentTaskIds = state.ids;
                 rawTasks = await this.loader.loadSpecificFiles(state.ids);
-                if (state.rootPath && !state.rootPath.startsWith('EXPLICIT')) {
-                    this.rootPath = state.rootPath;
-                } else {
-                    this.rootPath = `EXPLICIT:${state.ids.length}`;
-                }
+                this.rootPath = state.rootPath || `EXPLICIT:${state.ids.length}`;
             } else {
                 this.rootPath = state.rootPath;
-                if (this.logger) await this.logger.info(`[StackView] Calling loader.load(${state.rootPath})`);
                 rawTasks = await this.loader.load(state.rootPath);
-                if (this.logger) await this.logger.info(`[StackView] Loader returned ${rawTasks.length} tasks.`);
-            }
-
-            // BUG-009: Preserve history if we are in a forced refresh
-            if (state.navState) {
-                this.navManager.setState(state.navState);
             }
 
             const initialTasks = computeSchedule(rawTasks, now);
             this.navManager.setStack(initialTasks, this.rootPath!);
-            this.tasks = this.navManager.getCurrentStack();
-
-            if (this.component && this.component.setTasks) {
-                this.component.setTasks(this.tasks);
-            }
 
             // PERSISTENCE: Ensure "CurrentStack.md" is created/updated on load
             const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
             if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md') {
                 try {
-                    await this.persistenceService.saveStack(this.tasks, persistencePath);
-                    this.lastSavedIds = this.tasks.map(t => `${t.id}:${t.status}`);
+                    await this.persistenceService.saveStack(this.navManager.getCurrentStack(), persistencePath);
+                    this.lastSavedIds = this.navManager.getCurrentStack().map(t => `${t.id}:${t.status}`);
                 } catch (e) {
                     if (this.logger) this.logger.error(`[StackView] Failed to save CurrentStack.md: ${e}`);
-                    new (window as any).Notice(`Error creating CurrentStack.md: ${e}`);
                 }
             }
         }
@@ -202,71 +202,17 @@ export class StackView extends ItemView {
     }
 
     async reload(): Promise<void> {
-        const preCount = this.tasks ? this.tasks.length : 0;
-        if (this.logger) await this.logger.info(`[StackView] Reload triggered. Current tasks: ${preCount}`);
+        if (this.logger) await this.logger.info(`[StackView] Reload triggered (Phase A: via NavigationManager).`);
 
-        // Strategy: Re-call setState with the existing full state, but flag it as a reload.
-        // This forces a re-read from disk via the loader while preserving navigation context.
-        const state: any = this.getState();
-
-        // BUG-009 FIX: If we have navState, it contains a stale task cache. 
-        // We tell setState to ignore the tasks in navState and re-load from disk.
-        if (state.navState) {
-            state.navState.forceRefresh = true;
-        }
-
-        // Silent NLP Reprocess
+        // NLP Reprocess first
         const controller = this.getController();
         if (controller) {
             const reprocessCmd = new ReprocessTaskCommand(controller, this.onTaskUpdate);
             await reprocessCmd.execute();
         }
 
-        // Capture current focus safely
-        let focusedId: string | null = null;
-        if (this.component && typeof (this.component as any).getFocusedIndex === 'function') {
-            const currentFocusIndex = (this.component as any).getFocusedIndex();
-            const focusedTask = this.tasks && this.tasks[currentFocusIndex];
-            if (focusedTask) focusedId = focusedTask.id;
-        }
-
-        if (this.rootPath && (this.rootPath.endsWith('.md') || !this.rootPath.startsWith('EXPLICIT')) && this.rootPath !== 'QUERY:SHORTLIST') {
-            if (this.logger) await this.logger.info(`[StackView] Reload favoring rootPath: ${this.rootPath}`);
-            state.rootPath = this.rootPath;
-            await this.setState(state, null);
-
-            // Restore focus
-            if (focusedId && this.tasks) {
-                const newIndex = this.tasks.findIndex((t: any) => t.id === focusedId);
-                if (newIndex !== -1 && this.component) {
-                    this.component.setFocus(newIndex);
-                }
-            }
-
-            const postCount = this.tasks ? this.tasks.length : 0;
-            if (this.logger) await this.logger.info(`[StackView] Reload complete (rootPath). New tasks: ${postCount}`);
-
-        } else if (this.currentTaskIds && this.currentTaskIds.length > 0) {
-            if (this.logger) await this.logger.info(`[StackView] Reloading EXPLICIT list (${this.currentTaskIds.length} IDs).`);
-            state.ids = this.currentTaskIds;
-            await this.setState(state, null);
-
-            // Restore focus
-            if (focusedId && this.tasks) {
-                const newIndex = this.tasks.findIndex((t: any) => t.id === focusedId);
-                if (newIndex !== -1 && this.component) {
-                    this.component.setFocus(newIndex);
-                } else {
-                    if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Could not restore focus to task ID="${focusedId}". Task not found in reloaded stack.`);
-                }
-            }
-
-            const postCount = this.tasks ? this.tasks.length : 0;
-            if (this.logger) await this.logger.info(`[StackView] Reload complete (IDs). New tasks: ${postCount}`);
-
-        } else {
-            if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Reload called but NO rootPath or valid IDs available. Cannot reload.`);
-        }
+        // Just let NavigationManager handle the disk refresh
+        await this.navManager.refresh();
     }
 
     async onOpen() {
@@ -583,6 +529,9 @@ export class StackView extends ItemView {
     async onClose() {
         if (this.saveTimeout) {
             window.clearTimeout(this.saveTimeout);
+        }
+        if (this.navManager) {
+            this.navManager.destroy();
         }
         if (this.component) {
             unmount(this.component);

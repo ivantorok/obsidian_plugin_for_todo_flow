@@ -9,9 +9,11 @@ vi.mock('obsidian', () => {
     return {
         ItemView: class {
             leaf: any;
+            app: any;
             contentEl: HTMLElement;
             constructor(leaf: any) {
                 this.leaf = leaf;
+                this.app = leaf.app; // Standard Obsidian pattern
                 this.contentEl = document.createElement('div');
             }
             getViewType() { return 'test'; }
@@ -92,15 +94,23 @@ describe('StackView Integration', () => {
         mockApp = {
             vault: {
                 getAbstractFileByPath: vi.fn(),
-                process: vi.fn()
+                process: vi.fn(),
+                adapter: { exists: vi.fn().mockResolvedValue(true) }
             },
             workspace: {
                 getActiveViewOfType: vi.fn(),
-                openLinkText: vi.fn()
+                openLinkText: vi.fn(),
+                getLeavesOfType: vi.fn().mockReturnValue([])
+            },
+            metadataCache: {
+                on: vi.fn(),
+                offref: vi.fn(),
+                getFirstLinkpathDest: vi.fn()
             }
         };
 
         mockLeaf = {
+            app: mockApp,
             setViewState: vi.fn()
         };
 

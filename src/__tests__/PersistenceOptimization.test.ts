@@ -20,7 +20,8 @@ vi.mock('obsidian', () => ({
                 getLeavesOfType: vi.fn(),
                 requestSaveLayout: vi.fn()
             },
-            vault: { getAbstractFileByPath: vi.fn() }
+            vault: { getAbstractFileByPath: vi.fn(), adapter: { exists: vi.fn().mockResolvedValue(true) } },
+            metadataCache: { on: vi.fn(), offref: vi.fn() }
         };
     },
     ItemView: class {
@@ -29,14 +30,8 @@ vi.mock('obsidian', () => ({
         app: any;
         constructor(leaf: any) {
             this.leaf = leaf;
+            this.app = leaf.app; // Use leaf.app
             this.contentEl = document.createElement('div');
-            this.app = {
-                workspace: {
-                    on: vi.fn(),
-                    getLeavesOfType: vi.fn(),
-                    requestSaveLayout: vi.fn()
-                }
-            };
         }
         registerDomEvent = vi.fn();
         registerInterval = vi.fn();
@@ -77,8 +72,18 @@ describe('StackView Persistence Optimization', () => {
     beforeEach(() => {
         vi.useFakeTimers();
         leaf = new WorkspaceLeaf();
+        leaf.app = {
+            workspace: {
+                on: vi.fn(),
+                getLeavesOfType: vi.fn(() => []),
+                requestSaveLayout: vi.fn()
+            },
+            vault: { getAbstractFileByPath: vi.fn(), adapter: { exists: vi.fn().mockResolvedValue(true) } },
+            metadataCache: { on: vi.fn(), offref: vi.fn() }
+        };
         mockPersistence = {
-            saveStack: vi.fn().mockResolvedValue(undefined)
+            saveStack: vi.fn().mockResolvedValue(undefined),
+            isExternalUpdate: vi.fn().mockReturnValue(true)
         };
 
         (mount as any).mockClear();

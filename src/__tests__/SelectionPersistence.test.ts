@@ -2,19 +2,59 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // 1. Mock Obsidian modules
-vi.mock('obsidian', () => ({
-    ItemView: class {
-        constructor(public leaf: any) { }
-        async setState(state: any, result: any) { }
-    },
-    WorkspaceLeaf: class { },
-    TFile: class { },
-    FuzzySuggestModal: class { constructor(public app: any) { }; setPlaceholder() { }; open() { }; close() { }; },
-    Modal: class { constructor(public app: any) { }; open() { }; close() { }; },
-    Scope: class { register = vi.fn(); unregister = vi.fn(); },
-    Plugin: class { },
-    moment: () => ({ format: () => '2026-01-01' })
-}));
+vi.mock('obsidian', () => {
+    return {
+        App: class { },
+        WorkspaceLeaf: class { },
+        Modal: class {
+            constructor() { }
+            open() { }
+            close() { }
+            contentEl = { createEl: () => ({ createEl: () => { } }) };
+        },
+        FuzzySuggestModal: class {
+            constructor() { }
+            open() { }
+            close() { }
+            setPlaceholder() { }
+            scope = { register: () => { }, unregister: () => { } };
+        },
+        Scope: class {
+            register() { }
+            unregister() { }
+        },
+        Notice: class { },
+        ItemView: class {
+            leaf: any;
+            app: any;
+            constructor(leaf: any) { this.leaf = leaf; this.app = leaf.app; }
+            addAction() { }
+            setState() { return Promise.resolve(); }
+        },
+        TFile: class { },
+        TFolder: class { },
+        Plugin: class {
+            loadData() { return Promise.resolve({}); }
+            saveData() { }
+            addCommand() { }
+            addSettingTab() { }
+            registerView() { }
+            app = { workspace: { on: () => { } } };
+        },
+        PluginSettingTab: class {
+            constructor() { }
+            display() { }
+        },
+        Setting: class {
+            constructor() { }
+            setName() { return this; }
+            setDesc() { return this; }
+            addText() { return this; }
+            addToggle() { return this; }
+            onChange() { return this; }
+        }
+    };
+});
 
 // 2. Mock svelte
 vi.mock('svelte', () => ({
@@ -36,12 +76,16 @@ const mocks = vi.hoisted(() => ({
         drillDown: vi.fn(),
         goBack: vi.fn(),
         getState: vi.fn().mockReturnValue({ history: [], currentSource: '' }),
-        setState: vi.fn()
+        setState: vi.fn(),
+        setFocus: vi.fn(),
+        onStackChange: vi.fn().mockReturnValue(() => { }),
+        destroy: vi.fn(),
+        refresh: vi.fn().mockResolvedValue(undefined)
     },
     component: {
         setTasks: vi.fn(),
         setFocus: vi.fn(),
-        getFocusedIndex: vi.fn(), // Add this
+        getFocusedIndex: vi.fn(),
         updateSettings: vi.fn(),
         updateNow: vi.fn(),
         $destroy: vi.fn()
@@ -54,17 +98,6 @@ vi.mock('../loaders/StackLoader.js', () => ({
         loadShortlisted = mocks.loader.loadShortlisted;
         loadSpecificFiles = mocks.loader.loadSpecificFiles;
         parser = mocks.loader.parser;
-    }
-}));
-
-vi.mock('../navigation/NavigationManager.js', () => ({
-    NavigationManager: class {
-        setStack = mocks.navManager.setStack;
-        getCurrentStack = mocks.navManager.getCurrentStack;
-        drillDown = mocks.navManager.drillDown;
-        goBack = mocks.navManager.goBack;
-        getState = mocks.navManager.getState;
-        setState = mocks.navManager.setState;
     }
 }));
 
@@ -87,61 +120,57 @@ describe('StackView Selection Persistence', () => {
     let mockLogger: any;
 
     beforeEach(() => {
-        mockLeaf = {};
+        const mockApp = {
+            metadataCache: { on: vi.fn(), offref: vi.fn() },
+            workspace: { getLeavesOfType: vi.fn(() => []), on: vi.fn() },
+            vault: { getAbstractFileByPath: vi.fn(), adapter: { exists: vi.fn().mockResolvedValue(true) } }
+        } as any;
+        mockLeaf = {
+            app: mockApp,
+            setViewState: vi.fn(),
+            on: vi.fn()
+        };
         mockSettings = { timingMode: 'now', keys: { debug: false } };
         mockHistory = {};
-        mockLogger = { info: vi.fn(), warn: vi.fn() };
+        mockLogger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
 
         vi.clearAllMocks();
 
-        view = new StackView(mockLeaf, mockSettings, mockHistory, mockLogger, { saveStack: vi.fn(), loadStackIds: vi.fn() } as any, vi.fn(), vi.fn());
+        const mockPersistence = {
+            saveStack: vi.fn(),
+            loadStackIds: vi.fn(),
+            isExternalUpdate: vi.fn().mockReturnValue(true)
+        };
+        view = new StackView(mockLeaf as any, mockSettings, mockHistory as any, mockLogger as any, mockPersistence as any, vi.fn(), vi.fn());
 
         // Manual component mount mock since we can't fully mock Svelte lifecycle easily here
         view.component = mocks.component;
     });
 
     it('should restore focus to the same task ID even if its index changes', async () => {
-        // Initial Tasks: [A, B, C]
-        // User is focused on Index 0 (Task A)
+        // Initial State: Task A at index 0
         const taskA = { id: 'A.md', title: 'Task A', duration: 30, isAnchored: false, status: 'todo' as const, children: [] };
         const taskB = { id: 'B.md', title: 'Task B', duration: 30, isAnchored: false, status: 'todo' as const, children: [] };
         const taskC = { id: 'C.md', title: 'Task C', duration: 30, isAnchored: false, status: 'todo' as const, children: [] };
 
-        view.tasks = [taskA, taskB, taskC];
-
-        // 1. Initial State: Set explicit IDs manually to bypass setState issues in test env
-        const testIds = ['A.md', 'B.md', 'C.md'];
-        (view as any).currentTaskIds = testIds;
-
-        // Also ensure tasks are set initially so we have a "current focus"
-        view.tasks = [taskA, taskB, taskC]; // Initial order
-
-        // Mock getFocusedIndex to return 0 (Task A)
-        mocks.component.getFocusedIndex = vi.fn().mockReturnValue(0);
-
-        // STRATEGY CHANGE: StackView doesn't know focus. The Component does.
-        // We need StackView.reload() to ASK the component for current focus ID, OR pass it in.
-        // But reload() has no args. 
-        // So StackView needs `this.component.getFocusedIndex()` or similar.
-
-        // Let's assume we add `getFocusedIndex()` to the Svelte component and mock it returning 0 (Task A).
-        mocks.component.getFocusedIndex = vi.fn().mockReturnValue(0);
+        const initialTasks = [taskA, taskB, taskC];
+        view.navManager.setStack(initialTasks, 'EXPLICIT:3');
+        view.navManager.setFocus(0); // Focused on Task A
 
         // Mock the loader returning the NEW order: [B, A, C]
-        mocks.loader.loadSpecificFiles.mockResolvedValue([taskB, taskA, taskC]);
-        // Update NavManager to return this new stack
-        mocks.navManager.getCurrentStack.mockReturnValue([taskB, taskA, taskC]);
+        const freshData = [taskB, taskA, taskC];
+        mocks.loader.loadSpecificFiles.mockResolvedValue(freshData);
+        mocks.loader.load.mockResolvedValue(freshData);
+        // Note: Real NavManager will re-calculate focus index during refresh()
 
-        // Trigger Reload
+        // Trigger Reload (which calls navManager.refresh())
         await view.reload();
 
         // Assertions:
-        // 1. Should fetch current index (0)
-        expect(mocks.component.getFocusedIndex).toHaveBeenCalled();
+        // 1. NavigationManager should have updated its focused index to 1 (where Task A is now)
+        expect(view.navManager.getState().currentFocusedIndex).toBe(1);
 
-        // 2. Should calculate new index for Task A (which is now at Index 1)
-
-        // 3. Should call setFocus(1)
+        // 2. Component should have been notified via setFocus(1)
         expect(mocks.component.setFocus).toHaveBeenCalledWith(1);
     });
 });

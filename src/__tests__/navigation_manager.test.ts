@@ -2,16 +2,42 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NavigationManager } from '../navigation/NavigationManager.js';
 import { type TaskNode } from '../scheduler.js';
 import { type StackLoader } from '../loaders/StackLoader.js';
+import { type StackPersistenceService } from '../services/StackPersistenceService.js';
+
+// Mock Obsidian
+vi.mock('obsidian', () => ({
+    TFile: class { path: string = ''; },
+    EventRef: class { }
+}));
+
+import { TFile } from 'obsidian';
 
 describe('NavigationManager - Basic Stack Management', () => {
     let navManager: NavigationManager;
     let mockLoader: any;
+    let mockApp: any;
+    let mockPersistence: any;
 
     beforeEach(() => {
         mockLoader = {
-            load: vi.fn()
+            load: vi.fn(),
+            loadSpecificFiles: vi.fn(),
+            loadShortlisted: vi.fn()
         };
-        navManager = new NavigationManager(mockLoader as any as StackLoader);
+        mockApp = {
+            metadataCache: {
+                on: vi.fn(),
+                offref: vi.fn()
+            }
+        };
+        mockPersistence = {
+            isExternalUpdate: vi.fn().mockReturnValue(true)
+        };
+        navManager = new NavigationManager(mockApp as any, mockLoader as any as StackLoader, mockPersistence as any as StackPersistenceService);
+    });
+
+    it('should register a watcher on metadataCache during construction', () => {
+        expect(mockApp.metadataCache.on).toHaveBeenCalledWith('changed', expect.any(Function));
     });
 
     it('should set initial stack from source', () => {
@@ -86,5 +112,27 @@ describe('NavigationManager - Basic Stack Management', () => {
         // Assert
         const state = navManager.getState();
         expect(state.currentSource).toBe('my-source.md');
+    });
+
+    it('should refresh when an external update is detected for the current source', async () => {
+        // Arrange
+        const tasks: TaskNode[] = [{ id: 'task1.md', title: 'Task 1', duration: 30, status: 'todo', isAnchored: false, children: [] }];
+        navManager.setStack(tasks, 'source.md');
+
+        const watcherCallback = mockApp.metadataCache.on.mock.calls[0][1];
+        const mockFile = new TFile();
+        mockFile.path = 'source.md';
+
+        mockLoader.load.mockResolvedValue([
+            { id: 'task1.md', title: 'Task 1 Updated', duration: 30, status: 'todo', isAnchored: false, children: [] }
+        ]);
+
+        // Act
+        await watcherCallback(mockFile);
+
+        // Assert
+        expect(mockPersistence.isExternalUpdate).toHaveBeenCalledWith('source.md');
+        expect(mockLoader.load).toHaveBeenCalledWith('source.md');
+        expect(navManager.getCurrentStack()[0]!.title).toBe('Task 1 Updated');
     });
 });

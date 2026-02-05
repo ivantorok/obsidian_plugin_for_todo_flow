@@ -37,7 +37,10 @@ const mocks = vi.hoisted(() => ({
         drillDown: vi.fn(),
         goBack: vi.fn(),
         getState: vi.fn().mockReturnValue({ history: [], currentSource: '' }),
-        setState: vi.fn()
+        setState: vi.fn(),
+        refresh: vi.fn().mockResolvedValue(undefined),
+        onStackChange: vi.fn().mockReturnValue(() => { }),
+        destroy: vi.fn()
     }
 }));
 
@@ -58,6 +61,9 @@ vi.mock('../navigation/NavigationManager.js', () => ({
         goBack = mocks.navManager.goBack;
         getState = mocks.navManager.getState;
         setState = mocks.navManager.setState;
+        refresh = mocks.navManager.refresh;
+        onStackChange = mocks.navManager.onStackChange;
+        destroy = mocks.navManager.destroy;
     }
 }));
 
@@ -93,24 +99,21 @@ describe('StackView Reload Logic', () => {
         view = new StackView(mockLeaf, mockSettings, mockHistory, mockLogger, { saveStack: vi.fn(), loadStackIds: vi.fn() } as any, vi.fn(), vi.fn());
     });
 
-    it('should reload explicit IDs if they were previously set', async () => {
+    it('should delegate reload to NavigationManager.refresh()', async () => {
         const testIds = ['file1.md', 'file2.md'];
 
         // 1. Initial State: Set explicit IDs
         await view.setState({ ids: testIds }, null);
 
-        expect(mocks.loader.loadSpecificFiles).toHaveBeenCalledWith(testIds);
-
-        // Reset calls to verify reload behavior
-        mocks.loader.loadSpecificFiles.mockClear();
+        // Reset calls
+        mocks.navManager.refresh.mockClear();
 
         // 2. Trigger Reload
         await view.reload();
 
         // 3. Assertions
-        // If the bug exists (current state), this might fail or call load() with undefined/null
-        // We expect it to call loadSpecificFiles again with the SAME IDs
-        expect(mocks.loader.loadSpecificFiles).toHaveBeenCalledWith(testIds);
-        expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('Reloading EXPLICIT list'));
+        // In Phase A, reload() delegates to navManager.refresh()
+        expect(mocks.navManager.refresh).toHaveBeenCalled();
+        expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('Reload triggered (Phase A: via NavigationManager)'));
     });
 });

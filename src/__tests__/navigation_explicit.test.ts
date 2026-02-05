@@ -2,19 +2,32 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { NavigationManager } from '../navigation/NavigationManager.js';
 import { StackLoader } from '../loaders/StackLoader.js';
+import { type StackPersistenceService } from '../services/StackPersistenceService.js';
 import type { TaskNode } from '../scheduler.js';
 
 describe('NavigationManager - Explicit Mode (TDD)', () => {
     let manager: NavigationManager;
     let mockLoader: any;
+    let mockApp: any;
+    let mockPersistence: any;
 
     beforeEach(() => {
         // Mock the loader
         mockLoader = {
             load: vi.fn().mockResolvedValue([]),
-            loadSpecificFiles: vi.fn().mockResolvedValue([])
+            loadSpecificFiles: vi.fn().mockResolvedValue([]),
+            loadShortlisted: vi.fn().mockResolvedValue([])
         };
-        manager = new NavigationManager(mockLoader as unknown as StackLoader);
+        mockApp = {
+            metadataCache: {
+                on: vi.fn(),
+                offref: vi.fn()
+            }
+        };
+        mockPersistence = {
+            isExternalUpdate: vi.fn().mockReturnValue(true)
+        };
+        manager = new NavigationManager(mockApp as any, mockLoader as unknown as StackLoader, mockPersistence as any as StackPersistenceService);
     });
 
     test('goBack should reload SPECIFIC FILES when previous source was EXPLICIT', async () => {

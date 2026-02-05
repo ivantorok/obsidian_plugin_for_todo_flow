@@ -75,8 +75,6 @@ export default class TodoFlowPlugin extends Plugin {
         this.registerEvent(
             this.app.metadataCache.on('changed', async (file) => {
                 if (!(file instanceof TFile)) return;
-                const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
-                const isPersistenceFile = file.path === persistencePath;
 
                 // Smoke signal for E2E (in gitignored logs/)
                 try {
@@ -86,32 +84,8 @@ export default class TodoFlowPlugin extends Plugin {
                     await this.app.vault.adapter.write('logs/modify-detected.txt', `Detected ${file.path} at ${new Date().toISOString()}`);
                 } catch (e) { }
 
-                const leaves = this.app.workspace.getLeavesOfType('todo-flow-stack-view');
-                let reloadTriggered = false;
-
-                for (const leaf of leaves) {
-                    const view = leaf.view;
-                    if (view.getViewType() === 'todo-flow-stack-view') {
-                        const stackView = view as any;
-                        const tasks = stackView.getTasks ? stackView.getTasks() : [];
-                        const isTaskInStack = tasks.some((t: any) => t.id === file.path);
-
-                        if ((isPersistenceFile || isTaskInStack) && this.stackPersistenceService.isExternalUpdate(file.path)) {
-                            // No delay needed for metadataCache.changed as it's already indexed
-                            if (stackView.reload) {
-                                await stackView.reload();
-                                reloadTriggered = true;
-                            }
-                        }
-                    }
-                }
-
-                // Final smoke signal if we actually reloaded
-                if (reloadTriggered) {
-                    try {
-                        await this.app.vault.adapter.write('logs/reload-triggered.txt', `Reloaded for ${file.path} at ${new Date().toISOString()}`);
-                    } catch (e) { }
-                }
+                // LOGIC LEAK REMOVED: StackView/NavigationManager now manage their own watchers.
+                // This prevents global event competition and ensures isolation.
             })
         );
 

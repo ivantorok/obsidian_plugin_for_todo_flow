@@ -2,16 +2,30 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NavigationManager } from '../navigation/NavigationManager.js';
 import { type TaskNode } from '../scheduler.js';
 import { type StackLoader } from '../loaders/StackLoader.js';
+import { type StackPersistenceService } from '../services/StackPersistenceService.js';
 
 describe('NavigationManager - Go Back with Focus', () => {
     let navManager: NavigationManager;
     let mockLoader: any;
+    let mockApp: any;
+    let mockPersistence: any;
 
     beforeEach(() => {
         mockLoader = {
-            load: vi.fn()
+            load: vi.fn(),
+            loadSpecificFiles: vi.fn(),
+            loadShortlisted: vi.fn()
         };
-        navManager = new NavigationManager(mockLoader as any as StackLoader);
+        mockApp = {
+            metadataCache: {
+                on: vi.fn(),
+                offref: vi.fn()
+            }
+        };
+        mockPersistence = {
+            isExternalUpdate: vi.fn().mockReturnValue(true)
+        };
+        navManager = new NavigationManager(mockApp as any, mockLoader as any as StackLoader, mockPersistence as any as StackPersistenceService);
     });
 
     it('should go back to previous stack and restore focus', async () => {

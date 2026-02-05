@@ -36,7 +36,9 @@ vi.mock('obsidian', () => {
         },
         Notice: class { },
         ItemView: class {
-            constructor() { }
+            leaf: any;
+            app: any;
+            constructor(leaf: any) { this.leaf = leaf; this.app = leaf.app; }
             addAction() { }
             setState() { return Promise.resolve(); }
         },
@@ -83,15 +85,21 @@ describe('Stack Persistence', () => {
         mockApp = {
             vault: {
                 getAbstractFileByPath: vi.fn(),
-                adapter: { exists: vi.fn() }
+                adapter: { exists: vi.fn().mockResolvedValue(true) }
             },
             workspace: {
                 getLeaf: vi.fn(),
-                getActiveViewOfType: vi.fn()
+                getActiveViewOfType: vi.fn(),
+                getLeavesOfType: vi.fn().mockReturnValue([])
+            },
+            metadataCache: {
+                on: vi.fn(),
+                offref: vi.fn()
             }
         } as unknown as App;
 
         mockLeaf = {
+            app: mockApp,
             view: null,
             detach: vi.fn()
         } as unknown as WorkspaceLeaf;
@@ -140,6 +148,8 @@ describe('Stack Persistence', () => {
             currentSource: 'root'
         });
         (mockNavManager.getCurrentStack as any).mockReturnValue([]);
+        (mockNavManager.onStackChange as any).mockReturnValue(() => { });
+        (mockNavManager.refresh as any).mockResolvedValue(undefined);
     });
 
     describe('getState', () => {
@@ -205,35 +215,12 @@ describe('Stack Persistence', () => {
     });
 
     describe('reload', () => {
-        it('should capture full state (including navState) before re-calling setState', async () => {
-            // Setup current state
-            stackView.rootPath = 'root';
-            const currentNavState = {
-                history: [[{ id: 'p1' }]],
-                currentSource: 'p1'
-            };
-            (mockNavManager.getState as any).mockReturnValue(currentNavState);
-
-            // Spy on setState
-            const setStateSpy = vi.spyOn(stackView, 'setState');
-            // Prevent setState from doing real work during this test if desired, 
-            // but for integration logic we might want it to flow. 
-            // Here we just want to verify what it was called WITH.
-            setStateSpy.mockResolvedValue();
-
+        it('should delegate refresh to NavigationManager', async () => {
             // Act
             await stackView.reload();
 
             // Assert
-            // The critical fix was: const state = this.getState();
-            // So reload should call setState with an object containing navState
-            expect(setStateSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    rootPath: 'root',
-                    navState: currentNavState
-                }),
-                null
-            );
+            expect(mockNavManager.refresh).toHaveBeenCalled();
         });
     });
 });

@@ -1,5 +1,7 @@
+import { App, TFile, type EventRef } from 'obsidian';
 import { type TaskNode } from '../scheduler.js';
 import { type StackLoader } from '../loaders/StackLoader.js';
+import { type StackPersistenceService } from '../services/StackPersistenceService.js';
 
 /**
  * NavigationState - Represents the current navigation state
@@ -22,10 +24,21 @@ export interface NavigationState {
 export class NavigationManager {
     private state: NavigationState;
     private loader: StackLoader;
+    private app: App;
+    private persistenceService: StackPersistenceService;
     private preprocessor?: ((tasks: TaskNode[]) => TaskNode[]) | undefined;
+    private listeners: ((state: NavigationState) => void)[] = [];
+    private eventRef: EventRef | null = null;
 
-    constructor(loader: StackLoader, preprocessor?: ((tasks: TaskNode[]) => TaskNode[]) | undefined) {
+    constructor(
+        app: App,
+        loader: StackLoader,
+        persistenceService: StackPersistenceService,
+        preprocessor?: ((tasks: TaskNode[]) => TaskNode[]) | undefined
+    ) {
+        this.app = app;
         this.loader = loader;
+        this.persistenceService = persistenceService;
         this.preprocessor = preprocessor;
         this.state = {
             currentStack: [],
@@ -35,6 +48,85 @@ export class NavigationManager {
             sourceHistory: [],
             currentSource: ''
         };
+
+        this.registerWatcher();
+    }
+
+    private registerWatcher(): void {
+        if (!this.app || !this.app.metadataCache) {
+            console.error(`[NavigationManager] FATAL: app or metadataCache is undefined!`, this.app);
+        }
+        this.eventRef = this.app.metadataCache.on('changed', async (file) => {
+            if (!(file instanceof TFile)) return;
+
+            // Check if this file is relevant to our current stack
+            const isOurSource = file.path === this.state.currentSource;
+            const isItemInStack = this.state.currentStack.some(t => t.id === file.path);
+
+            if ((isOurSource || isItemInStack) && this.persistenceService.isExternalUpdate(file.path)) {
+                console.log(`[NavigationManager] External update detected for ${file.path}. Triggering refresh...`);
+                await this.refresh();
+            }
+        });
+    }
+
+    public destroy(): void {
+        if (this.eventRef) {
+            this.app.metadataCache.offref(this.eventRef);
+            this.eventRef = null;
+        }
+    }
+
+    /**
+     * Subscribe to state changes
+     */
+    onStackChange(listener: (state: NavigationState) => void): () => void {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        };
+    }
+
+    private notifyListeners(): void {
+        const stateCopy = this.getState();
+        this.listeners.forEach(l => l(stateCopy));
+    }
+
+    /**
+     * Refresh the current stack from disk
+     */
+    async refresh(): Promise<void> {
+        if (!this.state.currentSource) return;
+
+        let rawTasks: TaskNode[] = [];
+        try {
+            if (this.state.currentSource.startsWith('EXPLICIT')) {
+                const ids = this.state.currentStack.map(t => t.id);
+                rawTasks = await this.loader.loadSpecificFiles(ids);
+            } else if (this.state.currentSource === 'QUERY:SHORTLIST') {
+                rawTasks = await this.loader.loadShortlisted();
+            } else {
+                rawTasks = await this.loader.load(this.state.currentSource);
+            }
+
+            const processed = this.preprocessor ? this.preprocessor(rawTasks) : rawTasks;
+
+            // Preserve focus if possible
+            const focusedId = this.state.currentStack[this.state.currentFocusedIndex]?.id;
+
+            this.state.currentStack = processed;
+
+            if (focusedId) {
+                const newIndex = this.state.currentStack.findIndex(t => t.id === focusedId);
+                if (newIndex !== -1) {
+                    this.state.currentFocusedIndex = newIndex;
+                }
+            }
+
+            this.notifyListeners();
+        } catch (e) {
+            console.error(`[NavigationManager] Refresh failed:`, e);
+        }
     }
 
     /**
@@ -43,6 +135,7 @@ export class NavigationManager {
     setStack(tasks: TaskNode[], source: string): void {
         this.state.currentStack = [...tasks];
         this.state.currentSource = source;
+        this.notifyListeners();
     }
 
     /**
@@ -64,6 +157,7 @@ export class NavigationManager {
             sourceHistory: [],
             currentSource: ''
         };
+        this.notifyListeners();
     }
 
     /**
@@ -95,6 +189,7 @@ export class NavigationManager {
         this.state.currentSource = task.id;
         this.state.currentFocusedIndex = 0; // New stack starts at top
 
+        this.notifyListeners();
         return true;
     }
 
@@ -102,6 +197,16 @@ export class NavigationManager {
      * Go back to previous stack
      * Returns the focus index to restore
      */
+    /**
+     * Update the current focused index (from UI)
+     */
+    setFocus(index: number): void {
+        this.state.currentFocusedIndex = index;
+        // We don't necessarily need to notify listeners here if it's coming FROM the UI,
+        // but it's good for consistency if other listeners exist.
+        // For now, let's just update the internal state to avoid feedback loops.
+    }
+
     /**
      * Go back to previous stack
      * Returns the focus index to restore
@@ -188,6 +293,7 @@ export class NavigationManager {
         this.state.currentSource = previousSource;
         this.state.currentFocusedIndex = newFocusedIndex;
 
+        this.notifyListeners();
         return { success: true, focusedIndex: newFocusedIndex };
     }
 
@@ -210,5 +316,6 @@ export class NavigationManager {
      */
     setState(state: NavigationState): void {
         this.state = state;
+        this.notifyListeners();
     }
 }

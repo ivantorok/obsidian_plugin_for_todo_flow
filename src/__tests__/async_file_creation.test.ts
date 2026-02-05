@@ -6,16 +6,22 @@ import { type TaskNode } from '../scheduler.js';
 const mockApp = {
     vault: {
         getAbstractFileByPath: vi.fn(),
-        create: vi.fn(), // We want to spy on this
+        create: vi.fn(),
+        adapter: { exists: vi.fn().mockResolvedValue(true) }
     },
     workspace: {
         requestSaveLayout: vi.fn(),
         getLeavesOfType: vi.fn().mockReturnValue([]),
         getLeaf: vi.fn().mockReturnValue({ view: {} }),
+    },
+    metadataCache: {
+        on: vi.fn(),
+        offref: vi.fn()
     }
 };
 
 const mockLeaf = {
+    app: mockApp,
     view: null,
 };
 
@@ -47,7 +53,11 @@ vi.mock('svelte', () => ({
 
 // Mock Obsidian
 vi.mock('obsidian', () => ({
-    ItemView: class { constructor(leaf: any) { } },
+    ItemView: class {
+        leaf: any;
+        app: any;
+        constructor(leaf: any) { this.leaf = leaf; this.app = leaf.app; }
+    },
     WorkspaceLeaf: class { },
     Notice: class { },
     Plugin: class { },
