@@ -395,6 +395,8 @@
         const swipe = resolveSwipe(deltaX, deltaY);
         const index = tasks.findIndex(t => t.id === task.id);
 
+
+
         if (index !== -1) {
             if (swipe === 'right') {
                 await executeGestureAction(settings.swipeRightAction, task, index);

@@ -230,7 +230,23 @@ export class StackView extends ItemView {
             if (focusedTask) focusedId = focusedTask.id;
         }
 
-        if (this.currentTaskIds && this.currentTaskIds.length > 0) {
+        if (this.rootPath && (this.rootPath.endsWith('.md') || !this.rootPath.startsWith('EXPLICIT')) && this.rootPath !== 'QUERY:SHORTLIST') {
+            if (this.logger) await this.logger.info(`[StackView] Reload favoring rootPath: ${this.rootPath}`);
+            state.rootPath = this.rootPath;
+            await this.setState(state, null);
+
+            // Restore focus
+            if (focusedId && this.tasks) {
+                const newIndex = this.tasks.findIndex((t: any) => t.id === focusedId);
+                if (newIndex !== -1 && this.component) {
+                    this.component.setFocus(newIndex);
+                }
+            }
+
+            const postCount = this.tasks ? this.tasks.length : 0;
+            if (this.logger) await this.logger.info(`[StackView] Reload complete (rootPath). New tasks: ${postCount}`);
+
+        } else if (this.currentTaskIds && this.currentTaskIds.length > 0) {
             if (this.logger) await this.logger.info(`[StackView] Reloading EXPLICIT list (${this.currentTaskIds.length} IDs).`);
             state.ids = this.currentTaskIds;
             await this.setState(state, null);
@@ -246,29 +262,8 @@ export class StackView extends ItemView {
             }
 
             const postCount = this.tasks ? this.tasks.length : 0;
-            if (this.logger) await this.logger.info(`[StackView] Reload complete. New tasks: ${postCount}`);
+            if (this.logger) await this.logger.info(`[StackView] Reload complete (IDs). New tasks: ${postCount}`);
 
-        } else if (this.rootPath) {
-            if (!this.rootPath.startsWith('EXPLICIT')) {
-                state.rootPath = this.rootPath;
-                if (this.logger) await this.logger.info(`[StackView] Reload calling setState for rootPath: ${this.rootPath}`);
-                await this.setState(state, null);
-
-                // Restore focus
-                if (focusedId && this.tasks) {
-                    const newIndex = this.tasks.findIndex((t: any) => t.id === focusedId);
-                    if (newIndex !== -1 && this.component) {
-                        this.component.setFocus(newIndex);
-                    } else {
-                        if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Could not restore focus to task ID="${focusedId}". Task not found in reloaded stack.`);
-                    }
-                }
-
-                const postCount = this.tasks ? this.tasks.length : 0;
-                if (this.logger) await this.logger.info(`[StackView] Reload complete. New tasks: ${postCount}`);
-            } else {
-                this.logger.warn(`[StackView] Skipping reload for EXPLICIT mode (no IDs in memory).`);
-            }
         } else {
             if (this.logger) await this.logger.warn(`[StackView] [UNHAPPY] Reload called but NO rootPath or valid IDs available. Cannot reload.`);
         }
