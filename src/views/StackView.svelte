@@ -239,6 +239,9 @@
 
     // Gesture Handlers
     function handlePointerStart(e: PointerEvent, taskId: string) {
+        if (!(window as any)._logs) (window as any)._logs = [];
+        (window as any)._logs.push(`[GESTURE] pointerdown taskId=${taskId} isPrimary=${e.isPrimary} button=${e.button}`);
+        
         if (logger && internalSettings.debug) {
             logger.info(`[GESTURE] handlePointerStart taskId=${taskId}, target=${(e.target as HTMLElement).className}`);
         }
@@ -278,7 +281,10 @@
                             dragTargetIndex = index;
                             swipingTaskId = null;
                             if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('medium');
+                            (window as any)._logs.push(`[GESTURE] DRAG START: ${taskId}`);
                          }
+                    } else {
+                        (window as any)._logs.push(`[GESTURE] DRAG BLOCKED: move too large during hold (dx=${dx}, dy=${dy})`);
                     }
                 }
             }, 350);
@@ -286,7 +292,12 @@
     }
 
     function handlePointerMove(e: PointerEvent) {
+        if (!(window as any)._logs) (window as any)._logs = [];
+        (window as any)._logs.push(`[GESTURE] pointermove clientX=${e.clientX.toFixed(1)} clientY=${e.clientY.toFixed(1)}`);
         if (!swipingTaskId && !draggingTaskId) return;
+        
+        // BUG-004: Aggressively prevent default to stop browser from stealing the gesture
+        if (e.cancelable) e.preventDefault();
         
         touchCurrentX = e.clientX;
         touchCurrentY = e.clientY;
@@ -342,6 +353,11 @@
                 if (!(window as any)._logs) (window as any)._logs = [];
                 (window as any)._logs.push(`[GESTURE] dragTargetIndex changed: ${dragTargetIndex} -> ${bestTarget}`);
                 dragTargetIndex = bestTarget;
+                // Add the new log for drag move
+                if (!dragLogged) {
+                    (window as any)._logs.push(`[GESTURE] DRAG MOVE index=${bestTarget}`);
+                    dragLogged = true;
+                }
             }
         }
     }
@@ -353,10 +369,13 @@
 
         if (draggingTaskId) {
             if (dragTargetIndex !== -1 && dragTargetIndex !== draggingStartIndex && dragTargetIndex < tasks.length) {
+                (window as any)._logs.push(`[GESTURE] REORDER TRIGGERED: ${draggingStartIndex} -> ${dragTargetIndex}`);
                 const command = new ReorderToIndexCommand(controller, draggingStartIndex, dragTargetIndex);
                 await historyManager.executeCommand(command);
                 focusedIndex = dragTargetIndex; // Selection follows task
                 update();
+            } else {
+                (window as any)._logs.push(`[GESTURE] REORDER SKIPPED: target=${dragTargetIndex} start=${draggingStartIndex}`);
             }
             draggingTaskId = null;
             draggingStartIndex = -1;
@@ -387,6 +406,13 @@
         swipingTaskId = null;
         touchStartX = 0;
         touchCurrentX = 0;
+    }
+
+    function handlePointerCancel(e: PointerEvent) {
+        if (!(window as any)._logs) (window as any)._logs = [];
+        (window as any)._logs.push(`[GESTURE] pointercanceltaskId=${swipingTaskId || draggingTaskId}`);
+        swipingTaskId = null;
+        draggingTaskId = null;
     }
 
     async function executeGestureAction(action: string, task: TaskNode, index: number) {
@@ -744,8 +770,9 @@
                 onpointerdown={(e) => handlePointerStart(e, task.id)}
                 onpointermove={handlePointerMove}
                 onpointerup={(e) => handlePointerEnd(e, task)}
+                onpointercancel={handlePointerCancel}
                 style:transform={getCardTransform(task.id)}
-                style:touch-action={swipingTaskId === task.id || draggingTaskId === task.id ? 'none' : 'pan-y'}
+                style:touch-action="none"
             >
                 <div 
                     class="drag-handle" 

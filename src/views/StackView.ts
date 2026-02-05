@@ -76,6 +76,7 @@ export class StackView extends ItemView {
 
     async setState(state: any, result: any): Promise<void> {
         const now = this.getNow();
+        if (this.logger) await this.logger.info(`[StackView] setState called. Root: ${state?.rootPath}, ForceRefresh: ${!!state?.navState?.forceRefresh}`);
 
         if (state && (state.rootPath || state.ids)) {
             let rawTasks: TaskNode[] = [];
@@ -84,7 +85,10 @@ export class StackView extends ItemView {
             const hasHistory = state.navState?.history && state.navState.history.length > 0;
             const hasStack = state.navState?.currentStack && state.navState.currentStack.length > 0;
 
-            if (state.navState && (hasHistory || hasStack)) {
+            // BUG-009 FIX: If forceRefresh is set, we skip Case 1 (memory cache) 
+            // and proceed to Case 2 (disk reload), but we still restore the history breadcrumbs.
+            if (state.navState && (hasHistory || hasStack) && !state.navState.forceRefresh) {
+                if (this.logger) await this.logger.info(`[StackView] Restoring from memory/history.`);
                 this.navManager.setState(state.navState);
                 this.tasks = this.navManager.getCurrentStack();
                 this.rootPath = state.rootPath || state.navState.currentSource;
@@ -99,6 +103,7 @@ export class StackView extends ItemView {
             }
 
             // Case 2: Standard Load
+            if (this.logger) await this.logger.info(`[StackView] Loading from DISK (Case 2).`);
             if (state.rootPath === 'QUERY:SHORTLIST') {
                 rawTasks = await this.loader.loadShortlisted();
                 this.rootPath = 'QUERY:SHORTLIST';
@@ -112,7 +117,14 @@ export class StackView extends ItemView {
                 }
             } else {
                 this.rootPath = state.rootPath;
+                if (this.logger) await this.logger.info(`[StackView] Calling loader.load(${state.rootPath})`);
                 rawTasks = await this.loader.load(state.rootPath);
+                if (this.logger) await this.logger.info(`[StackView] Loader returned ${rawTasks.length} tasks.`);
+            }
+
+            // BUG-009: Preserve history if we are in a forced refresh
+            if (state.navState) {
+                this.navManager.setState(state.navState);
             }
 
             const initialTasks = computeSchedule(rawTasks, now);
@@ -124,9 +136,10 @@ export class StackView extends ItemView {
             }
 
             // PERSISTENCE: Ensure "CurrentStack.md" is created/updated on load
-            if (this.rootPath === 'CurrentStack.md') {
+            const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+            if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md') {
                 try {
-                    await this.persistenceService.saveStack(this.tasks, 'CurrentStack.md');
+                    await this.persistenceService.saveStack(this.tasks, persistencePath);
                     this.lastSavedIds = this.tasks.map(t => `${t.id}:${t.status}`);
                 } catch (e) {
                     if (this.logger) this.logger.error(`[StackView] Failed to save CurrentStack.md: ${e}`);
@@ -192,9 +205,15 @@ export class StackView extends ItemView {
         const preCount = this.tasks ? this.tasks.length : 0;
         if (this.logger) await this.logger.info(`[StackView] Reload triggered. Current tasks: ${preCount}`);
 
-        // Strategy: Re-call setState with the existing full state.
+        // Strategy: Re-call setState with the existing full state, but flag it as a reload.
         // This forces a re-read from disk via the loader while preserving navigation context.
         const state: any = this.getState();
+
+        // BUG-009 FIX: If we have navState, it contains a stale task cache. 
+        // We tell setState to ignore the tasks in navState and re-load from disk.
+        if (state.navState) {
+            state.navState.forceRefresh = true;
+        }
 
         // Silent NLP Reprocess
         const controller = this.getController();
@@ -232,6 +251,7 @@ export class StackView extends ItemView {
         } else if (this.rootPath) {
             if (!this.rootPath.startsWith('EXPLICIT')) {
                 state.rootPath = this.rootPath;
+                if (this.logger) await this.logger.info(`[StackView] Reload calling setState for rootPath: ${this.rootPath}`);
                 await this.setState(state, null);
 
                 // Restore focus

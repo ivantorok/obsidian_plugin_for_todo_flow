@@ -70,7 +70,7 @@ describe('Mobile Reordering (BUG-004)', () => {
         const startX = Math.round(startLocation.x + 10);
         const startY = Math.round(startLocation.y + 10);
         const endX = Math.round(endLocation.x + cardSize.width / 2);
-        const endY = Math.round(endLocation.y + cardSize.height / 2);
+        const endY = startY + 180; // Move down 180px
 
         // Perform drag and drop using pointer actions (simulating touch)
         // @ts-ignore
@@ -103,7 +103,7 @@ describe('Mobile Reordering (BUG-004)', () => {
         expect(titles).toEqual(['Task B', 'Task A']);
     });
 
-    it.skip('should reorder tasks via touch drag and drop on card body', async () => {
+    it('should reorder tasks via touch drag and drop on card body', async () => {
         await setupStackWithTasks(['Card 1', 'Card 2']);
 
         const cards = await $$('.todo-flow-task-card');

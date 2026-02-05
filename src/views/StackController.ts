@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { computeSchedule, getMinDuration, type TaskNode } from '../scheduler.js';
 
-const DURATION_SEQUENCE = [5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300, 360, 420, 480];
+const DURATION_SEQUENCE = [2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300, 360, 420, 480];
 
 export class StackController {
     private tasks: TaskNode[];
@@ -276,7 +276,7 @@ export class StackController {
         const task = { ...taskToMove };
 
         const currentDuration = task.originalDuration ?? task.duration;
-        task.originalDuration = Math.max(5, currentDuration + deltaMinutes);
+        task.originalDuration = Math.max(2, currentDuration + deltaMinutes);
         task.duration = task.originalDuration; // Reset to original before schedule logic
 
         const newTasks = [...this.tasks];

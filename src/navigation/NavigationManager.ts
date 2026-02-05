@@ -11,6 +11,7 @@ export interface NavigationState {
     focusedHistory: number[]; // Track focus index for each level
     sourceHistory: string[]; // Track sources for each history entry
     currentSource: string;
+    forceRefresh?: boolean; // BUG-009: Used to bypass memory cache during reload
 }
 
 /**

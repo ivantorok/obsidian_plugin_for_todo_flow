@@ -49,11 +49,24 @@ describe('Mobile: Smart Duration Sequence', () => {
         await browser.pause(500);
         expect(await getDurationText()).toBe('1h');
 
-        // Click Minus
+        // 4. Click Minus (expects 45m)
         const minusBtn = await taskCard.$('.duration-btn.minus');
         await minusBtn.click();
         await browser.pause(500);
         expect(await getDurationText()).toBe('45m');
+
+        // 5. Sequence Down to 2m
+        // From 45m -> 30m -> 20m -> 15m -> 10m -> 5m -> 2m
+        for (let i = 0; i < 6; i++) {
+            await minusBtn.click();
+            await browser.pause(200);
+        }
+        expect(await getDurationText()).toBe('2m');
+
+        // 6. Scale back up from 2m
+        await plusBtn.click();
+        await browser.pause(300);
+        expect(await getDurationText()).toBe('5m');
 
         // Verify redundant buttons are GONE
         const smallPlus = await taskCard.$('.duration-btn.plus.small');

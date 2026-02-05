@@ -62,7 +62,8 @@ export default class TodoFlowPlugin extends Plugin {
         console.log('[Todo Flow] Plugin Loading...');
         await this.loadSettings();
         this.historyManager = new HistoryManager();
-        this.logger = new FileLogger(this.app, this.settings.debug);
+        const logPath = 'logs/todo-flow.log';
+        this.logger = new FileLogger(this.app, this.settings.debug, logPath);
         this.viewManager = new ViewManager(this.app, this.logger);
         this.stackPersistenceService = new StackPersistenceService(this.app);
 
@@ -70,20 +71,46 @@ export default class TodoFlowPlugin extends Plugin {
         await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build ${buildId})`);
         console.log('[Todo Flow] Logger initialized');
 
-        // Watch for external modifications to CurrentStack.md (Robustness)
+        // Watch for external modifications via Metadata Cache (more stable than vault.modify)
         this.registerEvent(
-            this.app.vault.on('modify', async (file) => {
+            this.app.metadataCache.on('changed', async (file) => {
+                if (!(file instanceof TFile)) return;
                 const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
-                if (file instanceof TFile && file.path === persistencePath) {
-                    if (this.stackPersistenceService.isExternalUpdate(file.path)) {
-                        this.logger.info(`[Robustness] External modification detected on ${file.path}. Triggering reload.`);
-                        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK);
-                        for (const leaf of leaves) {
-                            if (leaf.view instanceof StackView) {
-                                await leaf.view.reload();
+                const isPersistenceFile = file.path === persistencePath;
+
+                // Smoke signal for E2E (in gitignored logs/)
+                try {
+                    if (!(await this.app.vault.adapter.exists('logs'))) {
+                        await this.app.vault.adapter.mkdir('logs');
+                    }
+                    await this.app.vault.adapter.write('logs/modify-detected.txt', `Detected ${file.path} at ${new Date().toISOString()}`);
+                } catch (e) { }
+
+                const leaves = this.app.workspace.getLeavesOfType('todo-flow-stack-view');
+                let reloadTriggered = false;
+
+                for (const leaf of leaves) {
+                    const view = leaf.view;
+                    if (view.getViewType() === 'todo-flow-stack-view') {
+                        const stackView = view as any;
+                        const tasks = stackView.getTasks ? stackView.getTasks() : [];
+                        const isTaskInStack = tasks.some((t: any) => t.id === file.path);
+
+                        if ((isPersistenceFile || isTaskInStack) && this.stackPersistenceService.isExternalUpdate(file.path)) {
+                            // No delay needed for metadataCache.changed as it's already indexed
+                            if (stackView.reload) {
+                                await stackView.reload();
+                                reloadTriggered = true;
                             }
                         }
                     }
+                }
+
+                // Final smoke signal if we actually reloaded
+                if (reloadTriggered) {
+                    try {
+                        await this.app.vault.adapter.write('logs/reload-triggered.txt', `Reloaded for ${file.path} at ${new Date().toISOString()}`);
+                    } catch (e) { }
                 }
             })
         );
@@ -664,6 +691,9 @@ export default class TodoFlowPlugin extends Plugin {
         const file = this.app.vault.getAbstractFileByPath(task.id);
         if (!(file instanceof TFile)) return;
 
+        // BUG-007: Inform persistence service this is an internal write
+        this.stackPersistenceService.recordInternalWrite(file.path);
+
         await this.app.vault.process(file, (content) => {
             let updated = content;
             updated = updateMetadataField(updated, 'task', task.title);
@@ -704,7 +734,6 @@ export default class TodoFlowPlugin extends Plugin {
     async onCreateTask(title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): Promise<TaskNode> {
         const folderPath = this.settings.targetFolder;
         // Ensure the target folder exists
-        const brainDir = '/home/ivan/.gemini/antigravity/brain/df03d0cf-3ca1-4fc2-b37f-ca51a760a166';
         if (!(await this.app.vault.adapter.exists(folderPath))) {
             try {
                 await this.app.vault.createFolder(folderPath);

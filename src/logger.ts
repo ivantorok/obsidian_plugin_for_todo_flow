@@ -4,15 +4,26 @@ import moment from 'moment';
 declare const process: { env: { BUILD_ID: string } };
 
 export class FileLogger {
-    private LOG_FILE = 'todo-flow.log';
+    private LOG_FILE: string;
     private enabled: boolean;
     private app: App;
     private buildId: string;
 
-    constructor(app: App, enabled: boolean) {
+    constructor(app: App, enabled: boolean, logPath: string = 'todo-flow.log') {
         this.app = app;
         this.enabled = enabled;
-        this.buildId = typeof process !== 'undefined' ? process.env.BUILD_ID : 'unknown';
+        this.LOG_FILE = logPath;
+        this.buildId = typeof process !== 'undefined' ? (process.env as any).BUILD_ID : 'unknown';
+    }
+
+    private async ensureLogDir() {
+        const parts = this.LOG_FILE.split('/');
+        if (parts.length > 1) {
+            const dir = parts.slice(0, -1).join('/');
+            if (!(await this.app.vault.adapter.exists(dir))) {
+                await this.app.vault.adapter.mkdir(dir);
+            }
+        }
     }
 
     setEnabled(enabled: boolean) {
@@ -26,6 +37,7 @@ export class FileLogger {
         const line = `[${timestamp}] [${this.buildId}] [${level}] ${message}\n`;
 
         try {
+            await this.ensureLogDir();
             await this.app.vault.adapter.append(this.LOG_FILE, line);
         } catch (e) {
             console.error('Failed to write to log file', e);

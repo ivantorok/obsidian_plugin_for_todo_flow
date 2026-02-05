@@ -29,12 +29,12 @@ describe('StackController - Planning Features (TDD)', () => {
         expect(t3.startTime!.format('HH:mm')).toBe('10:00');
     });
 
-    it('should not allow duration below 5m', () => {
+    it('should not allow duration below 2m', () => {
         const controller = new StackController(initialTasks, now);
         // Decrease Task 1 by 100m (it's only 30m)
         controller.adjustDuration(0, -100);
         const tasks = controller.getTasks();
-        expect(tasks[0]!.duration).toBe(5);
+        expect(tasks[0]!.duration).toBe(2);
     });
 
     it('should reorder a task to a specific index', () => {

@@ -3,6 +3,7 @@ import type { TaskNode } from '../scheduler.js';
 
 export class StackPersistenceService {
     private lastInternalWriteTime: number = 0;
+    private fileWriteTimes: Map<string, number> = new Map();
 
     constructor(private app: App) { }
 
@@ -15,7 +16,7 @@ export class StackPersistenceService {
         }
 
         // Update internal write time BEFORE writing to avoid race with watcher
-        this.lastInternalWriteTime = Date.now();
+        this.recordInternalWrite(filePath);
 
         const file = this.app.vault.getAbstractFileByPath(filePath);
 
@@ -36,16 +37,30 @@ export class StackPersistenceService {
         }
     }
 
+    recordInternalWrite(filePath: string): void {
+        const now = Date.now();
+        this.lastInternalWriteTime = now;
+        this.fileWriteTimes.set(filePath, now);
+    }
+
     isExternalUpdate(filePath: string): boolean {
-        // If we haven't written yet, any update is external
-        if (this.lastInternalWriteTime === 0) return true;
+        // If we haven't written this specific file yet, any update is external
+        const lastWrite = this.fileWriteTimes.get(filePath);
+        if (!lastWrite) {
+            // Fallback: If we haven't written ANYTHING yet, it's external
+            if (this.lastInternalWriteTime === 0) return true;
+
+            // If we have written other things recently, be cautious but likely it's external 
+            // if this specific file hasn't been touched by us.
+            // We'll trust the per-file check primarily.
+            return true;
+        }
 
         const now = Date.now();
-        const diff = now - this.lastInternalWriteTime;
+        const diff = now - lastWrite;
 
-        // If the update happened within 2 seconds of our own write, 
+        // If the update happened within 2 seconds of our own write to THIS file, 
         // it's likely our own write or a delayed event from it.
-        // This is a heuristic, but usually reliable for local file systems.
         return diff > 2000;
     }
 
