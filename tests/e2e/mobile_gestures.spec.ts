@@ -150,4 +150,58 @@ describe('Mobile Gestures (BUG-010)', () => {
         const isDrawerOpen = await rightDrawer.isExisting() && await rightDrawer.isDisplayed();
         expect(isDrawerOpen).toBe(false);
     });
+
+    it('should trigger Force Open on Long Press when configured', async () => {
+        // 1. Setup Task
+        await setupStackWithTasks(['Long Press Test Task']);
+        const card = await $('.todo-flow-task-card');
+        expect(card).toExist();
+
+        // 2. Configure Long Press Action to 'force-open'
+        // @ts-ignore
+        await browser.execute(() => {
+            // @ts-ignore
+            app.plugins.plugins['todo-flow'].settings.longPressAction = 'force-open';
+        });
+
+        // 3. Perform Long Press (Hold > 500ms)
+        const size = await card.getSize();
+        const loc = await card.getLocation();
+        const startX = Math.round(loc.x + size.width / 2);
+        const startY = Math.round(loc.y + size.height / 2);
+
+        console.log(`[Test] Long Pressing at ${startX},${startY}`);
+
+        // @ts-ignore
+        await browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: { pointerType: 'touch' },
+            actions: [
+                { type: 'pointerMove', duration: 0, x: startX, y: startY },
+                { type: 'pointerDown', button: 0 },
+                { type: 'pause', duration: 700 }, // > 500ms threshold
+                { type: 'pointerUp', button: 0 }
+            ]
+        }]);
+
+        // @ts-ignore
+        await browser.pause(1000);
+
+        // 4. Verify Force Open (File should be open in Markdown view)
+        // Check active leaf view type
+        // @ts-ignore
+        const viewType = await browser.execute(() => {
+            // @ts-ignore
+            return app.workspace.activeLeaf?.view.getViewType();
+        });
+
+        console.log(`[Test] Active View Type after Long Press: ${viewType}`);
+        expect(viewType).toBe('markdown');
+
+        // Optional: Verify file name match 
+        // @ts-ignore
+        const activeFile = await browser.execute(() => app.workspace.getActiveFile()?.basename);
+        expect(activeFile).toContain('Long-Press-Test-Task');
+    });
 });

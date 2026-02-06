@@ -63,7 +63,7 @@ export const DEFAULT_KEYBINDINGS: KeybindingSettings = {
     toggleDone: ['x', 'X'],
     createTask: ['c', 'C'],
     deleteTask: ['Backspace', 'Delete'],
-    forceOpen: ['Shift+Enter'],
+    forceOpen: ['Shift+Enter', 'Alt+Enter'],
     goBack: ['h'],
     export: ['Shift+E', 'Cmd+s', 'Ctrl+s'],
     rename: ['e'],

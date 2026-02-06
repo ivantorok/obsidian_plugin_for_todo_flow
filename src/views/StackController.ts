@@ -340,8 +340,12 @@ export class StackController {
                     path: task.id
                 };
             }
-            // Non-forced Enter on a leaf does nothing to avoid trapping focus in editor
-            return null;
+            // ATOMIC FILE MODE: Always allow drill down, even for leaves
+            return {
+                action: 'DRILL_DOWN',
+                path: task.id, // We pass path because newStack might be empty/undefined here
+                newStack: []   // Empty stack for now
+            };
         }
     }
 }

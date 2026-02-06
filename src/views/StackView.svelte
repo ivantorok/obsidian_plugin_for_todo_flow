@@ -269,12 +269,28 @@
         // HOLD TO DRAG: If not on handle, allow long-press to start drag
         if (!startedOnHandle) {
             if (tapTimer) clearTimeout(tapTimer);
-            tapTimer = setTimeout(() => {
+            
+            const longPressDelay = (settings.longPressAction && settings.longPressAction !== 'none') ? 500 : 350;
+
+            tapTimer = setTimeout(async () => {
                 if (swipingTaskId === taskId && !draggingTaskId) {
                     const dx = Math.abs(touchCurrentX - touchStartX);
                     const dy = Math.abs(touchCurrentY - touchStartY);
                     if (dx < 20 && dy < 20) {
-                         const index = tasks.findIndex(t => t.id === swipingTaskId);
+                        const index = tasks.findIndex(t => t.id === swipingTaskId);
+                        
+                        // LONG PRESS ACTION (Overrides Drag)
+                        if (settings.longPressAction && settings.longPressAction !== 'none') {
+                            if (index !== -1) {
+                                if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('heavy');
+                                (window as any)._logs.push(`[GESTURE] Long Press Triggered: ${settings.longPressAction}`);
+                                await executeGestureAction(settings.longPressAction, tasks[index]!, index);
+                                swipingTaskId = null; // Consume gesture
+                            }
+                            return;
+                        }
+
+                        // FALLBACK: HOLD TO DRAG
                          if (index !== -1 && !tasks[index]!.isAnchored) {
                             draggingTaskId = swipingTaskId;
                             draggingStartIndex = index;
@@ -284,10 +300,10 @@
                             (window as any)._logs.push(`[GESTURE] DRAG START: ${taskId}`);
                          }
                     } else {
-                        (window as any)._logs.push(`[GESTURE] DRAG BLOCKED: move too large during hold (dx=${dx}, dy=${dy})`);
+                        (window as any)._logs.push(`[GESTURE] DRAG/LONG_PRESS BLOCKED: move too large (dx=${dx}, dy=${dy})`);
                     }
                 }
-            }, 350);
+            }, longPressDelay);
         }
     }
 
@@ -434,6 +450,11 @@
             await historyManager.executeCommand(new ToggleAnchorCommand(controller, index));
             if ((window as any).Notice) new (window as any).Notice(`${task.isAnchored ? 'Released' : 'Anchored'}: ${task.title}`);
             update();
+        } else if (action === 'force-open') {
+            const navResult = controller.handleEnter(index, true); // forceOpen = true
+            if (navResult && navResult.action === 'OPEN_FILE' && navResult.path) {
+                if (onOpenFile) onOpenFile(navResult.path);
+            }
         }
     }
 

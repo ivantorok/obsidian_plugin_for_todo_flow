@@ -30,6 +30,7 @@ export interface TodoFlowSettings {
     swipeLeftAction: string;
     swipeRightAction: string;
     doubleTapAction: string;
+    longPressAction: string;
     absoluteLogPath: string; // Absolute path to write logs (bypasses vault)
 }
 
@@ -45,6 +46,7 @@ const DEFAULT_SETTINGS: TodoFlowSettings = {
     swipeLeftAction: 'archive',
     swipeRightAction: 'complete',
     doubleTapAction: 'anchor',
+    longPressAction: 'none',
     absoluteLogPath: ''
 }
 
@@ -916,6 +918,7 @@ class TodoFlowSettingTab extends PluginSettingTab {
                 'archive': 'Archive',
                 'complete': 'Toggle Complete',
                 'anchor': 'Toggle Anchor',
+                'force-open': 'Force Open / Standard Editor',
                 'none': 'None'
             };
 
@@ -949,6 +952,17 @@ class TodoFlowSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.doubleTapAction)
                     .onChange(async (value) => {
                         this.plugin.settings.doubleTapAction = value;
+                        await this.plugin.saveSettings();
+                    }));
+
+            new Setting(containerEl)
+                .setName('Long Press Action')
+                .setDesc('Action when holding a task card (replaces Hold-to-Drag)')
+                .addDropdown(dropdown => dropdown
+                    .addOptions(gestureOptions)
+                    .setValue(this.plugin.settings.longPressAction)
+                    .onChange(async (value) => {
+                        this.plugin.settings.longPressAction = value;
                         await this.plugin.saveSettings();
                     }));
         }
