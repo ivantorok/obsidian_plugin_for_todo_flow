@@ -7,6 +7,7 @@ The following tests are currently identified as flaky due to environment instabi
 
 1.  **`tests/e2e/drill-down.spec.ts`**: Fails when keyboard events (`Shift+Enter`) are missed by Obsidian. Mitigated by using direct API calls (`openLinkText`).
 2.  **`tests/e2e/bug_007_verify.spec.ts`**: Fails when external file system modifications aren't indexed fast enough by Obsidian.
+3.  **`tests/e2e/selective_flush.spec.ts`**: Stress tests the archive/reload race condition. Highly sensitive to timing and environment load.
 
 ## Working Procedure
 

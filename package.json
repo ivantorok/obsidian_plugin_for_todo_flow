@@ -15,7 +15,7 @@
     "prepare": "husky",
     "e2e:setup": "npx tsx tests/e2e/setup-vault.ts",
     "e2e": "npm run e2e:setup && wdio run wdio.conf.mts",
-    "test:flaky": "npm run e2e:setup && wdio run wdio.conf.mts --spec tests/e2e/drill-down.spec.ts tests/e2e/bug_007_verify.spec.ts",
+    "test:flaky": "npm run e2e:setup && wdio run wdio.conf.mts --spec tests/e2e/drill-down.spec.ts tests/e2e/bug_007_verify.spec.ts tests/e2e/selective_flush.spec.ts",
     "e2e:watch": "wdio run wdio.conf.mts --watch",
     "e2e:open": "npm run e2e:setup && wdio run wdio.conf.mts --spec tests/e2e/manual-open.spec.ts"
   },
