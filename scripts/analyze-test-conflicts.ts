@@ -47,7 +47,9 @@ function analyzeTestFile(filePath: string): TestAnalysis {
     createPatterns.forEach(pattern => {
         let match;
         while ((match = pattern.exec(content)) !== null) {
-            analysis.createsFiles.push(match[1]);
+            if (match[1]) {
+                analysis.createsFiles.push(match[1]);
+            }
         }
     });
 
@@ -60,7 +62,9 @@ function analyzeTestFile(filePath: string): TestAnalysis {
     modifyPatterns.forEach(pattern => {
         let match;
         while ((match = pattern.exec(content)) !== null) {
-            analysis.modifiesFiles.push(match[1]);
+            if (match[1]) {
+                analysis.modifiesFiles.push(match[1]);
+            }
         }
     });
 
@@ -74,7 +78,7 @@ function analyzeTestFile(filePath: string): TestAnalysis {
     namePatterns.forEach(pattern => {
         let match;
         while ((match = pattern.exec(content)) !== null) {
-            if (!analysis.hardcodedNames.includes(match[1])) {
+            if (match[1] && !analysis.hardcodedNames.includes(match[1])) {
                 analysis.hardcodedNames.push(match[1]);
             }
         }
