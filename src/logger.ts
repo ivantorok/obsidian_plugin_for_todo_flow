@@ -4,10 +4,12 @@ import moment from 'moment';
 declare const process: { env: { BUILD_ID: string } };
 
 export class FileLogger {
-    private LOG_FILE: string;
+    public LOG_FILE: string;
     private enabled: boolean;
     private app: App;
     private buildId: string;
+    private logBuffer: string[] = [];
+    private readonly MAX_BUFFER_SIZE = 100;
 
     constructor(app: App, enabled: boolean, logPath: string = 'todo-flow.log') {
         this.app = app;
@@ -36,12 +38,32 @@ export class FileLogger {
         const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
         const line = `[${timestamp}] [${this.buildId}] [${level}] ${message}\n`;
 
+        // Support for absolute paths (Project Folder) via Node.js fs when available
+        if (this.LOG_FILE.startsWith('/') && typeof require !== 'undefined') {
+            try {
+                const fs = require('fs');
+                fs.appendFileSync(this.LOG_FILE, line);
+                return;
+            } catch (e) {
+                // Fallback to vault log if fs fails
+                console.error('[FileLogger] Failed to write to absolute path via fs:', e);
+            }
+        }
+
         try {
+            this.logBuffer.push(line);
+            if (this.logBuffer.length > this.MAX_BUFFER_SIZE) {
+                this.logBuffer.shift();
+            }
             await this.ensureLogDir();
             await this.app.vault.adapter.append(this.LOG_FILE, line);
         } catch (e) {
-            console.error('Failed to write to log file', e);
+            console.error('[FileLogger] Failed to write to vault log file:', e);
         }
+    }
+
+    getBuffer(): string[] {
+        return this.logBuffer;
     }
 
     async info(message: string) {

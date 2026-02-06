@@ -1,0 +1,76 @@
+import { expect, browser, $$, $ } from '@wdio/globals';
+import * as fs from 'fs';
+import * as path from 'path';
+
+describe('Selective Flush Race Condition', () => {
+    const VAULT_PATH = path.resolve(process.cwd(), '.test-vault');
+    const TARGET_FOLDER = 'todo-flow';
+    const STACK_FILE = path.join(VAULT_PATH, TARGET_FOLDER, 'CurrentStack.md');
+
+    async function prePopulateVault() {
+        const folderPath = path.join(VAULT_PATH, TARGET_FOLDER);
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, { recursive: true });
+        }
+
+        const tasks = ['Task1', 'Task2', 'Task3'];
+        for (const t of tasks) {
+            fs.writeFileSync(path.join(VAULT_PATH, `${t}.md`), `---\nflow_state: shortlist\n---\n# ${t}`);
+        }
+
+        const stackContent = `# Current Stack\n\n- [ ] [[Task1.md]]\n- [ ] [[Task2.md]]\n- [ ] [[Task3.md]]`;
+        fs.writeFileSync(STACK_FILE, stackContent);
+    }
+
+    beforeEach(async () => {
+        await prePopulateVault();
+        await browser.pause(2000);
+
+        // Enable debug logging
+        await browser.execute(() => {
+            // @ts-ignore
+            const plugin = app.plugins.plugins['todo-flow'];
+            if (plugin) {
+                plugin.settings.debug = true;
+                plugin.logger.setEnabled(true);
+            }
+        });
+
+        await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
+        await browser.pause(2000);
+    });
+
+    it('GREEN: Should show 2 tasks if flushed correctly', async () => {
+        // Focus container for keyboard
+        await browser.execute(() => {
+            const container = document.querySelector('.todo-flow-stack-container') as HTMLElement;
+            if (container) container.focus();
+        });
+        await browser.pause(500);
+
+        // 1. Archive Task1 (Starts 500ms debounce)
+        await browser.keys(['z']);
+
+        // 2. IMMEDIATELY reload
+        await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
+
+        // 3. Wait for the reload to finish
+        await browser.pause(2000);
+
+        // 4. Print in-memory logs for debugging
+        const logs = await browser.execute(() => {
+            // @ts-ignore
+            const plugin = app.plugins.plugins['todo-flow'];
+            return plugin ? plugin.logger.getBuffer() : ['Plugin not found'];
+        });
+        console.log('--- IN-MEMORY PLUGIN LOGS ---');
+        logs.forEach((l: string) => console.log(l));
+        console.log('-----------------------------');
+
+        // 5. VERIFY: Task count should be 2
+        const cards = await $$('.todo-flow-task-card');
+
+        console.log(`[TEST] Task count after rapid reload: ${cards.length}`);
+        expect(cards.length).toBe(2);
+    });
+});

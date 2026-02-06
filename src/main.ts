@@ -30,6 +30,7 @@ export interface TodoFlowSettings {
     swipeLeftAction: string;
     swipeRightAction: string;
     doubleTapAction: string;
+    absoluteLogPath: string; // Absolute path to write logs (bypasses vault)
 }
 
 const DEFAULT_SETTINGS: TodoFlowSettings = {
@@ -43,7 +44,8 @@ const DEFAULT_SETTINGS: TodoFlowSettings = {
     lastTray: null,
     swipeLeftAction: 'archive',
     swipeRightAction: 'complete',
-    doubleTapAction: 'anchor'
+    doubleTapAction: 'anchor',
+    absoluteLogPath: ''
 }
 
 import { FileLogger } from './logger.js';
@@ -62,7 +64,7 @@ export default class TodoFlowPlugin extends Plugin {
         console.log('[Todo Flow] Plugin Loading...');
         await this.loadSettings();
         this.historyManager = new HistoryManager();
-        const logPath = 'logs/todo-flow.log';
+        const logPath = this.settings.absoluteLogPath || 'logs/todo-flow.log';
         this.logger = new FileLogger(this.app, this.settings.debug, logPath);
         this.viewManager = new ViewManager(this.app, this.logger);
         this.stackPersistenceService = new StackPersistenceService(this.app);
@@ -205,6 +207,21 @@ export default class TodoFlowPlugin extends Plugin {
             id: 'open-daily-stack',
             name: 'Open Daily Stack',
             callback: async () => {
+                // BUG-011: Flush any pending debounced saves from an existing StackView
+                const existingLeaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
+                if (existingLeaf && existingLeaf.view) {
+                    this.logger.info(`[main] Found StackView leaf. View type: ${existingLeaf.view.getViewType()}`);
+                    // Use a more robust check than instanceof if needed, or cast to any
+                    const view = existingLeaf.view as any;
+                    if (view.flushPersistence) {
+                        this.logger.info(`[main] Calling flushPersistence on existing StackView...`);
+                        await view.flushPersistence();
+                        this.logger.info(`[main] flushPersistence completed.`);
+                    } else {
+                        this.logger.warn(`[main] view.flushPersistence is NOT defined!`);
+                    }
+                }
+
                 // 1. Try to load from "todo-flow/CurrentStack.md"
                 const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
                 const savedIds = await this.stackPersistenceService.loadStackIds(persistencePath);
@@ -705,7 +722,7 @@ export default class TodoFlowPlugin extends Plugin {
     }
     */
 
-    async onCreateTask(title: string, options?: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): Promise<TaskNode> {
+    async onCreateTask(title: string, options?: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined, parentPath?: string | undefined }): Promise<TaskNode> {
         const folderPath = this.settings.targetFolder;
         // Ensure the target folder exists
         if (!(await this.app.vault.adapter.exists(folderPath))) {
@@ -751,7 +768,29 @@ export default class TodoFlowPlugin extends Plugin {
         // Asynchronously create the file in the vault AND await it
         await this.app.vault.create(path, fileContent);
 
+        // Link Injection for child stacks
+        if (options?.parentPath) {
+            await this.injectLinkToParent(options.parentPath, path, title);
+        }
+
         return newNode;
+    }
+
+    async injectLinkToParent(parentPath: string, childPath: string, childTitle: string) {
+        const parentFile = this.app.vault.getAbstractFileByPath(parentPath);
+        if (!(parentFile instanceof TFile)) {
+            this.logger.warn(`[main.ts] injectLinkToParent skipped: Parent file not found at ${parentPath}`);
+            return;
+        }
+
+        const timestamp = moment().format('YYYY-MM-DD HH:mm');
+        const linkLine = `\n\nAdded on: ${timestamp}\n- [ ] [[${childPath}|${childTitle}]]`;
+
+        this.logger.info(`[main.ts] Injecting link to ${childTitle} into ${parentPath}`);
+        this.stackPersistenceService.recordInternalWrite(parentPath);
+        await this.app.vault.process(parentFile, (content) => {
+            return content.trimEnd() + linkLine;
+        });
     }
 
     async getTasksFromFolder(folderPath: string): Promise<TaskNode[]> {
