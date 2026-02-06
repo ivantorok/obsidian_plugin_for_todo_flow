@@ -61,7 +61,7 @@ describe('NavigationManager - Drill Down', () => {
         expect(navManager.canGoBack()).toBe(true);
     });
 
-    it('should return false when drilling into task with no children', async () => {
+    it('should return true (allow empty stack) when drilling into task with no children', async () => {
         // Arrange
         const tasks: TaskNode[] = [{ id: 't1', title: 'T1', duration: 30, status: 'todo', isAnchored: false, children: [] }];
         navManager.setStack(tasks, 'root.md');
@@ -71,7 +71,7 @@ describe('NavigationManager - Drill Down', () => {
         const success = await navManager.drillDown('t1', 0);
 
         // Assert
-        expect(success).toBe(false);
+        expect(success).toBe(true);
     });
 
     it('should update current source when drilling down', async () => {
