@@ -935,6 +935,7 @@
     }
 
     .todo-flow-task-card {
+        touch-action: pan-y !important;
         user-select: none;
         -webkit-user-select: none;
         position: relative;
