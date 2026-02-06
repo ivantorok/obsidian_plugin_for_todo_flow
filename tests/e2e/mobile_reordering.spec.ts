@@ -1,5 +1,6 @@
 import { browser, expect, $, $$ } from '@wdio/globals';
 import { emulateMobile } from './mobile_utils.js';
+import { cleanupVault } from './test_utils.js';
 
 describe('Mobile Reordering (BUG-004)', () => {
     beforeEach(async function () {
@@ -11,6 +12,10 @@ describe('Mobile Reordering (BUG-004)', () => {
     });
 
     afterEach(async function () {
+        // Clean up vault state to prevent pollution
+        await cleanupVault();
+
+        // Log output
         const logs = await browser.execute(() => (window as any)._logs || []);
         console.log('[Browser Logs (window._logs)]');
         logs.forEach((log: string) => console.log(log));

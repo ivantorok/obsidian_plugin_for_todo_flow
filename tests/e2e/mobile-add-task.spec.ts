@@ -1,5 +1,6 @@
 import { browser, expect, $ } from '@wdio/globals';
 import { emulateMobile } from './mobile_utils.js';
+import { cleanupVault } from './test_utils.js';
 
 describe('Mobile: Atomic Add Task via Command Palette', () => {
 
@@ -28,6 +29,12 @@ describe('Mobile: Atomic Add Task via Command Palette', () => {
             }
         });
     });
+
+    afterEach(async function () {
+        // Clean up vault state to prevent pollution
+        await cleanupVault();
+    });
+
 
     it('should create a new task via command palette without race conditions', async () => {
         // 1. Open Stack View

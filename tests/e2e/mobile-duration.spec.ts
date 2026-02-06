@@ -1,6 +1,7 @@
 import { browser, expect, $, $$ } from '@wdio/globals';
 import { emulateMobile } from './mobile_utils.js';
 import { setupStackWithTasks, focusStack } from './e2e_utils.js';
+import { cleanupVault } from './test_utils.js';
 
 describe('Mobile: Smart Duration Sequence', () => {
 
@@ -23,6 +24,12 @@ describe('Mobile: Smart Duration Sequence', () => {
         await setupStackWithTasks(['Duration Test Task']);
         await focusStack();
     });
+
+    afterEach(async function () {
+        // Clean up vault state to prevent pollution
+        await cleanupVault();
+    });
+
 
     it('should scale duration correctly through the human planning sequence', async () => {
         // Helper to get duration text
