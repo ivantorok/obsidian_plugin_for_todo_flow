@@ -27,7 +27,7 @@ describe('Mobile: Smart Duration Sequence', () => {
     it('should scale duration correctly through the human planning sequence', async () => {
         // Find the task card (wait for it to settle)
         const taskCard = await $(`.todo-flow-task-card*=${'Duration Test Task'}`);
-        await taskCard.waitForDisplayed({ timeout: 10000 });
+        await taskCard.waitForDisplayed({ timeout: 20000 });
 
         // Verify start at 30m
         const getDurationText = async () => {

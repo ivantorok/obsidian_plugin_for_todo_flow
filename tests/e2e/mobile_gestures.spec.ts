@@ -64,7 +64,7 @@ describe('Mobile Gestures (BUG-010)', () => {
         const size = await card.getSize();
         const loc = await card.getLocation();
 
-        const startX = Math.round(loc.x + 100);
+        const startX = Math.round(loc.x + size.width * 0.2);
         const startY = Math.round(loc.y + size.height / 2);
         const endX = Math.round(loc.x + 350);
         const endY = startY;
@@ -116,7 +116,7 @@ describe('Mobile Gestures (BUG-010)', () => {
         const size = await card.getSize();
         const loc = await card.getLocation();
 
-        const startX = Math.round(loc.x + size.width - 20);
+        const startX = Math.round(loc.x + size.width * 0.8); // Start further in (was 0.9)
         const startY = Math.round(loc.y + size.height / 2);
         const endX = Math.round(loc.x - 200); // Move left
         const endY = startY;
