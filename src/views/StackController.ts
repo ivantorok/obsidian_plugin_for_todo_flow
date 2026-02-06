@@ -240,7 +240,21 @@ export class StackController {
     // I'll keep the method but remove the binding.
 
     scaleDuration(index: number, direction: 'up' | 'down'): number {
-        if (!this.tasks[index] || this.tasks[index].isMissing) return index;
+        const entryMsg = `[StackController DEBUG] scaleDuration entry index=${index} direction=${direction}`;
+        console.log(entryMsg);
+        if (typeof window !== 'undefined') {
+            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
+            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + entryMsg);
+        }
+        if (!this.tasks[index] || this.tasks[index].isMissing) {
+            const missingMsg = `[StackController DEBUG] scaleDuration early return: task[${index}] existing=${!!this.tasks[index]} isMissing=${this.tasks[index]?.isMissing}`;
+            console.log(missingMsg);
+            if (typeof window !== 'undefined') {
+                const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
+                localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + missingMsg);
+            }
+            return index;
+        }
         const taskToMove = this.tasks[index]!;
         const task = { ...taskToMove };
         const currentOwn = task.originalDuration ?? task.duration;
@@ -260,7 +274,21 @@ export class StackController {
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
+        const logMsg1 = `[StackController DEBUG] Scaling task ${index} ${direction}. New duration: ${task.originalDuration}`;
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(logMsg1);
+            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
+            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + logMsg1);
+        }
+        console.log(logMsg1);
         this.tasks = computeSchedule(newTasks, this.currentTime);
+        const logMsg2 = `[StackController DEBUG] Post-schedule tasks: ${this.tasks.map(t => t.title).join(', ')}`;
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(logMsg2);
+            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
+            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + logMsg2);
+        }
+        console.log(logMsg2);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
         if (newIndex !== -1) {

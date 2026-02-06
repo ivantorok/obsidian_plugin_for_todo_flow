@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 
 const packagePath = path.resolve(__dirname, '../package.json');
 const manifestPath = path.resolve(__dirname, '../manifest.json');
+const versionsPath = path.resolve(__dirname, '../versions.json');
 
 // 1. Read package.json
 const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
@@ -26,6 +27,11 @@ fs.writeFileSync(packagePath, JSON.stringify(pkg, null, 2) + '\n');
 // 4. Update manifest.json
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 manifest.version = newVersion;
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 4) + '\n'); // Obsidian uses 4 spaces usually, but 2 is fine too. Using 4 to match common obsidian style or just 2.
+fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 4) + '\n');
 
-console.log(`✅ Bumped version to ${newVersion} in package.json and manifest.json`);
+// 5. Update versions.json
+const versions = JSON.parse(fs.readFileSync(versionsPath, 'utf8'));
+versions[newVersion] = manifest.minAppVersion;
+fs.writeFileSync(versionsPath, JSON.stringify(versions, null, 4) + '\n');
+
+console.log(`✅ Bumped version to ${newVersion} in package.json, manifest.json, and versions.json`);

@@ -150,4 +150,7 @@ The `npm run e2e:open` command is NOT just a shortcut for `obsidian .test-vault`
 *   **Why?**: This is the **only reliable way** to programmatically bypass the "Trust this vault" prompt on macOS/Linux without manual clicks.
 *   It runs a special spec (`manual-open.spec.ts`) that simply hangs open for an hour.
 
-```
+### 5. Mobile Interaction Robustness
+Testing in emulated mobile modes (e.g., `is-mobile`) can be flaky with standard `.click()` calls due to pointer-event emulation.
+*   **Fix**: Use `browser.execute((el) => (el as HTMLElement).click(), element)` for direct interaction with small interactive elements like +/- buttons.
+*   **Sequence Verification**: When testing lists or sequences (like durations), always source the expected values from the actual shared constants (e.g., `DURATION_SEQUENCE` in `StackController.ts`) to avoid "expected 15m received 20m" type failures when logic changes.

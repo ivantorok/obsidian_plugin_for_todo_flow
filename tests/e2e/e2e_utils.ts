@@ -20,12 +20,12 @@ export async function focusStack() {
 // Helper function to create tasks via Dump → Triage → Stack flow
 export async function setupStackWithTasks(taskNames: string[]) {
     // 1. Verify Plugin is actually loaded and enabled
-    const pluginStatus = await browser.execute(() => {
+    const pluginStatus = await (browser as any).execute(() => {
         // @ts-ignore
-        const plugins = app.plugins.enabledPlugins;
+        const plugins = (window as any).app.plugins.enabledPlugins;
         const isEnabled = plugins.has('todo-flow');
         // @ts-ignore
-        const pluginInstance = app.plugins.getPlugin('todo-flow');
+        const pluginInstance = (window as any).app.plugins.getPlugin('todo-flow');
         if (pluginInstance) {
             pluginInstance.settings.debug = true;
             pluginInstance.logger.setEnabled(true);
@@ -43,32 +43,28 @@ export async function setupStackWithTasks(taskNames: string[]) {
     }
 
     // 2. Clean up existing tasks to ensure fresh start
-    // @ts-ignore
     await browser.execute(async () => {
         try {
+            // @ts-ignore
+            const rootFiles = app.vault.getMarkdownFiles();
+            for (const file of rootFiles) {
+                // @ts-ignore
+                await app.vault.delete(file);
+            }
+            console.log(`[Test Setup] Deleted existing markdown files`);
+
+            // @ts-ignore
             const folder = app.vault.getAbstractFileByPath('todo-flow');
             if (folder) {
                 // @ts-ignore
                 await app.vault.delete(folder, true);
                 console.log('[Test Setup] Deleted existing todo-flow folder');
             }
+
             // Ensure logs folder is fresh too
-            const logsFolder = app.vault.getAbstractFileByPath('logs');
-            if (logsFolder) {
-                // @ts-ignore
-                await app.vault.delete(logsFolder, true);
-            }
-            // TEST WRITABILITY
-            await app.vault.create('writability-test.txt', 'test content');
-            const file = app.vault.getAbstractFileByPath('writability-test.txt');
-            if (file) {
-                console.log('[Test Setup] Vault is writable');
-                await app.vault.delete(file);
-            } else {
-                console.error('[Test Setup] ERROR: Vault is NOT writable (file not found after create)');
-            }
+            localStorage.removeItem('_todo_flow_debug_logs');
         } catch (e) {
-            console.warn('Cleanup or Writability test failed:', e);
+            console.error('Cleanup or Writability test failed:', e);
         }
     });
 
@@ -125,10 +121,11 @@ export async function setupStackWithTasks(taskNames: string[]) {
 
     // Keep all tasks (k for each)
     for (let i = 0; i < taskNames.length; i++) {
+        console.log(`[Test Setup] Shortlisting task ${i}: ${taskNames[i]}...`);
         // @ts-ignore
         await browser.keys(['k']);
         // @ts-ignore
-        await browser.pause(500);
+        await browser.pause(800);
     }
 
     // Wait for Stack

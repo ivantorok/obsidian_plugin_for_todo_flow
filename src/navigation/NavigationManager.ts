@@ -98,10 +98,15 @@ export class NavigationManager {
     async refresh(): Promise<void> {
         if (!this.state.currentSource) return;
 
+        console.log(`[NavigationManager] Refreshing stack. Source: ${this.state.currentSource}, Current tasks: ${this.state.currentStack.length}`);
         let rawTasks: TaskNode[] = [];
         try {
             if (this.state.currentSource.startsWith('EXPLICIT')) {
                 const ids = this.state.currentStack.map(t => t.id);
+                if (ids.length === 0) {
+                    console.warn(`[NavigationManager] Refresh aborted: EXPLICIT source but currentStack is EMPTY!`);
+                    return;
+                }
                 rawTasks = await this.loader.loadSpecificFiles(ids);
             } else if (this.state.currentSource === 'QUERY:SHORTLIST') {
                 rawTasks = await this.loader.loadShortlisted();
@@ -133,6 +138,12 @@ export class NavigationManager {
      * Set the current stack from a source
      */
     setStack(tasks: TaskNode[], source: string): void {
+        const msg = `[NavigationManager] setStack() with ${tasks.length} tasks from ${source}`;
+        console.log(msg);
+        if (typeof window !== 'undefined') {
+            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
+            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + msg);
+        }
         this.state.currentStack = [...tasks];
         this.state.currentSource = source;
         this.notifyListeners();

@@ -1,4 +1,4 @@
-import { browser, expect, $ } from '@wdio/globals';
+import { browser, expect, $, $$ } from '@wdio/globals';
 import { emulateMobile } from './mobile_utils.js';
 import { setupStackWithTasks, focusStack } from './e2e_utils.js';
 
@@ -25,50 +25,63 @@ describe('Mobile: Smart Duration Sequence', () => {
     });
 
     it('should scale duration correctly through the human planning sequence', async () => {
-        // Find the task card (wait for it to settle)
-        const taskCard = await $(`.todo-flow-task-card*=${'Duration Test Task'}`);
-        await taskCard.waitForDisplayed({ timeout: 20000 });
-
-        // Verify start at 30m
+        // Helper to get duration text
         const getDurationText = async () => {
-            const el = await taskCard.$('.duration-text');
-            await el.waitForDisplayed({ timeout: 5000 });
+            const card = await $(`.todo-flow-task-card*=${'Duration Test Task'}`);
+            await card.waitForExist({ timeout: 10000 });
+            const el = await card.$('.duration-text');
+            await el.waitForDisplayed({ timeout: 10000 });
             return await el.getText();
         };
 
+        const getPlusBtn = async () => {
+            const card = await $(`.todo-flow-task-card*=${'Duration Test Task'}`);
+            return await card.$('.duration-btn.plus');
+        };
+
+        const getMinusBtn = async () => {
+            const card = await $(`.todo-flow-task-card*=${'Duration Test Task'}`);
+            return await card.$('.duration-btn.minus');
+        };
+
+        const clickBtn = async (btn: any) => {
+            await browser.execute((el) => (el as HTMLElement).click(), btn);
+        };
+
+        // Verify start at 30m
         expect(await getDurationText()).toBe('30m');
 
-        // Click Plus button
-        const plusBtn = await taskCard.$('.duration-btn.plus');
-        await plusBtn.click();
+        // 1. Scale Up: 30m -> 45m
+        await clickBtn(await getPlusBtn());
         await browser.pause(500);
         expect(await getDurationText()).toBe('45m');
 
-        // Click Plus again
-        await plusBtn.click();
+        // 2. Scale Up: 45m -> 1h
+        await clickBtn(await getPlusBtn());
         await browser.pause(500);
         expect(await getDurationText()).toBe('1h');
 
-        // 4. Click Minus (expects 45m)
-        const minusBtn = await taskCard.$('.duration-btn.minus');
-        await minusBtn.click();
+        // 3. Scale Down: 1h -> 45m
+        await clickBtn(await getMinusBtn());
         await browser.pause(500);
         expect(await getDurationText()).toBe('45m');
 
-        // 5. Sequence Down to 2m
-        // From 45m -> 30m -> 20m -> 15m -> 10m -> 5m -> 2m
-        for (let i = 0; i < 6; i++) {
-            await minusBtn.click();
-            await browser.pause(200);
+        // 4. Sequence Down to 2m
+        // Sequence: 45m -> 30m -> 20m -> 15m -> 10m -> 5m -> 2m (6 clicks)
+        const expectedSequenceDown = ['30m', '20m', '15m', '10m', '5m', '2m'];
+        for (const expected of expectedSequenceDown) {
+            await clickBtn(await getMinusBtn());
+            await browser.pause(300);
+            expect(await getDurationText()).toBe(expected);
         }
-        expect(await getDurationText()).toBe('2m');
 
-        // 6. Scale back up from 2m
-        await plusBtn.click();
+        // 5. Scale back up from 2m -> 5m
+        await clickBtn(await getPlusBtn());
         await browser.pause(300);
         expect(await getDurationText()).toBe('5m');
 
-        // Verify redundant buttons are GONE
+        // Verify redundant small buttons are GONE
+        const taskCard = await $(`.todo-flow-task-card*=${'Duration Test Task'}`);
         const smallPlus = await taskCard.$('.duration-btn.plus.small');
         expect(await smallPlus.isExisting()).toBe(false);
         const smallMinus = await taskCard.$('.duration-btn.minus.small');

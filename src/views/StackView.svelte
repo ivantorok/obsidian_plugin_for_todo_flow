@@ -103,6 +103,12 @@
 
     onMount(() => {
         if (debug) console.log('[TODO_FLOW_TRACE] onMount entry');
+        
+        window.onclick = (e) => {
+             console.log(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
+             if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
+        };
+
         controller = new StackController(initialTasks, internalNow, onTaskUpdate, onTaskCreate);
         tasks = controller.getTasks();
         keyManager = new KeybindingManager(keys);
@@ -838,17 +844,19 @@
                     <div class="duration">
                         <button 
                             class="duration-btn minus" 
-                            onpointerdown={(e) => { 
+                            onclick={(e) => { 
                                 e.stopPropagation(); 
                                 historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'down')); 
                                 update(); 
                             }}
+                            onpointerdown={(e) => e.stopPropagation()}
                             title="Decrease Duration"
                         >−</button>
                         <span 
                             class="duration-text clickable" 
                             onclick={(e) => { e.stopPropagation(); openDurationPicker(i); }}
                             onkeydown={(e) => { if (e.key === 'Enter') openDurationPicker(i); }}
+                            onpointerdown={(e) => e.stopPropagation()}
                             tabindex="0"
                             role="button"
                         >
@@ -856,11 +864,12 @@
                         </span>
                         <button 
                             class="duration-btn plus" 
-                            onpointerdown={(e) => { 
-                                e.stopPropagation(); 
-                                historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up')); 
-                                update(); 
+                            onclick={(e) => {
+                                e.stopPropagation();
+                                historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up'));
+                                update();
                             }}
+                            onpointerdown={(e) => e.stopPropagation()}
                             title="Increase Duration"
                         >+</button>
                         {#if getMinDuration(task) > 0}

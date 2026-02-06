@@ -302,11 +302,13 @@ For new developers joining the project:
 
 To maintain a native feel on Obsidian Mobile:
 
-### 1. Gesture Isolation
+### 1. Gesture Isolation & Shadowing
 Obsidian Mobile uses edge-swipes for sidebars. To prevent conflicts:
 - Use `touch-action: none` (for Triage-style full control) or `touch-action: pan-y` (for Stack-style lists where vertical scroll is still needed).
-- **Critical**: Use Pointer Events (`onpointerdown`) for logic, BUT also add `ontouchstart` and `ontouchmove` handlers that call `e.stopPropagation()` and `e.preventDefault()`. 
-- Why? Obsidian's gesture engine may listen to `touchstart` directly. `PointerEvents` fired by the browser do not stop `TouchEvents` from firing and bubbling.
+- **Critical: Gesture Shadowing**: High-level components (like task cards) often have complex gesture handlers (`onpointerdown`, `onpointerup`). Nested interactive elements (like buttons) must explicitly stop propagation of *both* `click` and `pointer` events.
+    - **Case Study**: A button's `onclick` with `e.stopPropagation()` clears the click, but the parent's `onpointerdown` might still fire, starting a `tapTimer`. If the click is stopped, the card's `handleTap` (which clears the timer) is never called, leading to a "ghost" long-press.
+    - **Fix**: Add `onpointerdown={(e) => e.stopPropagation()}` to internal buttons.
+- **StopTouchPropagation**: Why? Obsidian's gesture engine may listen to `touchstart` directly. `PointerEvents` fired by the browser do not stop `TouchEvents` from firing and bubbling.
 
 ### 2. Touch vs Keyboard Parity
 Always provide a touch alternative for keyboard shortcuts:

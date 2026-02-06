@@ -8,6 +8,12 @@ export class StackPersistenceService {
     constructor(private app: App) { }
 
     async saveStack(tasks: TaskNode[], filePath: string): Promise<void> {
+        const msg = `[StackPersistenceService] saveStack() path=${filePath}, count=${tasks.length}`;
+        console.log(msg);
+        if (typeof window !== 'undefined') {
+            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
+            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + msg);
+        }
         let content = `# Current Stack\n\n`;
 
         for (const task of tasks) {
