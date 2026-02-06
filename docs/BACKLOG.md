@@ -8,6 +8,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
 | BUG-001 | Example: Robustness test flakiness | Bug | [Spec](./backlog/TEMPLATE.md) |
+| BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./backlog/BUG-011_mobile_card_body_drag.md) |
 | UX-001 | Mobile: Start Time discovery improvement | UX | [Spec](./backlog/UX-001_start_time_discovery.md) |
 | UI-001 | Mobile: Visible scrollbar needed | UI | [Spec](./backlog/UI-001_mobile_scrollbar.md) |
 
