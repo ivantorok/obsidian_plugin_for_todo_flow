@@ -146,7 +146,9 @@ describe('Persistence Verification', () => {
             // Task 3: Complete (index 2)
             controller.toggleStatus(2);
 
-            view.update();
+            if (view.component && view.component.update) {
+                view.component.update();
+            }
         });
 
         // Verify state before reload
