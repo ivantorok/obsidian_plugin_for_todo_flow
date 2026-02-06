@@ -11,15 +11,17 @@ The following tests are currently identified as flaky due to environment instabi
 
 ## Working Procedure
 
-### 1. Verification Before Release
-Before any release (or when the pre-push hook fails), developers MUST run the isolated flaky test suite to ensure the failures are indeed due to environment flakiness and not new regressions.
+### 1. Main E2E Suite (Pre-Push Hook)
+The main E2E suite (`npm run e2e`) excludes flaky tests and should pass reliably during the pre-push hook.
+
+### 2. Flaky Test Verification (Manual)
+Before any release, developers SHOULD run the isolated flaky test suite to verify these tests still pass:
 
 ```bash
 npm run test:flaky
 ```
 
-### 2. Bypassing Hooks
-If `npm run test:flaky` passes but the full suite fails in the pre-push hook due to known environmental issues, a controlled push with `--no-verify` is permitted.
+**Note**: These tests are excluded from the pre-push hook because they are sensitive to environmental conditions (Obsidian startup time, file system sync, keyboard event timing).
 
 ### 3. Continuous Improvement
 Tests should NOT remain in the flaky category indefinitely. Every developer is encouraged to:
