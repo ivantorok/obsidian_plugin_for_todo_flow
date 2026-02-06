@@ -114,6 +114,6 @@ describe('StackView Reload Logic', () => {
         // 3. Assertions
         // In Phase A, reload() delegates to navManager.refresh()
         expect(mocks.navManager.refresh).toHaveBeenCalled();
-        expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('Reload triggered (Phase A: via NavigationManager)'));
+        expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('[StackView] Reload triggered.'));
     });
 });
