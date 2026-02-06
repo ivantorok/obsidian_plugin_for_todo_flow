@@ -8,15 +8,6 @@ This document tracks bugs and feature requests. To request work, add an item her
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
 | BUG-001 | Example: Robustness test flakiness | Bug | [Spec](./backlog/TEMPLATE.md) |
-| CHORE-02 | Remove tracked sandbox/node_modules/ | Chore | [Spec](./backlog/CHORE-02_remove_sandbox_node_modules.md) |
-| BUG-002 | Mobile: Adding existing or new task fails | Bug | [Spec](./backlog/BUG-002_mobile_add_task_fails.md) |
-| BUG-003 | Mobile: Mobile: Exporting fails | Bug | [Spec](./backlog/BUG-003_mobile_export_fails.md) |
-| BUG-004 | Mobile: Mobile: Reordering fails | Bug | [Spec](./backlog/BUG-004_mobile_reordering_fails.md) |
-| BUG-005 | Mobile: Duration values do not follow sequence | Bug | [Spec](./backlog/BUG-005_mobile_duration_sequence.md) |
-| BUG-006 | Mobile: Drag & Drop Precision & Selection | Bug | [Spec](./backlog/BUG-006_mobile_drag_precision_selection.md) |
-| BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./backlog/BUG-007_external_edit_refresh_failure.md) |
-| BUG-008 | Desktop: Duration buttons broken | Bug | [Spec](./backlog/BUG-008_desktop_duration_buttons_broken.md) |
-| BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./backlog/BUG-009_sync_discrepancy_overwrite.md) |
 | UX-001 | Mobile: Start Time discovery improvement | UX | [Spec](./backlog/UX-001_start_time_discovery.md) |
 | UI-001 | Mobile: Visible scrollbar needed | UI | [Spec](./backlog/UI-001_mobile_scrollbar.md) |
 
@@ -32,6 +23,15 @@ This document tracks bugs and feature requests. To request work, add an item her
 
 | ID | Title | Type | Spec | Date |
 | :--- | :--- | :--- | :--- | :--- |
+| CHORE-02 | Remove tracked sandbox/node_modules/ | Chore | [Spec](./archive/backlog/CHORE-02_remove_sandbox_node_modules.md) | 2026-02-06 |
+| BUG-002 | Mobile: Adding existing or new task fails | Bug | [Spec](./archive/backlog/BUG-002_mobile_add_task_fails.md) | 2026-02-06 |
+| BUG-003 | Mobile: Exporting fails | Bug | [Spec](./archive/backlog/BUG-003_mobile_export_fails.md) | 2026-02-06 |
+| BUG-004 | Mobile: Reordering fails | Bug | [Spec](./archive/backlog/BUG-004_mobile_reordering_fails.md) | 2026-02-06 |
+| BUG-005 | Mobile: Duration values do not follow sequence | Bug | [Spec](./archive/backlog/BUG-005_mobile_duration_sequence.md) | 2026-02-06 |
+| BUG-006 | Mobile: Drag & Drop Precision & Selection | Bug | [Spec](./archive/backlog/BUG-006_mobile_drag_precision_selection.md) | 2026-02-06 |
+| BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-06 |
+| BUG-008 | Desktop: Duration buttons broken | Bug | [Spec](./archive/backlog/BUG-008_desktop_duration_buttons_broken.md) | 2026-02-06 |
+| BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-06 |
 | FIX-01 | Smart Import Folder Bug | Bug | - | 2026-02-01 |
 | FIX-02 | Rename Test Stability | Bug | - | 2026-02-01 |
 | CHORE-01 | Pre-push Hook Stdin Conflict | Chore | - | 2026-02-01 |

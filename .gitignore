@@ -21,3 +21,6 @@ coverage/
 junit.xml
 
 logs/
+
+# Sandbox environment (development/testing)
+sandbox/node_modules/
