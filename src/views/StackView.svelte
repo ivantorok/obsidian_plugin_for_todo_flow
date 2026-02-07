@@ -912,6 +912,21 @@
         touch-action: pan-y;
     }
 
+    /* Mobile Scrollbar Visibility (UI-001) */
+    @media (max-width: 768px) {
+        .todo-flow-stack-container::-webkit-scrollbar {
+            width: 4px;
+            display: block !important;
+        }
+        .todo-flow-stack-container::-webkit-scrollbar-thumb {
+            background-color: var(--text-muted);
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background-clip: content-box;
+            opacity: 0.3;
+        }
+    }
+
     .todo-flow-stack-container.is-dragging {
         user-select: none !important;
     }
