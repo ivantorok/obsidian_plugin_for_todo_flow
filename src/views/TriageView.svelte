@@ -294,7 +294,7 @@
     /* Consistent Mobile Controls Pattern */
     .footer-controls {
         position: absolute;
-        bottom: 0;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 60px);
         left: 0;
         right: 0;
         display: flex;
