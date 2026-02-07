@@ -30,7 +30,8 @@ git tag -a "v$VERSION" -m "Release v$VERSION"
 
 # 5. Push & Release
 echo "🚀 Pushing Tags & Creating GitHub Release..."
-git push origin main --no-verify
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+git push origin "$CURRENT_BRANCH" --no-verify
 git push origin "v$VERSION" --no-verify
 
 # Create GitHub Release with assets (required for BRAT)

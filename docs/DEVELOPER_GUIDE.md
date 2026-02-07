@@ -18,10 +18,13 @@ VAULT="/Users/i525277/DemoVault" npm run copy-to
 # Manual steps
 npm run build
 npm run copy
-git add .
-git commit -m "message"
 git push
 ```
+
+### 🎯 Key Coding Standards
+- **Svelte 5 Runes**: Always use Runes (`$state`, `$derived`, `$effect`) for state management. Avoid old reactive declarations (`$:`) to ensure future compatibility.
+- **TypeScript**: Strict types are required. Avoid `any`.
+- **Logic Isolation**: Keep business logic in `.ts` files (e.g., `StackController.ts`) and minimize logic in Svelte templates.
 
 ### Tiered Testing Strategy
 
@@ -43,15 +46,15 @@ REUSE_OBSIDIAN=1 npm run e2e -- --spec tests/e2e/journeys/mobile_full_journey.sp
 ```
 
 #### 3. The Big Shindig (Full Suite) - **~5 Minutes**
-Run this before any commit or push. It is integrated into `./ship.sh`.
+Once work is complete, verify everything.
 ```bash
 npm run test:full                 # Runs everything (Unit + E2E)
 ```
 
-### Performance Tips
-- **REUSE_OBSIDIAN=1**: Set this environment variable to skip the costly Obsidian shutdown/restart cycle between test runs.
-- **Legacy Tests**: Redundant or slow tests are kept in `tests/e2e/legacy/`. They are excluded from the main suite by default to keep the loop tight.
-- **Vitest for Logic**: If you are testing math, state transitions, or string parsing, **add a Vitest test**. Do not wait for a browser to launch to test a `Math.max()` call.
+### ⚡ Performance Tips
+- **CORE: REUSE_OBSIDIAN=1**: Always use this during the "Inner Loop". It skips the costly Obsidian shutdown/restart cycle, saving ~10s per run.
+- **Legacy Tests**: Redundant or slow tests are kept in `tests/e2e/legacy/`. They are excluded from the main suite by default.
+- **Vitest for Logic**: If you are testing math, state transitions, or string parsing, **add a Vitest test**. 
 
 For detailed E2E testing documentation, including **troubleshooting git hooks and large file issues**, see [E2E_TESTING.md](./E2E_TESTING.md).
 See especially the [Lessons Learned & Gotchas](./E2E_TESTING.md#lessons-learned--gotchas) section if you encounter push rejections.
@@ -95,12 +98,17 @@ LOCAL_VAULTS="/Users/i525277/DemoVault /Users/i525277/Vault2 /Users/i525277/Vaul
 # View logs (replace <VAULT_PATH> with your vault location)
 cat <VAULT_PATH>/todo-flow.log
 
-# Clear logs
-# Command Palette → "Todo Flow: Clear Log File"
-```bash
-# Or manually
-rm <VAULT_PATH>/todo-flow.log
+cat <VAULT_PATH>/todo-flow.log
+
+# Follow logs in real-time
+tail -f <VAULT_PATH>/todo-flow.log
 ```
+
+### 📝 Persistent Logging
+Standard `console.log` is often invisible in Obsidian or lost on refresh. 
+- **Guideline**: Use `this.logger.info()` or `this.logger.error()` in your views/controllers.
+- **Persistence**: These logs are written to `todo-flow.log` in the vault root and persist across app reloads/crashes.
+- **Clear Logs**: Run the "Todo Flow: Clear Log File" command or `rm todo-flow.log`.
 ```
 
 ---
