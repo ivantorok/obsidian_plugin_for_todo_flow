@@ -121,7 +121,22 @@ export class TriageView extends ItemView {
                                 }
                             }
                         } else if (result.type === 'file' && result.file) {
-                            // Handle file selection if needed
+                            // BUG-012: Handle existing file selection
+                            const file = result.file;
+                            const newNode: TaskNode = {
+                                id: file.path,
+                                title: parseTitleFromFilename(file.name),
+                                duration: 30,
+                                status: 'todo' as const,
+                                isAnchored: false,
+                                children: []
+                            };
+
+                            if (newNode && this.component) {
+                                if (typeof this.component.addTaskToQueue === 'function') {
+                                    this.component.addTaskToQueue(newNode);
+                                }
+                            }
                         }
                     }, VIEW_TYPE_TRIAGE);
 
