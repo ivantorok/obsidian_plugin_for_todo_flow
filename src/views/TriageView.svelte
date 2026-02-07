@@ -16,6 +16,7 @@
     let tasks = $state<TaskNode[]>([...(initialTasks || [])]);
     let currentTask = $state<TaskNode | null>(null);
     let swipeDirection = $state<'left' | 'right' | null>(null);
+    let activeAction = $state<'left' | 'right' | null>(null);
     let showHelp = $state(false);
     let keyManager: KeybindingManager;
 
@@ -43,12 +44,14 @@
     let triageTimer: any = null;
     function next(direction: 'left' | 'right') {
         swipeDirection = direction;
+        activeAction = direction;
         if (triageTimer) clearTimeout(triageTimer);
         triageTimer = setTimeout(async () => {
             await historyManager.executeCommand(new SwipeCommand(controller, direction));
             
             currentTask = controller.getCurrentTask();
             swipeDirection = null;
+            activeAction = null;
             triageTimer = null;
 
             if (!currentTask) {
@@ -242,26 +245,22 @@
 
     <div class="todo-flow-triage-controls">
         <button 
-            onpointerdown={(e) => e.preventDefault()}
-            onmousedown={(e) => e.preventDefault()}
             onclick={(e) => handleBtnClick(e, 'left')} 
             class="control-btn not-now"
+            class:is-active={activeAction === 'left'}
         >
             ← Not Now
         </button>
         <button 
-            onpointerdown={(e) => e.preventDefault()}
-            onmousedown={(e) => e.preventDefault()}
             onclick={(e) => handleBtnClick(e, undefined, () => { historyManager.undo(); currentTask = controller.getCurrentTask(); })} 
             class="control-btn undo"
         >
             Undo
         </button>
         <button 
-            onpointerdown={(e) => e.preventDefault()}
-            onmousedown={(e) => e.preventDefault()}
             onclick={(e) => handleBtnClick(e, 'right')} 
             class="control-btn shortlist"
+            class:is-active={activeAction === 'right'}
         >
             Shortlist →
         </button>
@@ -270,8 +269,6 @@
     <div class="footer-controls">
         <button 
             class="icon-button plus-btn" 
-            onpointerdown={(e) => e.preventDefault()}
-            onmousedown={(e) => e.preventDefault()}
             onclick={(e) => handleBtnClick(e, undefined, openQuickAddModal)} 
             title="Add Task"
         >
@@ -337,13 +334,21 @@
         transition: background 0.2s;
     }
 
-    .control-btn:hover {
+    .control-btn:hover, .control-btn.is-active {
         background: var(--background-modifier-hover);
+    }
+
+    .control-btn:focus {
+        outline: none;
     }
 
     .shortlist {
         background: var(--interactive-accent);
         color: var(--text-on-accent);
+    }
+
+    .shortlist.is-active {
+        background: var(--interactive-accent-hover);
     }
 
     /* Consistent Mobile Controls Pattern */
