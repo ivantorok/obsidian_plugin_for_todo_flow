@@ -126,7 +126,8 @@
     $effect(() => {
         if (taskElements[focusedIndex]) {
             // Auto-scroll to keep focused element in view
-            taskElements[focusedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            // Using 'center' ensures that on mobile, the card is not hidden behind the keyboard
+            taskElements[focusedIndex].scrollIntoView({ block: 'center', behavior: 'smooth' });
         }
     });
 

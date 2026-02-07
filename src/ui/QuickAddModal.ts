@@ -39,6 +39,21 @@ export class QuickAddModal extends FuzzySuggestModal<QuickAddEntry> {
         });
     }
 
+    onClose() {
+        super.onClose();
+        // Return focus to the stack view after the modal is disposed
+        // We use requestAnimationFrame to ensure the modal is fully removed from DOM
+        requestAnimationFrame(() => {
+            const leaf = this.app.workspace.getLeavesOfType('todo-flow-stack-view')[0];
+            if (leaf) {
+                this.app.workspace.revealLeaf(leaf);
+                // The StackView.svelte handles its own focus on container focus
+                const container = (leaf.view as any).contentEl.querySelector('.todo-flow-stack-container') as HTMLElement;
+                if (container) container.focus();
+            }
+        });
+    }
+
     getItems(): QuickAddEntry[] {
         // Return all markdown files as the base items
         return this.app.vault.getMarkdownFiles();
