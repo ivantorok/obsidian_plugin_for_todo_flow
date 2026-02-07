@@ -21,6 +21,13 @@ git add .
 # Use the first argument as commit message, or default
 MSG="${1:-chore: auto-ship updates}"
 git commit -m "$MSG"
-git push
 
-echo "✅ Shipped!"
+# 4. Tagging (Fix for BRAT/Registry)
+VERSION=$(grep '"version":' manifest.json | head -n 1 | cut -d '"' -f 4)
+echo "🏷️ Tagging v$VERSION..."
+git tag -a "v$VERSION" -m "Release v$VERSION"
+
+git push origin main
+git push origin "v$VERSION"
+
+echo "✅ Shipped v$VERSION!"
