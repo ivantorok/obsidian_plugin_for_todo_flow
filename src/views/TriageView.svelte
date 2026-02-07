@@ -196,7 +196,9 @@
             btn.blur();
 
             // Restore focus to the contentEl (the view container from Obsidian) 
-            // to maintain "Focus Sovereignty" and clear the button highlight.
+            // to maintain "Focus Sovereignty". Note: While buttons are now static 
+            // visually (BUG-015), we still return focus to the container to 
+            // ensure keyboard navigation (j/k) continues to work immediately.
             if (contentEl) {
                 contentEl.focus();
             } else {
@@ -327,16 +329,25 @@
         background: var(--background-secondary);
         color: var(--text-normal);
         transition: none;
+        /* Disable all interaction colors for Android stability (BUG-015) */
         -webkit-tap-highlight-color: transparent;
     }
 
+    .control-btn:hover,
+    .control-btn:active,
     .control-btn:focus {
+        background: var(--background-secondary);
         outline: none;
     }
 
     .shortlist {
         background: var(--interactive-accent);
         color: var(--text-on-accent);
+    }
+
+    .shortlist:hover,
+    .shortlist:active {
+        background: var(--interactive-accent);
     }
 
     /* Consistent Mobile Controls Pattern */
@@ -367,11 +378,13 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         border: none;
         cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
+        transition: none;
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .footer-controls .icon-button:hover {
-        transform: scale(1.1);
-        background: var(--interactive-accent-hover);
+    .footer-controls .icon-button:hover,
+    .footer-controls .icon-button:active {
+        background: var(--interactive-accent);
+        transform: none;
     }
 </style>
