@@ -98,6 +98,7 @@ export class TriageView extends ItemView {
                 settings: this.settings,
                 historyManager: this.historyManager,
                 logger: this.logger,
+                contentEl: this.contentEl,
                 onComplete: (results: any) => {
                     this.onComplete(results);
                     // Optionally close the view

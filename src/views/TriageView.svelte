@@ -10,7 +10,7 @@
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
 
-    let { app, tasks: initialTasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal, logger } = $props();
+    let { app, tasks: initialTasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal, logger, contentEl } = $props();
     
     let controller: TriageController;
     let tasks = $state<TaskNode[]>([...(initialTasks || [])]);
@@ -181,11 +181,39 @@
                 break;
         }
     }
+    function handleBtnClick(e: MouseEvent, direction?: 'left' | 'right', customAction?: () => void) {
+        const btn = e.currentTarget as HTMLElement;
+        
+        if (direction) {
+            next(direction);
+        } else if (customAction) {
+            customAction();
+        }
+
+        // Use a small timeout to ensure we clear focus AFTER the browser's 
+        // default click/pointer handling has finished.
+        setTimeout(() => {
+            btn.blur();
+
+            // Restore focus to the contentEl (the view container from Obsidian) 
+            // to maintain "Focus Sovereignty" and clear the button highlight.
+            if (contentEl) {
+                contentEl.focus();
+            } else {
+                // Fallback to container if contentEl prop not provided (tests)
+                const container = btn.closest('.todo-flow-triage-container') as HTMLElement;
+                if (container) {
+                    container.focus();
+                }
+            }
+        }, 50);
+    }
 </script>
 
 
 <div 
     class="todo-flow-triage-container"
+    tabindex="-1"
 >
     {#if currentTask}
         <div 
@@ -213,13 +241,40 @@
     {/if}
 
     <div class="todo-flow-triage-controls">
-        <button onclick={() => next('left')} class="control-btn not-now">← Not Now</button>
-        <button onclick={() => { historyManager.undo(); currentTask = controller.getCurrentTask(); }} class="control-btn undo">Undo</button>
-        <button onclick={() => next('right')} class="control-btn shortlist">Shortlist →</button>
+        <button 
+            onpointerdown={(e) => e.preventDefault()}
+            onmousedown={(e) => e.preventDefault()}
+            onclick={(e) => handleBtnClick(e, 'left')} 
+            class="control-btn not-now"
+        >
+            ← Not Now
+        </button>
+        <button 
+            onpointerdown={(e) => e.preventDefault()}
+            onmousedown={(e) => e.preventDefault()}
+            onclick={(e) => handleBtnClick(e, undefined, () => { historyManager.undo(); currentTask = controller.getCurrentTask(); })} 
+            class="control-btn undo"
+        >
+            Undo
+        </button>
+        <button 
+            onpointerdown={(e) => e.preventDefault()}
+            onmousedown={(e) => e.preventDefault()}
+            onclick={(e) => handleBtnClick(e, 'right')} 
+            class="control-btn shortlist"
+        >
+            Shortlist →
+        </button>
     </div>
 
     <div class="footer-controls">
-        <button class="icon-button plus-btn" onclick={() => openQuickAddModal()} title="Add Task">
+        <button 
+            class="icon-button plus-btn" 
+            onpointerdown={(e) => e.preventDefault()}
+            onmousedown={(e) => e.preventDefault()}
+            onclick={(e) => handleBtnClick(e, undefined, openQuickAddModal)} 
+            title="Add Task"
+        >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
     </div>
