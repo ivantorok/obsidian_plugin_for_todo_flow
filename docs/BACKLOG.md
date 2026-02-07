@@ -8,7 +8,6 @@ This document tracks bugs and feature requests. To request work, add an item her
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
 | BUG-001 | Example: Robustness test flakiness | Bug | [Spec](./backlog/TEMPLATE.md) |
-| BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./backlog/BUG-011_mobile_card_body_drag.md) |
 | UX-001 | Mobile: Start Time discovery improvement | UX | [Spec](./backlog/UX-001_start_time_discovery.md) |
 | UI-001 | Mobile: Visible scrollbar needed | UI | [Spec](./backlog/UI-001_mobile_scrollbar.md) |
 
@@ -24,6 +23,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 
 | ID | Title | Type | Spec | Date |
 | :--- | :--- | :--- | :--- | :--- |
+| BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./archive/backlog/BUG-011_mobile_card_body_drag.md) | 2026-02-07 |
 | CHORE-02 | Remove tracked sandbox/node_modules/ | Chore | [Spec](./archive/backlog/CHORE-02_remove_sandbox_node_modules.md) | 2026-02-06 |
 | BUG-002 | Mobile: Adding existing or new task fails | Bug | [Spec](./archive/backlog/BUG-002_mobile_add_task_fails.md) | 2026-02-06 |
 | BUG-003 | Mobile: Exporting fails | Bug | [Spec](./archive/backlog/BUG-003_mobile_export_fails.md) | 2026-02-06 |

@@ -272,7 +272,7 @@
         draggingStartIndex = -1;
         dragTargetIndex = -1;
 
-        // HOLD TO DRAG: If not on handle, allow long-press to start drag
+        // HOLD TO DRAG / LONG PRESS
         if (!startedOnHandle) {
             if (tapTimer) clearTimeout(tapTimer);
             
@@ -285,7 +285,7 @@
                     if (dx < 20 && dy < 20) {
                         const index = tasks.findIndex(t => t.id === swipingTaskId);
                         
-                        // LONG PRESS ACTION (Overrides Drag)
+                        // 1. LONG PRESS ACTION (Overrides Drag)
                         if (settings.longPressAction && settings.longPressAction !== 'none') {
                             if (index !== -1) {
                                 if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('heavy');
@@ -293,20 +293,10 @@
                                 await executeGestureAction(settings.longPressAction, tasks[index]!, index);
                                 swipingTaskId = null; // Consume gesture
                             }
-                            return;
+                        } else {
+                            // No long press action, but we trigger haptic to show drag mode is "primed"
+                            if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('light');
                         }
-
-                        // FALLBACK: HOLD TO DRAG
-                         if (index !== -1 && !tasks[index]!.isAnchored) {
-                            draggingTaskId = swipingTaskId;
-                            draggingStartIndex = index;
-                            dragTargetIndex = index;
-                            swipingTaskId = null;
-                            if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('medium');
-                            (window as any)._logs.push(`[GESTURE] DRAG START: ${taskId}`);
-                         }
-                    } else {
-                        (window as any)._logs.push(`[GESTURE] DRAG/LONG_PRESS BLOCKED: move too large (dx=${dx}, dy=${dy})`);
                     }
                 }
             }, longPressDelay);
@@ -318,9 +308,6 @@
         (window as any)._logs.push(`[GESTURE] pointermove clientX=${e.clientX.toFixed(1)} clientY=${e.clientY.toFixed(1)}`);
         if (!swipingTaskId && !draggingTaskId) return;
         
-        // BUG-004: Aggressively prevent default to stop browser from stealing the gesture
-        if (e.cancelable) e.preventDefault();
-        
         touchCurrentX = e.clientX;
         touchCurrentY = e.clientY;
         
@@ -328,23 +315,28 @@
         const dy = Math.abs(touchCurrentY - touchStartY);
 
         // 1. INTENT LOCKING: Deciding between Swipe vs Drag
-        if (!draggingTaskId && (dy > 3 || dx > 3 || startedOnHandle)) {
-            // If we started on the handle, or we moved significantly vertically
-            if (startedOnHandle || dy > (dx * 1.5)) { 
-                // LOCK INTO DRAG MODE
+        if (!draggingTaskId && (dy > 2 || dx > 2 || startedOnHandle)) {
+            // Immediate lock if on handle
+            // OR if vertical movement is significantly greater than horizontal
+            if (startedOnHandle || dy > (dx * 1.2)) { 
                 const index = tasks.findIndex(t => t.id === swipingTaskId);
                 if (index !== -1 && !tasks[index]!.isAnchored) {
+                    // Start dragging immediately
                     draggingTaskId = swipingTaskId;
                     draggingStartIndex = index;
                     dragTargetIndex = index;
                     swipingTaskId = null;
+                    if (tapTimer) clearTimeout(tapTimer); // Cancel long-press timer
+
+                    if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('medium');
                     if (logger && internalSettings.debug && !dragLogged) {
                         logger.info(`[GESTURE] Intent locked: DRAG (taskId: ${draggingTaskId})`);
                         dragLogged = true;
                     }
+                    (window as any)._logs.push(`[GESTURE] DRAG START (Immediate): ${draggingTaskId}`);
                 }
             } else if (dx > 20) {
-                // Stay in swipe mode
+                // Stay in swipe mode and consume
                 e.stopPropagation();
             }
         }
@@ -359,6 +351,9 @@
             let minDistance = Infinity;
             
             for (let i = 0; i < taskElements.length; i++) {
+                // Skip the card we are currently dragging to avoid distance-to-self issues
+                if (i === draggingStartIndex) continue;
+
                 const el = taskElements[i];
                 if (!el) continue;
                 const rect = el.getBoundingClientRect();
@@ -434,7 +429,7 @@
 
     function handlePointerCancel(e: PointerEvent) {
         if (!(window as any)._logs) (window as any)._logs = [];
-        (window as any)._logs.push(`[GESTURE] pointercanceltaskId=${swipingTaskId || draggingTaskId}`);
+        (window as any)._logs.push(`[GESTURE] pointercancel taskId=${swipingTaskId || draggingTaskId} pointerType=${e.pointerType} reason=${(e as any).reason || 'unknown'}`);
         swipingTaskId = null;
         draggingTaskId = null;
     }
@@ -944,7 +939,7 @@
     }
 
     .todo-flow-task-card {
-        touch-action: pan-y !important;
+        touch-action: none !important;
         user-select: none;
         -webkit-user-select: none;
         position: relative;
