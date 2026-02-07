@@ -13,6 +13,11 @@ const pluginSourcePath = path.resolve(__dirname, '../../');
 const pluginDestPath = path.join(vaultPath, '.obsidian', 'plugins', pluginId);
 
 async function stopObsidian() {
+    if (process.env.REUSE_OBSIDIAN === '1') {
+        console.log('[E2E Setup] REUSE_OBSIDIAN is enabled, skipping stopObsidian.');
+        return;
+    }
+
     console.log('Stopping existing Obsidian instances...');
     try {
         if (os.platform() === 'darwin') {
@@ -20,8 +25,8 @@ async function stopObsidian() {
         } else if (os.platform() === 'linux') {
             execSync('pkill obsidian || true');
         }
-        // Wait a bit for processes to fully exit
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Wait a bit for processes to fully exit - reduced from 2000ms
+        await new Promise(resolve => setTimeout(resolve, 500));
     } catch (e) {
         console.warn('Warning: Could not stop Obsidian:', e);
     }

@@ -23,26 +23,35 @@ git commit -m "message"
 git push
 ```
 
-### Testing
+### Tiered Testing Strategy
+
+To maintain high development velocity while ensuring quality, follow this tiered approach:
+
+#### 1. The Inner Loop (Vitest) - **Seconds**
+Run these frequently while coding. Most business logic (scheduling, scaling, parsing) lives here.
 ```bash
-# Run all unit tests
-npm test
-
-# Run specific test file
-npm test src/__tests__/logger.test.ts
-
-# Watch mode (auto-rerun on changes)
-npm test -- --watch
-
-# E2E Tests (WebdriverIO)
-npm run e2e              # Automated E2E tests with WebdriverIO
-npm run e2e:open         # Manual verification in isolated environment
-npm run e2e:setup        # Setup test vault only
-npm run e2e -- --spec tests/e2e/journey_a.spec.ts # Run specific E2E spec
-
-# View E2E logs
-cat .test-vault-launch.log
+npm test                          # Run all unit tests
+npm test src/__tests__/scaling.ts # Run specific logic test
+npm test -- --watch               # Watch mode for instant feedback
 ```
+
+#### 2. Feature Verification (Specific E2E) - **< 1 Minute**
+Once logic is green, verify the UI/Obsidian integration for the specific feature.
+```bash
+# REUSE_OBSIDIAN=1 skips the 5s process restart
+REUSE_OBSIDIAN=1 npm run e2e -- --spec tests/e2e/journeys/mobile_full_journey.spec.ts
+```
+
+#### 3. The Big Shindig (Full Suite) - **~5 Minutes**
+Run this before any commit or push. It is integrated into `./ship.sh`.
+```bash
+npm run test:full                 # Runs everything (Unit + E2E)
+```
+
+### Performance Tips
+- **REUSE_OBSIDIAN=1**: Set this environment variable to skip the costly Obsidian shutdown/restart cycle between test runs.
+- **Legacy Tests**: Redundant or slow tests are kept in `tests/e2e/legacy/`. They are excluded from the main suite by default to keep the loop tight.
+- **Vitest for Logic**: If you are testing math, state transitions, or string parsing, **add a Vitest test**. Do not wait for a browser to launch to test a `Math.max()` call.
 
 For detailed E2E testing documentation, including **troubleshooting git hooks and large file issues**, see [E2E_TESTING.md](./E2E_TESTING.md).
 See especially the [Lessons Learned & Gotchas](./E2E_TESTING.md#lessons-learned--gotchas) section if you encounter push rejections.

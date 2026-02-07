@@ -1,7 +1,7 @@
 {
     "id": "todo-flow",
     "name": "Todo Flow",
-    "version": "1.2.17",
+    "version": "1.2.18",
     "minAppVersion": "0.15.0",
     "description": "Flow-state task management with Rocks and Water logic.",
     "author": "Ivan Torok",
