@@ -1,0 +1,107 @@
+[
+  {
+    "scenario": "Basic floating sequence",
+    "output": [
+      {
+        "id": "f1",
+        "title": "Float 1",
+        "startTime": "2026-02-07T09:00:00.000Z",
+        "duration": 30,
+        "isAnchored": false,
+        "status": "todo"
+      },
+      {
+        "id": "f2",
+        "title": "Float 2",
+        "startTime": "2026-02-07T09:30:00.000Z",
+        "duration": 60,
+        "isAnchored": false,
+        "status": "todo"
+      }
+    ]
+  },
+  {
+    "scenario": "Floating tasks around a Rock",
+    "output": [
+      {
+        "id": "f1",
+        "title": "Float 1",
+        "startTime": "2026-02-07T09:00:00.000Z",
+        "duration": 30,
+        "isAnchored": false,
+        "status": "todo"
+      },
+      {
+        "id": "f2",
+        "title": "Float 2",
+        "startTime": "2026-02-07T09:30:00.000Z",
+        "duration": 30,
+        "isAnchored": false,
+        "status": "todo"
+      },
+      {
+        "id": "r1",
+        "title": "Rock 1",
+        "startTime": "2026-02-07T10:00:00.000Z",
+        "duration": 60,
+        "isAnchored": true,
+        "status": "todo"
+      }
+    ]
+  },
+  {
+    "scenario": "Rock pushing another Rock",
+    "output": [
+      {
+        "id": "r1",
+        "title": "Rock 1",
+        "startTime": "2026-02-07T10:00:00.000Z",
+        "duration": 60,
+        "isAnchored": true,
+        "status": "todo"
+      },
+      {
+        "id": "r2",
+        "title": "Rock 2",
+        "startTime": "2026-02-07T11:00:00.000Z",
+        "duration": 60,
+        "isAnchored": true,
+        "status": "todo"
+      }
+    ]
+  },
+  {
+    "scenario": "Parent with children duration roll-up",
+    "output": [
+      {
+        "id": "p1",
+        "title": "Parent",
+        "startTime": "2026-02-07T09:00:00.000Z",
+        "duration": 60,
+        "isAnchored": false,
+        "status": "todo"
+      }
+    ]
+  },
+  {
+    "scenario": "Mixed Done and Todo tasks",
+    "output": [
+      {
+        "id": "d1",
+        "title": "Done 1",
+        "startTime": "2026-02-07T09:00:00.000Z",
+        "duration": 60,
+        "isAnchored": false,
+        "status": "done"
+      },
+      {
+        "id": "f1",
+        "title": "Float 1",
+        "startTime": "2026-02-07T09:00:00.000Z",
+        "duration": 30,
+        "isAnchored": false,
+        "status": "todo"
+      }
+    ]
+  }
+]

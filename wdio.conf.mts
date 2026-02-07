@@ -27,7 +27,7 @@ export const config: Options.Testrunner = {
     // ============
     // Capabilities
     // ============
-    maxInstances: 1,
+    maxInstances: 3,
     capabilities: [{
         browserName: 'obsidian',
         browserVersion: 'latest',
