@@ -60,7 +60,7 @@ describe('Auto-NLP Triggers', () => {
                 { id: 't2', title: 'Task B for 2h', duration: 30, status: 'todo', isAnchored: false, children: [] },
                 { id: 't3', title: 'Manual Task !manual 15:00', duration: 30, status: 'todo', isAnchored: false, children: [] }
             ];
-            const bulkController = new StackController(bulkTasks, moment(), onTaskUpdate);
+            const bulkController = new StackController(bulkTasks, moment('2026-02-07 11:00'), onTaskUpdate);
             const command = new ReprocessTaskCommand(bulkController, onTaskUpdate);
 
             await command.execute();
