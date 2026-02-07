@@ -28,9 +28,17 @@ git commit -m "$MSG"
 echo "🏷️ Tagging v$VERSION..."
 git tag -a "v$VERSION" -m "Release v$VERSION"
 
-# Use --no-verify because we ALREADY ran tests above. 
-# This skips the redundant Husky pre-push hook.
+# 5. Push & Release
+echo "🚀 Pushing Tags & Creating GitHub Release..."
 git push origin main --no-verify
 git push origin "v$VERSION" --no-verify
+
+# Create GitHub Release with assets (required for BRAT)
+if command -v gh &> /dev/null; then
+    echo "📦 Creating GitHub Release v$VERSION..."
+    gh release create "v$VERSION" main.js manifest.json styles.css --title "v$VERSION" --notes "Automated release v$VERSION" || echo "⚠️ Release already exists or failed."
+else
+    echo "⚠️ gh CLI not found. Please create the release manually."
+fi
 
 echo "✅ Shipped v$VERSION!"
