@@ -43,22 +43,19 @@ describe('Mobile Triage Visual Reset (BUG-014)', () => {
         const idleColor = await shortlistBtn.getCSSProperty('background-color');
         console.log('[DEBUG] Idle Color:', idleColor.value);
 
-        // 4. Click the button using native script
+        // 4. Click the button
         await browser.execute((el) => (el as HTMLElement).click(), shortlistBtn);
 
-        // 5. Check color DURING the action (should be highlighted)
+        // 5. Check color DURING the action (should be exactly the same as idle)
         await browser.pause(50);
         const activeColor = await shortlistBtn.getCSSProperty('background-color');
         console.log('[DEBUG] Color during click (50ms):', activeColor.value);
-        expect(activeColor.value).not.toBe(idleColor.value);
+        expect(activeColor.value).toBe(idleColor.value);
 
-        // 6. Check color AFTER the action (should be reset)
-        // activeAction is cleared after 200ms in next()
+        // 6. Check color AFTER the action
         await browser.pause(400);
-
         const finalColor = await shortlistBtn.getCSSProperty('background-color');
-        console.log('[DEBUG] Color after reset (450ms):', finalColor.value);
-
+        console.log('[DEBUG] Color after 450ms:', finalColor.value);
         expect(finalColor.value).toBe(idleColor.value);
     });
 });

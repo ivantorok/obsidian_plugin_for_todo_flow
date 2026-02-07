@@ -16,7 +16,6 @@
     let tasks = $state<TaskNode[]>([...(initialTasks || [])]);
     let currentTask = $state<TaskNode | null>(null);
     let swipeDirection = $state<'left' | 'right' | null>(null);
-    let activeAction = $state<'left' | 'right' | null>(null);
     let showHelp = $state(false);
     let keyManager: KeybindingManager;
 
@@ -44,14 +43,12 @@
     let triageTimer: any = null;
     function next(direction: 'left' | 'right') {
         swipeDirection = direction;
-        activeAction = direction;
         if (triageTimer) clearTimeout(triageTimer);
         triageTimer = setTimeout(async () => {
             await historyManager.executeCommand(new SwipeCommand(controller, direction));
             
             currentTask = controller.getCurrentTask();
             swipeDirection = null;
-            activeAction = null;
             triageTimer = null;
 
             if (!currentTask) {
@@ -247,7 +244,6 @@
         <button 
             onclick={(e) => handleBtnClick(e, 'left')} 
             class="control-btn not-now"
-            class:is-active={activeAction === 'left'}
         >
             ← Not Now
         </button>
@@ -260,7 +256,6 @@
         <button 
             onclick={(e) => handleBtnClick(e, 'right')} 
             class="control-btn shortlist"
-            class:is-active={activeAction === 'right'}
         >
             Shortlist →
         </button>
@@ -331,11 +326,8 @@
         border: 1px solid var(--background-modifier-border);
         background: var(--background-secondary);
         color: var(--text-normal);
-        transition: background 0.2s;
-    }
-
-    .control-btn:hover, .control-btn.is-active {
-        background: var(--background-modifier-hover);
+        transition: none;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .control-btn:focus {
@@ -345,10 +337,6 @@
     .shortlist {
         background: var(--interactive-accent);
         color: var(--text-on-accent);
-    }
-
-    .shortlist.is-active {
-        background: var(--interactive-accent-hover);
     }
 
     /* Consistent Mobile Controls Pattern */
