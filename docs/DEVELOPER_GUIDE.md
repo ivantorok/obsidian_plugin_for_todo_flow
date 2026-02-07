@@ -370,5 +370,19 @@ For features that are hard to verify via UI (like shortcut interception), expose
 
 ---
 
-**Last Updated:** 2026-02-01
+
+### 5. Test Isolation vs. Component Logic
+- **Lesson**: Unit tests (Vitest) should test the *component's logic*, not the *React/Svelte framework*.
+    - **Anti-Pattern**: Using `fireEvent.keyDown` on a container to test a component's internal handler. This relies on DOM bubbling and framework event delegation, which is often different in a test environment than in Obsidian.
+    - **Pattern**: Directly call the component's public methods (e.g., `component.handleKeyDown(mockEvent)`). This isolates the test to the component's logic and makes it robust against DOM changes.
+
+### 6. Release Pipeline Dependencies
+- **Lesson**: The release script (`ship.sh`) must align the build and test order.
+    - **Rule**: Always clean and build *before* running tests. This ensures tests run against the code that will actually be shipped.
+    - **Verification**: If tests pass but the release fails, check if the `dist/` or `main.js` was stale.
+
+---
+
+**Last Updated:** 2026-02-07
+
 **Maintained By:** Development Team

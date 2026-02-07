@@ -1,4 +1,4 @@
-import { App, FuzzySuggestModal, TFile, Scope, type FuzzyMatch } from 'obsidian';
+import { App, FuzzySuggestModal, TFile, Scope, type FuzzyMatch, Platform } from 'obsidian';
 import { DateParser } from '../utils/DateParser.js';
 import moment from 'moment';
 
@@ -17,9 +17,12 @@ export class QuickAddModal extends FuzzySuggestModal<QuickAddEntry> {
     private onChoose: (result: QuickAddResult) => void;
     private currentQuery: string = '';
 
-    constructor(app: App, onChoose: (result: QuickAddResult) => void) {
+    private targetViewType: string;
+
+    constructor(app: App, onChoose: (result: QuickAddResult) => void, targetViewType: string = 'todo-flow-stack-view') {
         super(app);
         this.onChoose = onChoose;
+        this.targetViewType = targetViewType;
         this.setPlaceholder('Search for an existing task or type to create new...');
     }
 
@@ -41,17 +44,9 @@ export class QuickAddModal extends FuzzySuggestModal<QuickAddEntry> {
 
     onClose() {
         super.onClose();
-        // Return focus to the stack view after the modal is disposed
-        // We use requestAnimationFrame to ensure the modal is fully removed from DOM
-        requestAnimationFrame(() => {
-            const leaf = this.app.workspace.getLeavesOfType('todo-flow-stack-view')[0];
-            if (leaf) {
-                this.app.workspace.revealLeaf(leaf);
-                // The StackView.svelte handles its own focus on container focus
-                const container = (leaf.view as any).contentEl.querySelector('.todo-flow-stack-container') as HTMLElement;
-                if (container) container.focus();
-            }
-        });
+        // Stability Fix: On Mobile (and E2E), forceful focusing/revealing can cause view thrashing
+        // or accidentally close the active view if the workspace state is in flux.
+        // We rely on Obsidian's default focus handling instead of explicit revealLeaf.
     }
 
     getItems(): QuickAddEntry[] {

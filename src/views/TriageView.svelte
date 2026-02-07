@@ -52,6 +52,7 @@
             triageTimer = null;
 
             if (!currentTask) {
+                console.error('[FIX-DEBUG] TriageView.svelte: currentTask is NULL. Calling onComplete.');
                 onComplete(controller.getResults());
             }
         }, 200);

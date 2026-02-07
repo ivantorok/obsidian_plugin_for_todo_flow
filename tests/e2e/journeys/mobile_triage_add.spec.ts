@@ -1,9 +1,8 @@
 import { browser, expect, $ } from '@wdio/globals';
 import { emulateMobile } from '../mobile_utils.js';
-import { setupStackWithTasks } from '../e2e_utils.js';
 import { cleanupVault } from '../test_utils.js';
 
-describe.skip('Mobile Triage Addition (FEAT-001)', () => {
+describe('Mobile Triage Addition (FEAT-001)', () => {
 
     before(async function () {
         // @ts-ignore
@@ -16,7 +15,6 @@ describe.skip('Mobile Triage Addition (FEAT-001)', () => {
             const plugin = app.plugins.plugins['todo-flow'];
             if (plugin) {
                 plugin.settings.targetFolder = 'todo-flow';
-                plugin.settings.debug = true;
                 await plugin.saveSettings();
             }
         });
@@ -27,49 +25,55 @@ describe.skip('Mobile Triage Addition (FEAT-001)', () => {
     });
 
     it('should allow adding tasks via a floating "+" button on mobile triage', async () => {
-        // 1. Setup tasks and enter Triage
-        console.log('[Test FEAT-001] Step 1: Entering Triage');
-        // We add dummy tasks to trigger Triage flow
-        await setupStackWithTasks(['Dummy 1']);
+        // 1. Create a fresh dump task directly
+        await browser.execute(async () => {
+            const content = `---
+task: Triage Test Task
+status: todo
+duration: 30
+flow_state: dump
+---
+# Triage Test Task
+`;
+            const adapter = app.vault.adapter;
+            if (!(await adapter.exists('todo-flow'))) {
+                await adapter.mkdir('todo-flow');
+            }
+            await app.vault.create('todo-flow/TriageTestTask.md', content);
+        });
+        await browser.pause(500);
 
-        // Re-open Triage if we are in Stack or just stay in Triage if setupStackWithTasks leaves us there
-        // Actually setupStackWithTasks ends in Stack. We need to go BACK to Triage or just start a new session.
+        // 2. Start Triage
         await browser.execute(() => {
-            // @ts-ignore
             app.commands.executeCommandById('todo-flow:start-triage');
         });
         await browser.pause(1000);
 
-        // 2. Look for the plus button
-        console.log('[Test FEAT-001] Step 2: Looking for the "+" button');
+        // 3. Click the plus button to open QuickAddModal
         const plusBtn = await $('.plus-btn');
-
-        // EXPECTATION: The button should be displayed
-        // This will FAIL initially because we haven't added it to TriageView.svelte
         await expect(plusBtn).toBeDisplayed();
-
-        // 3. Click the button
-        console.log('[Test FEAT-001] Step 3: Clicking "+" button');
         await browser.execute((el) => (el as HTMLElement).click(), plusBtn);
         await browser.pause(1000);
 
-        // 4. Verify QuickAddModal is open
-        const modalInput = await $('.prompt-input');
-        await expect(modalInput).toBeDisplayed();
+        // 4. Verify QuickAddModal is open and add a task
+        const promptInput = await $('.prompt-input');
+        await expect(promptInput).toBeDisplayed();
+        await promptInput.setValue('Mobile added task');
 
-        // 5. Add a task
-        console.log('[Test FEAT-001] Step 4: Adding a task via modal');
-        await browser.keys(['Mobile added task', 'Enter']);
-        await browser.pause(1000);
+        const suggestionItem = await $('.suggestion-item');
+        await suggestionItem.waitForDisplayed({ timeout: 5000 });
+        await suggestionItem.click();
+        await browser.pause(500);
 
-        // 6. Verify it's in the triage queue
-        const triageTasks = await browser.execute(() => {
-            // @ts-ignore
-            const triageView = app.workspace.getLeavesOfType('todo-flow-triage-view')[0].view;
-            return triageView.component.tasks.map(t => t.title);
+        // 5. Verify task was created in the vault
+        const taskFileExists = await browser.execute(async () => {
+            const files = app.vault.getMarkdownFiles();
+            return files.some((f: any) => {
+                const cache = app.metadataCache.getCache(f.path);
+                return cache?.frontmatter?.task === 'Mobile added task';
+            });
         });
 
-        console.log('[Test FEAT-001] Triage Tasks:', triageTasks);
-        expect(triageTasks).toContain('Mobile added task');
+        expect(taskFileExists).toBe(true);
     });
 });

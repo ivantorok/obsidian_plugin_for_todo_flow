@@ -23,6 +23,9 @@ export class TriageView extends ItemView {
     viewManager: ViewManager;
     onCreateTask: (title: string, options?: any) => Promise<TaskNode>;
 
+    private isModalOpen: boolean = false;
+    private lastModalCloseTime: number = 0;
+
     constructor(
         leaf: WorkspaceLeaf,
         tasks: TaskNode[],
@@ -57,6 +60,24 @@ export class TriageView extends ItemView {
         this.registerDomEvent(window, 'keydown', (e: KeyboardEvent) => {
             if (!this.viewManager.isSovereign((this.leaf as any).id)) return;
 
+            // Robust check: Ignore if typing in an input/textarea/contentEditable
+            const target = e.target as HTMLElement;
+            if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable) {
+                if (this.logger) this.logger.info(`[TriageView] Key blocked because target is input: ${target.tagName}`);
+                return;
+            }
+
+            if (e.defaultPrevented) return;
+
+            // Block keys if modal is open OR was recently closed (prevent leak)
+            const timeSinceClose = Date.now() - this.lastModalCloseTime;
+            if (this.isModalOpen || timeSinceClose < 500) {
+                if (this.logger) this.logger.info(`[TriageView] Key blocked: ${e.key} (ModalOpen: ${this.isModalOpen}, TimeSinceClose: ${timeSinceClose})`);
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
             // @ts-ignore
             window.LAST_SHORTCUT_VIEW = this.getViewType();
 
@@ -75,7 +96,6 @@ export class TriageView extends ItemView {
                 tasks: this.tasks,
                 keys: this.keys,
                 settings: this.settings,
-                debug: this.keys.debug,
                 historyManager: this.historyManager,
                 logger: this.logger,
                 onComplete: (results: any) => {
@@ -84,46 +104,40 @@ export class TriageView extends ItemView {
                     this.leaf.detach();
                 },
                 openQuickAddModal: () => {
-                    new QuickAddModal(this.app, async (result) => {
+                    this.isModalOpen = true;
+
+                    const modal = new QuickAddModal(this.app, async (result) => {
                         if (result.type === 'new' && result.title) {
-                            if (this.logger) this.logger.info(`[TriageView] Modal returned NEW task: ${result.title}`);
                             const options: any = {};
                             if (result.startTime) options.startTime = result.startTime;
                             if (result.duration !== undefined) options.duration = result.duration;
                             if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
 
                             const newNode = await this.onCreateTask(result.title, options);
+
                             if (newNode && this.component) {
-                                if (this.logger) this.logger.info(`[TriageView] Adding NEW node to queue: ${newNode.id}`);
                                 if (typeof this.component.addTaskToQueue === 'function') {
                                     this.component.addTaskToQueue(newNode);
-                                } else {
-                                    if (this.logger) this.logger.error('[TriageView] addTaskToQueue is NOT a function on component!');
-                                    new (window as any).Notice('Error: Triage View component error.');
                                 }
                             }
                         } else if (result.type === 'file' && result.file) {
-                            if (this.logger) this.logger.info(`[TriageView] Modal returned EXISTING file: ${result.file.path}`);
-                            // Convert TFile to TaskNode
-                            const existingNode: TaskNode = {
-                                id: result.file.path,
-                                title: parseTitleFromFilename(result.file.basename),
-                                duration: 30, // Default for triage
-                                status: 'todo',
-                                isAnchored: false,
-                                children: []
-                            };
-                            if (this.component) {
-                                if (this.logger) this.logger.info(`[TriageView] Adding EXISTING node to queue: ${existingNode.id}`);
-                                if (typeof this.component.addTaskToQueue === 'function') {
-                                    this.component.addTaskToQueue(existingNode);
-                                } else {
-                                    if (this.logger) this.logger.error('[TriageView] addTaskToQueue is NOT a function on component!');
-                                    new (window as any).Notice('Error: Triage View component error.');
-                                }
-                            }
+                            // Handle file selection if needed
                         }
-                    }).open();
+                    }, VIEW_TYPE_TRIAGE);
+
+                    const originalOnClose = modal.onClose.bind(modal);
+                    modal.onClose = () => {
+                        this.lastModalCloseTime = Date.now();
+                        originalOnClose();
+                        // Delay unblocking keys to ensure the Enter key event doesn't propagate to TriageView
+                        // after the modal closes but during the same event loop tick.
+                        setTimeout(() => {
+                            this.isModalOpen = false;
+                            if (this.logger) this.logger.info('[TriageView] QuickAddModal Closed (Re-enabling Keys after 500ms delay)');
+                        }, 500);
+                    };
+
+                    modal.open();
                 }
             }
         });
@@ -137,6 +151,7 @@ export class TriageView extends ItemView {
     }
 
     async onClose() {
+        if (this.logger) this.logger.info('[TriageView] onClose triggered. Unmounting component.');
         if (this.component) {
             unmount(this.component);
         }

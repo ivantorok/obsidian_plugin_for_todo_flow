@@ -155,10 +155,7 @@ export class StackView extends ItemView {
     }
 
     openAddModal() {
-        if (this.logger) this.logger.info('[StackView] Opening Quick Add Modal via Command');
         new QuickAddModal(this.app, async (result: any) => {
-            if (this.logger) this.logger.info(`[StackView] QuickAdd Result: ${JSON.stringify(result)}`);
-
             let newNode: TaskNode | null = null;
 
             if (result.type === 'new') {
@@ -196,7 +193,8 @@ export class StackView extends ItemView {
                 }
                 this.app.workspace.requestSaveLayout();
             }
-        }).open();
+            this.app.workspace.requestSaveLayout();
+        }, VIEW_TYPE_STACK).open();
     }
 
     async reload(): Promise<void> {
@@ -310,7 +308,7 @@ export class StackView extends ItemView {
                                 }
                             }
                         }
-                    }).open();
+                    }, VIEW_TYPE_STACK).open();
                 },
                 openDurationPicker: (index: number) => {
                     new DurationPickerModal(this.app, async (minutes: number) => {
