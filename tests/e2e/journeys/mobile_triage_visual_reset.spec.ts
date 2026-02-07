@@ -46,20 +46,19 @@ describe('Mobile Triage Visual Reset (BUG-014)', () => {
         // 4. Click the button using native script
         await browser.execute((el) => (el as HTMLElement).click(), shortlistBtn);
 
-        // 5. Check color after a short delay (shorter than the 200ms slide animation)
-        await browser.pause(100);
+        // 5. Check color DURING the action (should be highlighted)
+        await browser.pause(50);
+        const activeColor = await shortlistBtn.getCSSProperty('background-color');
+        console.log('[DEBUG] Color during click (50ms):', activeColor.value);
+        expect(activeColor.value).not.toBe(idleColor.value);
 
-        // We check the color of the selector again. 
-        // Note: The card might be animating away, but the button element might still be queried
-        // or we check the color of the element that is now supposedly "reset" or the new one.
-        // Actually, we want to ensure NO button has the "active" color.
+        // 6. Check color AFTER the action (should be reset)
+        // activeAction is cleared after 200ms in next()
+        await browser.pause(400);
 
-        const currentColor = await shortlistBtn.getCSSProperty('background-color');
-        console.log('[DEBUG] Color after click (100ms):', currentColor.value);
+        const finalColor = await shortlistBtn.getCSSProperty('background-color');
+        console.log('[DEBUG] Color after reset (450ms):', finalColor.value);
 
-        // If the bug exists, currentColor will likely be different from idleColor 
-        // (representing the :active or :focus state color).
-        // Since we are moving to manual state management, we expect color to be back to idle.
-        expect(currentColor.value).toBe(idleColor.value);
+        expect(finalColor.value).toBe(idleColor.value);
     });
 });
