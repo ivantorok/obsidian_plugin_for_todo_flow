@@ -49,7 +49,12 @@ vi.mock('obsidian', () => {
             saveData = vi.fn();
         },
         ItemView: class {
-            constructor(public leaf: any) { }
+            contentEl: HTMLElement;
+            containerEl: HTMLElement;
+            constructor(public leaf: any) {
+                this.contentEl = document.createElement('div');
+                this.containerEl = document.createElement('div');
+            }
             addAction = vi.fn();
             getViewType = vi.fn();
         },

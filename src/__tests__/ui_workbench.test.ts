@@ -24,7 +24,7 @@ describe('UI Workbench: Interaction & Stability', () => {
         const { HistoryManager } = await import('../history.js');
         const historyManager = new HistoryManager();
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -86,7 +86,7 @@ describe('UI Workbench: Interaction & Stability', () => {
         const { HistoryManager } = await import('../history.js');
         const historyManager = new HistoryManager();
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -105,7 +105,11 @@ describe('UI Workbench: Interaction & Stability', () => {
         const stackContainer = container.querySelector('.todo-flow-stack-container') as HTMLElement;
         stackContainer.focus();
 
-        await fireEvent.keyDown(stackContainer, { key: 'j', code: 'KeyJ' });
+        // @ts-ignore
+        const event = new KeyboardEvent('keydown', { key: 'j', code: 'KeyJ' });
+        Object.defineProperty(event, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(event);
         await new Promise(resolve => setTimeout(resolve, 50)); // animation/state delay
 
         const items = container.querySelectorAll('.todo-flow-task-card');
@@ -121,7 +125,7 @@ describe('UI Workbench: Interaction & Stability', () => {
         const { HistoryManager } = await import('../history.js');
         const historyManager = new HistoryManager();
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks, // 1, 2
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -142,7 +146,11 @@ describe('UI Workbench: Interaction & Stability', () => {
         stackContainer.focus();
 
         // 1. Send 'j' -> Nav Down to Task 2
-        await fireEvent.keyDown(stackContainer, { key: 'j', code: 'KeyJ' });
+        // @ts-ignore
+        const eventJ = new KeyboardEvent('keydown', { key: 'j', code: 'KeyJ' });
+        Object.defineProperty(eventJ, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventJ);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         let items = container.querySelectorAll('.todo-flow-task-card');
@@ -151,13 +159,21 @@ describe('UI Workbench: Interaction & Stability', () => {
         // 2. Send 'J' (Shift+J) -> Move Task 2 DOWN? 
         // Task 2 is at index 1. Can't move down.
         // Let's nav back up to 0 first.
-        await fireEvent.keyDown(stackContainer, { key: 'k', code: 'KeyK' });
+        // @ts-ignore
+        const eventK = new KeyboardEvent('keydown', { key: 'k', code: 'KeyK' });
+        Object.defineProperty(eventK, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventK);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // Now at Task 1. Move it DOWN.
         // Note: The KeybindingManager now handles case sensitivity.
         // We simulate a "Shift+J" event as the browser sends it: key='J', shiftKey=true
-        await fireEvent.keyDown(stackContainer, { key: 'J', code: 'KeyJ', shiftKey: true });
+        // @ts-ignore
+        const eventSJ = new KeyboardEvent('keydown', { key: 'J', code: 'KeyJ', shiftKey: true });
+        Object.defineProperty(eventSJ, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventSJ);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // Expect order to flip. Task 2 then Task 1.
@@ -214,7 +230,7 @@ describe('UI Workbench: Interaction & Stability', () => {
             { id: '1', title: 'Done Task', duration: 30, status: 'done', isAnchored: false, children: [] }
         ] as TaskNode[];
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: tasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -240,7 +256,7 @@ describe('UI Workbench: Interaction & Stability', () => {
 
         const openQuickAddModal = vi.fn(); // SHOULD be called
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -261,7 +277,11 @@ describe('UI Workbench: Interaction & Stability', () => {
         const stackContainer = container.querySelector('.todo-flow-stack-container') as HTMLElement;
         stackContainer.focus();
 
-        await fireEvent.keyDown(stackContainer, { key: 'c', code: 'KeyC' });
+        // @ts-ignore
+        const eventC = new KeyboardEvent('keydown', { key: 'c', code: 'KeyC' });
+        Object.defineProperty(eventC, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventC);
         await new Promise(resolve => setTimeout(resolve, 50));
 
 
@@ -272,7 +292,7 @@ describe('UI Workbench: Interaction & Stability', () => {
         const { HistoryManager } = await import('../history.js');
         const historyManager = new HistoryManager();
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -292,7 +312,11 @@ describe('UI Workbench: Interaction & Stability', () => {
         stackContainer.focus();
 
         (window as any).confirm = vi.fn().mockReturnValue(true);
-        await fireEvent.keyDown(stackContainer, { key: 'Backspace', code: 'Backspace' });
+        // @ts-ignore
+        const eventBS = new KeyboardEvent('keydown', { key: 'Backspace', code: 'Backspace' });
+        Object.defineProperty(eventBS, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventBS);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         const titles = container.querySelectorAll('.title');
@@ -314,7 +338,7 @@ describe('UI Workbench: Interaction & Stability', () => {
             children: [{ id: 'child', title: 'Child', duration: 15, status: 'todo', isAnchored: false, children: [] }]
         };
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: [taskWithKids],
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -334,7 +358,11 @@ describe('UI Workbench: Interaction & Stability', () => {
         stackContainer.focus();
 
         // Shift+Enter
-        await fireEvent.keyDown(stackContainer, { key: 'Enter', code: 'Enter', shiftKey: true });
+        // @ts-ignore
+        const eventSE = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', shiftKey: true });
+        Object.defineProperty(eventSE, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventSE);
 
         expect(onOpenFile).toHaveBeenCalledWith('parent');
         expect(onNavigate).not.toHaveBeenCalled();
@@ -354,7 +382,7 @@ describe('UI Workbench: Interaction & Stability', () => {
             children: [{ id: 'child', title: 'Child', duration: 15, status: 'todo', isAnchored: false, children: [] }]
         };
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: [taskWithKids],
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -374,13 +402,21 @@ describe('UI Workbench: Interaction & Stability', () => {
         stackContainer.focus();
 
         // 1. Drill Down (Enter) -> Should trigger onNavigate
-        await fireEvent.keyDown(stackContainer, { key: 'Enter', code: 'Enter' });
+        // @ts-ignore
+        const eventE = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' });
+        Object.defineProperty(eventE, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventE);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         expect(onNavigate).toHaveBeenCalledWith('parent', 0); // We navigate TO the parent task's context (which shows children)
 
         // 2. Go Back (h) -> Should trigger onGoBack
-        await fireEvent.keyDown(stackContainer, { key: 'h', code: 'KeyH' });
+        // @ts-ignore
+        const eventH = new KeyboardEvent('keydown', { key: 'h', code: 'KeyH' });
+        Object.defineProperty(eventH, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventH);
         expect(onGoBack).toHaveBeenCalled();
     });
 });

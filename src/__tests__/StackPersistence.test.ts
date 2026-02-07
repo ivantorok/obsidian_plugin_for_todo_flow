@@ -38,7 +38,14 @@ vi.mock('obsidian', () => {
         ItemView: class {
             leaf: any;
             app: any;
-            constructor(leaf: any) { this.leaf = leaf; this.app = leaf.app; }
+            contentEl: HTMLElement;
+            containerEl: HTMLElement;
+            constructor(leaf: any) {
+                this.leaf = leaf;
+                this.app = leaf.app;
+                this.contentEl = document.createElement('div');
+                this.containerEl = document.createElement('div');
+            }
             addAction() { }
             setState() { return Promise.resolve(); }
         },
@@ -50,7 +57,7 @@ vi.mock('obsidian', () => {
             addCommand() { }
             addSettingTab() { }
             registerView() { }
-            app = { workspace: { on: () => { } } };
+            app = { workspace: { on: () => { }, getActiveViewOfType: () => null } };
         },
         PluginSettingTab: class {
             constructor() { }
@@ -126,6 +133,7 @@ describe('Stack Persistence', () => {
             mockSettings,
             mockHistoryManager,
             mockLogger,
+            { isSovereign: vi.fn().mockReturnValue(true) } as any, // mockViewManager
             { saveStack: vi.fn(), loadStackIds: vi.fn() } as any,
             vi.fn(), // onTaskUpdate
             vi.fn()  // onTaskCreate

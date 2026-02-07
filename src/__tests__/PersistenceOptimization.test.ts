@@ -26,12 +26,14 @@ vi.mock('obsidian', () => ({
     },
     ItemView: class {
         leaf: any;
-        contentEl: HTMLElement;
         app: any;
+        contentEl: HTMLElement;
+        containerEl: HTMLElement;
         constructor(leaf: any) {
             this.leaf = leaf;
             this.app = leaf.app; // Use leaf.app
             this.contentEl = document.createElement('div');
+            this.containerEl = document.createElement('div');
         }
         registerDomEvent = vi.fn();
         registerInterval = vi.fn();
@@ -93,6 +95,7 @@ describe('StackView Persistence Optimization', () => {
             { keys: {} } as any,
             {} as any,
             { info: vi.fn() } as any,
+            { isSovereign: vi.fn().mockReturnValue(true) } as any, // mockViewManager
             mockPersistence,
             vi.fn(),
             vi.fn()

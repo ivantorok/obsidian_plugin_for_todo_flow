@@ -56,7 +56,14 @@ vi.mock('obsidian', () => ({
     ItemView: class {
         leaf: any;
         app: any;
-        constructor(leaf: any) { this.leaf = leaf; this.app = leaf.app; }
+        contentEl: HTMLElement;
+        containerEl: HTMLElement;
+        constructor(leaf: any) {
+            this.leaf = leaf;
+            this.app = leaf.app;
+            this.contentEl = document.createElement('div');
+            this.containerEl = document.createElement('div');
+        }
     },
     WorkspaceLeaf: class { },
     Notice: class { },
@@ -99,6 +106,7 @@ describe('Async File Creation in StackView', () => {
             mockSettings as any,
             mockHistoryManager as any,
             mockLogger as any,
+            { isSovereign: vi.fn().mockReturnValue(true) } as any, // mockViewManager
             mockPersistenceService as any,
             vi.fn(), // onTaskUpdate
             onTaskCreateSpy // onTaskCreate

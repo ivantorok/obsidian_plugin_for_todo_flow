@@ -770,7 +770,6 @@
     class="todo-flow-stack-container" 
     class:is-dragging={draggingTaskId !== null}
     bind:this={containerEl}
-    onkeydown={handleKeyDown}
     tabindex="0"
     role="application"
 >

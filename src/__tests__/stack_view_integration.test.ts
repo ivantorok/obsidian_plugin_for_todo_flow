@@ -11,10 +11,12 @@ vi.mock('obsidian', () => {
             leaf: any;
             app: any;
             contentEl: HTMLElement;
+            containerEl: HTMLElement;
             constructor(leaf: any) {
                 this.leaf = leaf;
                 this.app = leaf.app; // Standard Obsidian pattern
                 this.contentEl = document.createElement('div');
+                this.containerEl = document.createElement('div');
             }
             getViewType() { return 'test'; }
             getDisplayText() { return 'test'; }
@@ -131,6 +133,7 @@ describe('StackView Integration', () => {
             { debug: false } as any,
             mockHistoryManager,
             mockLogger,
+            { isSovereign: vi.fn().mockReturnValue(true) } as any, // mockViewManager
             { saveStack: vi.fn(), loadStackIds: vi.fn() } as any,
             vi.fn(),
             vi.fn()

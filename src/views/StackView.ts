@@ -1,4 +1,5 @@
 import { ItemView, WorkspaceLeaf, TFile } from 'obsidian';
+import type { Modifier } from 'obsidian';
 import { mount, unmount } from 'svelte';
 import StackViewSvelte from './StackView.svelte';
 import { computeSchedule, type TaskNode } from '../scheduler.js';
@@ -18,6 +19,7 @@ import { DurationPickerModal } from '../ui/DurationPickerModal.js';
 import { ExportService } from '../services/ExportService.js';
 import { SetDurationCommand } from '../commands/stack-commands.js';
 import moment from 'moment';
+import { type ViewManager } from '../ViewManager.js';
 
 export const VIEW_TYPE_STACK = "todo-flow-stack-view";
 
@@ -34,15 +36,17 @@ export class StackView extends ItemView {
     loader: StackLoader;
     navManager: NavigationManager;
     persistenceService: StackPersistenceService;
+    viewManager: ViewManager;
     private lastSavedIds: string[] = [];
     private saveTimeout: number | null = null;
     private flushResolvers: (() => void)[] = [];
 
-    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined, parentPath?: string | undefined }) => Promise<TaskNode>) {
+    constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, viewManager: ViewManager, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined, parentPath?: string | undefined }) => Promise<TaskNode>) {
         super(leaf);
         this.settings = settings;
         this.historyManager = historyManager;
         this.logger = logger;
+        this.viewManager = viewManager;
         this.persistenceService = persistenceService;
         this.onTaskUpdate = onTaskUpdate;
         this.onTaskCreate = onTaskCreate;
@@ -215,12 +219,21 @@ export class StackView extends ItemView {
     }
 
     async onOpen() {
+        // Strict Centralized Sovereignty check
         this.registerDomEvent(window, 'keydown', (e: KeyboardEvent) => {
-            if (e.defaultPrevented) return;
+            if (!this.viewManager.isSovereign((this.leaf as any).id)) return;
+
+            // @ts-ignore
+            window.LAST_SHORTCUT_VIEW = this.getViewType();
+
             if (this.component) {
                 this.component.handleKeyDown(e);
             }
         });
+
+        // Ensure container is focusable
+        this.containerEl.tabIndex = 0;
+        this.contentEl.focus();
 
         this.registerInterval(
             window.setInterval(() => {
@@ -387,5 +400,9 @@ export class StackView extends ItemView {
     getController() {
         if (this.component && this.component.getController) return this.component.getController();
         return null;
+    }
+
+    onActivate() {
+        this.contentEl.focus();
     }
 }

@@ -4,7 +4,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // 1. Mock Obsidian modules (must be before imports)
 vi.mock('obsidian', () => ({
     ItemView: class {
-        constructor(public leaf: any) { }
+        contentEl: HTMLElement;
+        containerEl: HTMLElement;
+        constructor(public leaf: any) {
+            this.contentEl = document.createElement('div');
+            this.containerEl = document.createElement('div');
+        }
         async setState(state: any, result: any) { }
     },
     WorkspaceLeaf: class { },
@@ -96,7 +101,7 @@ describe('StackView Reload Logic', () => {
         // Reset mocks
         vi.clearAllMocks();
 
-        view = new StackView(mockLeaf, mockSettings, mockHistory, mockLogger, { saveStack: vi.fn(), loadStackIds: vi.fn() } as any, vi.fn(), vi.fn());
+        view = new StackView(mockLeaf, mockSettings, mockHistory, mockLogger, { isSovereign: vi.fn().mockReturnValue(true) } as any, { saveStack: vi.fn(), loadStackIds: vi.fn() } as any, vi.fn(), vi.fn());
     });
 
     it('should delegate reload to NavigationManager.refresh()', async () => {

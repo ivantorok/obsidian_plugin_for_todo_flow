@@ -111,21 +111,21 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.registerView(
             VIEW_TYPE_TRIAGE,
-            (leaf) => new TriageView(leaf, [], this.settings, this.historyManager, this.logger, (results) => {
+            (leaf) => new TriageView(leaf, [], this.settings, this.historyManager, this.logger, this.viewManager, (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => {
                 this.logger.info(`Triage complete: ${JSON.stringify(results)}`);
                 // Auto-start Stack after Triage (Workflow)
                 // @ts-ignore
                 this.app.commands.executeCommandById('todo-flow:open-daily-stack');
-            }, (title, options) => {
+            }, (title: string, options: any) => {
                 return this.onCreateTask(title, options);
             })
         );
 
         this.registerView(
             VIEW_TYPE_STACK,
-            (leaf) => new StackView(leaf, this.settings, this.historyManager, this.logger, this.stackPersistenceService, (task) => {
+            (leaf) => new StackView(leaf, this.settings, this.historyManager, this.logger, this.viewManager, this.stackPersistenceService, (task: TaskNode) => {
                 this.syncTaskToNote(task);
-            }, (title, options) => {
+            }, (title: string, options: any) => {
                 return this.onCreateTask(title, options);
             })
         );
@@ -136,6 +136,9 @@ export default class TodoFlowPlugin extends Plugin {
                 await this.viewManager.handleActiveLeafChange();
             })
         );
+
+        // Initial sovereignty capture
+        this.viewManager.handleActiveLeafChange();
 
 
         this.addCommand({
@@ -540,8 +543,8 @@ export default class TodoFlowPlugin extends Plugin {
         let leaf = workspace.getLeaf(true);
         this.logger.info(`[main.ts] activateTriage: Initializing session with ${tasks.length} tasks.`);
 
-        const view = new TriageView(leaf, tasks, this.settings, this.historyManager, this.logger, (results) => {
-            const ids = results.shortlist.map(t => t.id);
+        const view = new TriageView(leaf, tasks, this.settings, this.historyManager, this.logger, this.viewManager, (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => {
+            const ids = results.shortlist.map((t: TaskNode) => t.id);
             this.logger.info(`[main.ts] Triage callback: Session isolation active. Received ${ids.length} shortlisted tasks: ${JSON.stringify(ids)}`);
             // Auto-start Stack with EXPLICIT IDs (Session Isolation)
             this.activateStack(ids);

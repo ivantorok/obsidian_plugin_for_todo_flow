@@ -7,13 +7,13 @@ echo "🚢 Shipping Todo Flow..."
 echo "📈 Incrementing Version..."
 node scripts/version_bump.mjs
 
-# 1. Run Tests (Full Suite)
+# 1. Build & Deploy (Internal)
+echo "🏗️ Building..."
+npm run build
+
+# 2. Run Tests (Full Suite)
 echo "🧪 Running Full Test Suite (Unit + Golden + E2E)..."
 npm run test:full
-
-# 2. Build & Deploy (Copy)
-echo "🏗️ Building & Deploying..."
-npm run build
 
 # 3. Tagging (Fix for BRAT/Registry)
 VERSION=$(grep '"version":' manifest.json | head -n 1 | cut -d '"' -f 4)

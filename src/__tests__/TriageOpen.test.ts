@@ -5,7 +5,12 @@ import { TriageController } from '../views/TriageController.js';
 // 1. Mock Obsidian modules
 vi.mock('obsidian', () => ({
     ItemView: class {
-        constructor(public leaf: any) { }
+        contentEl: HTMLElement;
+        containerEl: HTMLElement;
+        constructor(public leaf: any) {
+            this.contentEl = document.createElement('div');
+            this.containerEl = document.createElement('div');
+        }
     },
     WorkspaceLeaf: class { },
     TFile: class { },

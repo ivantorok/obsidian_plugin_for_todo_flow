@@ -12,7 +12,7 @@ vi.mock('obsidian', () => ({
         loadData = vi.fn().mockResolvedValue({});
         saveData = vi.fn();
         app = {
-            workspace: { onLayoutReady: vi.fn(), on: vi.fn(), getLeavesOfType: vi.fn(), getLeaf: vi.fn() },
+            workspace: { onLayoutReady: vi.fn(), on: vi.fn(), getLeavesOfType: vi.fn(), getLeaf: vi.fn(), getActiveViewOfType: vi.fn() },
             vault: { getAbstractFileByPath: vi.fn(), on: vi.fn() },
             metadataCache: { on: vi.fn(), getFileCache: vi.fn() }
         };

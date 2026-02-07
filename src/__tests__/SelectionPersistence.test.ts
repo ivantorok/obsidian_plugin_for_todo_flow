@@ -27,7 +27,14 @@ vi.mock('obsidian', () => {
         ItemView: class {
             leaf: any;
             app: any;
-            constructor(leaf: any) { this.leaf = leaf; this.app = leaf.app; }
+            contentEl: HTMLElement;
+            containerEl: HTMLElement;
+            constructor(leaf: any) {
+                this.leaf = leaf;
+                this.app = leaf.app;
+                this.contentEl = document.createElement('div');
+                this.containerEl = document.createElement('div');
+            }
             addAction() { }
             setState() { return Promise.resolve(); }
         },
@@ -39,7 +46,7 @@ vi.mock('obsidian', () => {
             addCommand() { }
             addSettingTab() { }
             registerView() { }
-            app = { workspace: { on: () => { } } };
+            app = { workspace: { on: () => { }, getActiveViewOfType: () => null } };
         },
         PluginSettingTab: class {
             constructor() { }
@@ -141,7 +148,7 @@ describe('StackView Selection Persistence', () => {
             loadStackIds: vi.fn(),
             isExternalUpdate: vi.fn().mockReturnValue(true)
         };
-        view = new StackView(mockLeaf as any, mockSettings, mockHistory as any, mockLogger as any, mockPersistence as any, vi.fn(), vi.fn());
+        view = new StackView(mockLeaf as any, mockSettings, mockHistory as any, mockLogger as any, { isSovereign: vi.fn().mockReturnValue(true) } as any, mockPersistence as any, vi.fn(), vi.fn());
 
         // Manual component mount mock since we can't fully mock Svelte lifecycle easily here
         view.component = mocks.component;

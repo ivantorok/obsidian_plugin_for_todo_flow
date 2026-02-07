@@ -31,7 +31,7 @@ describe('Go Back Regression: Empty Screen Bug 🔙', () => {
         const onNavigateSpy = vi.fn();
         const onGoBackSpy = vi.fn();
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: [parentTask],
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -56,7 +56,11 @@ describe('Go Back Regression: Empty Screen Bug 🔙', () => {
         expect(container.textContent).toContain('Parent Task');
 
         // STEP 2: Press Enter to drill down into children
-        await fireEvent.keyDown(stackContainer, { key: 'Enter', code: 'Enter' });
+        // @ts-ignore
+        const eventE = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' });
+        Object.defineProperty(eventE, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventE);
         await tick();
         await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -69,7 +73,11 @@ describe('Go Back Regression: Empty Screen Bug 🔙', () => {
         // For now, let's just verify the callback was triggered
 
         // STEP 4: Press 'h' to go back
-        await fireEvent.keyDown(stackContainer, { key: 'h', code: 'KeyH' });
+        // @ts-ignore
+        const eventH = new KeyboardEvent('keydown', { key: 'h', code: 'KeyH' });
+        Object.defineProperty(eventH, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventH);
         await tick();
         await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -113,7 +121,7 @@ describe('Go Back Regression: Empty Screen Bug 🔙', () => {
         const onNavigateSpy = vi.fn();
         const onGoBackSpy = vi.fn();
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: tasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -137,11 +145,19 @@ describe('Go Back Regression: Empty Screen Bug 🔙', () => {
         expect(taskCards.length).toBe(2);
 
         // Drill down into Task 1
-        await fireEvent.keyDown(stackContainer, { key: 'Enter', code: 'Enter' });
+        // @ts-ignore
+        const eventE = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' });
+        Object.defineProperty(eventE, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventE);
         await tick();
 
         // Go back
-        await fireEvent.keyDown(stackContainer, { key: 'h', code: 'KeyH' });
+        // @ts-ignore
+        const eventH = new KeyboardEvent('keydown', { key: 'h', code: 'KeyH' });
+        Object.defineProperty(eventH, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventH);
         await tick();
         await new Promise(resolve => setTimeout(resolve, 100));
 

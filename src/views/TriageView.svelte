@@ -217,6 +217,12 @@
         <button onclick={() => next('right')} class="control-btn shortlist">Shortlist →</button>
     </div>
 
+    <div class="footer-controls">
+        <button class="icon-button plus-btn" onclick={() => openQuickAddModal()} title="Add Task">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+    </div>
+
     {#if showHelp}
         <HelpModal keys={keys} settings={settings} />
     {/if}
@@ -282,5 +288,41 @@
     .shortlist {
         background: var(--interactive-accent);
         color: var(--text-on-accent);
+    }
+
+    /* Consistent Mobile Controls Pattern */
+    .footer-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: linear-gradient(transparent, var(--background-primary) 60%);
+        pointer-events: none;
+        z-index: 100;
+    }
+
+    .footer-controls .icon-button {
+        pointer-events: auto;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--interactive-accent);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .footer-controls .icon-button:hover {
+        transform: scale(1.1);
+        background: var(--interactive-accent-hover);
     }
 </style>

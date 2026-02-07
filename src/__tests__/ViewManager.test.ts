@@ -1,7 +1,14 @@
 
 // Mock Obsidian deps BEFORE imports
 vi.mock('obsidian', () => ({
-    ItemView: class { constructor(public leaf: any) { } },
+    ItemView: class {
+        contentEl: HTMLElement;
+        containerEl: HTMLElement;
+        constructor(public leaf: any) {
+            this.contentEl = document.createElement('div');
+            this.containerEl = document.createElement('div');
+        }
+    },
     Modal: class { constructor(public app: any) { }; open() { }; close() { }; },
     Plugin: class { },
     PluginSettingTab: class { },

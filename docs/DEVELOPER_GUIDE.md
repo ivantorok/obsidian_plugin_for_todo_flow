@@ -330,6 +330,34 @@ export function resolveSwipe(deltaX: number, threshold: number) {
 
 ---
 
+## Architectural Sovereignty & Interaction Routing
+
+When multiple views or complex UI components coexist, the plugin must manage **Interaction Sovereignty**—ensuring that only the intended component handles user input (shortcuts, gestures).
+
+### 1. Internal State over DOM Reflection
+Avoid using DOM states (like CSS classes `.mod-active`) or unstable focus states (`document.activeElement`) for critical routing logic.
+- **Problem**: DOM updates are asynchronous and often carry a "paint lag". A keyboard event can fire before the browser reflects a focus change in the CSS tree.
+- **Solution**: Use a centralized **Registry/Service** (e.g., `ViewManager`) as the "Source of Truth". Views should query this service to verify if they are authorized to act.
+
+### 2. The "Handshake" Pattern
+Replace "Competitive Listening" (where every view guesses if it's active) with an explicit handshake:
+1. **Core**: Listens to Obsidian events (`active-leaf-change`) and updates a central `activeViewId`.
+2. **View**: In its event listener, it checks: `if (!viewManager.isSovereign(this.leaf.id)) return;`.
+This makes interaction routing deterministic and easy to debug in E2E environments.
+
+### 3. The "No-Local-Shortcut" Rule
+To prevent race conditions and double-firing, **Svelte templates must never use `onkeydown` for global plugin shortcuts.**
+- **Pattern**: The `.ts` view wrapper (e.g., `StackView.ts`) registers a window-level listener.
+- **Handshake**: The wrapper checks sovereignty and then calls an exported `handleKeyDown` method on the Svelte component.
+- **Benefit**: This eliminates "Hidden Interaction Logic" in templates and ensures that test runners (E2E) have a single, traceable point of failure for input routing.
+
+### 4. Debugging Observability
+For features that are hard to verify via UI (like shortcut interception), expose a diagnostic flag.
+- **Example**: `window.LAST_SHORTCUT_VIEW = this.getViewType();`
+- **Benefit**: E2E tests can immediately assert against a global variable rather than waiting for UI side-effects like file creation or modal appearance.
+
+---
+
 ## Tips & Best Practices
 
 1. **Always run tests before deploying**: `./ship.sh` enforces this

@@ -22,7 +22,7 @@ const mockTasks: TaskNode[] = [
 describe('Feature: Hierarchy Navigation', () => {
     it('should trigger onNavigate when drilling down (Enter)', async () => {
         const onNavigate = vi.fn();
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -47,7 +47,11 @@ describe('Feature: Hierarchy Navigation', () => {
         // 2. Press Enter (Drill Down)
         // Note: handleEnter returns { action: 'DRILL_DOWN' } if children exist.
         // StackView handles this by calling onNavigate(parentId).
-        await fireEvent.keyDown(stackContainer, { key: 'Enter', code: 'Enter' });
+        // @ts-ignore
+        const eventE = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' });
+        Object.defineProperty(eventE, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventE);
         await tick();
 
         // ASSERT: onNavigate called with Parent ID
@@ -56,7 +60,7 @@ describe('Feature: Hierarchy Navigation', () => {
 
     it('should trigger onGoBack when pressing h', async () => {
         const onGoBack = vi.fn();
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -76,7 +80,11 @@ describe('Feature: Hierarchy Navigation', () => {
         stackContainer.focus();
 
         // 1. Press h (Go Back)
-        await fireEvent.keyDown(stackContainer, { key: 'h', code: 'KeyH' });
+        // @ts-ignore
+        const eventH = new KeyboardEvent('keydown', { key: 'h', code: 'KeyH' });
+        Object.defineProperty(eventH, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventH);
         await tick();
 
         // ASSERT: onGoBack called

@@ -23,7 +23,7 @@ describe('Workflow Scenarios: Integration Features', () => {
         // Mock the critical integration point: The callback that saves the file
         const onExportSpy = vi.fn();
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -44,7 +44,11 @@ describe('Workflow Scenarios: Integration Features', () => {
         stackContainer.focus();
 
         // Simulate user pressing 'Shift+E' (Export)
-        await fireEvent.keyDown(stackContainer, { key: 'E', code: 'KeyE', shiftKey: true });
+        // @ts-ignore
+        const eventE = new KeyboardEvent('keydown', { key: 'E', code: 'KeyE', shiftKey: true });
+        Object.defineProperty(eventE, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventE);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // Expectation: The export callback should be triggered with the current task list
@@ -67,7 +71,7 @@ describe('Workflow Scenarios: Integration Features', () => {
         // For this View-level test, ensuring `onTaskUpdate` fires with `isAnchored: true` is "Green" for the View.
         // But we need to test the "Controller -> Persistence" layer too.
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: mockTasks, // Task 1 is unanchored
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -87,7 +91,11 @@ describe('Workflow Scenarios: Integration Features', () => {
         stackContainer.focus();
 
         // 1. Simulate Shift+F (Anchor)
-        await fireEvent.keyDown(stackContainer, { key: 'F', code: 'KeyF', shiftKey: true });
+        // @ts-ignore
+        const eventF = new KeyboardEvent('keydown', { key: 'F', code: 'KeyF', shiftKey: true });
+        Object.defineProperty(eventF, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventF);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // 2. ASSERT: The view notified the controller -> which notified the parent
@@ -154,7 +162,7 @@ describe('Workflow Scenarios: Integration Features', () => {
             { id: 'C', title: 'Task C', duration: 30, status: 'todo', isAnchored: false, children: [] }
         ];
 
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: tasks,
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,
@@ -180,7 +188,11 @@ describe('Workflow Scenarios: Integration Features', () => {
         // Visual: [B, A, C].
         // Focus is initially on B (Index 0).
         // Move focus to A (Index 1).
-        await fireEvent.keyDown(stackContainer, { key: 'j', code: 'KeyJ' });
+        // @ts-ignore
+        const eventJ = new KeyboardEvent('keydown', { key: 'j', code: 'KeyJ' });
+        Object.defineProperty(eventJ, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventJ);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // 2. Press Shift+J (Move Down) on A.
@@ -191,7 +203,11 @@ describe('Workflow Scenarios: Integration Features', () => {
         // Schedule: B(0), C(30), A(60).
         // Visual: [B, C, A].
 
-        await fireEvent.keyDown(stackContainer, { key: 'J', code: 'KeyJ', shiftKey: true });
+        // @ts-ignore
+        const eventSJ = new KeyboardEvent('keydown', { key: 'J', code: 'KeyJ', shiftKey: true });
+        Object.defineProperty(eventSJ, 'target', { value: stackContainer });
+        // @ts-ignore
+        component.handleKeyDown(eventSJ);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         const titles = Array.from(container.querySelectorAll('.title')).map(el => el.textContent);
@@ -229,7 +245,7 @@ describe('Workflow Scenarios: Integration Features', () => {
 
         // Simulate that the View Wrapper has already restored the state and is passing the drilled-down stack
         // to the Svelte component.
-        const { container } = render(StackView, {
+        const { component, container } = render(StackView, {
             props: {
                 initialTasks: children as TaskNode[], // The restored stack
                 settings: { keys: DEFAULT_KEYBINDINGS, timingMode: 'now' } as any,

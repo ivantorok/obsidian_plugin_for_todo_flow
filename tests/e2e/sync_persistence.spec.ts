@@ -100,6 +100,13 @@ describe('Sync & Persistence: Atomic Scenarios (Isolated)', () => {
         });
 
         console.log(`[Slow Test] Final Stack: ${JSON.stringify(currentTasks)}`);
+
+        const trace = await browser.execute(() => {
+            // @ts-ignore
+            return window._history_trace || [];
+        });
+        console.log(`[Slow Test] History Trace: ${JSON.stringify(trace)}`);
+
         expect(currentTasks).toContain('Alpha Task');
         expect(currentTasks).toContain('Gamma Task');
         expect(currentTasks).not.toContain('Beta Task');
