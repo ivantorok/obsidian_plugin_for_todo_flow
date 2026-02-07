@@ -22,3 +22,8 @@ These stories translate the technical requirements in [UX_GOVERNANCE.md](file://
 ## 4. The "Hidden Text" Story
 **Target Axiom:** *Viewport Shifting*
 > **The User:** "I tapped a task at the very bottom of my screen to rename it. The phone's keyboard popped up, but it completely covered the task I was editing! I was typing 'blind' because I couldn't see what I was writing anymore. I had to stop and manually scroll the page up just to see the words I was typing."
+
+## 5. The "Forgotten Pickup" Story
+**Target Axiom:** *Input Consistency (TBD)*
+> **The User:** "I'm doing my daily triage on my phone. I tap the `+` button to add something to my queue. When I create a *brand new* task, it gets added to the bottom of my triage list perfectly. But sometimes I remember an old task I'd dumped before that I want to tackle today. So I use the same `+` button and *select* that existing task instead of creating a new one. But... nothing happens! The task doesn't show up in my triage queue. It feels like the app heard me say 'add this' for new tasks, but ignores me when I point to an old one."
+

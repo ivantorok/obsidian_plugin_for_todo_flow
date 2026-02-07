@@ -11,6 +11,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 | UX-001 | Mobile: Start Time discovery improvement | UX | [Spec](./backlog/UX-001_start_time_discovery.md) |
 | ID | Title | Type | Spec | Date |
 | :--- | :--- | :--- | :--- | :--- |
+| BUG-012 | Mobile: Existing Task Selection via FAB Doesn't Add to Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-07 |
 | UI-001 | Mobile: Visible scrollbar needed | Bug | [Spec](./archive/backlog/UI-001_mobile_scrollbar.md) | 2026-02-07 |
 | BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./archive/backlog/BUG-011_mobile_card_body_drag.md) | 2026-02-07 |
 | CHORE-02 | Remove tracked sandbox/node_modules/ | Chore | [Spec](./archive/backlog/CHORE-02_remove_sandbox_node_modules.md) | 2026-02-06 |
