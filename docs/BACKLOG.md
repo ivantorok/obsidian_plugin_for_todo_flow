@@ -2,13 +2,27 @@
 
 This document tracks bugs and feature requests. To request work, add an item here or create a detailed spec in `docs/backlog/`.
 
-## 🔴 Open / Unplanned
-*Items waiting for triage or detail.*
+## 🟢 Phased Roadmap
+*Strategic grouping of tasks to ensure structural stability before polishing.*
 
+### Phase 1: Interaction & Space Sovereignty (The Foundation)
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
-| BUG-001 | Example: Robustness test flakiness | Bug | [Spec](./backlog/TEMPLATE.md) |
+| BUG-001 | Desktop Shortcut Leak | Bug | [Spec](./backlog/TEMPLATE.md) |
+| BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./backlog/BUG-016_mobile_keyboard_collision.md) |
+
+### Phase 2: Sovereign Navigation & Gestures (The Behavior)
+| ID | Title | Type | Spec |
+| :--- | :--- | :--- | :--- |
+| BUG-017 | Mobile: Gesture shadowing regression | Bug | [Spec](./backlog/BUG-017_gesture_shadowing_regression.md) |
+| UX-002 | Mobile: Drill-down Back Navigation | UX | [Spec](./backlog/UX-002_mobile_navigation_back.md) |
+
+### Phase 3: Component Polishing (The Presentation)
+| ID | Title | Type | Spec |
+| :--- | :--- | :--- | :--- |
 | UX-001 | Mobile: Start Time discovery improvement | UX | [Spec](./backlog/UX-001_start_time_discovery.md) |
+| UI-002 | Stack View: Long title overflow | Bug | [Spec](./backlog/UI-002_long_title_overflow.md) |
+
 | ID | Title | Type | Spec | Date |
 | :--- | :--- | :--- | :--- | :--- |
 | BUG-012 | Mobile: Existing Task Selection via FAB Doesn't Add to Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-07 |

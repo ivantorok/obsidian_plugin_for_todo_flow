@@ -31,6 +31,7 @@ To prevent "Obsidian Ghosting," Todo Flow uses deterministic intent locking.
 - **Gesture Shadowing**: When a plugin gesture (like Swipe) completely covers an Obsidian system gesture (like Sidebar toggle). Todo Flow uses `e.stopPropagation()` to shadow system gestures only after the 80px threshold is crossed.
 - **Viewport Shifting**: When the keyboard opens (e.g., during Rename), the focused task card MUST be scrolled into the center of the viewport to prevent obscuration.
 - **Static Interaction Pattern**: To ensure performance on varied hardware (specifically Android), high-frequency interaction buttons (like Triage "Shortlist") MUST NOT use background color changes or scaling for feedback. Feedback is provided solely by the "Reactive Projection" of the UI (swipe animations) or the final state change.
+- **Content Containment**: All text content (titles, descriptions) MUST be contained within its component boundaries. Use wrapping or ellipsis to prevent horizontal overflow.
 
 ---
 
