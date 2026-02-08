@@ -132,8 +132,8 @@ export default class TodoFlowPlugin extends Plugin {
 
         // Register ViewManager events
         this.registerEvent(
-            this.app.workspace.on('active-leaf-change', async () => {
-                await this.viewManager.handleActiveLeafChange();
+            this.app.workspace.on('active-leaf-change', async (leaf) => {
+                await this.viewManager.handleActiveLeafChange(leaf);
             })
         );
 

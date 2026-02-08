@@ -37,9 +37,13 @@ git push origin "v$VERSION" --no-verify
 # Create GitHub Release with assets (required for BRAT)
 if command -v gh &> /dev/null; then
     echo "📦 Creating GitHub Release v$VERSION..."
-    gh release create "v$VERSION" main.js manifest.json styles.css --title "v$VERSION" --notes "Automated release v$VERSION" || echo "⚠️ Release already exists or failed."
+    # CRITICAL: We MUST upload main.js, manifest.json, and styles.css for BRAT to work.
+    gh release create "v$VERSION" main.js manifest.json styles.css --title "v$VERSION" --notes "Automated release v$VERSION"
 else
-    echo "⚠️ gh CLI not found. Please create the release manually."
+    echo "❌ ERROR: gh CLI not found. Release failed!"
+    echo "⚠️  The code has been pushed and tagged, but the GitHub Release was NOT created."
+    echo "⚠️  You MUST manually create the release and upload 'main.js', 'manifest.json', and 'styles.css'."
+    exit 1
 fi
 
 echo "✅ Shipped v$VERSION!"

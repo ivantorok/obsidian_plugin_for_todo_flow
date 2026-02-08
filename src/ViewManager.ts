@@ -13,8 +13,8 @@ export class ViewManager {
         this.logger = logger;
     }
 
-    async handleActiveLeafChange(): Promise<void> {
-        const activeLeaf = (this.app.workspace as any).activeLeaf;
+    async handleActiveLeafChange(leaf: WorkspaceLeaf | null = null): Promise<void> {
+        const activeLeaf = leaf || (this.app.workspace as any).activeLeaf;
         if (activeLeaf) {
             this.activeLeafId = activeLeaf.id;
             this.logger.info(`[ViewManager] Active leaf tracked: ${this.activeLeafId}`);
@@ -34,11 +34,14 @@ export class ViewManager {
     }
 
     isSovereign(leafId: string): boolean {
+        // Robust check: Always verify against current workspace state if possible
+        const currentActiveLeaf = (this.app.workspace as any).activeLeaf;
+        if (currentActiveLeaf) {
+            this.activeLeafId = currentActiveLeaf.id;
+        }
+
         if (!this.activeLeafId) {
-            const activeLeaf = (this.app.workspace as any).activeLeaf;
-            if (activeLeaf) {
-                this.activeLeafId = activeLeaf.id;
-            }
+            return false;
         }
         return this.activeLeafId === leafId;
     }

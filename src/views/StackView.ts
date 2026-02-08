@@ -69,6 +69,9 @@ export class StackView extends ItemView {
 
             if (this.component && this.component.setTasks) {
                 this.component.setTasks(this.tasks);
+                if (this.component.setCanGoBack) {
+                    this.component.setCanGoBack(this.navManager.canGoBack());
+                }
                 if (state.currentFocusedIndex !== undefined) {
                     this.component.setFocus(state.currentFocusedIndex);
                 }
@@ -134,8 +137,11 @@ export class StackView extends ItemView {
                 this.rootPath = state.rootPath || `EXPLICIT:${state.ids.length}`;
             } else {
                 this.rootPath = state.rootPath;
+                if (this.logger) this.logger.info(`[StackView] Loading path: ${this.rootPath}`);
                 rawTasks = await this.loader.load(state.rootPath);
             }
+
+            if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks.length}`);
 
             const initialTasks = computeSchedule(rawTasks, now);
             this.navManager.setStack(initialTasks, this.rootPath!);
@@ -155,11 +161,11 @@ export class StackView extends ItemView {
     }
 
     openAddModal() {
-        new QuickAddModal(this.app, async (result: any) => {
+        this.isModalOpen = true;
+        const modal = new QuickAddModal(this.app, async (result: any) => {
             let newNode: TaskNode | null = null;
 
             if (result.type === 'new') {
-                // Create new task node
                 if (this.logger) this.logger.info(`[StackView] (openAddModal) Creating new task "${result.title}" with rootPath: ${this.rootPath}`);
                 newNode = await this.onTaskCreate(result.title, {
                     duration: 30,
@@ -194,7 +200,15 @@ export class StackView extends ItemView {
                 this.app.workspace.requestSaveLayout();
             }
             this.app.workspace.requestSaveLayout();
-        }, VIEW_TYPE_STACK).open();
+        }, VIEW_TYPE_STACK);
+
+        const originalOnClose = modal.onClose.bind(modal);
+        modal.onClose = () => {
+            this.lastModalCloseTime = Date.now();
+            originalOnClose();
+            setTimeout(() => { this.isModalOpen = false; }, 500);
+        };
+        modal.open();
     }
 
     async reload(): Promise<void> {
@@ -216,10 +230,30 @@ export class StackView extends ItemView {
         });
     }
 
+    private isModalOpen: boolean = false;
+    private lastModalCloseTime: number = 0;
+
     async onOpen() {
         // Strict Centralized Sovereignty check
         this.registerDomEvent(window, 'keydown', (e: KeyboardEvent) => {
             if (!this.viewManager.isSovereign((this.leaf as any).id)) return;
+
+            // Robust check: Ignore if typing in an input/textarea/contentEditable
+            const target = e.target as HTMLElement;
+            if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable) {
+                return;
+            }
+
+            if (e.defaultPrevented) return;
+
+            // Block keys if modal is open OR was recently closed (prevent leak)
+            const timeSinceClose = Date.now() - this.lastModalCloseTime;
+            if (this.isModalOpen || timeSinceClose < 500) {
+                if (this.logger) this.logger.info(`[StackView] Key blocked: ${e.key} (ModalOpen: ${this.isModalOpen}, TimeSinceClose: ${timeSinceClose})`);
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
 
             // @ts-ignore
             window.LAST_SHORTCUT_VIEW = this.getViewType();
@@ -251,6 +285,7 @@ export class StackView extends ItemView {
                 logger: this.logger,
                 onTaskUpdate: this.onTaskUpdate,
                 onTaskCreate: this.onTaskCreate,
+                canGoBack: this.navManager.canGoBack(),
                 onStackChange: (tasks: TaskNode[]) => {
                     this.tasks = tasks;
                     this.navManager.setStack(tasks, this.rootPath!);
@@ -280,7 +315,8 @@ export class StackView extends ItemView {
                     }
                 },
                 openQuickAddModal: (currentIndex: number) => {
-                    new QuickAddModal(this.app, async (result) => {
+                    this.isModalOpen = true;
+                    const modal = new QuickAddModal(this.app, async (result) => {
                         let nodeToInsert: TaskNode | null = null;
                         if (result.type === 'new' && result.title) {
                             const options: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean, parentPath?: string | undefined } = {};
@@ -308,10 +344,19 @@ export class StackView extends ItemView {
                                 }
                             }
                         }
-                    }, VIEW_TYPE_STACK).open();
+                    }, VIEW_TYPE_STACK);
+
+                    const originalOnClose = modal.onClose.bind(modal);
+                    modal.onClose = () => {
+                        this.lastModalCloseTime = Date.now();
+                        originalOnClose();
+                        setTimeout(() => { this.isModalOpen = false; }, 500);
+                    };
+                    modal.open();
                 },
                 openDurationPicker: (index: number) => {
-                    new DurationPickerModal(this.app, async (minutes: number) => {
+                    this.isModalOpen = true;
+                    const modal = new DurationPickerModal(this.app, async (minutes: number) => {
                         if (this.component) {
                             const controller = this.component.getController();
                             if (controller) {
@@ -320,7 +365,15 @@ export class StackView extends ItemView {
                                 if (this.component.update) this.component.update();
                             }
                         }
-                    }).open();
+                    });
+
+                    const originalOnClose = modal.onClose.bind(modal);
+                    modal.onClose = () => {
+                        this.lastModalCloseTime = Date.now();
+                        originalOnClose();
+                        setTimeout(() => { this.isModalOpen = false; }, 500);
+                    };
+                    modal.open();
                 },
                 onExport: async () => {
                     const tasks = this.getTasks();
@@ -353,6 +406,9 @@ export class StackView extends ItemView {
                         if (this.component && this.component.setTasks) {
                             this.component.setTasks(this.tasks);
                             if (this.component.setFocus) this.component.setFocus(0);
+                            if (this.component.setCanGoBack) {
+                                this.component.setCanGoBack(this.navManager.canGoBack());
+                            }
                         }
                         await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true });
                     }
@@ -365,6 +421,9 @@ export class StackView extends ItemView {
                         if (this.component && this.component.setTasks) {
                             this.component.setTasks(this.tasks);
                             if (this.component.setFocus) this.component.setFocus(result.focusedIndex);
+                            if (this.component.setCanGoBack) {
+                                this.component.setCanGoBack(this.navManager.canGoBack());
+                            }
                         }
                         await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true });
                     }

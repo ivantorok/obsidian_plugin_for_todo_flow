@@ -29,8 +29,11 @@ export class StackLoader {
 
         if (!fileOrFolder) {
             if (this.logger) await this.logger.warn(`[StackLoader] [UNHAPPY] Path not found: "${path}"`);
+            console.warn(`[StackLoader] Path not found: "${path}"`);
             return [];
         }
+
+        if (this.logger) this.logger.info(`[StackLoader] Found abstract file: ${fileOrFolder.path} (isFolder: ${fileOrFolder instanceof TFolder})`);
 
         try {
             if (fileOrFolder instanceof TFolder) {

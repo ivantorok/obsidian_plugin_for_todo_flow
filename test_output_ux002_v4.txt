@@ -1,0 +1,2013 @@
+
+> obsidian_plugin_for_todo_flow@1.2.19 e2e
+> npm run e2e:setup && wdio run wdio.conf.mts --spec tests/e2e/UX-002_mobile_navigation.spec.ts
+
+
+> obsidian_plugin_for_todo_flow@1.2.19 e2e:setup
+> npx tsx tests/e2e/setup-vault.ts
+
+Stopping existing Obsidian instances...
+[E2E Setup] Initializing vault at: /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[E2E Setup] Existing plugins found: todo-flow
+[E2E Setup] Community plugins config updated at: /home/ivan/obsidian_plugin_for_todo_flow/.test-vault/.obsidian/community-plugins.json
+[E2E Setup] Copied main.js to vault plugins.
+[E2E Setup] Copied styles.css to vault plugins.
+[E2E Setup] Copied manifest.json to vault plugins.
+[E2E Setup] Creating vault config to trust plugins...
+[E2E Setup] Vault config created at: /home/ivan/obsidian_plugin_for_todo_flow/.test-vault/.obsidian/config.json
+[E2E Setup] Creating vault app.json to disable safe mode...
+[E2E Setup] Vault app.json created at: /home/ivan/obsidian_plugin_for_todo_flow/.test-vault/.obsidian/app.json
+[E2E Setup] --- Vault initialization complete ---
+2026-02-08T08:52:24.112Z DEBUG @wdio/utils:initializeServices: initialize service "obsidian" as NPM package
+2026-02-08T08:52:24.572Z INFO @wdio/cli:launcher: Run onPrepare hook
+2026-02-08T08:52:24.587Z DEBUG @wdio/cli:utils: Finished to run "onPrepare" hook in 14ms
+2026-02-08T08:52:24.589Z WARN @wdio/config:ConfigParser: pattern tests/e2e/manual-open.spec.ts did not match any file
+
+Execution of 1 workers started at 2026-02-08T08:52:24.592Z
+
+2026-02-08T08:52:24.594Z WARN @wdio/config:ConfigParser: pattern tests/e2e/manual-open.spec.ts did not match any file
+2026-02-08T08:52:24.598Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-02-08T08:52:24.599Z DEBUG @wdio/cli:utils: Finished to run "onWorkerStart" hook in 0ms
+2026-02-08T08:52:24.599Z INFO @wdio/xvfb: XvfbManager.init() called
+2026-02-08T08:52:24.600Z INFO @wdio/xvfb: Xvfb not needed on current platform
+2026-02-08T08:52:24.602Z INFO @wdio/local-runner: Start worker 0-0 with arg: run wdio.conf.mts --spec tests/e2e/UX-002_mobile_navigation.spec.ts
+2026-02-08T08:52:24.609Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
+2026-02-08T08:52:24.609Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
+2026-02-08T08:52:24.610Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-02-08T08:52:24.618Z DEBUG @wdio/local-runner: Send command run to worker with cid "0-0"
+[0-0] 2026-02-08T08:52:26.799Z INFO @wdio/local-runner: Run worker command: run
+[0-0] 2026-02-08T08:52:26.840Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-08T08:52:26.846Z DEBUG @wdio/utils:initializeServices: initialize service "obsidian" as NPM package
+[0-0] 2026-02-08T08:52:27.472Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-08T08:52:27.541Z DEBUG @wdio/utils:shim: Finished to run "beforeSession" hook in 68ms
+[0-0] RUNNING in chrome(120.0.6099.283) - file:///tests/e2e/UX-002_mobile_navigation.spec.ts
+[0-0] 2026-02-08T08:52:27.746Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-08T08:52:27.750Z INFO webdriver: Initiate new session using the WebDriver protocol
+[0-0] 2026-02-08T08:52:28.094Z INFO chromedriver: Starting ChromeDriver 120.0.6099.283 (967a55bac315b0bcf08b09f7a9b86b318f951276-refs/heads/main@{#1232704}) on port 37171
+[0-0] 2026-02-08T08:52:28.094Z INFO chromedriver: Only local connections are allowed.
+[0-0] 2026-02-08T08:52:28.095Z INFO chromedriver: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[0-0] 2026-02-08T08:52:28.095Z INFO chromedriver: ChromeDriver was started successfully.
+[0-0] 2026-02-08T08:52:28.098Z INFO @wdio/utils: Started Chromedriver v120.0.6099.283 with params --port=37171 --binary=/home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/electron-chromedriver/linux-x64/28.2.3/chromedriver --allowed-origins=* in 38ms on port 37171
+[0-0] 2026-02-08T08:52:28.144Z INFO webdriver: [POST] http://localhost:37171/session
+[0-0] 2026-02-08T08:52:28.469Z INFO chromedriver: 2026-02-08 08:52:28 Loading updated app package /tmp/obsidian-launcher-config-vqkd2A/obsidian-1.11.7.asar
+[0-0] 2026-02-08T08:52:28.490Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-08T08:52:29.071Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-vqkd2A/fb24c5d7e00e0903.json'
+[0-0] 2026-02-08T08:52:29.495Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-08T08:52:29.497Z INFO webdriver: [GET] http://localhost:37171/session/0616dadc4567b115fda460401306f0ee/window
+[0-0] 2026-02-08T08:52:29.507Z INFO webdriver: RESULT 2F5FE8203EDFB33F2F84D2BF8AEFECEC
+[0-0] [WDIO] Starting E2E test session
+[0-0] 2026-02-08T08:52:29.513Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:29.514Z INFO webdriver: [POST] http://localhost:37171/session/0616dadc4567b115fda460401306f0ee/execute/sync
+[0-0] 2026-02-08T08:52:29.515Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:30.488Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:52:30.519Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:30.524Z INFO webdriver: [POST] http://localhost:37171/session/0616dadc4567b115fda460401306f0ee/execute/sync
+[0-0] 2026-02-08T08:52:30.525Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:30.604Z INFO webdriver: RESULT true
+[0-0] 2026-02-08T08:52:30.613Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-08T08:52:30.623Z INFO webdriver: [POST] http://localhost:37171/session/0616dadc4567b115fda460401306f0ee/execute/sync
+[0-0] 2026-02-08T08:52:30.628Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-08T08:52:30.929Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:30.930Z DEBUG @wdio/utils:shim: Finished to run "before" hook in 1420ms
+[0-0] 2026-02-08T08:52:32.973Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-08T08:52:32.974Z INFO webdriver: [DELETE] http://localhost:37171/session/0616dadc4567b115fda460401306f0ee
+[0-0] 2026-02-08T08:52:32.974Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-08T08:52:33.081Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:33.090Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-08T08:52:33.091Z INFO webdriver: [DELETE] http://localhost:37171/session/0616dadc4567b115fda460401306f0ee
+[0-0] 2026-02-08T08:52:33.092Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-08T08:52:33.104Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:33.108Z INFO webdriver: [POST] http://localhost:37171/session
+[0-0] 2026-02-08T08:52:33.461Z INFO chromedriver: 2026-02-08 08:52:33 Loading updated app package /tmp/obsidian-launcher-config-vqkd2A/obsidian-1.11.7.asar
+[0-0] 2026-02-08T08:52:33.478Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-08T08:52:34.367Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-08T08:52:34.368Z INFO webdriver: [GET] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/window
+[0-0] 2026-02-08T08:52:34.373Z INFO webdriver: RESULT 63C2CAC46727C0138EEE88DCFCB8B35B
+[0-0] 2026-02-08T08:52:34.374Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:34.374Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:34.375Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:35.280Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:52:35.287Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:35.298Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:35.301Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:35.383Z INFO webdriver: RESULT true
+[0-0] 2026-02-08T08:52:35.386Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-08T08:52:35.391Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:35.392Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-08T08:52:35.595Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:35.596Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:35.597Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:35.597Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{document.body.classList.add(\"is-mobile\");document.body.classList.remove(\"is-desktop\");if(window.app){window.app.isMobile=true}window.dispatchEvent(new Event(\"resize\"))}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:35.614Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:35.616Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:35.617Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:35.617Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];if(plugin){plugin.settings.targetFolder=\"todo-flow\";plugin.settings.debug=true;if(plugin.logger)plugin.logger.setEnabled(true);await plugin.saveSettings()}window._logs=[]}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:35.652Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:35.652Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:35.653Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:35.653Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const{vault}=app;const existing=vault.getAbstractFileByPath(\"todo-flow\");if(existing)await vault.delete(existing,true);await vault.createFolder(\"todo-flow\");await vault.create(\"todo-flow/Parent.md\",\"# Parent Task\\n[[Child]]\\nflow_state: shortlist\");await vault.create(\"todo-flow/Child.md\",\"# Child Task\\nflow_state: shortlist\");console.log(\"[Test Setup] Files created\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:35.686Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:38.690Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:38.691Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:38.692Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];await plugin.activateStack(\"todo-flow\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:38.899Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:40.902Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:40.902Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:40.903Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true});const container=document.querySelector(\".todo-flow-stack-container\");if(container)container.focus()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:40.911Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:41.229Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 1ms
+[0-0] 2026-02-08T08:52:41.236Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:41.240Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:41.241Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];const view=leaf?leaf.view:null;const tasks=view?view.tasks||[]:[];const component=view?view.component:null;return{taskCount:tasks.length,taskDetails:tasks.map(t=>({title:t.title,id:t.id,hasChildren:!!(t.children&&t.children.length>0),childCount:t.children?.length||0})),focusedIndex:component?component.focusedIndex:\"N/A\",rootPath:view?view.rootPath:\"N/A\"}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:41.278Z INFO webdriver: RESULT {
+[0-0]   focusedIndex: null,
+[0-0]   rootPath: 'todo-flow',
+[0-0]   taskCount: 2,
+[0-0]   taskDetails: [
+[0-0]     {
+[0-0]       childCount: 1,
+[0-0]       hasChildren: true,
+[0-0]       id: 'todo-flow/Parent.md',
+[0-0]       title: 'Parent Task'
+[0-0]     },
+[0-0]     {
+[0-0]       childCount: 0,
+[0-0]       hasChildren: false,
+[0-0]       id: 'todo-flow/Child.md',
+[0-0]       title: 'Child Task'
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] [Test Debug] Diagnostics PRE-CLICK: {
+[0-0]   "focusedIndex": null,
+[0-0]   "rootPath": "todo-flow",
+[0-0]   "taskCount": 2,
+[0-0]   "taskDetails": [
+[0-0]     {
+[0-0]       "childCount": 1,
+[0-0]       "hasChildren": true,
+[0-0]       "id": "todo-flow/Parent.md",
+[0-0]       "title": "Parent Task"
+[0-0]     },
+[0-0]     {
+[0-0]       "childCount": 0,
+[0-0]       "hasChildren": false,
+[0-0]       "id": "todo-flow/Child.md",
+[0-0]       "title": "Child Task"
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] 2026-02-08T08:52:41.294Z INFO webdriver: COMMAND findElement("xpath", ".//*[contains(concat(" ",@class," "), " todo-flow-task-card ") and contains(., "Parent Task") and not(.//*[contains(concat(" ",@class," "), " todo-flow-task-card ")])]")
+[0-0] 2026-02-08T08:52:41.295Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/element
+[0-0] 2026-02-08T08:52:41.295Z INFO webdriver: DATA {"using":"xpath","value":".//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \") and contains(., \"Parent Task\") and not(.//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \")])]"}
+[0-0] 2026-02-08T08:52:41.320Z INFO webdriver: RESULT {
+[0-0]   'element-6066-11e4-a52e-4f735466cecf': '4DC6C3E6C25A4325FF8881818773E5F6_element_41'
+[0-0] }
+[0-0] 2026-02-08T08:52:41.335Z INFO webdriver: COMMAND findElements("xpath", ".//*[contains(concat(" ",@class," "), " todo-flow-task-card ") and contains(., "Parent Task") and not(.//*[contains(concat(" ",@class," "), " todo-flow-task-card ")])]")
+[0-0] 2026-02-08T08:52:41.336Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:41.336Z INFO webdriver: DATA {"using":"xpath","value":".//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \") and contains(., \"Parent Task\") and not(.//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \")])]"}
+[0-0] 2026-02-08T08:52:41.356Z INFO webdriver: RESULT [
+[0-0]   {
+[0-0]     'element-6066-11e4-a52e-4f735466cecf': '4DC6C3E6C25A4325FF8881818773E5F6_element_41'
+[0-0]   }
+[0-0] ]
+[0-0] 2026-02-08T08:52:41.366Z INFO webdriver: COMMAND getElementTagName("4DC6C3E6C25A4325FF8881818773E5F6_element_41")
+[0-0] 2026-02-08T08:52:41.369Z INFO webdriver: [GET] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/element/4DC6C3E6C25A4325FF8881818773E5F6_element_41/name
+[0-0] 2026-02-08T08:52:41.377Z INFO webdriver: RESULT div
+[0-0] [Test] Tapping Parent Task...
+[0-0] 2026-02-08T08:52:41.378Z INFO webdriver: COMMAND elementClick("4DC6C3E6C25A4325FF8881818773E5F6_element_41")
+[0-0] 2026-02-08T08:52:41.379Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/element/4DC6C3E6C25A4325FF8881818773E5F6_element_41/click
+[0-0] 2026-02-08T08:52:41.379Z INFO webdriver: DATA {}
+[0-0] 2026-02-08T08:52:41.446Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:43.950Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:43.953Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/execute/sync
+[0-0] 2026-02-08T08:52:43.955Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];const view=leaf?leaf.view:null;const tasks=view?view.tasks||[]:[];const component=view?view.component:null;return{taskTitles:tasks.map(t=>t.title),rootPath:view?view.rootPath:\"N/A\",canGoBack:component?component.canGoBack:\"N/A\"}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:43.991Z INFO webdriver: RESULT {
+[0-0]   canGoBack: null,
+[0-0]   rootPath: 'todo-flow/Parent.md',
+[0-0]   taskTitles: [ 'Child Task' ]
+[0-0] }
+[0-0] [Test Debug] Diagnostics after first tap: {
+[0-0]   "canGoBack": null,
+[0-0]   "rootPath": "todo-flow/Parent.md",
+[0-0]   "taskTitles": [
+[0-0]     "Child Task"
+[0-0]   ]
+[0-0] }
+[0-0] 2026-02-08T08:52:44.007Z INFO webdriver: COMMAND findElement("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.009Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/element
+[0-0] 2026-02-08T08:52:44.009Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.030Z INFO webdriver: RESULT {
+[0-0]   error: 'no such element',
+[0-0]   message: 'no such element: Unable to locate element: {"method":"css selector","selector":".back-nav-btn"}\n' +
+[0-0]     '  (Session info: chrome=120.0.6099.283)',
+[0-0]   stacktrace: '#0 0x5efbf6af3203 <unknown>\n' +
+[0-0]     '#1 0x5efbf67f38a7 <unknown>\n' +
+[0-0]     '#2 0x5efbf683f428 <unknown>\n' +
+[0-0]     '#3 0x5efbf683f5a1 <unknown>\n' +
+[0-0]     '#4 0x5efbf6887a84 <unknown>\n' +
+[0-0]     '#5 0x5efbf68672dd <unknown>\n' +
+[0-0]     '#6 0x5efbf6884d44 <unknown>\n' +
+[0-0]     '#7 0x5efbf6867053 <unknown>\n' +
+[0-0]     '#8 0x5efbf68311a8 <unknown>\n' +
+[0-0]     '#9 0x5efbf68327ce <unknown>\n' +
+[0-0]     '#10 0x5efbf6abfc9d <unknown>\n' +
+[0-0]     '#11 0x5efbf6ac32b1 <unknown>\n' +
+[0-0]     '#12 0x5efbf6ac38c5 <unknown>\n' +
+[0-0]     '#13 0x5efbf6ab0c27 <unknown>\n' +
+[0-0]     '#14 0x5efbf6ac4025 <unknown>\n' +
+[0-0]     '#15 0x5efbf6a9bd6a <unknown>\n' +
+[0-0]     '#16 0x5efbf6ae22a8 <unknown>\n' +
+[0-0]     '#17 0x5efbf6ae241e <unknown>\n' +
+[0-0]     '#18 0x5efbf6af2339 <unknown>\n' +
+[0-0]     '#19 0x7b07d04a3d64 <unknown>\n' +
+[0-0]     '#20 0x7b07d05373fc <unknown>\n'
+[0-0] }
+[0-0] 2026-02-08T08:52:44.039Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.040Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.040Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.053Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.140Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.140Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.141Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.168Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.240Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.243Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.243Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.269Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.339Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.340Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.340Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.361Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.440Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.440Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.440Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.451Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.540Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.541Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.541Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.562Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.643Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.676Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.742Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.742Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.770Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.839Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.840Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.840Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.861Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:44.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:44.943Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:44.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:44.972Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.042Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.043Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.044Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.067Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.143Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.180Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.240Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.242Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.242Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.278Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.340Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.341Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.342Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.379Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.441Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.444Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.444Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.481Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.540Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.540Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.541Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.551Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.643Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.680Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.743Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.787Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.840Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.841Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.841Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.865Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:45.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:45.943Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:45.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:45.988Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.040Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.041Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.041Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.056Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.142Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.186Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.240Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.242Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.243Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.264Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.340Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.342Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.342Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.365Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.440Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.442Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.442Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.482Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.541Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.543Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.543Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.581Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.643Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.679Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.743Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.775Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.841Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.842Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.842Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.868Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:46.940Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:46.943Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:46.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:46.973Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.039Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.041Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.041Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.061Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.140Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.141Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.142Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.155Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.241Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.242Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.242Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.262Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.340Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.340Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.340Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.351Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.440Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.441Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.441Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.455Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.539Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.540Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.540Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.548Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.642Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.670Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.743Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.774Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.842Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.845Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.846Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.878Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:47.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:47.943Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:47.944Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:47.973Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.039Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.040Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.040Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.059Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.140Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.142Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.142Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.180Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.240Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.241Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.241Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.261Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.339Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.340Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.340Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.353Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.441Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.441Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.442Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.462Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.540Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.541Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.541Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.562Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.643Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.672Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.742Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.742Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.777Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.840Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.841Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.842Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.865Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:48.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:48.942Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:48.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:48.979Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.040Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.041Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.042Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.065Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.142Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.175Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.241Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.243Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.243Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.261Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.340Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.341Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.342Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.368Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.441Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.442Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.443Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.484Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.539Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.540Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.540Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.560Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.640Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.641Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.642Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.678Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.740Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.741Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.741Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.777Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.839Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.840Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.840Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.848Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:49.942Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:49.944Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:49.944Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:49.977Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.040Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.041Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.041Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.068Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.142Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.178Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.243Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.278Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.341Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.343Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.344Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.376Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.440Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.441Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.441Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.478Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.540Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.542Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.542Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.578Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.643Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.672Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.742Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.742Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.784Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.840Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.840Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.841Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.860Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:50.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:50.942Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:50.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:50.981Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.039Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.040Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.040Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.063Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.142Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.177Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.240Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.242Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.242Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.278Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.340Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.341Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.341Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.364Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.441Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.442Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.442Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.476Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.540Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.541Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.541Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.560Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.640Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.641Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.642Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.675Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.742Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.782Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.841Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.844Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.845Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.867Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:51.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:51.943Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:51.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:51.972Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.039Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.040Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.040Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.058Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.142Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.142Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.159Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.241Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.242Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.242Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.272Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.342Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.345Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.345Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.370Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.441Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.442Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.443Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.477Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.541Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.543Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.543Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.578Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.640Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.642Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.642Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.681Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.739Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.739Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.739Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.748Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.839Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.840Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.840Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.865Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:52.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:52.942Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:52.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:52.984Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.040Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.041Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.041Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.063Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.142Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.176Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.240Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.241Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.241Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.273Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.342Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.344Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.344Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.377Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.440Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.441Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.442Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.479Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.540Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.541Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.541Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.565Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.642Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.642Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.676Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.740Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.742Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.742Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.778Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.841Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.843Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.843Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.875Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:53.940Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:52:53.943Z INFO webdriver: [POST] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612/elements
+[0-0] 2026-02-08T08:52:53.944Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:52:53.979Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:52:54.209Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 0ms
+[0-0] Error in "UX-002: Mobile Navigation Loop.should drill down and navigate back via UI button"
+Error: element (".back-nav-btn") still not existing after 10000ms
+    at async Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/UX-002_mobile_navigation.spec.ts:149:9)
+[0-0] [WDIO] E2E test session complete
+[0-0] 2026-02-08T08:52:54.218Z DEBUG @wdio/utils:shim: Finished to run "after" hook in 2ms
+[0-0] 2026-02-08T08:52:54.219Z INFO webdriver: COMMAND deleteSession()
+[0-0] 2026-02-08T08:52:54.220Z INFO webdriver: [DELETE] http://localhost:37171/session/0c3251a0f2c84df879c1d57e4b4fd612
+[0-0] 2026-02-08T08:52:54.372Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:52:54.372Z INFO webdriver: Kill driver process with PID 34437
+[0-0] 2026-02-08T08:52:54.396Z DEBUG @wdio/utils:shim: Finished to run "afterSession" hook in 23ms
+2026-02-08T08:52:54.552Z DEBUG @wdio/local-runner: Runner 0-0 finished with exit code 1
+[0-0] RETRYING in chrome(120.0.6099.283) - file:///tests/e2e/UX-002_mobile_navigation.spec.ts
+2026-02-08T08:52:54.555Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-02-08T08:52:54.555Z DEBUG @wdio/cli:utils: Finished to run "onWorkerEnd" hook in 0ms
+2026-02-08T08:52:54.557Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-02-08T08:52:54.557Z DEBUG @wdio/cli:utils: Finished to run "onWorkerStart" hook in 0ms
+2026-02-08T08:52:54.558Z INFO @wdio/local-runner: Start worker 0-0 with arg: run wdio.conf.mts --spec tests/e2e/UX-002_mobile_navigation.spec.ts
+2026-02-08T08:52:54.563Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
+2026-02-08T08:52:54.563Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
+2026-02-08T08:52:54.564Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-02-08T08:52:54.573Z DEBUG @wdio/local-runner: Send command run to worker with cid "0-0"
+[0-0] 2026-02-08T08:52:56.679Z INFO @wdio/local-runner: Run worker command: run
+[0-0] 2026-02-08T08:52:56.724Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-08T08:52:56.731Z DEBUG @wdio/utils:initializeServices: initialize service "obsidian" as NPM package
+[0-0] 2026-02-08T08:52:57.309Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-08T08:52:57.378Z DEBUG @wdio/utils:shim: Finished to run "beforeSession" hook in 68ms
+[0-0] RUNNING in chrome(120.0.6099.283) - file:///tests/e2e/UX-002_mobile_navigation.spec.ts
+[0-0] 2026-02-08T08:52:57.581Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-08T08:52:57.584Z INFO webdriver: Initiate new session using the WebDriver protocol
+[0-0] 2026-02-08T08:52:57.891Z INFO chromedriver: Starting ChromeDriver 120.0.6099.283 (967a55bac315b0bcf08b09f7a9b86b318f951276-refs/heads/main@{#1232704}) on port 40517
+[0-0] 2026-02-08T08:52:57.892Z INFO chromedriver: Only local connections are allowed.
+[0-0] 2026-02-08T08:52:57.892Z INFO chromedriver: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[0-0] 2026-02-08T08:52:57.892Z INFO chromedriver: ChromeDriver was started successfully.
+[0-0] 2026-02-08T08:52:57.894Z INFO @wdio/utils: Started Chromedriver v120.0.6099.283 with params --port=40517 --binary=/home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/electron-chromedriver/linux-x64/28.2.3/chromedriver --allowed-origins=* in 28ms on port 40517
+[0-0] 2026-02-08T08:52:57.925Z INFO webdriver: [POST] http://localhost:40517/session
+[0-0] 2026-02-08T08:52:58.230Z INFO chromedriver: 2026-02-08 08:52:58 Loading updated app package /tmp/obsidian-launcher-config-QMqQJz/obsidian-1.11.7.asar
+[0-0] 2026-02-08T08:52:58.253Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-08T08:52:58.713Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-QMqQJz/f1900e2945eb66b0.json'
+[0-0] 2026-02-08T08:52:59.089Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-08T08:52:59.090Z INFO webdriver: [GET] http://localhost:40517/session/1d93f3b06c03b9774b3e2ece8df1446e/window
+[0-0] 2026-02-08T08:52:59.098Z INFO webdriver: RESULT 22C4416FD8636B562F53CCFAF13EDAA5
+[0-0] [WDIO] Starting E2E test session
+[0-0] 2026-02-08T08:52:59.103Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:59.104Z INFO webdriver: [POST] http://localhost:40517/session/1d93f3b06c03b9774b3e2ece8df1446e/execute/sync
+[0-0] 2026-02-08T08:52:59.105Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:52:59.960Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:52:59.966Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:52:59.967Z INFO webdriver: [POST] http://localhost:40517/session/1d93f3b06c03b9774b3e2ece8df1446e/execute/sync
+[0-0] 2026-02-08T08:52:59.967Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:00.039Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:53:00.042Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:00.045Z INFO webdriver: [POST] http://localhost:40517/session/1d93f3b06c03b9774b3e2ece8df1446e/execute/sync
+[0-0] 2026-02-08T08:53:00.045Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:00.065Z INFO webdriver: RESULT true
+[0-0] 2026-02-08T08:53:00.067Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-08T08:53:00.070Z INFO webdriver: [POST] http://localhost:40517/session/1d93f3b06c03b9774b3e2ece8df1446e/execute/sync
+[0-0] 2026-02-08T08:53:00.073Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-08T08:53:00.261Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:00.262Z DEBUG @wdio/utils:shim: Finished to run "before" hook in 1161ms
+[0-0] 2026-02-08T08:53:02.299Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-08T08:53:02.300Z INFO webdriver: [DELETE] http://localhost:40517/session/1d93f3b06c03b9774b3e2ece8df1446e
+[0-0] 2026-02-08T08:53:02.300Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-08T08:53:02.395Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:02.407Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-08T08:53:02.408Z INFO webdriver: [DELETE] http://localhost:40517/session/1d93f3b06c03b9774b3e2ece8df1446e
+[0-0] 2026-02-08T08:53:02.408Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-08T08:53:02.415Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:02.423Z INFO webdriver: [POST] http://localhost:40517/session
+[0-0] 2026-02-08T08:53:02.760Z INFO chromedriver: 2026-02-08 08:53:02 Loading updated app package /tmp/obsidian-launcher-config-QMqQJz/obsidian-1.11.7.asar
+[0-0] 2026-02-08T08:53:02.780Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-08T08:53:03.595Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-08T08:53:03.596Z INFO webdriver: [GET] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/window
+[0-0] 2026-02-08T08:53:03.606Z INFO webdriver: RESULT 002978E9199D9669B483F4D6217FEECD
+[0-0] 2026-02-08T08:53:03.608Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:03.609Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:03.609Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:04.707Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:53:04.710Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:04.711Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:04.712Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:04.841Z INFO webdriver: RESULT true
+[0-0] 2026-02-08T08:53:04.842Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-08T08:53:04.843Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:04.843Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-08T08:53:05.093Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:05.094Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:05.094Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:05.095Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{document.body.classList.add(\"is-mobile\");document.body.classList.remove(\"is-desktop\");if(window.app){window.app.isMobile=true}window.dispatchEvent(new Event(\"resize\"))}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:05.112Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:05.113Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:05.114Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:05.115Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];if(plugin){plugin.settings.targetFolder=\"todo-flow\";plugin.settings.debug=true;if(plugin.logger)plugin.logger.setEnabled(true);await plugin.saveSettings()}window._logs=[]}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:05.172Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:05.173Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:05.174Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:05.174Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const{vault}=app;const existing=vault.getAbstractFileByPath(\"todo-flow\");if(existing)await vault.delete(existing,true);await vault.createFolder(\"todo-flow\");await vault.create(\"todo-flow/Parent.md\",\"# Parent Task\\n[[Child]]\\nflow_state: shortlist\");await vault.create(\"todo-flow/Child.md\",\"# Child Task\\nflow_state: shortlist\");console.log(\"[Test Setup] Files created\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:05.210Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:08.213Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:08.214Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:08.215Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];await plugin.activateStack(\"todo-flow\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:08.480Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:10.482Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:10.482Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:10.482Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true});const container=document.querySelector(\".todo-flow-stack-container\");if(container)container.focus()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:10.521Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:10.832Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 2ms
+[0-0] 2026-02-08T08:53:10.833Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:10.834Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:10.834Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];const view=leaf?leaf.view:null;const tasks=view?view.tasks||[]:[];const component=view?view.component:null;return{taskCount:tasks.length,taskDetails:tasks.map(t=>({title:t.title,id:t.id,hasChildren:!!(t.children&&t.children.length>0),childCount:t.children?.length||0})),focusedIndex:component?component.focusedIndex:\"N/A\",rootPath:view?view.rootPath:\"N/A\"}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:10.851Z INFO webdriver: RESULT {
+[0-0]   focusedIndex: null,
+[0-0]   rootPath: 'todo-flow',
+[0-0]   taskCount: 2,
+[0-0]   taskDetails: [
+[0-0]     {
+[0-0]       childCount: 1,
+[0-0]       hasChildren: true,
+[0-0]       id: 'todo-flow/Parent.md',
+[0-0]       title: 'Parent Task'
+[0-0]     },
+[0-0]     {
+[0-0]       childCount: 0,
+[0-0]       hasChildren: false,
+[0-0]       id: 'todo-flow/Child.md',
+[0-0]       title: 'Child Task'
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] [Test Debug] Diagnostics PRE-CLICK: {
+[0-0]   "focusedIndex": null,
+[0-0]   "rootPath": "todo-flow",
+[0-0]   "taskCount": 2,
+[0-0]   "taskDetails": [
+[0-0]     {
+[0-0]       "childCount": 1,
+[0-0]       "hasChildren": true,
+[0-0]       "id": "todo-flow/Parent.md",
+[0-0]       "title": "Parent Task"
+[0-0]     },
+[0-0]     {
+[0-0]       "childCount": 0,
+[0-0]       "hasChildren": false,
+[0-0]       "id": "todo-flow/Child.md",
+[0-0]       "title": "Child Task"
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] 2026-02-08T08:53:10.864Z INFO webdriver: COMMAND findElement("xpath", ".//*[contains(concat(" ",@class," "), " todo-flow-task-card ") and contains(., "Parent Task") and not(.//*[contains(concat(" ",@class," "), " todo-flow-task-card ")])]")
+[0-0] 2026-02-08T08:53:10.865Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/element
+[0-0] 2026-02-08T08:53:10.865Z INFO webdriver: DATA {"using":"xpath","value":".//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \") and contains(., \"Parent Task\") and not(.//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \")])]"}
+[0-0] 2026-02-08T08:53:10.906Z INFO webdriver: RESULT {
+[0-0]   'element-6066-11e4-a52e-4f735466cecf': '26327C747043215B39DABB14197EAD90_element_41'
+[0-0] }
+[0-0] 2026-02-08T08:53:10.919Z INFO webdriver: COMMAND findElements("xpath", ".//*[contains(concat(" ",@class," "), " todo-flow-task-card ") and contains(., "Parent Task") and not(.//*[contains(concat(" ",@class," "), " todo-flow-task-card ")])]")
+[0-0] 2026-02-08T08:53:10.919Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:10.919Z INFO webdriver: DATA {"using":"xpath","value":".//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \") and contains(., \"Parent Task\") and not(.//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \")])]"}
+[0-0] 2026-02-08T08:53:10.932Z INFO webdriver: RESULT [
+[0-0]   {
+[0-0]     'element-6066-11e4-a52e-4f735466cecf': '26327C747043215B39DABB14197EAD90_element_41'
+[0-0]   }
+[0-0] ]
+[0-0] 2026-02-08T08:53:10.939Z INFO webdriver: COMMAND getElementTagName("26327C747043215B39DABB14197EAD90_element_41")
+[0-0] 2026-02-08T08:53:10.940Z INFO webdriver: [GET] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/element/26327C747043215B39DABB14197EAD90_element_41/name
+[0-0] 2026-02-08T08:53:10.959Z INFO webdriver: RESULT div
+[0-0] [Test] Tapping Parent Task...
+[0-0] 2026-02-08T08:53:10.962Z INFO webdriver: COMMAND elementClick("26327C747043215B39DABB14197EAD90_element_41")
+[0-0] 2026-02-08T08:53:10.963Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/element/26327C747043215B39DABB14197EAD90_element_41/click
+[0-0] 2026-02-08T08:53:10.963Z INFO webdriver: DATA {}
+[0-0] 2026-02-08T08:53:11.031Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:13.534Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:13.535Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/execute/sync
+[0-0] 2026-02-08T08:53:13.535Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];const view=leaf?leaf.view:null;const tasks=view?view.tasks||[]:[];const component=view?view.component:null;return{taskTitles:tasks.map(t=>t.title),rootPath:view?view.rootPath:\"N/A\",canGoBack:component?component.canGoBack:\"N/A\"}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:13.564Z INFO webdriver: RESULT {
+[0-0]   canGoBack: null,
+[0-0]   rootPath: 'todo-flow/Parent.md',
+[0-0]   taskTitles: [ 'Child Task' ]
+[0-0] }
+[0-0] [Test Debug] Diagnostics after first tap: {
+[0-0]   "canGoBack": null,
+[0-0]   "rootPath": "todo-flow/Parent.md",
+[0-0]   "taskTitles": [
+[0-0]     "Child Task"
+[0-0]   ]
+[0-0] }
+[0-0] 2026-02-08T08:53:13.576Z INFO webdriver: COMMAND findElement("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:13.577Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/element
+[0-0] 2026-02-08T08:53:13.577Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:13.630Z INFO webdriver: RESULT {
+[0-0]   error: 'no such element',
+[0-0]   message: 'no such element: Unable to locate element: {"method":"css selector","selector":".back-nav-btn"}\n' +
+[0-0]     '  (Session info: chrome=120.0.6099.283)',
+[0-0]   stacktrace: '#0 0x5ef65c10f203 <unknown>\n' +
+[0-0]     '#1 0x5ef65be0f8a7 <unknown>\n' +
+[0-0]     '#2 0x5ef65be5b428 <unknown>\n' +
+[0-0]     '#3 0x5ef65be5b5a1 <unknown>\n' +
+[0-0]     '#4 0x5ef65bea3a84 <unknown>\n' +
+[0-0]     '#5 0x5ef65be832dd <unknown>\n' +
+[0-0]     '#6 0x5ef65bea0d44 <unknown>\n' +
+[0-0]     '#7 0x5ef65be83053 <unknown>\n' +
+[0-0]     '#8 0x5ef65be4d1a8 <unknown>\n' +
+[0-0]     '#9 0x5ef65be4e7ce <unknown>\n' +
+[0-0]     '#10 0x5ef65c0dbc9d <unknown>\n' +
+[0-0]     '#11 0x5ef65c0df2b1 <unknown>\n' +
+[0-0]     '#12 0x5ef65c0df8c5 <unknown>\n' +
+[0-0]     '#13 0x5ef65c0ccc27 <unknown>\n' +
+[0-0]     '#14 0x5ef65c0e0025 <unknown>\n' +
+[0-0]     '#15 0x5ef65c0b7d6a <unknown>\n' +
+[0-0]     '#16 0x5ef65c0fe2a8 <unknown>\n' +
+[0-0]     '#17 0x5ef65c0fe41e <unknown>\n' +
+[0-0]     '#18 0x5ef65c10e339 <unknown>\n' +
+[0-0]     '#19 0x7bd21c2a3d64 <unknown>\n' +
+[0-0]     '#20 0x7bd21c3373fc <unknown>\n'
+[0-0] }
+[0-0] 2026-02-08T08:53:13.642Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:13.643Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:13.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:13.658Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:13.742Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:13.743Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:13.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:13.753Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:13.842Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:13.843Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:13.843Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:13.860Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:13.942Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:13.943Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:13.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:13.969Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.042Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.044Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.045Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.074Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.142Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.143Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.154Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.244Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.280Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.341Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.342Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.342Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.351Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.441Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.441Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.441Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.450Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.542Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.543Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.543Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.574Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.642Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.643Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.644Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.654Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.743Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.745Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.745Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.777Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.841Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.842Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.842Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.863Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:14.942Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:14.943Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:14.944Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:14.984Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.043Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.045Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.045Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.078Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.144Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.145Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.146Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.166Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.243Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.244Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.277Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.342Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.344Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.345Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.378Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.442Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.444Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.444Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.457Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.542Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.543Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.544Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.575Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.642Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.643Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.675Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.743Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.781Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.843Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.844Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.844Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.873Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:15.942Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:15.943Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:15.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:15.960Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.042Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.043Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.043Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.053Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.142Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.143Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.162Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.244Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.271Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.342Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.343Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.343Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.365Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.444Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.445Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.445Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.486Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.545Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.545Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.546Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.578Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.643Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.643Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.664Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.742Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.742Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.750Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.841Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.842Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.842Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.853Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:16.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:16.942Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:16.943Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:16.962Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.042Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.044Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.044Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.076Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.143Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.144Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.145Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.178Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.243Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.243Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.274Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.341Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.342Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.343Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.369Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.442Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.444Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.445Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.463Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.541Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.542Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.542Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.550Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.643Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.644Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.645Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.674Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.744Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.745Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.746Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.780Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.841Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.842Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.842Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.856Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:17.942Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:17.943Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:17.944Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:17.963Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.042Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.042Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.042Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.050Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.142Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.143Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.144Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.157Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.244Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.277Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.341Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.342Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.343Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.357Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.442Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.442Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.443Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.458Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.542Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.543Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.544Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.562Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.643Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.663Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.743Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.744Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.745Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.764Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.842Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.843Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.843Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.876Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:18.942Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:18.944Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:18.944Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:18.953Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.043Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.044Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.045Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.062Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.142Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.142Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.153Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.243Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.244Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.256Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.342Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.344Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.345Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.359Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.443Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.445Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.446Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.462Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.542Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.543Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.543Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.559Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.642Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.643Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.643Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.653Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.742Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.742Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.742Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.750Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.841Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.842Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.843Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.861Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:19.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:19.942Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:19.942Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:19.954Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.041Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.041Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.041Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.055Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.142Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.142Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.151Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.243Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.273Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.341Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.342Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.342Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.359Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.441Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.442Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.443Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.469Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.542Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.543Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.544Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.574Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.642Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.644Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.645Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.678Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.742Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.743Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.762Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.843Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.844Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.844Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.854Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:20.943Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:20.946Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:20.947Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:20.962Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.042Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.042Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.043Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.054Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.143Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.144Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.144Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.174Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.243Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.275Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.342Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.344Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.344Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.373Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.442Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.443Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.444Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.457Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.542Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.542Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.543Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.554Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.641Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.642Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.642Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.649Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.742Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.743Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.780Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.845Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.848Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.849Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.868Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:21.941Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:21.942Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:21.942Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:21.964Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.042Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.043Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.043Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.055Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.141Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.142Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.142Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.158Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.242Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.242Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.257Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.342Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.342Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.343Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.362Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.442Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.443Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.443Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.454Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.542Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.542Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.543Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.557Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.642Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.644Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.644Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.660Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.741Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.743Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.743Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.766Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.842Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.843Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.843Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.862Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:22.943Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:22.944Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:22.945Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:22.976Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:23.043Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:23.044Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:23.045Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:23.077Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:23.142Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:23.142Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:23.143Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:23.150Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:23.242Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:23.243Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:23.244Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:23.265Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:23.342Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:23.344Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:23.344Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:23.382Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:23.443Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:23.446Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:23.447Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:23.473Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:23.542Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:23.543Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:23.544Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:23.559Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:23.642Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:23.642Z INFO webdriver: [POST] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf/elements
+[0-0] 2026-02-08T08:53:23.642Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:23.781Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 0ms
+[0-0] Error in "UX-002: Mobile Navigation Loop.should drill down and navigate back via UI button"
+Error: element (".back-nav-btn") still not existing after 10000ms
+    at async Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/UX-002_mobile_navigation.spec.ts:149:9)
+[0-0] 2026-02-08T08:53:23.784Z INFO webdriver: RESULT []
+[0-0] [WDIO] E2E test session complete
+[0-0] 2026-02-08T08:53:23.790Z DEBUG @wdio/utils:shim: Finished to run "after" hook in 0ms
+[0-0] 2026-02-08T08:53:23.791Z INFO webdriver: COMMAND deleteSession()
+[0-0] 2026-02-08T08:53:23.792Z INFO webdriver: [DELETE] http://localhost:40517/session/727917a4865d8e9b159a53395d8396cf
+[0-0] 2026-02-08T08:53:23.918Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:23.919Z INFO webdriver: Kill driver process with PID 34743
+[0-0] 2026-02-08T08:53:23.941Z DEBUG @wdio/utils:shim: Finished to run "afterSession" hook in 21ms
+2026-02-08T08:53:24.068Z DEBUG @wdio/local-runner: Runner 0-0 finished with exit code 1
+[0-0] RETRYING in chrome(120.0.6099.283) - file:///tests/e2e/UX-002_mobile_navigation.spec.ts (1 retries)
+2026-02-08T08:53:24.068Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-02-08T08:53:24.068Z DEBUG @wdio/cli:utils: Finished to run "onWorkerEnd" hook in 0ms
+2026-02-08T08:53:24.070Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-02-08T08:53:24.070Z DEBUG @wdio/cli:utils: Finished to run "onWorkerStart" hook in 0ms
+2026-02-08T08:53:24.070Z INFO @wdio/local-runner: Start worker 0-0 with arg: run wdio.conf.mts --spec tests/e2e/UX-002_mobile_navigation.spec.ts
+2026-02-08T08:53:24.076Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
+2026-02-08T08:53:24.076Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
+2026-02-08T08:53:24.076Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-02-08T08:53:24.080Z DEBUG @wdio/local-runner: Send command run to worker with cid "0-0"
+[0-0] 2026-02-08T08:53:25.859Z INFO @wdio/local-runner: Run worker command: run
+[0-0] 2026-02-08T08:53:25.889Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-08T08:53:25.897Z DEBUG @wdio/utils:initializeServices: initialize service "obsidian" as NPM package
+[0-0] 2026-02-08T08:53:26.478Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-08T08:53:26.545Z DEBUG @wdio/utils:shim: Finished to run "beforeSession" hook in 66ms
+[0-0] RUNNING in chrome(120.0.6099.283) - file:///tests/e2e/UX-002_mobile_navigation.spec.ts
+[0-0] 2026-02-08T08:53:26.726Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-08T08:53:26.729Z INFO webdriver: Initiate new session using the WebDriver protocol
+[0-0] 2026-02-08T08:53:27.030Z INFO chromedriver: Starting ChromeDriver 120.0.6099.283 (967a55bac315b0bcf08b09f7a9b86b318f951276-refs/heads/main@{#1232704}) on port 41809
+[0-0] 2026-02-08T08:53:27.031Z INFO chromedriver: Only local connections are allowed.
+[0-0] 2026-02-08T08:53:27.031Z INFO chromedriver: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[0-0] 2026-02-08T08:53:27.031Z INFO chromedriver: ChromeDriver was started successfully.
+[0-0] 2026-02-08T08:53:27.033Z INFO @wdio/utils: Started Chromedriver v120.0.6099.283 with params --port=41809 --binary=/home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/electron-chromedriver/linux-x64/28.2.3/chromedriver --allowed-origins=* in 35ms on port 41809
+[0-0] 2026-02-08T08:53:27.069Z INFO webdriver: [POST] http://localhost:41809/session
+[0-0] 2026-02-08T08:53:27.311Z INFO chromedriver: 2026-02-08 08:53:27 Loading updated app package /tmp/obsidian-launcher-config-fMH6re/obsidian-1.11.7.asar
+[0-0] 2026-02-08T08:53:27.327Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-08T08:53:27.764Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-fMH6re/031add4f9fbdcff8.json'
+[0-0] 2026-02-08T08:53:28.121Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-08T08:53:28.122Z INFO webdriver: [GET] http://localhost:41809/session/ae8bb828a9bfea0c230162d3d703dce4/window
+[0-0] 2026-02-08T08:53:28.133Z INFO webdriver: RESULT C1385F9FF6923D9B847A9430A9D08322
+[0-0] [WDIO] Starting E2E test session
+[0-0] 2026-02-08T08:53:28.137Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:28.138Z INFO webdriver: [POST] http://localhost:41809/session/ae8bb828a9bfea0c230162d3d703dce4/execute/sync
+[0-0] 2026-02-08T08:53:28.138Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:29.066Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:53:29.077Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:29.078Z INFO webdriver: [POST] http://localhost:41809/session/ae8bb828a9bfea0c230162d3d703dce4/execute/sync
+[0-0] 2026-02-08T08:53:29.078Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:29.144Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:53:29.146Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:29.150Z INFO webdriver: [POST] http://localhost:41809/session/ae8bb828a9bfea0c230162d3d703dce4/execute/sync
+[0-0] 2026-02-08T08:53:29.152Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:29.492Z INFO webdriver: RESULT true
+[0-0] 2026-02-08T08:53:29.500Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-08T08:53:29.500Z INFO webdriver: [POST] http://localhost:41809/session/ae8bb828a9bfea0c230162d3d703dce4/execute/sync
+[0-0] 2026-02-08T08:53:29.511Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-08T08:53:29.550Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:29.551Z DEBUG @wdio/utils:shim: Finished to run "before" hook in 1416ms
+[0-0] 2026-02-08T08:53:31.581Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-08T08:53:31.581Z INFO webdriver: [DELETE] http://localhost:41809/session/ae8bb828a9bfea0c230162d3d703dce4
+[0-0] 2026-02-08T08:53:31.582Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-08T08:53:31.673Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:31.681Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-08T08:53:31.681Z INFO webdriver: [DELETE] http://localhost:41809/session/ae8bb828a9bfea0c230162d3d703dce4
+[0-0] 2026-02-08T08:53:31.682Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-08T08:53:31.687Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:31.690Z INFO webdriver: [POST] http://localhost:41809/session
+[0-0] 2026-02-08T08:53:31.985Z INFO chromedriver: 2026-02-08 08:53:31 Loading updated app package /tmp/obsidian-launcher-config-fMH6re/obsidian-1.11.7.asar
+[0-0] 2026-02-08T08:53:32.009Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-08T08:53:32.770Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-08T08:53:32.771Z INFO webdriver: [GET] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/window
+[0-0] 2026-02-08T08:53:32.776Z INFO webdriver: RESULT 9C3CBE9D2F86D286AA16B8B1B6DD26AE
+[0-0] 2026-02-08T08:53:32.777Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:32.777Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:32.778Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:33.534Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:53:33.545Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:33.547Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:33.547Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:33.642Z INFO webdriver: RESULT false
+[0-0] 2026-02-08T08:53:33.647Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:33.649Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:33.649Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:33.711Z INFO webdriver: RESULT true
+[0-0] 2026-02-08T08:53:33.712Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-08T08:53:33.713Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:33.713Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-08T08:53:33.867Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:33.870Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:33.871Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:33.871Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{document.body.classList.add(\"is-mobile\");document.body.classList.remove(\"is-desktop\");if(window.app){window.app.isMobile=true}window.dispatchEvent(new Event(\"resize\"))}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:33.889Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:33.889Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:33.891Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:33.891Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];if(plugin){plugin.settings.targetFolder=\"todo-flow\";plugin.settings.debug=true;if(plugin.logger)plugin.logger.setEnabled(true);await plugin.saveSettings()}window._logs=[]}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:33.929Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:33.930Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:33.930Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:33.930Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const{vault}=app;const existing=vault.getAbstractFileByPath(\"todo-flow\");if(existing)await vault.delete(existing,true);await vault.createFolder(\"todo-flow\");await vault.create(\"todo-flow/Parent.md\",\"# Parent Task\\n[[Child]]\\nflow_state: shortlist\");await vault.create(\"todo-flow/Child.md\",\"# Child Task\\nflow_state: shortlist\");console.log(\"[Test Setup] Files created\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:33.956Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:36.957Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:36.958Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:36.958Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];await plugin.activateStack(\"todo-flow\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:37.141Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:39.143Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:39.144Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:39.144Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true});const container=document.querySelector(\".todo-flow-stack-container\");if(container)container.focus()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:39.165Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:39.477Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 1ms
+[0-0] 2026-02-08T08:53:39.479Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:39.480Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:39.480Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];const view=leaf?leaf.view:null;const tasks=view?view.tasks||[]:[];const component=view?view.component:null;return{taskCount:tasks.length,taskDetails:tasks.map(t=>({title:t.title,id:t.id,hasChildren:!!(t.children&&t.children.length>0),childCount:t.children?.length||0})),focusedIndex:component?component.focusedIndex:\"N/A\",rootPath:view?view.rootPath:\"N/A\"}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:39.497Z INFO webdriver: RESULT {
+[0-0]   focusedIndex: null,
+[0-0]   rootPath: 'todo-flow',
+[0-0]   taskCount: 2,
+[0-0]   taskDetails: [
+[0-0]     {
+[0-0]       childCount: 1,
+[0-0]       hasChildren: true,
+[0-0]       id: 'todo-flow/Parent.md',
+[0-0]       title: 'Parent Task'
+[0-0]     },
+[0-0]     {
+[0-0]       childCount: 0,
+[0-0]       hasChildren: false,
+[0-0]       id: 'todo-flow/Child.md',
+[0-0]       title: 'Child Task'
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] [Test Debug] Diagnostics PRE-CLICK: {
+[0-0]   "focusedIndex": null,
+[0-0]   "rootPath": "todo-flow",
+[0-0]   "taskCount": 2,
+[0-0]   "taskDetails": [
+[0-0]     {
+[0-0]       "childCount": 1,
+[0-0]       "hasChildren": true,
+[0-0]       "id": "todo-flow/Parent.md",
+[0-0]       "title": "Parent Task"
+[0-0]     },
+[0-0]     {
+[0-0]       "childCount": 0,
+[0-0]       "hasChildren": false,
+[0-0]       "id": "todo-flow/Child.md",
+[0-0]       "title": "Child Task"
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] 2026-02-08T08:53:39.509Z INFO webdriver: COMMAND findElement("xpath", ".//*[contains(concat(" ",@class," "), " todo-flow-task-card ") and contains(., "Parent Task") and not(.//*[contains(concat(" ",@class," "), " todo-flow-task-card ")])]")
+[0-0] 2026-02-08T08:53:39.510Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/element
+[0-0] 2026-02-08T08:53:39.511Z INFO webdriver: DATA {"using":"xpath","value":".//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \") and contains(., \"Parent Task\") and not(.//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \")])]"}
+[0-0] 2026-02-08T08:53:39.546Z INFO webdriver: RESULT {
+[0-0]   'element-6066-11e4-a52e-4f735466cecf': 'AF3BA118A48B80D2005CA2C646CC6937_element_41'
+[0-0] }
+[0-0] 2026-02-08T08:53:39.568Z INFO webdriver: COMMAND findElements("xpath", ".//*[contains(concat(" ",@class," "), " todo-flow-task-card ") and contains(., "Parent Task") and not(.//*[contains(concat(" ",@class," "), " todo-flow-task-card ")])]")
+[0-0] 2026-02-08T08:53:39.568Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:39.569Z INFO webdriver: DATA {"using":"xpath","value":".//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \") and contains(., \"Parent Task\") and not(.//*[contains(concat(\" \",@class,\" \"), \" todo-flow-task-card \")])]"}
+[0-0] 2026-02-08T08:53:39.596Z INFO webdriver: RESULT [
+[0-0]   {
+[0-0]     'element-6066-11e4-a52e-4f735466cecf': 'AF3BA118A48B80D2005CA2C646CC6937_element_41'
+[0-0]   }
+[0-0] ]
+[0-0] 2026-02-08T08:53:39.608Z INFO webdriver: COMMAND getElementTagName("AF3BA118A48B80D2005CA2C646CC6937_element_41")
+[0-0] 2026-02-08T08:53:39.608Z INFO webdriver: [GET] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/element/AF3BA118A48B80D2005CA2C646CC6937_element_41/name
+[0-0] 2026-02-08T08:53:39.617Z INFO webdriver: RESULT div
+[0-0] [Test] Tapping Parent Task...
+[0-0] 2026-02-08T08:53:39.618Z INFO webdriver: COMMAND elementClick("AF3BA118A48B80D2005CA2C646CC6937_element_41")
+[0-0] 2026-02-08T08:53:39.619Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/element/AF3BA118A48B80D2005CA2C646CC6937_element_41/click
+[0-0] 2026-02-08T08:53:39.620Z INFO webdriver: DATA {}
+[0-0] 2026-02-08T08:53:39.690Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:42.192Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-08T08:53:42.193Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/execute/sync
+[0-0] 2026-02-08T08:53:42.194Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];const view=leaf?leaf.view:null;const tasks=view?view.tasks||[]:[];const component=view?view.component:null;return{taskTitles:tasks.map(t=>t.title),rootPath:view?view.rootPath:\"N/A\",canGoBack:component?component.canGoBack:\"N/A\"}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-08T08:53:42.215Z INFO webdriver: RESULT {
+[0-0]   canGoBack: null,
+[0-0]   rootPath: 'todo-flow/Parent.md',
+[0-0]   taskTitles: [ 'Child Task' ]
+[0-0] }
+[0-0] [Test Debug] Diagnostics after first tap: {
+[0-0]   "canGoBack": null,
+[0-0]   "rootPath": "todo-flow/Parent.md",
+[0-0]   "taskTitles": [
+[0-0]     "Child Task"
+[0-0]   ]
+[0-0] }
+[0-0] 2026-02-08T08:53:42.220Z INFO webdriver: COMMAND findElement("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.221Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/element
+[0-0] 2026-02-08T08:53:42.221Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.257Z INFO webdriver: RESULT {
+[0-0]   error: 'no such element',
+[0-0]   message: 'no such element: Unable to locate element: {"method":"css selector","selector":".back-nav-btn"}\n' +
+[0-0]     '  (Session info: chrome=120.0.6099.283)',
+[0-0]   stacktrace: '#0 0x57bfdcc23203 <unknown>\n' +
+[0-0]     '#1 0x57bfdc9238a7 <unknown>\n' +
+[0-0]     '#2 0x57bfdc96f428 <unknown>\n' +
+[0-0]     '#3 0x57bfdc96f5a1 <unknown>\n' +
+[0-0]     '#4 0x57bfdc9b7a84 <unknown>\n' +
+[0-0]     '#5 0x57bfdc9972dd <unknown>\n' +
+[0-0]     '#6 0x57bfdc9b4d44 <unknown>\n' +
+[0-0]     '#7 0x57bfdc997053 <unknown>\n' +
+[0-0]     '#8 0x57bfdc9611a8 <unknown>\n' +
+[0-0]     '#9 0x57bfdc9627ce <unknown>\n' +
+[0-0]     '#10 0x57bfdcbefc9d <unknown>\n' +
+[0-0]     '#11 0x57bfdcbf32b1 <unknown>\n' +
+[0-0]     '#12 0x57bfdcbf38c5 <unknown>\n' +
+[0-0]     '#13 0x57bfdcbe0c27 <unknown>\n' +
+[0-0]     '#14 0x57bfdcbf4025 <unknown>\n' +
+[0-0]     '#15 0x57bfdcbcbd6a <unknown>\n' +
+[0-0]     '#16 0x57bfdcc122a8 <unknown>\n' +
+[0-0]     '#17 0x57bfdcc1241e <unknown>\n' +
+[0-0]     '#18 0x57bfdcc22339 <unknown>\n' +
+[0-0]     '#19 0x733126aa3d64 <unknown>\n' +
+[0-0]     '#20 0x733126b373fc <unknown>\n'
+[0-0] }
+[0-0] 2026-02-08T08:53:42.265Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.266Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:42.266Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.293Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:42.365Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.365Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:42.366Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.378Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:42.465Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.466Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:42.466Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.496Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:42.565Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.566Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:42.566Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.582Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:42.664Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.664Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:42.664Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.676Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:42.764Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.765Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:42.765Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.773Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:42.864Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.865Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:42.865Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.881Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:42.965Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:42.966Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:42.967Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:42.995Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.065Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.066Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.066Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.082Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.164Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.165Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.165Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.193Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.267Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.270Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.272Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.315Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.366Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.368Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.369Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.399Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.465Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.466Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.466Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.483Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.566Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.566Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.567Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.591Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.665Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.666Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.667Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.695Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.766Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.767Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.767Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.794Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.865Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.865Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.866Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.880Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:43.965Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:43.967Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:43.968Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:43.997Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.066Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.067Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.067Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.114Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.164Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.166Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.167Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.195Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.265Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.266Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.267Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.297Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.365Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.367Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.367Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.399Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.465Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.466Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.466Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.476Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.564Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.564Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.564Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.575Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.665Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.666Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.666Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.680Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.764Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.765Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.765Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.798Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.866Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.869Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.869Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.898Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:44.966Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:44.967Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:44.967Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:44.994Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.065Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.069Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.069Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.096Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.164Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.165Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.165Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.176Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.264Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.264Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.264Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.274Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.364Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.364Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.365Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.377Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.464Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.465Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.465Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.484Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.564Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.565Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.565Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.580Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.664Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.664Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.664Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.674Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.765Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.766Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.766Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.797Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.865Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.866Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.867Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:45.889Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:45.966Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:45.968Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:45.969Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.001Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.064Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.064Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.064Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.080Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.166Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.168Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.169Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.194Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.265Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.266Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.266Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.290Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.366Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.367Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.367Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.378Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.465Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.466Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.466Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.494Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.566Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.566Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.567Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.586Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.664Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.665Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.665Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.677Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.765Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.765Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.766Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.805Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.866Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.867Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.867Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:46.897Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:46.967Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:46.970Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:46.971Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.002Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.066Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.067Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.068Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.100Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.165Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.167Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.167Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.199Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.266Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.268Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.268Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.314Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.366Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.367Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.368Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.404Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.464Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.465Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.465Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.486Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.565Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.566Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.566Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.585Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.665Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.666Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.667Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.690Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.765Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.765Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.765Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.775Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.865Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.866Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.866Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.879Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:47.965Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:47.966Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:47.966Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:47.983Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.066Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.067Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.068Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.105Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.165Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.167Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.167Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.196Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.264Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.266Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.266Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.311Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.366Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.367Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.368Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.396Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.466Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.468Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.468Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.503Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.564Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.565Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.565Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.582Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.665Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.665Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.665Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.684Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.764Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.765Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.766Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.792Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.864Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.865Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.866Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:48.896Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:48.966Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:48.969Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:48.970Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.003Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.066Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.067Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.068Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.088Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.165Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.166Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.166Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.200Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.266Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.267Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.268Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.302Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.366Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.369Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.371Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.394Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.466Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.467Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.467Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.491Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.564Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.566Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.567Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.593Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.666Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.667Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.667Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.688Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.764Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.765Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.765Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.791Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.865Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.866Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.866Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.886Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:49.965Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:49.966Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:49.966Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:49.976Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.065Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.066Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.066Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.133Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.164Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.164Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.164Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.174Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.265Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.265Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.265Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.275Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.365Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.366Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.366Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.379Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.464Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.465Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.465Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.511Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.564Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.565Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.565Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.606Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.665Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.666Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.666Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.688Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.764Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.764Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.764Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.789Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.867Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.877Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.877Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:50.897Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:50.971Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:50.973Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:50.976Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.018Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.066Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.067Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.068Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.083Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.165Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.166Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.166Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.175Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.266Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.267Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.267Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.277Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.366Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.366Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.366Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.385Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.464Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.464Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.464Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.480Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.564Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.564Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.565Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.578Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.664Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.665Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.666Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.687Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.764Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.765Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.766Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.794Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.865Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.866Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.866Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.882Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:51.965Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:51.966Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:51.967Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:51.988Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:52.066Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:52.067Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:52.070Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:52.102Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:52.165Z INFO webdriver: COMMAND findElements("css selector", ".back-nav-btn")
+[0-0] 2026-02-08T08:53:52.166Z INFO webdriver: [POST] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c/elements
+[0-0] 2026-02-08T08:53:52.166Z INFO webdriver: DATA {"using":"css selector","value":".back-nav-btn"}
+[0-0] 2026-02-08T08:53:52.185Z INFO webdriver: RESULT []
+[0-0] 2026-02-08T08:53:52.380Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 0ms
+[0-0] Error in "UX-002: Mobile Navigation Loop.should drill down and navigate back via UI button"
+Error: element (".back-nav-btn") still not existing after 10000ms
+    at async Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/UX-002_mobile_navigation.spec.ts:149:9)
+[0-0] [WDIO] E2E test session complete
+[0-0] 2026-02-08T08:53:52.387Z DEBUG @wdio/utils:shim: Finished to run "after" hook in 0ms
+[0-0] 2026-02-08T08:53:52.388Z INFO webdriver: COMMAND deleteSession()
+[0-0] 2026-02-08T08:53:52.391Z INFO webdriver: [DELETE] http://localhost:41809/session/f36377e599b63a25f4a4065dee32730c
+[0-0] 2026-02-08T08:53:52.518Z INFO webdriver: RESULT null
+[0-0] 2026-02-08T08:53:52.518Z INFO webdriver: Kill driver process with PID 35043
+[0-0] 2026-02-08T08:53:52.539Z DEBUG @wdio/utils:shim: Finished to run "afterSession" hook in 20ms
+2026-02-08T08:53:52.671Z DEBUG @wdio/local-runner: Runner 0-0 finished with exit code 1
+[0-0] FAILED in chrome(120.0.6099.283) - file:///tests/e2e/UX-002_mobile_navigation.spec.ts (2 retries)
+2026-02-08T08:53:52.672Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-02-08T08:53:52.672Z DEBUG @wdio/cli:utils: Finished to run "onWorkerEnd" hook in 0ms
+
+ "obsidian" Reporter:
+------------------------------------------------------------------
+Running: obsidian v1.11.7 (installer: v1.5.8, platform: linux)
+Session ID: 0616dadc4567b115fda460401306f0ee
+
+» tests/e2e/UX-002_mobile_navigation.spec.ts
+UX-002: Mobile Navigation Loop
+   ✖ should drill down and navigate back via UI button
+
+1 failing (23.4s)
+
+1) UX-002: Mobile Navigation Loop should drill down and navigate back via UI button
+element (".back-nav-btn") still not existing after 10000ms
+Error: element (".back-nav-btn") still not existing after 10000ms
+    at async Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/UX-002_mobile_navigation.spec.ts:149:9)
+------------------------------------------------------------------
+Running: obsidian v1.11.7 (installer: v1.5.8, platform: linux)
+Session ID: 1d93f3b06c03b9774b3e2ece8df1446e
+
+» tests/e2e/UX-002_mobile_navigation.spec.ts
+UX-002: Mobile Navigation Loop
+   ✖ should drill down and navigate back via UI button
+
+1 failing (23.6s)
+
+1) UX-002: Mobile Navigation Loop should drill down and navigate back via UI button
+element (".back-nav-btn") still not existing after 10000ms
+Error: element (".back-nav-btn") still not existing after 10000ms
+    at async Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/UX-002_mobile_navigation.spec.ts:149:9)
+------------------------------------------------------------------
+Running: obsidian v1.11.7 (installer: v1.5.8, platform: linux)
+Session ID: ae8bb828a9bfea0c230162d3d703dce4
+
+» tests/e2e/UX-002_mobile_navigation.spec.ts
+UX-002: Mobile Navigation Loop
+   ✖ should drill down and navigate back via UI button
+
+1 failing (22.9s)
+
+1) UX-002: Mobile Navigation Loop should drill down and navigate back via UI button
+element (".back-nav-btn") still not existing after 10000ms
+Error: element (".back-nav-btn") still not existing after 10000ms
+    at async Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/UX-002_mobile_navigation.spec.ts:149:9)
+
+
+Spec Files:	 0 passed, 2 retries, 1 failed, 1 total (100% completed) in 00:01:28  
+
+2026-02-08T08:53:52.674Z INFO @wdio/local-runner: Shutting down spawned worker
+2026-02-08T08:53:52.925Z INFO @wdio/local-runner: Waiting for 0 to shut down gracefully
+2026-02-08T08:53:52.926Z INFO @wdio/local-runner: shutting down
+2026-02-08T08:53:52.926Z INFO @wdio/cli:launcher: Run onComplete hook
+2026-02-08T08:53:52.926Z DEBUG @wdio/cli:utils: Finished to run "onComplete" hook in 0ms

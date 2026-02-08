@@ -42,6 +42,7 @@ vi.mock('../ui/QuickAddModal.js', () => ({
             capturedCallback = onChoose;
         }
         open() { }
+        onClose() { }
     }
 }));
 
