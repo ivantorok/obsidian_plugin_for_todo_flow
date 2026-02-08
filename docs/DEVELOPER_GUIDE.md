@@ -326,6 +326,9 @@ Obsidian Mobile uses edge-swipes for sidebars. To prevent conflicts:
     - **Case Study**: A button's `onclick` with `e.stopPropagation()` clears the click, but the parent's `onpointerdown` might still fire, starting a `tapTimer`. If the click is stopped, the card's `handleTap` (which clears the timer) is never called, leading to a "ghost" long-press.
     - **Fix**: Add `onpointerdown={(e) => e.stopPropagation()}` to internal buttons.
 - **StopTouchPropagation**: Why? Obsidian's gesture engine may listen to `touchstart` directly. `PointerEvents` fired by the browser do not stop `TouchEvents` from firing and bubbling.
+- **Android Button Stability**: On some Android hardware, interaction-based CSS changes (like `:active` background shifts) can "stick" or lag. 
+    - **Guideline**: Follow the **Static Interaction Pattern** in [UX_GOVERNANCE.md](./UX_GOVERNANCE.md). Use static backgrounds and rely on motion/transitions of the parent container for feedback.
+    - **Fix**: Explicitly set `-webkit-tap-highlight-color: transparent;` and ensure `:hover/:active` states do not change the background color.
 
 ### 2. Touch vs Keyboard Parity
 Always provide a touch alternative for keyboard shortcuts:

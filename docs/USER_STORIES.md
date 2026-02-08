@@ -27,3 +27,7 @@ These stories translate the technical requirements in [UX_GOVERNANCE.md](file://
 **Target Axiom:** *Input Consistency (TBD)*
 > **The User:** "I'm doing my daily triage on my phone. I tap the `+` button to add something to my queue. When I create a *brand new* task, it gets added to the bottom of my triage list perfectly. But sometimes I remember an old task I'd dumped before that I want to tackle today. So I use the same `+` button and *select* that existing task instead of creating a new one. But... nothing happens! The task doesn't show up in my triage queue. It feels like the app heard me say 'add this' for new tasks, but ignores me when I point to an old one."
 
+## 6. The "Sticky Button" Story
+**Target Axiom:** *Static Interaction Pattern*
+> **The User:** "On my Android phone, when I tap the 'Shortlist' button, it turns blue to show I've pressed it. But then it stays blue! Even after I've moved on to the next task, the button still looks like it's being held down. It's confusing because I don't know if the app is stuck or if I'm still 'pressing' it. I'd rather the button just stay one color and let the task animation show me it worked."
+
