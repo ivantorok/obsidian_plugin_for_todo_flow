@@ -37,9 +37,12 @@
         openDurationPicker,
         onNavigate,
         onGoBack,
+        canGoBack = false,
         onExport,
         debug = false
     } = $props();
+
+    let internalCanGoBack = $state(canGoBack);
 
     let internalSettings = $state(settings);
     let internalNow = $state(now);
@@ -123,11 +126,12 @@
         };
     });
 
+    import { ViewportService } from '../services/ViewportService.js';
+
     $effect(() => {
         if (taskElements[focusedIndex]) {
-            // Auto-scroll to keep focused element in view
-            // Using 'center' ensures that on mobile, the card is not hidden behind the keyboard
-            taskElements[focusedIndex].scrollIntoView({ block: 'center', behavior: 'smooth' });
+            // Use hardened ViewportService to ensure centered focus on mobile
+            ViewportService.scrollIntoView(taskElements[focusedIndex], 'smooth');
         }
     });
 
@@ -154,12 +158,10 @@
     }
 
     export function setTasks(newTasks: TaskNode[]) {
-        if (debug) console.log('[TODO_FLOW_TRACE] setTasks entry. tasks count:', newTasks.length);
         // Re-initialize controller with new raw tasks
         controller = new StackController(newTasks, internalNow, onTaskUpdate, onTaskCreate);
         // Update local reactive state with the SCHEDULED tasks from controller
         tasks = controller.getTasks();
-        if (debug) console.log('[TODO_FLOW_TRACE] setTasks complete. Scheduled count:', tasks.length);
     }
 
     export function setFocus(index: number) {
@@ -168,6 +170,10 @@
 
     export function getFocusedIndex() {
         return focusedIndex;
+    }
+
+    export function setCanGoBack(val: boolean) {
+        internalCanGoBack = val;
     }
 
     export function getController() {
@@ -462,6 +468,9 @@
 
 
     function handleTouchBlocking(e: TouchEvent) {
+        if (!(window as any)._logs) (window as any)._logs = [];
+        (window as any)._logs.push(`[GESTURE] handleTouchBlocking entry swiping=${swipingTaskId}`);
+        if (logger && internalSettings.debug) logger.info(`[GESTURE] handleTouchBlocking entry. swipingTaskId=${swipingTaskId}, draggingTaskId=${draggingTaskId}`);
         // High-level blocking for Obsidian's gesture engine
         e.stopPropagation();
         const dx = Math.abs(touchCurrentX - touchStartX);
@@ -772,10 +781,15 @@
     bind:this={containerEl}
     tabindex="0"
     role="application"
+    onkeydown={handleKeyDown}
 >
-    {#if internalNow}
+    {#if internalNow && internalCanGoBack}
         <div class="todo-flow-stack-header">
-            Starting at {internalNow.format('HH:mm')}
+            <button class="back-nav-btn" onclick={onGoBack} title="Go back to parent">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <span>Back</span>
+            </button>
+            <span class="header-time">Starting at {internalNow.format('HH:mm')}</span>
         </div>
     {/if}
     <div class="todo-flow-timeline">
@@ -783,7 +797,7 @@
             <div 
                 bind:this={taskElements[i]}
                 class="todo-flow-task-card" 
-                class:focused={focusedIndex === i}
+                class:is-focused={focusedIndex === i}
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === 'done'}
                 class:is-missing={task.isMissing}
@@ -795,6 +809,7 @@
                 onpointermove={handlePointerMove}
                 onpointerup={(e) => handlePointerEnd(e, task)}
                 onpointercancel={handlePointerCancel}
+                ontouchmove={handleTouchBlocking}
                 style:transform={getCardTransform(task.id)}
                 style:touch-action="none"
             >
@@ -969,7 +984,7 @@
         opacity: 0.8;
     }
 
-    .todo-flow-task-card.focused {
+    .todo-flow-task-card.is-focused {
         border-color: var(--interactive-accent);
         opacity: 1;
         transform: scale(1.02);
