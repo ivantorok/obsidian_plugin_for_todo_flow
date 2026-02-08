@@ -67,7 +67,7 @@ describe('Feature: Help Layer', () => {
         // Note: focus logic is DOM based in component.
         // If blocked, 'focusedIndex' stays 0.
         // We can check which element has .focused class.
-        const focusedItems = container.querySelectorAll('.todo-flow-task-card.focused');
+        const focusedItems = container.querySelectorAll('.todo-flow-task-card.is-focused');
         expect(focusedItems.length).toBe(1);
         expect(focusedItems[0]?.textContent).toContain('Task 1'); // Should still be Task 1, NOT Task 2
 
@@ -90,7 +90,7 @@ describe('Feature: Help Layer', () => {
         component.handleKeyDown(eventJ2);
         await tick();
 
-        const newFocused = container.querySelector('.todo-flow-task-card.focused');
+        const newFocused = container.querySelector('.todo-flow-task-card.is-focused');
         expect(newFocused?.textContent).toContain('Task 2');
     });
 

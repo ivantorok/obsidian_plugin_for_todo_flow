@@ -220,7 +220,7 @@ describe('Workflow Scenarios: Integration Features', () => {
         // If selection follows A, the user can continue working.
 
         // Check selection
-        const focused = container.querySelector('.focused .title');
+        const focused = container.querySelector('.is-focused .title');
         expect(focused?.textContent).toBe('Task A');
     });
 

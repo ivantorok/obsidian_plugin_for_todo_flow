@@ -74,7 +74,7 @@ describe('UI Workbench: Interaction & Stability', () => {
         // Let's assume 'focused' class on item 0 changes to item 1 if it worked.
         await tick();
 
-        const focusedItems = container.querySelectorAll('.todo-flow-task-card.focused');
+        const focusedItems = container.querySelectorAll('.todo-flow-task-card.is-focused');
         expect(focusedItems.length).toBe(1);
         expect(focusedItems[0]!.textContent).toContain('Task 1'); // Should NOT have moved
 
@@ -113,7 +113,7 @@ describe('UI Workbench: Interaction & Stability', () => {
         await new Promise(resolve => setTimeout(resolve, 50)); // animation/state delay
 
         const items = container.querySelectorAll('.todo-flow-task-card');
-        expect(items[1]!.classList.contains('focused')).toBe(true);
+        expect(items[1]!.classList.contains('is-focused')).toBe(true);
     });
 
     /**
@@ -154,7 +154,7 @@ describe('UI Workbench: Interaction & Stability', () => {
         await new Promise(resolve => setTimeout(resolve, 50));
 
         let items = container.querySelectorAll('.todo-flow-task-card');
-        expect(items[1]!.classList.contains('focused')).toBe(true);
+        expect(items[1]!.classList.contains('is-focused')).toBe(true);
 
         // 2. Send 'J' (Shift+J) -> Move Task 2 DOWN? 
         // Task 2 is at index 1. Can't move down.

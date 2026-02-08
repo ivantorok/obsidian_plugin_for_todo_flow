@@ -273,13 +273,13 @@ describe('StackView Drag & Drop TDD', () => {
         await tick();
 
         // 4. Verify focusedIndex matches the new position (index 1)
-        const focusedCard = container.querySelector('.todo-flow-task-card.focused');
+        const focusedCard = container.querySelector('.todo-flow-task-card.is-focused');
         const taskCards = container.querySelectorAll('.todo-flow-task-card');
 
         // Find which index has the 'focused' class
         let focusedIndex = -1;
         taskCards.forEach((card, i) => {
-            if (card.classList.contains('focused')) focusedIndex = i;
+            if (card.classList.contains('is-focused')) focusedIndex = i;
         });
 
         expect(focusedIndex).toBe(1);
