@@ -1,23 +1,28 @@
-# BUG-017: Mobile: Gestures leak to Obsidian system (Sidebar/Command Palette)
+# BUG-017: Mobile Gesture Shadowing Regression
 
-## Problem / Goal
-Plugin gestures (swipes, reorder drags) are firing alongside Obsidian's default mobile gestures (sidebar toggle, pull-down to search).
+## 1. Context & Symptom
+*   **User Story**: "The Competitive Swiper Story"
+*   **Symptom**: When swiping a task card left/right on mobile to perform an action (Archive/Complete), the global Obsidian sidebar often slides out, or the pull-down-to-search (Command Palette) is triggered.
+*   **Impact**: High frustration. Users feel they are fighting the app interface. "Twister with my phone."
 
-## Current Behavior
-Swiping right completes a task but also reveals the left sidebar. Dragging down to reorder triggers the Command Palette search.
+## 2. Root Cause Hypothesis
+The `StackView` task cards are handling `touchstart`, `touchmove`, and `touchend` events to calculate swipe deltas, but they are likely **not stopping propagation** of these events to the parent Obsidian app container.
 
-## Expected Behavior
-Plugin gestures should be "Shadowed". Once a plugin-specific movement threshold is crossed, all propagation to Obsidian's system gesture engine must be stopped.
+Obsidian's mobile app listens for swipes on the main container to toggle sidebars. If our card doesn't explicitly say "I handled this, stop bubbling," Obsidian sees the swipe too.
 
-## Steps to Reproduce (for Bugs)
-1. Open Daily Stack on mobile.
-2. Swipe right on a task.
-3. Observe both task completion and sidebar opening.
-4. Drag a task down and observe Command Palette opening.
+## 3. Scope of Fix
+*   **Target File**: `src/views/StackView.svelte`
+*   **Mechanism**:
+    *   Ensure `e.stopPropagation()` is called on `touchmove` when a swipe threshold is exceeded or when dragging starts.
+    *   Ensure CSS `touch-action` is correctly set to `pan-y` (to allow vertical scrolling but maybe block horizontal pan if we handle it? Or we handle it manually).
 
-## Proposed Test Case (TDD)
-- [ ] E2E Test: Verify `e.stopPropagation()` or `e.preventDefault()` is correctly called in `handlePointerMove` and `handlePointerEnd` for mobile journeys.
+## 4. Verification Plan
+*   **E2E**:
+    *   Simulate a swipe.
+    *   Check if any "Sidebar" or "Command Palette" elements appear (this might be hard to detect if they are native Obsidian UI overlaid on webview, but we can check standard DOM elements if Obsidian exposes them).
+    *   *Alternative*: Mock the window event listeners or check if `stopPropagation` was called on the event object in a Unit Test.
 
-## Context / Constraints
-- Violates **Gesture Shadowing** axiom.
-- Requires careful handling of `PointerEvents` and potentially `TouchEvents` to fully block Obsidian's native listeners.
+*   **Unit Test**:
+    *   In `StackViewMobileGestures.test.ts`, simulate a touch event chain.
+    *   Spy on `event.stopPropagation`.
+    *   Assert it is called.

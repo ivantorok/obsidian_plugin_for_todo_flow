@@ -57,6 +57,7 @@ npm run test:full                 # Runs everything (Unit + E2E)
 - **Vitest for Logic**: If you are testing math, state transitions, or string parsing, **add a Vitest test**. 
 
 For detailed E2E testing documentation, including **troubleshooting git hooks and large file issues**, see [E2E_TESTING.md](./E2E_TESTING.md).
+For the high-level **Hierarchy of Truth** and test sovereignty rules, see [TESTING_STRATEGY.md](./TESTING_STRATEGY.md).
 See especially the [Lessons Learned & Gotchas](./E2E_TESTING.md#lessons-learned--gotchas) section if you encounter push rejections.
 
 ---

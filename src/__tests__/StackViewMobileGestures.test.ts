@@ -125,4 +125,53 @@ describe('StackView Mobile Gestures Integration', () => {
         const cmd = historyManager.executeCommand.mock.calls[0][0];
         expect(cmd.index).toBe(0);
     });
+
+    it('should stop event propagation during gestures (Gesture Shadowing)', async () => {
+        const { container } = render(StackView, {
+            props: {
+                initialTasks: mockTasks,
+                settings: baseSettings as any,
+                logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
+                now: moment(),
+                onOpenFile: vi.fn(),
+                onTaskUpdate: vi.fn(),
+                historyManager
+            }
+        });
+        await tick();
+
+        const card = container.querySelector('.todo-flow-task-card') as HTMLElement;
+
+        // Mock Event with stopPropagation spy
+        const stopPropagationSpy = vi.fn();
+        const startEvent = new TouchEvent('touchstart', {
+            touches: [{ clientX: 100, clientY: 100 } as any],
+            bubbles: true,
+            cancelable: true
+        });
+        startEvent.stopPropagation = stopPropagationSpy;
+
+        const moveEvent = new TouchEvent('touchmove', {
+            touches: [{ clientX: 250, clientY: 100 } as any], // +150px (Right Swipe)
+            bubbles: true,
+            cancelable: true
+        });
+        moveEvent.stopPropagation = stopPropagationSpy;
+
+        // Dispatch Events manually to control the Event object
+        // 1. TOUCH START
+        card.dispatchEvent(startEvent);
+        await tick();
+
+        // EXPECTATION (Red): touchstart MUST stop propagation to prevent Obsidian from seeing the start of a swipe
+        expect(stopPropagationSpy).toHaveBeenCalled();
+        stopPropagationSpy.mockClear();
+
+        // 2. TOUCH MOVE
+        card.dispatchEvent(moveEvent);
+        await tick();
+
+        // EXPECTATION: touchmove should also stop propagation
+        expect(stopPropagationSpy).toHaveBeenCalled();
+    });
 });

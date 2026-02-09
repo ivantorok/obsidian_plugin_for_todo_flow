@@ -9,7 +9,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
 | BUG-001 | Desktop Shortcut Leak | Bug | [Spec](./backlog/TEMPLATE.md) |
-| BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./backlog/BUG-016_mobile_keyboard_collision.md) |
+
 
 ### Phase 2: Sovereign Navigation & Gestures (The Behavior)
 | ID | Title | Type | Spec |
@@ -25,6 +25,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 
 | ID | Title | Type | Spec | Date |
 | :--- | :--- | :--- | :--- | :--- |
+| BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./archive/backlog/BUG-016_mobile_keyboard_collision.md) | 2026-02-08 |
 | BUG-012 | Mobile: Existing Task Selection via FAB Doesn't Add to Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-07 |
 | BUG-015 | Static Triage Buttons | Bug | [Spec](./archive/backlog/BUG-015_static_triage_buttons.md) | 2026-02-07 |
 | UI-001 | Mobile: Visible scrollbar needed | Bug | [Spec](./archive/backlog/UI-001_mobile_scrollbar.md) | 2026-02-07 |

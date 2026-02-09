@@ -809,6 +809,7 @@
                 onpointermove={handlePointerMove}
                 onpointerup={(e) => handlePointerEnd(e, task)}
                 onpointercancel={handlePointerCancel}
+                ontouchstart={(e) => { e.stopPropagation(); }}
                 ontouchmove={handleTouchBlocking}
                 style:transform={getCardTransform(task.id)}
                 style:touch-action="none"
