@@ -92,7 +92,6 @@ flow_state: backlog
         const shortlistBtn = await $('.shortlist');
         await expect(shortlistBtn).toBeDisplayed();
         await shortlistBtn.click();
-        await browser.pause(500);
 
         // 9. The triage container should still be displayed with the added task
         // (If the task wasn't added, the view would close after swiping the only task)
@@ -100,7 +99,7 @@ flow_state: backlog
         await expect(updatedContainer).toBeDisplayed();
 
         // And it should show the "BacklogTaskToAdd" title (derived from filename)
-        const viewText = await updatedContainer.getText();
-        expect(viewText.toUpperCase()).toContain('BACKLOGTASKTOADD');
+        // Hardened: using async matcher with built-in retries to avoid flakiness under load
+        await expect(updatedContainer).toHaveText(expect.stringMatching(/BACKLOGTASKTOADD/i));
     });
 });

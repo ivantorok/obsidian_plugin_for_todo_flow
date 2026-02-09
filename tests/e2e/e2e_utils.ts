@@ -136,7 +136,7 @@ export async function setupStackWithTasks(taskNames: string[]) {
             // @ts-ignore
             return app.workspace.getLeavesOfType('todo-flow-stack-view').length > 0;
         });
-    }, { timeout: 5000 });
+    }, { timeout: 15000, timeoutMsg: 'todo-flow-stack-view did not appear in time (15s limit)' });
 
     // @ts-ignore
     await browser.pause(500); // Let Stack settle

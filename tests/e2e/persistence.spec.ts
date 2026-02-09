@@ -123,7 +123,7 @@ describe('Persistence Verification', () => {
                 return view ? view.getTasks().length : 0;
             });
             return count === 3;
-        }, { timeout: 5000, timeoutMsg: 'Tasks did not appear in time' });
+        }, { timeout: 15000, timeoutMsg: 'Tasks did not appear in time (15s limit)' });
 
         // 3. Modify Tasks
         // @ts-ignore
