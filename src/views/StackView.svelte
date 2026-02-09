@@ -809,7 +809,7 @@
                     title="Drag to reorder"
                     style="touch-action: none;"
                 >⠿</div>
-                <div class="time-col">
+                <div class="time-col" onpointerdown={(e) => e.stopPropagation()} onclick={(e) => { e.stopPropagation(); startEditStartTime(i); }}>
                     {#if editingStartTimeIndex === i}
                         <input 
                             type="text" 
@@ -824,6 +824,7 @@
                         />
                     {:else}
                         {formatDateRelative(task.startTime, internalNow)}
+                        <svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                     {/if}
                 </div>
                 <div class="content-col">
@@ -1072,6 +1073,23 @@
         font-size: 0.9rem;
         color: var(--text-muted);
         min-width: 60px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .time-col:hover {
+        color: var(--text-accent);
+    }
+
+    .edit-icon {
+        opacity: 0.4;
+        transition: opacity 0.2s;
+    }
+
+    .time-col:hover .edit-icon {
+        opacity: 1;
     }
 
     .content-col {

@@ -14,6 +14,11 @@ This document serves as the "Persistent Memory" for agents working on the Todo F
 - **Pattern**: Centralized `ViewManager` grants "Sovereignty" to a specific leaf ID. Views must check `viewManager.isSovereign(this.leaf.id)` before responding to keyboard/gesture events.
 - **Reference**: [ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 
+### Context-Aware Command Delegation
+- **Problem**: Global Obsidian commands (e.g. `add-task-to-stack`) incorrectly target a background view when a specialized view (e.g. `TriageView`) is sovereign.
+- **Pattern**: Command callbacks in `main.ts` should check `activeLeaf.view.getViewType()`. If the sovereign view has a specialized handler (like `openAddModal`), delegate to it instead of the default leaf.
+- **Reference**: BUG-001 Fix in `main.ts` (v1.2.27).
+
 ## 2. Obsidian Internal APIs
 
 ### Native History Integration

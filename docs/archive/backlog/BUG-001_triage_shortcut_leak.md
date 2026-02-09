@@ -17,9 +17,11 @@ Shortcut commands should respect the "Active View" hierarchy. If Triage is activ
 5. Observe that the task is added to the Stack, not the Triage.
 
 ## Proposed Test Case (TDD)
-- [ ] E2E Test: `tests/e2e/journeys/desktop_shortcut_conflict.spec.ts` - Open both views, press `a`, verify which model/view receives the event.
-- [ ] Unit Test: `src/__tests__/KeybindingManager.test.ts` - Mock multiple active views and verify priority resolution.
+- [x] E2E Test: `tests/e2e/journeys/desktop_shortcut_conflict.spec.ts` - Open both views, press `a`, verify which model/view receives the event.
+- [x] Unit Test: Resolved via context-aware delegation in `main.ts`.
 
-## Context / Constraints
-- Violates **Focus Sovereignty** axiom in `UX_GOVERNANCE.md`.
-- Requires coordination in `KeybindingManager.ts`.
+## Resolution
+- **Status**: Fixed
+- **Shipped**: v1.2.27 (2026-02-09)
+- **Fix**: Implemented context-aware logic in `add-task-to-stack` command to delegate to `TriageView` if it is sovereign.
+- **Walkthrough**: [walkthrough.md](../../walkthrough.md)

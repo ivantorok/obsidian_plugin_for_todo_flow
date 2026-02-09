@@ -1,4 +1,4 @@
-# UX-001: Mobile: Start Time editing is not discoverable
+# UX-001: Mobile: Start Time editing is not discoverable [COMPLETED]
 
 ## Problem / Goal
 Users are unsure how to change the starting time of a task on mobile. The current interaction (clicking the time column) might not be obvious.
