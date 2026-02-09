@@ -17,7 +17,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 3: Component Polishing (The Presentation)
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
-| UI-002 | Stack View: Long title overflow | Bug | [Spec](./backlog/UI-002_long_title_overflow.md) |
+| UI-002 | Stack View: Long title overflow | Bug | [Spec](./archive/backlog/UI-002_long_title_overflow.md) | 2026-02-09 | v1.2.30 |
 
 | UX-001 | Mobile: Start Time discovery improvement | UX | [Spec](./archive/backlog/UX-001_start_time_discovery.md) | 2026-02-09 |
 | BUG-001 | Desktop Shortcut Leak | Bug | [Spec](./archive/backlog/BUG-001_triage_shortcut_leak.md) | 2026-02-09 | v1.2.27 |

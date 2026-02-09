@@ -1100,6 +1100,9 @@
 
     .content-col {
         flex: 1;
+        min-width: 0;
+        width: 0; /* aggressive flex reset */
+        overflow: hidden;
     }
 
     .title {

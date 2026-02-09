@@ -1,7 +1,7 @@
 import { browser, expect, $ } from '@wdio/globals';
-import { emulateMobile } from './mobile_utils.js';
-import { setupStackWithTasks, focusStack } from './e2e_utils.js';
-import { cleanupVault } from './test_utils.js';
+import { emulateMobile } from '../mobile_utils.js';
+import { setupStackWithTasks, focusStack } from '../e2e_utils.js';
+import { cleanupVault } from '../test_utils.js';
 
 describe('BUG-017: Gesture Shadowing Regression', () => {
 
