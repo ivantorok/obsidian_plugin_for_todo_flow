@@ -22,5 +22,5 @@ Provide a clear, persistent "Go Back" action in the mobile UI (e.g., a "← Back
 - Enabled Obsidian's native navigation by setting `this.navigation = true` in `StackView.ts`.
 - Implemented a premium Glassmorphism header in `StackView.svelte` with a persistent "Back" button.
 - Verified with E2E test `tests/e2e/UX-002_mobile_navigation.spec.ts`.
-- Shipped version: v1.2.25 (Pending)
-- Date: 2026-02-09
+- **Ship Version**: v1.2.26
+- **Date**: 2026-02-09

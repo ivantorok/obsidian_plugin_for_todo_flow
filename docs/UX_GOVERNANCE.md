@@ -40,12 +40,13 @@ To prevent "Obsidian Ghosting," Todo Flow uses deterministic intent locking.
 Todo Flow follows a "Home Row First" philosophy for power users.
 
 | Category | Keys | Action |
-| :--- | :--- | :--- |
+| :--- | :--- |
 | **Selection** | `j` / `k` (or arrows) | Move focused index up/down |
 | **Modification** | `f` / `d` (or arrows) | Scale duration up/down |
 | **State** | `x` | Toggle Done status |
 | **Movement** | `J` / `K` (Shift+j/k) | Move task item within the list |
-| **Context** | `Enter` | Drill down into task (if stack) or Open File |
+| **Context** | `Enter` | Always Drill Down (Nav into stack, even if empty) |
+| **Direct Open** | `Cmd/Ctrl/Shift + Enter` | Open as standard Obsidian File |
 | **Hierarchy** | `h` | Go Back (Parent Stack) |
 
 ---
