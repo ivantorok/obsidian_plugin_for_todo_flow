@@ -18,6 +18,9 @@ Provide a clear, persistent "Go Back" action in the mobile UI (e.g., a "← Back
 ## Proposed Test Case (TDD)
 - [ ] E2E Test: `tests/e2e/journeys/mobile_navigation_loop.spec.ts` - Drill down, verify sub-stack content, then trigger "Back" and verify return to parent stack.
 
-## Context / Constraints
-- Related to **Hierarchy Navigation** axiom.
-- Must feel native to Obsidian Mobile.
+## Resolution
+- Enabled Obsidian's native navigation by setting `this.navigation = true` in `StackView.ts`.
+- Implemented a premium Glassmorphism header in `StackView.svelte` with a persistent "Back" button.
+- Verified with E2E test `tests/e2e/UX-002_mobile_navigation.spec.ts`.
+- Shipped version: v1.2.25 (Pending)
+- Date: 2026-02-09

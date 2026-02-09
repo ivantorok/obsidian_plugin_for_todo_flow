@@ -783,12 +783,14 @@
     role="application"
     onkeydown={handleKeyDown}
 >
-    {#if internalNow && internalCanGoBack}
+    {#if internalNow}
         <div class="todo-flow-stack-header">
-            <button class="back-nav-btn" onclick={onGoBack} title="Go back to parent">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                <span>Back</span>
-            </button>
+            {#if internalCanGoBack}
+                <button class="back-nav-btn" onclick={onGoBack} title="Go back to parent">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    <span>Back</span>
+                </button>
+            {/if}
             <span class="header-time">Starting at {internalNow.format('HH:mm')}</span>
         </div>
     {/if}
@@ -952,13 +954,57 @@
     }
 
     .todo-flow-stack-header {
-        text-align: center;
-        margin-bottom: 2rem;
-        font-size: 0.9rem;
+        position: sticky;
+        top: -2.05rem; /* Tiny offset to prevent sub-pixel gaps */
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        margin: -2rem -2rem 2rem -2rem;
+        background: var(--background-primary-alt);
+        border-bottom: 1px solid var(--background-modifier-border);
+        min-height: 48px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .back-nav-btn {
+        position: absolute;
+        left: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--background-secondary);
+        border: 1px solid var(--background-modifier-border);
+        border-radius: 6px;
+        padding: 4px 10px;
+        color: var(--text-normal);
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .back-nav-btn:hover {
+        background: var(--background-modifier-border-hover);
+        border-color: var(--interactive-accent);
+        transform: translateX(-2px);
+    }
+
+    .back-nav-btn svg {
+        color: var(--text-accent);
+    }
+
+    .header-time {
+        font-size: 0.8rem;
         color: var(--text-muted);
-        opacity: 0.6;
         text-transform: uppercase;
         letter-spacing: 0.1em;
+        font-weight: 600;
+        opacity: 0.8;
     }
 
     .todo-flow-timeline {

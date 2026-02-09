@@ -50,6 +50,7 @@ export class StackView extends ItemView {
         this.persistenceService = persistenceService;
         this.onTaskUpdate = onTaskUpdate;
         this.onTaskCreate = onTaskCreate;
+        this.navigation = true; // Enable Obsidian native back/forward buttons
 
         // Initialize navigation services
         this.loader = new StackLoader(this.app, this.logger);

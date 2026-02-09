@@ -9,17 +9,23 @@ export async function cleanupVault() {
         const adapter = app.vault.adapter;
         const todoFlowDir = 'todo-flow';
 
-        // Remove all files in todo-flow directory
+        // 1. Remove all files in todo-flow directory
         if (await adapter.exists(todoFlowDir)) {
             const listing = await adapter.list(todoFlowDir);
-
-            // Delete all files
             for (const file of listing.files) {
                 try {
                     await adapter.remove(file);
-                } catch (e) {
-                    console.warn(`Failed to remove ${file}:`, e);
-                }
+                } catch (e) { }
+            }
+        }
+
+        // 2. Remove all markdown files in root (including CurrentStack.md)
+        const rootListing = await adapter.list('');
+        for (const file of rootListing.files) {
+            if (file.endsWith('.md')) {
+                try {
+                    await adapter.remove(file);
+                } catch (e) { }
             }
         }
     });
