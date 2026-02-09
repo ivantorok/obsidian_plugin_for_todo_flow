@@ -184,10 +184,6 @@ export class NavigationManager {
         // Use StackLoader to load children (handles both files and folders)
         const children = await this.loader.load(task.id);
 
-        // ATOMIC FILE MODE: Allow drilling into empty files (creating a new stack)
-        // if (children.length === 0) {
-        //     return false;
-        // }
 
         // Push current state to history
         console.log(`[NavigationManager] push history. Current stack size: ${this.state.currentStack.length}, History index before: ${this.state.history.length}`);

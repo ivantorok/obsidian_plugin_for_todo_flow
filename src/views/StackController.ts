@@ -368,11 +368,10 @@ export class StackController {
                     path: task.id
                 };
             }
-            // ATOMIC FILE MODE: Always allow drill down, even for leaves
+            // By default, ALL files are stacks (even empty ones)
             return {
                 action: 'DRILL_DOWN',
-                path: task.id, // We pass path because newStack might be empty/undefined here
-                newStack: []   // Empty stack for now
+                newStack: []
             };
         }
     }

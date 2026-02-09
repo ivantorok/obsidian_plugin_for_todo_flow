@@ -655,24 +655,12 @@
                 if (onGoBack) onGoBack();
                 break;
 
-             case 'CONFIRM':
+              case 'CONFIRM':
                 const navResult = controller.handleEnter(focusedIndex);
-                if (navResult) {
-                    if (navResult.action === 'DRILL_DOWN') {
-                        // Native Navigation: We need to navigate to the task's path
-                        const task = tasks[focusedIndex];
-                        if (task && onNavigate) {
-                            onNavigate(task.id, focusedIndex); 
-                        }
-                    } else if (navResult.action === 'OPEN_FILE' && navResult.path) {
-                        // FIX: "Enter" should try to Drill Down first (in case it's a stack loaded from disk), 
-                        // and fallback to Open File if empty.
-                        // Pass to onNavigate, which now handles the fallback.
-                         if (onNavigate) {
-                            onNavigate(navResult.path, focusedIndex);
-                        } else {
-                            onOpenFile(navResult.path);
-                        }
+                if (navResult && navResult.action === 'DRILL_DOWN') {
+                    const task = tasks[focusedIndex];
+                    if (task && onNavigate) {
+                        onNavigate(task.id, focusedIndex); 
                     }
                 }
                 break;

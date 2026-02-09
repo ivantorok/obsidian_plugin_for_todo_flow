@@ -92,12 +92,17 @@ export class StackView extends ItemView {
         return this.tasks;
     }
 
-    getState(): Record<string, unknown> {
+    getState(isNavigation: boolean = false): Record<string, unknown> {
         const navState = this.navManager.getState();
-        return {
+        const state: Record<string, unknown> = {
             rootPath: this.rootPath,
-            navState: navState // Save full navigation history
+            navState: navState
         };
+        // If it's a navigation act, we want to ensure Obsidian sees it as a new distinct state
+        if (isNavigation) {
+            state.ts = Date.now();
+        }
+        return state;
     }
 
     async setState(state: any, result: any): Promise<void> {
@@ -142,6 +147,8 @@ export class StackView extends ItemView {
                 rawTasks = await this.loader.load(state.rootPath);
             }
 
+            if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks.length}. Any children? ${rawTasks.some(t => t.children && t.children.length > 0)}`);
+
             if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks.length}`);
 
             const initialTasks = computeSchedule(rawTasks, now);
@@ -182,6 +189,10 @@ export class StackView extends ItemView {
                     isAnchored: false,
                     children: []
                 };
+                // ATOMIC FILE MODE: Allow drilling into empty files (creating a new stack)
+                // if (children.length === 0) {
+                //     return false;
+                // }
                 const metadata = await this.loader.parser.resolveTaskMetadata(file.path);
                 if (metadata) {
                     newNode = { ...newNode, ...metadata } as TaskNode;
@@ -411,7 +422,13 @@ export class StackView extends ItemView {
                                 this.component.setCanGoBack(this.navManager.canGoBack());
                             }
                         }
-                        await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true });
+                        if (this.logger) this.logger.info(`[StackView] Pushing state to Obsidian for path: ${path}. History Depth: ${this.navManager.getState().history.length}`);
+                        // Pass { history: true } as eState - Obsidian runtime often looks for this
+                        await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState(true), active: true }, { history: true } as any);
+                        if (this.logger) this.logger.info(`[StackView] State push completed.`);
+                    } else {
+                        // NO FALLBACK: Enter should never open a file as standard Obsidian editor.
+                        if (this.logger) this.logger.warn(`[StackView] drillDown FAILED for path: ${path}. No fallback applied.`);
                     }
                 },
                 onGoBack: async () => {
@@ -426,7 +443,7 @@ export class StackView extends ItemView {
                                 this.component.setCanGoBack(this.navManager.canGoBack());
                             }
                         }
-                        await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true });
+                        await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true } as any);
                     }
                 }
             }
