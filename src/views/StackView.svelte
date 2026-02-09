@@ -314,6 +314,10 @@
         if (!(window as any)._logs) (window as any)._logs = [];
         (window as any)._logs.push(`[GESTURE] pointermove clientX=${e.clientX.toFixed(1)} clientY=${e.clientY.toFixed(1)}`);
         if (!swipingTaskId && !draggingTaskId) return;
+
+        // Shadow Obsidian gestures immediately if we have a task intent
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
         
         touchCurrentX = e.clientX;
         touchCurrentY = e.clientY;
@@ -343,8 +347,8 @@
                     (window as any)._logs.push(`[GESTURE] DRAG START (Immediate): ${draggingTaskId}`);
                 }
             } else if (dx > 20) {
-                // Stay in swipe mode and consume
-                e.stopPropagation();
+                // Stay in swipe mode
+                // (Propagation already stopped at top of function)
             }
         }
 
@@ -473,6 +477,8 @@
         if (logger && internalSettings.debug) logger.info(`[GESTURE] handleTouchBlocking entry. swipingTaskId=${swipingTaskId}, draggingTaskId=${draggingTaskId}`);
         // High-level blocking for Obsidian's gesture engine
         e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        
         const dx = Math.abs(touchCurrentX - touchStartX);
         const dy = Math.abs(touchCurrentY - touchStartY);
 
@@ -799,7 +805,7 @@
                 onpointermove={handlePointerMove}
                 onpointerup={(e) => handlePointerEnd(e, task)}
                 onpointercancel={handlePointerCancel}
-                ontouchstart={(e) => { e.stopPropagation(); }}
+                ontouchstart={(e) => { e.stopPropagation(); if (e.stopImmediatePropagation) e.stopImmediatePropagation(); }}
                 ontouchmove={handleTouchBlocking}
                 style:transform={getCardTransform(task.id)}
                 style:touch-action="none"
