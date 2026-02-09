@@ -14,7 +14,6 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 2: Sovereign Navigation & Gestures (The Behavior)
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
-| BUG-017 | Mobile: Gesture shadowing regression | Bug | [Spec](./backlog/BUG-017_gesture_shadowing_regression.md) |
 | UX-002 | Mobile: Drill-down Back Navigation | UX | [Spec](./backlog/UX-002_mobile_navigation_back.md) |
 
 ### Phase 3: Component Polishing (The Presentation)
@@ -25,6 +24,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 
 | ID | Title | Type | Spec | Date |
 | :--- | :--- | :--- | :--- | :--- |
+| BUG-017 | Mobile: Gesture shadowing regression | Bug | [Spec](./archive/backlog/BUG-017_gesture_shadowing_regression.md) | 2026-02-09 |
 | BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./archive/backlog/BUG-016_mobile_keyboard_collision.md) | 2026-02-08 |
 | BUG-012 | Mobile: Existing Task Selection via FAB Doesn't Add to Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-07 |
 | BUG-015 | Static Triage Buttons | Bug | [Spec](./archive/backlog/BUG-015_static_triage_buttons.md) | 2026-02-07 |
