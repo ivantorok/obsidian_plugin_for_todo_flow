@@ -3,6 +3,21 @@ set -e
 
 echo "🚢 Shipping Todo Flow..."
 
+# Pre-flight Checklist: Agentic Orchestration
+echo "🔍 Checking Technical Justification..."
+HAS_LOG=$(find docs/backlog -name "*.md" -not -name "TEMPLATE.md" -mmin -60 | wc -l)
+HAS_WALKTHROUGH=$(find . -name "walkthrough.md" -mmin -60 | wc -l)
+
+if [ "$HAS_LOG" -eq 0 ] && [ "$HAS_WALKTHROUGH" -eq 0 ]; then
+    echo "⚠️  WARNING: No recent backlog entry or walkthrough found."
+    echo "   Autonomous agents MUST provide technical justification for changes."
+    read -p "Do you want to proceed anyway? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
 # 0. Increment Version
 echo "📈 Incrementing Version..."
 node scripts/version_bump.mjs

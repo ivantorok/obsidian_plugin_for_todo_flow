@@ -247,9 +247,30 @@ export default class TodoFlowPlugin extends Plugin {
             id: 'add-task-to-stack',
             name: 'Add Task to Stack',
             callback: () => {
+                // BUG-001: Context-aware command handling
+                const activeLeaf = (this.app.workspace as any).activeLeaf;
+                const activeViewType = activeLeaf?.view?.getViewType();
+                const triageLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_TRIAGE);
+
+                // Check active leaf first (standard sovereignty)
+                if (activeViewType === VIEW_TYPE_TRIAGE) {
+                    const view = activeLeaf.view as TriageView;
+                    if (view.openAddModal) {
+                        view.openAddModal();
+                        return;
+                    }
+                }
+
+                // Fallback: If Triage is open and we suspect it should be sovereign (e.g. focused index)
+                const sovereignTriage = triageLeaves.find(l => this.viewManager.isSovereign((l as any).id));
+                if (sovereignTriage) {
+                    (sovereignTriage.view as TriageView).openAddModal();
+                    return;
+                }
+
                 const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
-                if (leaf && leaf.view && (leaf.view as any).openAddModal) {
-                    (leaf.view as any).openAddModal();
+                if (leaf && leaf.view instanceof StackView) {
+                    leaf.view.openAddModal();
                     this.app.workspace.revealLeaf(leaf);
                 } else {
                     new (window as any).Notice('Please open the Daily Stack view first.');

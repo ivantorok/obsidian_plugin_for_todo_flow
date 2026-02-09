@@ -71,24 +71,31 @@ describe('Desktop Shortcut Conflict (BUG-001)', () => {
         });
         console.log('[Test BUG-001] Workspace State:', JSON.stringify(leafInfo, null, 2));
 
-        // 3. Press 'o' (Quick Add)
-        console.log('[Test BUG-001] Step 3: Triggering Quick Add via shortcut "o"');
-        // Clear previous state if any
+        // 3. Trigger Obsidian Command 'Add Task to Stack'
+        console.log('[Test BUG-001] Step 3: Triggering "todo-flow:add-task-to-stack" command');
+
         await browser.execute(() => {
             // @ts-ignore
-            window.LAST_SHORTCUT_VIEW = null;
+            const targetCommand = Object.keys(app.commands.commands).find(id => id.includes('add-task-to-stack'));
+            if (targetCommand) {
+                // @ts-ignore
+                app.commands.executeCommandById(targetCommand);
+            }
         });
-        // @ts-ignore
-        await browser.keys(['o']);
-        await browser.pause(1000);
 
-        // Verify who handled the shortcut
-        const lastView = await browser.execute(() => {
+        await browser.pause(2000);
+
+        // Verify who handled the shortcut or which view is active
+        const activeViewType = await browser.execute(() => {
             // @ts-ignore
-            return window.LAST_SHORTCUT_VIEW;
+            return app.workspace.activeLeaf?.view?.getViewType();
         });
-        console.log('[Test BUG-001] Last view that handled shortcut:', lastView);
-        expect(lastView).toBe('todo-flow-triage-view');
+
+        console.log('[Test BUG-001] Active View Type after command:', activeViewType);
+
+        // EXPECTATION: The Triage view should remain sovereign. 
+        // CURRENT BUGGY BEHAVIOR: Output will be 'todo-flow-stack-view' because command reveals stack leaf.
+        expect(activeViewType).toBe('todo-flow-triage-view');
 
         // 4. Enter a task title and submit
         console.log('[Test BUG-001] Step 4: Submitting task via Quick Add Modal');

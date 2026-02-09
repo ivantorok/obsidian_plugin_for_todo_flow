@@ -104,62 +104,64 @@ export class TriageView extends ItemView {
                     // Optionally close the view
                     this.leaf.detach();
                 },
-                openQuickAddModal: () => {
-                    this.isModalOpen = true;
-
-                    const modal = new QuickAddModal(this.app, async (result) => {
-                        if (result.type === 'new' && result.title) {
-                            const options: any = {};
-                            if (result.startTime) options.startTime = result.startTime;
-                            if (result.duration !== undefined) options.duration = result.duration;
-                            if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
-
-                            const newNode = await this.onCreateTask(result.title, options);
-
-                            if (newNode && this.component) {
-                                if (typeof this.component.addTaskToQueue === 'function') {
-                                    this.component.addTaskToQueue(newNode);
-                                }
-                            }
-                        } else if (result.type === 'file' && result.file) {
-                            // BUG-012: Handle existing file selection
-                            const file = result.file;
-                            const newNode: TaskNode = {
-                                id: file.path,
-                                title: parseTitleFromFilename(file.name),
-                                duration: 30,
-                                status: 'todo' as const,
-                                isAnchored: false,
-                                children: []
-                            };
-
-                            if (newNode && this.component) {
-                                if (typeof this.component.addTaskToQueue === 'function') {
-                                    this.component.addTaskToQueue(newNode);
-                                }
-                            }
-                        }
-                    }, VIEW_TYPE_TRIAGE);
-
-                    const originalOnClose = modal.onClose.bind(modal);
-                    modal.onClose = () => {
-                        this.lastModalCloseTime = Date.now();
-                        originalOnClose();
-                        // Delay unblocking keys to ensure the Enter key event doesn't propagate to TriageView
-                        // after the modal closes but during the same event loop tick.
-                        setTimeout(() => {
-                            this.isModalOpen = false;
-                            if (this.logger) this.logger.info('[TriageView] QuickAddModal Closed (Re-enabling Keys after 500ms delay)');
-                        }, 500);
-                    };
-
-                    modal.open();
-                }
+                openQuickAddModal: () => this.openAddModal()
             }
         });
 
         // Ensure focus for Scope activation
         this.contentEl.focus();
+    }
+
+    openAddModal() {
+        this.isModalOpen = true;
+
+        const modal = new QuickAddModal(this.app, async (result) => {
+            if (result.type === 'new' && result.title) {
+                const options: any = {};
+                if (result.startTime) options.startTime = result.startTime;
+                if (result.duration !== undefined) options.duration = result.duration;
+                if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+
+                const newNode = await this.onCreateTask(result.title, options);
+
+                if (newNode && this.component) {
+                    if (typeof this.component.addTaskToQueue === 'function') {
+                        this.component.addTaskToQueue(newNode);
+                    }
+                }
+            } else if (result.type === 'file' && result.file) {
+                // BUG-012: Handle existing file selection
+                const file = result.file;
+                const newNode: TaskNode = {
+                    id: file.path,
+                    title: parseTitleFromFilename(file.name),
+                    duration: 30,
+                    status: 'todo' as const,
+                    isAnchored: false,
+                    children: []
+                };
+
+                if (newNode && this.component) {
+                    if (typeof this.component.addTaskToQueue === 'function') {
+                        this.component.addTaskToQueue(newNode);
+                    }
+                }
+            }
+        }, VIEW_TYPE_TRIAGE);
+
+        const originalOnClose = modal.onClose.bind(modal);
+        modal.onClose = () => {
+            this.lastModalCloseTime = Date.now();
+            originalOnClose();
+            // Delay unblocking keys to ensure the Enter key event doesn't propagate to TriageView
+            // after the modal closes but during the same event loop tick.
+            setTimeout(() => {
+                this.isModalOpen = false;
+                if (this.logger) this.logger.info('[TriageView] QuickAddModal Closed (Re-enabling Keys after 500ms delay)');
+            }, 500);
+        };
+
+        modal.open();
     }
 
     onActivate() {

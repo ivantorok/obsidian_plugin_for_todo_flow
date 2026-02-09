@@ -61,7 +61,7 @@ export const DEFAULT_KEYBINDINGS: KeybindingSettings = {
     confirm: ['Enter'],
     cancel: ['Escape'],
     toggleDone: ['x', 'X'],
-    createTask: ['c', 'C'],
+    createTask: ['c', 'C', 'a', 'A'],
     deleteTask: ['Backspace', 'Delete'],
     forceOpen: ['Shift+Enter', 'Alt+Enter', 'Cmd+Enter', 'Ctrl+Enter'],
     goBack: ['h'],
