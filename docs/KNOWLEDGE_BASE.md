@@ -27,6 +27,11 @@ This document serves as the "Persistent Memory" for agents working on the Todo F
 
 ## 3. Learned Gotchas
 
-### Gesture Shadowing Collision
+### Gesture Shadowing Collision (Nested Elements)
 - **Issue**: Nested buttons in swipeable cards may fail to stop propagation of `pointerdown` events, leading to accidental card taps when a button is clicked.
 - **Fix**: Always use `onpointerdown={(e) => e.stopPropagation()}` on internal interactive elements within swipeable containers.
+
+### Global Gesture Shadowing Leak (Obsidian Interface)
+- **Issue**: Obsidian's mobile sidebars (Left/Right) or pull-down search can be triggered during within-plugin swipes if the initial movement isn't immediately blocked.
+- **Fix**: Call `e.stopPropagation()` and `e.stopImmediatePropagation()` at the VERY START of `touchstart` and `pointermove` handlers, even before crossing thresholds, if the intent is already locked. 
+- **Reference**: BUG-017 (v1.2.29).

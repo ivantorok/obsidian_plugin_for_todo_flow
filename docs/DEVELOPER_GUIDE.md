@@ -326,7 +326,7 @@ Obsidian Mobile uses edge-swipes for sidebars. To prevent conflicts:
 - **Critical: Gesture Shadowing**: High-level components (like task cards) often have complex gesture handlers (`onpointerdown`, `onpointerup`). Nested interactive elements (like buttons) must explicitly stop propagation of *both* `click` and `pointer` events.
     - **Case Study**: A button's `onclick` with `e.stopPropagation()` clears the click, but the parent's `onpointerdown` might still fire, starting a `tapTimer`. If the click is stopped, the card's `handleTap` (which clears the timer) is never called, leading to a "ghost" long-press.
     - **Fix**: Add `onpointerdown={(e) => e.stopPropagation()}` to internal buttons.
-- **StopTouchPropagation**: Why? Obsidian's gesture engine may listen to `touchstart` directly. `PointerEvents` fired by the browser do not stop `TouchEvents` from firing and bubbling.
+- **StopTouchPropagation**: Why? Obsidian's gesture engine may listen to `touchstart` directly. `PointerEvents` fired by the browser do not stop `TouchEvents` from firing and bubbling. Always call `e.stopPropagation()` and `e.stopImmediatePropagation()` in both `touchstart` and `pointermove` handlers.
 - **Native History Binding**: Set `this.navigation = true` in the `ItemView` constructor to enable Obsidian's header back/forward buttons. This is essential for complex navigation like drill-downs to feel native and "undoable".
 - **Android Button Stability**: On some Android hardware, interaction-based CSS changes (like `:active` background shifts) can "stick" or lag. 
     - **Guideline**: Follow the **Static Interaction Pattern** in [UX_GOVERNANCE.md](./UX_GOVERNANCE.md). Use static backgrounds and rely on motion/transitions of the parent container for feedback.
