@@ -564,13 +564,82 @@ export default class TodoFlowPlugin extends Plugin {
         let leaf = workspace.getLeaf(true);
         this.logger.info(`[main.ts] activateTriage: Initializing session with ${tasks.length} tasks.`);
 
-        const view = new TriageView(leaf, tasks, this.settings, this.historyManager, this.logger, this.viewManager, (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => {
-            const ids = results.shortlist.map((t: TaskNode) => t.id);
-            this.logger.info(`[main.ts] Triage callback: Session isolation active. Received ${ids.length} shortlisted tasks: ${JSON.stringify(ids)}`);
+        const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+
+        const view = new TriageView(leaf, tasks, this.settings, this.historyManager, this.logger, this.viewManager, async (results: { shortlist: TaskNode[], notNow: TaskNode[], strategy?: 'merge' | 'overwrite' }) => {
+            let ids = results.shortlist.map((t: TaskNode) => t.id);
+            this.logger.info(`[main.ts] Triage callback: Received ${ids.length} shortlisted tasks. Strategy: ${results.strategy || 'default'}`);
+
+            // 1. Conflict / Merge Handling
+            if (results.strategy === 'merge') {
+                const existingIds = await this.stackPersistenceService.loadStackIds(persistencePath);
+                // Deduplicate: Add new IDs only if they aren't already in existing
+                const mergedMap = new Set(existingIds);
+                ids.forEach(id => mergedMap.add(id));
+                ids = Array.from(mergedMap);
+                this.logger.info(`[main.ts] MERGE Strategy: existing=${existingIds.length} + new=${results.shortlist.length} -> result=${ids.length}`);
+            } else if (results.strategy === 'overwrite') {
+                this.logger.info(`[main.ts] OVERWRITE Strategy: Discarding previous stack.`);
+            }
+
+            // 2. Auto-Backup (Always before saving if stack existed)
+            if (await this.app.vault.adapter.exists(persistencePath)) {
+                try {
+                    // Quick load of CURRENT state on disk before we overwrite/update it
+                    // Note: If we just merged, 'ids' is the NEW state. We want to backup the OLD state.
+                    // But loading it again might be redundant if we just loaded it for merge. 
+                    // Let's rely on loading it fresh to be safe.
+                    const existingStackSrc = await this.stackPersistenceService.loadStackIds(persistencePath);
+                    if (existingStackSrc.length > 0) {
+                        const { StackLoader } = await import('./loaders/StackLoader.js');
+                        const loader = new StackLoader(this.app, this.logger);
+                        const oldTasks = await loader.loadSpecificFiles(existingStackSrc);
+
+                        const exportService = new ExportService();
+                        const backupContent = exportService.formatExport(oldTasks);
+                        const backupPath = `${this.settings.targetFolder}/Backups/Backup-${moment().format('YYYY-MM-DD-HHmmss')}.md`;
+
+                        // Ensure backup dir
+                        if (!(await this.app.vault.adapter.exists(`${this.settings.targetFolder}/Backups`))) {
+                            await this.app.vault.adapter.mkdir(`${this.settings.targetFolder}/Backups`);
+                        }
+
+                        await this.app.vault.create(backupPath, backupContent);
+                        this.logger.info(`[main.ts] Auto-Backup created at ${backupPath}`);
+                    }
+                } catch (e) {
+                    this.logger.error(`[main.ts] Backup failed: ${e}`);
+                }
+            }
+
+            // 3. Save & Activate
+            // We explicitely save the Resulting State to CurrentStack.md
+            await this.stackPersistenceService.saveStack(
+                // We need TaskNodes for saveStack, but we only have IDs for the merged set.
+                // Ideally saveStack should accept IDs too, OR we reconstruct nodes.
+                // Hack: saveStack only needs ID for the link. Using simplified nodes.
+                ids.map(id => ({ id, title: 'Ref', status: 'todo', children: [] } as any)),
+                persistencePath
+            );
+
             // Auto-start Stack with EXPLICIT IDs (Session Isolation)
-            this.activateStack(ids);
+            // Passing persistencePath ensures it treats it as File-Backed
+            this.activateStack(ids, persistencePath);
         }, (title: string, options?: any) => {
             return this.onCreateTask(title, options);
+        }, async () => {
+            // checkForConflict impl
+            try {
+                const exists = await this.app.vault.adapter.exists(persistencePath);
+                let ids: string[] = [];
+                if (exists) {
+                    ids = await this.stackPersistenceService.loadStackIds(persistencePath);
+                }
+                return exists && ids.length > 0;
+            } catch (e) {
+                this.logger.error(`[main.ts] checkForConflict error: ${e}`);
+                return false;
+            }
         });
         await leaf.open(view);
         workspace.revealLeaf(leaf);

@@ -37,3 +37,9 @@ The system is built for users who want to stay on the keyboard.
 - Every action has a hotkey.
 - Focus is managed automatically after setiap command to ensure the keyboard is never "lost."
 - Mouse/Touch gestures are provided for parity, but never as a requirement.
+
+## 5. Workflow Integrity (Data Safety)
+To prevent data loss during view transitions (specifically Triage -> Stack), the system follows a strict **Read-Merge-Write** protocol.
+- **Never Overwrite**: A view (or command) must never blindly overwrite a target file (like `CurrentStack.md`) if it already exists.
+- **Decision Phase**: If a write conflict is detected (e.g., Triage complete but Stack exists), the system MUST enter a Decision Phase, presenting the user with clear options (Merge vs. Overwrite) via a Conflict Card or Modal.
+- **Merge Strategy**: The system must load the existing content, append/merge the new items (deduplicating by ID), and then write the result.

@@ -17,7 +17,7 @@ export class TriageView extends ItemView {
     tasks: TaskNode[];
     settings: TodoFlowSettings;
     keys: KeybindingSettings;
-    onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void;
+    onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[], strategy?: 'merge' | 'overwrite' }) => void;
     historyManager: HistoryManager;
     logger: FileLogger | undefined;
     viewManager: ViewManager;
@@ -33,8 +33,10 @@ export class TriageView extends ItemView {
         historyManager: HistoryManager,
         logger: FileLogger | undefined,
         viewManager: ViewManager,
-        onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[] }) => void,
-        onCreateTask: (title: string, options?: any) => Promise<TaskNode>
+
+        onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[], strategy?: 'merge' | 'overwrite' }) => void,
+        onCreateTask: (title: string, options?: any) => Promise<TaskNode>,
+        checkForConflict?: () => Promise<boolean> // New optional prop
     ) {
         super(leaf);
         this.tasks = tasks;
@@ -45,7 +47,11 @@ export class TriageView extends ItemView {
         this.viewManager = viewManager;
         this.onComplete = onComplete;
         this.onCreateTask = onCreateTask;
+        this.checkForConflict = checkForConflict;
     }
+
+    // Add property to class
+    checkForConflict: (() => Promise<boolean>) | undefined;
 
     getViewType() {
         return VIEW_TYPE_TRIAGE;
@@ -104,7 +110,8 @@ export class TriageView extends ItemView {
                     // Optionally close the view
                     this.leaf.detach();
                 },
-                openQuickAddModal: () => this.openAddModal()
+                openQuickAddModal: () => this.openAddModal(),
+                checkForConflict: this.checkForConflict // Pass to Svelte
             }
         });
 

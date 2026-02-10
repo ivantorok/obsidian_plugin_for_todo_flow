@@ -91,7 +91,10 @@ These flows represent the core value loops of the application and will be implem
     -   Swipe/Action Right (Keep/Shortlist): `k` or `ArrowRight`
     -   Undo an action.
     -   Finish Triage.
-6.  **Transition**: Verify Daily Stack View opens with the shortlisted tasks.
+6.  **Transition (Decision Phase)**:
+    -   If `CurrentStack.md` exists, verify **Conflict Card** appears.
+    -   Select **Merge** to append or **Overwrite** to replace.
+7.  **Transition**: Verify Daily Stack View opens with the correct task set.
 
 ### Journey B: Stack Mechanics (The Workbench) ✅
 1.  **Navigation**: Move focus Up (`k`) and Down (`j`).

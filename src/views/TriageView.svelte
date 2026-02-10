@@ -10,14 +10,13 @@
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
 
-    let { app, tasks: initialTasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal, logger, contentEl } = $props();
-    
-    let controller: TriageController;
-    let tasks = $state<TaskNode[]>([...(initialTasks || [])]);
-    let currentTask = $state<TaskNode | null>(null);
+    let { app, tasks: initialTasks, keys, settings, onComplete, historyManager, debug = false, openQuickAddModal, logger, contentEl, checkForConflict } = $props();
+    const controller = new TriageController(app, initialTasks, logger);
+    let currentTask = $state(controller.getCurrentTask());
     let swipeDirection = $state<'left' | 'right' | null>(null);
     let showHelp = $state(false);
     let keyManager: KeybindingManager;
+    let isConflictState = $state(false); // New state for Conflict Card
 
     // Swipe state
     let touchStartX = $state(0);
@@ -26,8 +25,6 @@
     const SWIPE_THRESHOLD = 100;
 
     onMount(() => {
-        controller = new TriageController(app, tasks);
-        currentTask = controller.getCurrentTask();
         // Fallback for tests or direct usage
         keyManager = new KeybindingManager(keys || { 
             navUp: [], navDown: [], moveUp: [], moveDown: [], anchor: [], 
@@ -44,7 +41,18 @@
     function next(direction: 'left' | 'right') {
         swipeDirection = direction;
         if (triageTimer) clearTimeout(triageTimer);
+        
+        // Immediate UI feedback
         triageTimer = setTimeout(async () => {
+            // If in Conflict State, swipe determines strategy
+            if (isConflictState) {
+                const strategy = direction === 'right' ? 'merge' : 'overwrite';
+                onComplete({ ...controller.getResults(), strategy });
+                swipeDirection = null;
+                triageTimer = null;
+                return;
+            }
+
             await historyManager.executeCommand(new SwipeCommand(controller, direction));
             
             currentTask = controller.getCurrentTask();
@@ -52,8 +60,12 @@
             triageTimer = null;
 
             if (!currentTask) {
-                console.error('[FIX-DEBUG] TriageView.svelte: currentTask is NULL. Calling onComplete.');
-                onComplete(controller.getResults());
+                // Queue finished. Check for conflict BEFORE completing.
+                if (checkForConflict && await checkForConflict()) {
+                    isConflictState = true;
+                } else {
+                    onComplete(controller.getResults());
+                }
             }
         }, 200);
     }
@@ -226,12 +238,31 @@
             onpointerup={handlePointerEnd}
             ontouchstart={handleTouchBlocking}
             ontouchmove={handleTouchBlocking}
-            style:transform={cardTransform()}
-            style:touch-action="none"
         >
             <Card title={currentTask.title} variant="triage">
                 <div class="todo-flow-triage-hint">
                     ← Not Now | Shortlist →
+                </div>
+            </Card>
+        </div>
+    {:else if isConflictState}
+        <div 
+            class="triage-card-wrapper {swipeDirection}"
+            transition:slide
+            onpointerdown={handlePointerStart}
+            onpointermove={handlePointerMove}
+            onpointerup={handlePointerEnd}
+            ontouchstart={handleTouchBlocking}
+            ontouchmove={handleTouchBlocking}
+            style:transform={cardTransform()}
+            style:touch-action="none"
+        >
+            <Card title="Existing Stack Detected" variant="triage">
+                <div class="todo-flow-triage-conflict-message">
+                    <p>You have an active Daily Stack.</p>
+                </div>
+                <div class="todo-flow-triage-hint conflict">
+                    ← Overwrite (Fresh) | Merge (Append) →
                 </div>
             </Card>
         </div>
@@ -245,31 +276,30 @@
     <div class="todo-flow-triage-controls">
         <button 
             onclick={(e) => handleBtnClick(e, 'left')} 
-            class="control-btn not-now"
+            class="control-btn not-now {isConflictState ? 'conflict-reject' : ''}"
         >
-            ← Not Now
+            {isConflictState ? '← Overwrite' : '← Not Now'}
         </button>
+        {#if !isConflictState}
         <button 
             onclick={(e) => handleBtnClick(e, undefined, () => { historyManager.undo(); currentTask = controller.getCurrentTask(); })} 
             class="control-btn undo"
         >
             Undo
         </button>
+        {/if}
         <button 
             onclick={(e) => handleBtnClick(e, 'right')} 
-            class="control-btn shortlist"
+            class="control-btn shortlist {isConflictState ? 'conflict-resolve' : ''}"
         >
-            Shortlist →
+            {isConflictState ? 'Merge →' : 'Shortlist →'}
         </button>
     </div>
 
+    <!-- Mobile FAB for Quick Add (FEAT-001) -->
     <div class="footer-controls">
-        <button 
-            class="icon-button plus-btn" 
-            onclick={(e) => handleBtnClick(e, undefined, openQuickAddModal)} 
-            title="Add Task"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <button class="icon-button plus-btn" onclick={() => openQuickAddModal()} title="Add Task">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
     </div>
 
@@ -348,6 +378,30 @@
     .shortlist:hover,
     .shortlist:active {
         background: var(--interactive-accent);
+    }
+
+    /* Conflict Mode Styles */
+    .todo-flow-triage-conflict-message {
+        padding: 1rem 0;
+        text-align: center;
+        opacity: 0.8;
+    }
+
+    .todo-flow-triage-hint.conflict {
+        color: var(--text-warning);
+        font-weight: bold;
+    }
+
+    .conflict-reject {
+        background: var(--background-modifier-error);
+        color: var(--text-on-accent);
+        border-color: var(--background-modifier-error);
+    }
+    
+    .conflict-accept {
+        background: var(--interactive-success);
+        color: var(--text-on-accent);
+        border-color: var(--interactive-success);
     }
 
     /* Consistent Mobile Controls Pattern */

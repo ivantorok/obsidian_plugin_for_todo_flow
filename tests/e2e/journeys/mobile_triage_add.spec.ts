@@ -73,7 +73,34 @@ flow_state: dump
                 return cache?.frontmatter?.task === 'Mobile added task';
             });
         });
-
         expect(taskFileExists).toBe(true);
+
+        // 6. Verify task appears in the Triage UI (Task Card)
+        console.log('[Test] Verifying UI update - Step 6');
+
+        // Wait for potential animation/update
+        await browser.pause(1000);
+
+        // Initial Card check
+        const initialTitleEl = await $('.todo-flow-card .todo-flow-card-header');
+        const initialTitle = await initialTitleEl.getText();
+        console.log(`[Test] Initial Card Title: "${initialTitle}"`);
+
+        // Swipe away the current task ("Triage Test Task")
+        console.log('[Test] Swiping right...');
+        const card = await $('.triage-card-wrapper');
+        await card.dragAndDrop({ x: 200, y: 0 }); // Swipe right
+
+        // Wait for debounce (200ms) + animation (200ms) + safety
+        await browser.pause(1500);
+
+        // Now the new task should be visible
+        console.log('[Test] Checking for new card...');
+        const newCardTitle = await $('.todo-flow-card .todo-flow-card-header');
+        const newTitle = await newCardTitle.getText();
+        console.log(`[Test] New Card Title: "${newTitle}"`);
+
+        await expect(newCardTitle).toHaveText('MOBILE ADDED TASK');
     });
 });
+
