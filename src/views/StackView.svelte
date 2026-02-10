@@ -561,6 +561,7 @@
     function selectOnFocus(node: HTMLInputElement) {
         node.focus();
         node.select();
+        ViewportService.scrollIntoView(node);
     }
 
     export async function handleKeyDown(e: KeyboardEvent) {
@@ -772,6 +773,7 @@
 <div 
     class="todo-flow-stack-container" 
     class:is-dragging={draggingTaskId !== null}
+    class:is-editing={editingIndex !== -1 || editingStartTimeIndex !== -1}
     bind:this={containerEl}
     tabindex="0"
     role="application"
@@ -923,6 +925,11 @@
         height: 100%;
         overflow-y: auto;
         touch-action: pan-y;
+        transition: padding-bottom 0.2s ease;
+    }
+
+    .todo-flow-stack-container.is-editing {
+        padding-bottom: 50vh;
     }
 
     /* Mobile Scrollbar Visibility (UI-001) */

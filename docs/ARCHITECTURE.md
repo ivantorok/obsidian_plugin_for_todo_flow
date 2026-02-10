@@ -31,6 +31,7 @@ With multiple views and complex gestures, the plugin must meticulously manage "w
 - **Gesture Shadowing**: High-level gestures (swipes) are "shadowed" by internal elements (buttons) using strict event propagation stoppage.
 - **Static Pattern**: High-frequency mobile buttons use static visual states to ensure hardware-level stability (Android), relying on the Reactive Projection for feedback.
 - **Navigation Integration**: To respect the host environment and enable native back/forward buttons, views must set `this.navigation = true`. This ensures Obsidian's history stack captures internal plugin navigation (e.g., drill-downs).
+- **Editing Sovereignty (The Buffer)**: The "Handshake" ensures keyboard dominance, but physical visibility requires space. Views must inject a dynamic "Editing Buffer" (bottom padding) while an input is active to ensure the task remains centerable during viewport shifts.
 
 ## 4. Design Philosophy: Home Row First
 The system is built for users who want to stay on the keyboard.

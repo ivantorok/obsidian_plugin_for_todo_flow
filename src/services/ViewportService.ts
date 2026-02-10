@@ -28,6 +28,8 @@ export class ViewportService {
     }
 
     private static isMobile(): boolean {
+        // Check Obsidian's internal flag if available, fallback to UA
+        if (typeof window !== 'undefined' && (window as any).app?.isMobile) return true;
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 }
