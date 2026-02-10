@@ -446,20 +446,25 @@
     }
 
     async function executeGestureAction(action: string, task: TaskNode, index: number) {
+        if (debug || true) console.log(`[StackView DEBUG] executeGestureAction action=${action}, task=${task.title}, index=${index}`);
         if (!action || action === 'none') return;
 
+        let cmd;
         if (action === 'complete') {
-            await historyManager.executeCommand(new ToggleStatusCommand(controller, index));
+            cmd = new ToggleStatusCommand(controller, index);
+            await historyManager.executeCommand(cmd);
             if ((window as any).Notice) new (window as any).Notice(`Task: ${task.title} toggled`);
-            update();
+            update(); 
         } else if (action === 'archive') {
-            await historyManager.executeCommand(new ArchiveCommand(controller, index, async (t) => {
+            cmd = new ArchiveCommand(controller, index, async (t) => {
                 await onTaskUpdate(t);
-            }));
+            });
+            await historyManager.executeCommand(cmd);
             if ((window as any).Notice) new (window as any).Notice(`Archived: ${task.title}`);
             update();
         } else if (action === 'anchor') {
-            await historyManager.executeCommand(new ToggleAnchorCommand(controller, index));
+            cmd = new ToggleAnchorCommand(controller, index);
+            await historyManager.executeCommand(cmd);
             if ((window as any).Notice) new (window as any).Notice(`${task.isAnchored ? 'Released' : 'Anchored'}: ${task.title}`);
             update();
         } else if (action === 'force-open') {
@@ -467,6 +472,16 @@
             if (navResult && navResult.action === 'OPEN_FILE' && navResult.path) {
                 if (onOpenFile) onOpenFile(navResult.path);
             }
+        }
+
+        // SYNC FOCUS (BUG-020 Fix)
+        // Commands populate resultIndex after execution. We must update the reactive focusedIndex
+        // to reflect where the task landed (e.g., after an Anchor sort or Toggle jump).
+        if (cmd && cmd.resultIndex !== undefined && cmd.resultIndex !== null) {
+            focusedIndex = cmd.resultIndex;
+        } else if (action === 'archive') {
+            // Archive removes the item, so we need to stay within bounds
+            focusedIndex = Math.max(0, Math.min(tasks.length - 1, focusedIndex));
         }
     }
 

@@ -398,13 +398,14 @@ For features that are hard to verify via UI (like shortcut interception), expose
     - **Anti-Pattern**: Using `fireEvent.keyDown` on a container to test a component's internal handler. This relies on DOM bubbling and framework event delegation, which is often different in a test environment than in Obsidian.
     - **Pattern**: Directly call the component's public methods (e.g., `component.handleKeyDown(mockEvent)`). This isolates the test to the component's logic and makes it robust against DOM changes.
 
-### 6. Release Pipeline Dependencies
-- **Lesson**: The release script (`ship.sh`) must align the build and test order.
-    - **Rule**: Always clean and build *before* running tests. This ensures tests run against the code that will actually be shipped.
-    - **Verification**: If tests pass but the release fails, check if the `dist/` or `main.js` was stale.
+### 7. Test Graduation (Reliability Strategy)
+- **Lesson**: E2E tests are inherently flaky on mobile due to Obsidian's indexing and UI lifecycle.
+- **Pattern**: If an E2E test fails because "element X did not appear in time" (even after `waitUntil`), **graduate the check to Vitest**. Render the component, mock the command layer, and verify the *reactive state transition* directly. This is 100% reliable and captures the same logic bug.
 
----
+### 8. The Logic Sync Rule
+- **Lesson**: Commands often change the data structure, which causes the controller to re-schedule/re-sort tasks.
+- **Rule**: Handlers (Keyboard or Gesture) MUST query the command's `resultIndex` after execution and update the reactive `focusedIndex`. Relying on the "previous index" after a sort leads to phantom selections.
 
-**Last Updated:** 2026-02-07
+**Last Updated:** 2026-02-10
 
 **Maintained By:** Development Team

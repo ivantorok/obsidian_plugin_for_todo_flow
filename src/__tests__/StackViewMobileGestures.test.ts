@@ -98,7 +98,7 @@ describe('StackView Mobile Gestures Integration', () => {
         expect(cmd.index).toBe(0);
     });
 
-    it('should trigger ToggleAnchorCommand on double tap', async () => {
+    it('should trigger ToggleAnchorCommand on double tap and maintain focus', async () => {
         const { container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
@@ -114,16 +114,28 @@ describe('StackView Mobile Gestures Integration', () => {
 
         const card = container.querySelector('.todo-flow-task-card') as HTMLElement;
 
+        // Mock Command Result (Part of BUG-020 Fix)
+        historyManager.executeCommand.mockImplementation(async (cmd: any) => {
+            if (cmd instanceof ToggleAnchorCommand) {
+                cmd.resultIndex = 0; // Simulate anchored task staying at index 0
+            }
+            return Promise.resolve();
+        });
+
         // Simulate Double Tap
         await fireEvent.click(card);
         // Second tap within 300ms
         await new Promise(r => setTimeout(r, 100));
         await fireEvent.click(card);
+        await tick();
 
         // Verify Command
         expect(historyManager.executeCommand).toHaveBeenCalledWith(expect.any(ToggleAnchorCommand));
         const cmd = historyManager.executeCommand.mock.calls[0][0];
         expect(cmd.index).toBe(0);
+
+        // Verification for BUG-020: Focus should persist on the task
+        expect(card.classList.contains('is-focused')).toBe(true);
     });
 
     it('should stop event propagation during gestures (Gesture Shadowing)', async () => {

@@ -11,6 +11,7 @@ Focus is the primary indicator of intent. Todo Flow assumes "Greedy Focus" when 
 - **Modal Dominance**: Modals (Help, Quick Add, Duration Picker) take absolute focus.
 - **Escape to Home**: Pressing `Escape` inside any plugin modal MUST return focus to the `StackView` container upon closing.
 - **Auto-Refocus**: If a user clicks a task card, the `StackView` container must immediately regain focus so that subsequent keyboard commands work without an extra click.
+- **Selection Parity**: The `focusedIndex` MUST remain synchronized across all interaction layers (Keyboard, Gestures, Menu). If a command moves a task (e.g., via Double-Tap Anchor), the reactive selection must follow the task to its new index immediately. Stale selection is considered a Core Bug.
 
 ### Conflict Resolution
 - **Obsidian Editor vs. Stack**: If the user is typing in a Markdown note (Obsidian Editor), Todo Flow MUST NOT capture navigation keys (`j`, `k`, `Space`).

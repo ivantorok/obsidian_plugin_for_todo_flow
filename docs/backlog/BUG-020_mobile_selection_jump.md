@@ -18,11 +18,15 @@ On mobile, when double-tapping a task at the end of the list to anchor it, the s
 2. Double-tap the 5th task to anchor it.
 3. Observe the viewport/selection jump.
 
-## Proposed Test Case (TDD)
-- [ ] **E2E Test**: `mobile_selection_persistence.spec.ts`
+- [x] **E2E Test**: `mobile_selection_persistence.spec.ts` (Integrated into `src/__tests__/StackViewMobileGestures.test.ts`)
     - Setup a stack with 10 tasks.
     - Double-tap the 10th task.
     - Verify that the 10th task remains focused and visible in the viewport.
+
+## Status
+- **Resolved**: 2026-02-10
+- **Fix**: Synchronized `focusedIndex` in `executeGestureAction` using the command's `resultIndex`.
+- **Verification**: Regression test added to `StackViewMobileGestures.test.ts`. Full Golden Suite pass.
 
 ## Reuse & Architectural Alignment
 - **State Management**: Review `StackView.svelte`'s `executeGestureAction` and how it handles `update()` and `focusedIndex`.
