@@ -21,8 +21,10 @@
     } from '../commands/stack-commands.js';
     import HelpModal from './HelpModal.svelte';
     import { type TodoFlowSettings } from '../main';
-    import { resolveSwipe, isDoubleTap } from '../gestures.js';
+    import { resolveSwipe, isDoubleTap, DOUBLE_TAP_WINDOW } from '../gestures.js';
+    import { type StackUIState } from './ViewTypes.js';
     let { 
+        navState: initialNavState, // The unified Truth Funnel
         initialTasks, 
         settings, 
         now = moment(), 
@@ -37,15 +39,101 @@
         openDurationPicker,
         onNavigate,
         onGoBack,
-        canGoBack = false,
         onExport,
+        onFocusChange,
         debug = false
     } = $props();
 
-    let internalCanGoBack = $state(canGoBack);
+    let navState = $state(initialNavState || {
+        tasks: initialTasks || [],
+        focusedIndex: 0,
+        parentTaskName: null,
+        canGoBack: false,
+        rootPath: null,
+        isMobile: false
+    });
+    
+    export function setNavState(newState: StackUIState) {
+        if (logger && internalSettings.debug) logger.info(`[StackView.svelte] setNavState received: tasks=${newState.tasks.length}, focus=${newState.focusedIndex}`);
+        navState = newState;
+    }
+
+    // --- Backward Compatibility / Wrapper API ---
+    export function setTasks(newTasks: TaskNode[]) {
+        tasks = newTasks;
+        // Also update navState to keep them in sync if navState exists
+        if (navState) {
+            navState.tasks = newTasks;
+        }
+    }
+
+    export function setFocus(index: number) {
+        focusedIndex = index;
+         if (navState) {
+            navState.focusedIndex = index;
+        }
+    }
+
+    export function getController() {
+        return controller;
+    }
+    // --------------------------------------------
+
+    let internalParentTaskName = $state(navState?.parentTaskName || null);
+    let internalCanGoBack = $state(navState?.canGoBack || false);
 
     let internalSettings = $state(settings);
     let internalNow = $state(now);
+    let tick = $state(0);
+    let isMobileProp = $state(navState?.isMobile || false);
+
+    let isMobileState = $derived.by(() => {
+        tick;
+        return isMobileProp || (typeof window !== 'undefined' && (window.innerWidth <= 600 || document.body.classList.contains('is-mobile')));
+    });
+
+    let mounted = $state(false);
+    let navStateReceived = $state(false);
+    let isReady = $derived(mounted && navStateReceived);
+    let showHelp = $state(false); // Help Layer State
+
+    onMount(async () => {
+        mounted = true;
+        if (debug) console.log('[TODO_FLOW_TRACE] onMount entry');
+        
+        window.onclick = (e) => {
+             console.log(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
+             if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
+        };
+
+        // Setup periodic refresh
+        const interval = setInterval(() => {
+            internalNow = moment();
+            if (controller) controller.updateNow(internalNow);
+        }, 60000);
+
+        if (logger) logger.info(`[StackView.svelte] Mounted with ${tasks.length} tasks`);
+
+        const update = () => {
+            tick++;
+        };
+        update();
+        window.addEventListener('resize', update);
+
+        keyManager = new KeybindingManager(keys);
+        
+        if (containerEl && !window.navigator.userAgent.includes('HappyDOM')) {
+            containerEl.focus();
+        }
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('resize', update);
+            if (focusTimer) clearTimeout(focusTimer);
+            if (tapTimer) clearTimeout(tapTimer);
+        };
+    });
+
 
     const keys = $derived(internalSettings.keys);
 
@@ -58,34 +146,63 @@
     }
 
     let controller: StackController;
-    let tasks: TaskNode[] = $state([]); // Initialized in onMount/setTasks
+    let tasks: TaskNode[] = $state([]); 
+    let focusedIndex = $state(navState?.focusedIndex || 0);
 
-    
+    // Ensure focusedIndex is always safe
+    $effect(() => {
+        if (tasks.length > 0) {
+            const clamped = Math.max(0, Math.min(tasks.length - 1, focusedIndex));
+            if (clamped !== focusedIndex) {
+                 if (logger) logger.warn(`[StackView.svelte] Index Out of Bounds Fix: ${focusedIndex} -> ${clamped} (Tasks: ${tasks.length})`);
+                 focusedIndex = clamped;
+            }
+        } else if (focusedIndex !== 0) {
+            focusedIndex = 0;
+        }
+    });
+
+    $effect(() => {
+        if (navState) {
+            navStateReceived = true;
+            
+            if (logger) logger.info(`[StackView.svelte] Truth Funnel Ingestion: parent=${navState.parentTaskName}, tasks=${navState.tasks.length}`);
+            
+            if (!controller) {
+                controller = new StackController(navState.tasks, internalNow, onTaskUpdate, onTaskCreate);
+            } else {
+                controller.setTasks(navState.tasks);
+            }
+            
+            tasks = controller.getTasks();
+            
+            focusedIndex = navState.focusedIndex;
+            internalParentTaskName = navState.parentTaskName;
+            internalCanGoBack = navState.canGoBack;
+            isMobileProp = navState.isMobile;
+        }
+    });
+
     $effect(() => {
         if (internalNow) {
-            // We read internalNow here to make it a dependency
             const currentNow = internalNow;
-            
             untrack(() => {
                 if (controller) {
                     controller.updateTime(currentNow);
                     tasks = controller.getTasks();
-                    focusedIndex = Math.min(focusedIndex, tasks.length - 1);
                 }
             });
         }
     });
-
-    let focusedIndex = $state(0);
     let editingIndex = $state(-1); // -1 means no task is being renamed
     let editingStartTimeIndex = $state(-1); // -1 means no task is being time-edited
-    let showHelp = $state(false); // Help Layer State
     
     // We need to instantiate the manager
     let keyManager: KeybindingManager;
 
     let containerEl: HTMLElement;
     let taskElements: HTMLElement[] = $state([]);
+    let renameInputs: HTMLInputElement[] = $state([]);
 
     // Touch State (Per task logic usually handled via closures/loops in Svelte)
     let touchStartX = $state(0);
@@ -104,27 +221,6 @@
     let focusTimer: any = null;
     let tapTimer: any = null;
 
-    onMount(() => {
-        if (debug) console.log('[TODO_FLOW_TRACE] onMount entry');
-        
-        window.onclick = (e) => {
-             console.log(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
-             if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
-        };
-
-        controller = new StackController(initialTasks, internalNow, onTaskUpdate, onTaskCreate);
-        tasks = controller.getTasks();
-        keyManager = new KeybindingManager(keys);
-        
-        if (containerEl && !window.navigator.userAgent.includes('HappyDOM')) {
-            containerEl.focus();
-        }
-
-        return () => {
-            if (focusTimer) clearTimeout(focusTimer);
-            if (tapTimer) clearTimeout(tapTimer);
-        };
-    });
 
     import { ViewportService } from '../services/ViewportService.js';
 
@@ -154,36 +250,27 @@
         if (debug) console.debug('[TODO_FLOW_TRACE] update() entry. Current tasks:', tasks.length);
         tasks = controller.getTasks();
         if (onStackChange) onStackChange(tasks);
+        if (onFocusChange) onFocusChange(focusedIndex);
         if (debug) console.debug('[TODO_FLOW_TRACE] update() complete. New tasks:', tasks.length);
-    }
-
-    export function setTasks(newTasks: TaskNode[]) {
-        // Re-initialize controller with new raw tasks
-        controller = new StackController(newTasks, internalNow, onTaskUpdate, onTaskCreate);
-        // Update local reactive state with the SCHEDULED tasks from controller
-        tasks = controller.getTasks();
-    }
-
-    export function setFocus(index: number) {
-        focusedIndex = Math.max(0, Math.min(tasks.length - 1, index));
     }
 
     export function getFocusedIndex() {
         return focusedIndex;
     }
 
-    export function setCanGoBack(val: boolean) {
-        internalCanGoBack = val;
-    }
-
-    export function getController() {
-        return controller;
-    }
 
 
-    function startRename(index: number) {
-        if (logger) logger.info(`[StackView] startRename called for index ${index}`);
+
+    export function startRename(index: number) {
+        if (logger) logger.info(`[StackView.svelte] startRename called for index ${index}`);
         editingIndex = index;
+        // Focus the input on the next tick
+        setTimeout(() => {
+            if (renameInputs[index]) {
+                renameInputs[index].focus();
+                renameInputs[index].select();
+            }
+        }, 0);
     }
 
     let activeRenameId: string | null = null;
@@ -516,7 +603,7 @@
         const delta = now - lastTapTime;
         lastTapTime = now; // Update lastTapTime for the next tap
 
-        if (delta < 300) { // Assuming 300ms is the double-tap threshold
+        if (delta < DOUBLE_TAP_WINDOW) { 
             // Double Tap
             if (debug) console.log('[GESTURE] Double Tap Detected');
             
@@ -549,11 +636,11 @@
                         if (onNavigate) {
                             onNavigate(navResult.path, index);
                         } else {
-                            onOpenFile(navResult.path);
+                            onNavigate(navResult.path, index);
                         }
                     }
                 }
-            }, 250); // 250ms window to catch a double-tap
+            }, DOUBLE_TAP_WINDOW - 50); // Slightly less than window to be safe
         } else {
             // If tapping on a new item, just focus it
             focusedIndex = index;
@@ -657,7 +744,7 @@
 
         switch (action) {
               case 'RENAME':
-                if (logger) logger.info(`[RENAME] Action triggered via keyboard for index ${focusedIndex}`);
+                if (logger) logger.info(`[StackView.svelte] Shortcut: RENAME for index ${focusedIndex}`);
                 startRename(focusedIndex);
                 break;
                 
@@ -687,10 +774,16 @@
                 }
                 break;
             case 'NAV_DOWN':
-                focusedIndex = Math.min(tasks.length - 1, focusedIndex + 1);
+                if (tasks.length > 0) {
+                    focusedIndex = Math.min(tasks.length - 1, focusedIndex + 1);
+                    if (onFocusChange) onFocusChange(focusedIndex);
+                }
                 break;
             case 'NAV_UP':
-                focusedIndex = Math.max(0, focusedIndex - 1);
+                if (tasks.length > 0) {
+                    focusedIndex = Math.max(0, focusedIndex - 1);
+                    if (onFocusChange) onFocusChange(focusedIndex);
+                }
                 break;
             case 'MOVE_DOWN':
                 const cmdDown = new MoveTaskCommand(controller, focusedIndex, 'down');
@@ -786,10 +879,15 @@
 
 <!-- Make container focusable and attach listener -->
 <div 
+    bind:this={containerEl}
     class="todo-flow-stack-container" 
+    class:is-mobile={isMobileState}
+    data-is-mobile={isMobileState}
+    data-ui-ready={isReady}
+    data-focused-index={focusedIndex}
+    data-task-count={tasks.length}
     class:is-dragging={draggingTaskId !== null}
     class:is-editing={editingIndex !== -1 || editingStartTimeIndex !== -1}
-    bind:this={containerEl}
     tabindex="0"
     role="application"
     onkeydown={handleKeyDown}
@@ -802,6 +900,9 @@
                     <span>Back</span>
                 </button>
             {/if}
+            {#if internalParentTaskName}
+                <span class="header-parent-name" data-testid="header-parent-name">{internalParentTaskName}</span>
+            {/if}
             <span class="header-time">Starting at {internalNow.format('HH:mm')}</span>
         </div>
     {/if}
@@ -810,6 +911,7 @@
             <div 
                 bind:this={taskElements[i]}
                 class="todo-flow-task-card" 
+                data-testid="task-card-{i}"
                 class:is-focused={focusedIndex === i}
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === 'done'}
@@ -826,6 +928,7 @@
                 ontouchmove={handleTouchBlocking}
                 style:transform={getCardTransform(task.id)}
                 style:touch-action="none"
+                style={isMobileState ? "flex-wrap: wrap; padding: 0.75rem; gap: 0.5rem;" : ""}
             >
                 <div 
                     class="drag-handle" 
@@ -843,67 +946,83 @@
                                 if (e.key === 'Escape') editingStartTimeIndex = -1;
                             }}
                             onblur={(e) => finishEditStartTime(task.id, e.currentTarget.value)}
-                            use:selectOnFocus
+                             use:selectOnFocus
                         />
                     {:else}
-                        {formatDateRelative(task.startTime, internalNow)}
-                        <svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <span class="mobile-only-time">{formatDateRelative(task.startTime, internalNow, true)}</span>
+                        <span class="desktop-only-time">{formatDateRelative(task.startTime, internalNow)}</span>
+                        {#if task.isAnchored}
+                            <svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        {/if}
                     {/if}
                 </div>
-                <div class="content-col">
+                <div class="content-col" style={isMobileState ? "order: 2; width: 100%; flex: none;" : ""}>
                     {#if editingIndex === i}
-                        <input 
-                            type="text" 
-                            class="todo-flow-title-input"
+                        <input
+                            bind:this={renameInputs[i]}
+                            type="text"
+                            class="rename-input"
+                            data-testid="rename-input"
                             value={task.title}
-                            onkeydown={(e) => {
-                                if (e.key === 'Enter') finishRename(task.id, e.currentTarget.value);
-                                if (e.key === 'Escape') editingIndex = -1;
-                            }}
                             onblur={(e) => finishRename(task.id, e.currentTarget.value)}
-                            use:selectOnFocus
+                            onkeydown={(e) => { if (e.key === 'Enter') finishRename(task.id, e.currentTarget.value); if (e.key === 'Escape') cancelRename(); }}
                         />
                     {:else}
-                        <div class="title" onclick={() => startRename(i)} title={task.isMissing ? "Note missing" : "Click to rename"} role="button" tabindex="0">{#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span> {/if}{task.title}</div>
-                    {/if}
-                    <div class="duration">
-                        <button 
-                            class="duration-btn minus" 
-                            onclick={(e) => { 
-                                e.stopPropagation(); 
-                                historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'down')); 
-                                update(); 
-                            }}
-                            onpointerdown={(e) => e.stopPropagation()}
-                            title="Decrease Duration"
-                        >−</button>
-                        <span 
-                            class="duration-text clickable" 
-                            onclick={(e) => { e.stopPropagation(); openDurationPicker(i); }}
-                            onkeydown={(e) => { if (e.key === 'Enter') openDurationPicker(i); }}
-                            onpointerdown={(e) => e.stopPropagation()}
+                        <div 
+                            class="title" 
+                            onclick={() => startRename(i)} 
+                            title={task.isMissing ? "Note missing" : "Click to rename"} 
+                            role="button" 
                             tabindex="0"
-                            role="button"
+                            style={isMobileState ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; flex: 1 1 100%; max-width: 100%; line-height: 1.2;" : ""}
                         >
-                            {formatDuration(task.duration)}
-                        </span>
-                        <button 
-                            class="duration-btn plus" 
-                            onclick={(e) => {
-                                e.stopPropagation();
-                                historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up'));
-                                update();
-                            }}
-                            onpointerdown={(e) => e.stopPropagation()}
-                            title="Increase Duration"
-                        >+</button>
-                        {#if getMinDuration(task) > 0}
-                            <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
-                        {/if}
+                            {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span> {/if}{task.title}
+                        </div>
+                    {/if}
+                    <div class="metadata" style={isMobileState ? "flex: 1 1 100%; width: 100%; order: 2; display: flex; justify-content: flex-start; gap: 0.75rem; font-size: var(--font-ui-smaller); opacity: 0.8; padding-top: 0.25rem; border-top: 1px solid var(--background-modifier-border);" : ""}>
+                        <div class="duration">
+                            <button 
+                                class="duration-btn minus" 
+                                onclick={(e) => { 
+                                    e.stopPropagation(); 
+                                    historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'down')); 
+                                    update(); 
+                                }}
+                                onpointerdown={(e) => e.stopPropagation()}
+                                title="Decrease Duration"
+                            >−</button>
+                            <span 
+                                class="duration-text clickable" 
+                                onclick={(e) => { e.stopPropagation(); openDurationPicker(i); }}
+                                onkeydown={(e) => { if (e.key === 'Enter') openDurationPicker(i); }}
+                                onpointerdown={(e) => e.stopPropagation()}
+                                tabindex="0"
+                                role="button"
+                            >
+                                {formatDuration(task.duration)}
+                            </span>
+                            <button 
+                                class="duration-btn plus" 
+                                onclick={(e) => {
+                                    e.stopPropagation();
+                                    historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up'));
+                                    update();
+                                }}
+                                onpointerdown={(e) => e.stopPropagation()}
+                                title="Increase Duration"
+                            >+</button>
+                            {#if getMinDuration(task) > 0}
+                                <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
+                            {/if}
+                            {#if task.isAnchored}
+                                <div class="mobile-anchor-badge">⚓</div>
+                            {/if}
+                        </div>
                     </div>
                 </div>
+                <!-- Desktop Anchor Badge -->
                 {#if task.isAnchored}
-                    <div class="anchor-badge">⚓</div>
+                    <div class="anchor-badge desktop-only-anchor">⚓</div>
                 {/if}
                 {#if task.isMissing}
                     <button 
@@ -1014,6 +1133,21 @@
     .back-nav-btn svg {
         color: var(--text-accent);
     }
+    
+    .header-parent-name {
+        font-weight: 700;
+        color: var(--text-normal);
+        font-size: 0.95rem;
+        margin-right: 0.75rem;
+        max-width: 40%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        background: var(--background-modifier-border);
+        padding: 2px 8px;
+        border-radius: 4px;
+        opacity: 0.9;
+    }
 
     .header-time {
         font-size: 0.8rem;
@@ -1120,6 +1254,10 @@
         opacity: 1;
     }
 
+    .mobile-only-time {
+        display: none;
+    }
+
     .content-col {
         flex: 1;
         min-width: 0;
@@ -1144,6 +1282,10 @@
     }
     .title:hover {
         color: var(--text-accent);
+    }
+
+    .mobile-anchor-badge {
+        display: none;
     }
 
     .duration {
@@ -1232,6 +1374,154 @@
         opacity: 1;
         color: var(--text-error);
         background: var(--background-modifier-error-hover);
+    }
+
+    /* Mobile Layout Overrides - use ultra-global selectors for robustness in tests */
+    :global(body.is-mobile .todo-flow-task-card) {
+        flex-wrap: wrap !important;
+        padding: 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+
+    :global(body.is-mobile .todo-flow-task-card .title) {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical !important;
+        -webkit-line-clamp: 2 !important;
+        overflow: hidden !important;
+        white-space: normal !important;
+        font-weight: 500 !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    :global(body.is-mobile .todo-flow-task-card .metadata) {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        order: 2 !important;
+        display: flex !important;
+        justify-content: flex-start !important;
+        gap: 0.75rem !important;
+        font-size: var(--font-ui-smaller) !important;
+        opacity: 0.8 !important;
+        padding-top: 0.25rem !important;
+        border-top: 1px solid var(--background-modifier-border) !important;
+    }
+
+    /* Keep the class-based ones too as backup */
+    .is-mobile-layout .todo-flow-task-card {
+        flex-wrap: wrap;
+        padding: 0.75rem;
+        gap: 0.5rem;
+    }
+    .is-mobile-layout .title {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        white-space: normal !important;
+    }
+
+    .is-mobile-layout .drag-handle {
+        padding: 0;
+        width: 20px;
+    }
+
+    .is-mobile-layout .time-col {
+        flex: 1;
+        justify-content: flex-start;
+        min-width: unset;
+    }
+
+    .is-mobile-layout .desktop-only-time {
+        display: none;
+    }
+
+    .is-mobile-layout .mobile-only-time {
+        display: inline;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .is-mobile-layout .content-col {
+        order: 2;
+        width: 100%;
+        flex: none;
+    }
+    .is-mobile-layout .duration {
+        margin-top: 0.4rem;
+        justify-content: flex-start;
+        padding-left: 0;
+    }
+
+    .is-mobile .desktop-only-anchor {
+        display: none;
+    }
+
+    .is-mobile .mobile-anchor-badge {
+        display: block;
+        font-size: 1rem;
+        margin-left: auto;
+    }
+
+    /* Keep media query for cases where body class might not be present but screen is small */
+    @media (max-width: 600px), .todo-flow-stack-container.is-mobile {
+        .todo-flow-task-card {
+            flex-wrap: wrap;
+            padding: 0.75rem;
+            gap: 0.5rem;
+        }
+
+        .drag-handle {
+            padding: 0;
+            width: 20px;
+        }
+
+        .time-col {
+            flex: 1;
+            justify-content: flex-start;
+            min-width: unset;
+        }
+
+        .desktop-only-time {
+            display: none;
+        }
+
+        .mobile-only-time {
+            display: inline;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .content-col {
+            order: 2;
+            width: 100%;
+            flex: none;
+        }
+
+        .title {
+            white-space: normal;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .duration {
+            margin-top: 0.4rem;
+            justify-content: flex-start;
+            padding-left: 0;
+        }
+
+        .desktop-only-anchor {
+            display: none;
+        }
+
+        .mobile-anchor-badge {
+            display: block;
+            font-size: 1rem;
+            margin-left: auto;
+        }
     }
 
     .todo-flow-title-input {

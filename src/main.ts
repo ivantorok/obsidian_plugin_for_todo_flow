@@ -104,7 +104,7 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.registerView(
             VIEW_TYPE_DUMP,
-            (leaf) => new DumpView(leaf, this.settings.targetFolder, this.logger, (tasks) => {
+            (leaf) => new DumpView(leaf, this.settings, this.logger, (tasks) => {
                 this.activateTriage(tasks);
             })
         );
@@ -613,17 +613,11 @@ export default class TodoFlowPlugin extends Plugin {
             }
 
             // 3. Save & Activate
-            // We explicitely save the Resulting State to CurrentStack.md
             await this.stackPersistenceService.saveStack(
-                // We need TaskNodes for saveStack, but we only have IDs for the merged set.
-                // Ideally saveStack should accept IDs too, OR we reconstruct nodes.
-                // Hack: saveStack only needs ID for the link. Using simplified nodes.
                 ids.map(id => ({ id, title: 'Ref', status: 'todo', children: [] } as any)),
                 persistencePath
             );
 
-            // Auto-start Stack with EXPLICIT IDs (Session Isolation)
-            // Passing persistencePath ensures it treats it as File-Backed
             this.activateStack(ids, persistencePath);
         }, (title: string, options?: any) => {
             return this.onCreateTask(title, options);

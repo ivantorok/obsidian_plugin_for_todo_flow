@@ -45,3 +45,10 @@ To prevent data loss during view transitions (specifically Triage -> Stack), the
 - **Never Overwrite**: A view (or command) must never blindly overwrite a target file (like `CurrentStack.md`) if it already exists.
 - **Decision Phase**: If a write conflict is detected (e.g., Triage complete but Stack exists), the system MUST enter a Decision Phase, presenting the user with clear options (Merge vs. Overwrite) via a Conflict Card or Modal.
 - **Merge Strategy**: The system must load the existing content, append/merge the new items (deduplicating by ID), and then write the result.
+
+## 6. The Shared State Pattern (Unified Truth)
+To prevent state drift between the Logic Layer (`NavigationManager`) and the UI Layer (`Svelte`), the system employs a Unidirectional Data Flow.
+
+- **Single Source of Truth**: `NavigationManager` holds the canonical `currentStack` and `focusedIndex`.
+- **Reactive Bridge**: `StackUIState` acts as the reactive glue, converting imperative class state into Svelte 5 runes (`$state`).
+- **The Funnel**: `StackView.svelte` uses an `$effect` to ingest the `navState` derived from the manager. It NEVER modifies local state directly for navigation or data; it calls methods on the Controller/Manager, which update the Truth, which then flows back down to the UI.

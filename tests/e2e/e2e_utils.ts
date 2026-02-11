@@ -1,4 +1,33 @@
 import { browser, $ } from '@wdio/globals';
+import * as fs from 'fs';
+import * as path from 'path';
+
+export async function scaffoldVault(fixtureName: string) {
+    const vaultPath = path.resolve('./.test-vault');
+    const fixturePath = path.resolve(`./tests/fixtures/${fixtureName}`);
+
+    // 1. Wipe current test vault files (except .obsidian)
+    if (fs.existsSync(vaultPath)) {
+        const files = fs.readdirSync(vaultPath);
+        for (const file of files) {
+            if (file === '.obsidian') continue;
+            fs.rmSync(path.join(vaultPath, file), { recursive: true, force: true });
+        }
+    } else {
+        fs.mkdirSync(vaultPath, { recursive: true });
+    }
+
+    // 2. Copy fixture
+    if (fs.existsSync(fixturePath)) {
+        fs.cpSync(fixturePath, vaultPath, { recursive: true });
+        console.log(`[Scaffold] Vault populated from ${fixtureName}`);
+    } else {
+        console.warn(`[Scaffold] Fixture ${fixtureName} not found!`);
+    }
+
+    // 3. Wait for Obsidian to index
+    await browser.pause(1000);
+}
 
 // Helper to ensure Stack View is focused
 export async function focusStack() {
@@ -132,12 +161,9 @@ export async function setupStackWithTasks(taskNames: string[]) {
     // @ts-ignore
     await browser.waitUntil(async () => {
         // @ts-ignore
-        return await browser.execute(() => {
-            // @ts-ignore
-            return app.workspace.getLeavesOfType('todo-flow-stack-view').length > 0;
-        });
-    }, { timeout: 15000, timeoutMsg: 'todo-flow-stack-view did not appear in time (15s limit)' });
+        return (await browser.execute(() => app.workspace.getLeavesOfType('todo-flow-stack-view').length > 0));
+    }, { timeout: 60000, timeoutMsg: 'todo-flow-stack-view did not appear in time (60s limit)' });
 
     // @ts-ignore
-    await browser.pause(500); // Let Stack settle
+    await browser.pause(2000); // Increased settle pause for Obsidian indexing
 }

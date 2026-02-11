@@ -8,13 +8,13 @@ export const VIEW_TYPE_DUMP = "todo-flow-dump-view";
 
 export class DumpView extends ItemView {
     component: any;
-    folder: string;
+    settings: any; // TodoFlowSettings
     logger: FileLogger;
     onComplete: (tasks: TaskNode[]) => void;
 
-    constructor(leaf: WorkspaceLeaf, folder: string, logger: FileLogger, onComplete: (tasks: TaskNode[]) => void) {
+    constructor(leaf: WorkspaceLeaf, settings: any, logger: FileLogger, onComplete: (tasks: TaskNode[]) => void) {
         super(leaf);
-        this.folder = folder;
+        this.settings = settings;
         this.logger = logger;
         this.onComplete = onComplete;
     }
@@ -32,7 +32,7 @@ export class DumpView extends ItemView {
             target: this.contentEl,
             props: {
                 app: this.app,
-                folder: this.folder,
+                folder: this.settings.targetFolder, // Pass dynamic value
                 logger: this.logger,
                 onComplete: (tasks: TaskNode[]) => {
                     this.onComplete(tasks);

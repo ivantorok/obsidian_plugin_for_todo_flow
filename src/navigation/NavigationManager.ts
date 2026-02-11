@@ -82,6 +82,8 @@ export class NavigationManager {
      */
     onStackChange(listener: (state: NavigationState) => void): () => void {
         this.listeners.push(listener);
+        // Immediate push of current state to ensure deterministic initialization
+        listener(this.getState());
         return () => {
             this.listeners = this.listeners.filter(l => l !== listener);
         };
@@ -146,6 +148,7 @@ export class NavigationManager {
         }
         this.state.currentStack = [...tasks];
         this.state.currentSource = source;
+        this.state.currentFocusedIndex = 0;
         this.notifyListeners();
     }
 
@@ -209,10 +212,12 @@ export class NavigationManager {
      * Update the current focused index (from UI)
      */
     setFocus(index: number): void {
-        this.state.currentFocusedIndex = index;
-        // We don't necessarily need to notify listeners here if it's coming FROM the UI,
-        // but it's good for consistency if other listeners exist.
-        // For now, let's just update the internal state to avoid feedback loops.
+        const stackLen = this.state.currentStack.length;
+        const clamped = stackLen > 0 ? Math.max(0, Math.min(stackLen - 1, index)) : 0;
+
+        if (this.state.currentFocusedIndex === clamped) return;
+        this.state.currentFocusedIndex = clamped;
+        this.notifyListeners();
     }
 
     /**

@@ -27,7 +27,7 @@ describe('Stack View Mobile Gestures (TDD)', () => {
         });
 
         it('should not detect double tap outside the window', () => {
-            expect(isDoubleTap(1000, 1400)).toBe(false);
+            expect(isDoubleTap(1000, 1500)).toBe(false);
         });
     });
 });

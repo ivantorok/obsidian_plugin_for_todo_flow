@@ -129,13 +129,32 @@ export class TriageView extends ItemView {
                 if (result.duration !== undefined) options.duration = result.duration;
                 if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
 
-                const newNode = await this.onCreateTask(result.title, options);
+                // Optimistic UI: Update view immediately
+                const tempId = `temp-${Date.now()}`;
+                const tempNode: TaskNode = {
+                    id: tempId,
+                    title: result.title || 'Untitled',
+                    status: 'todo',
+                    duration: options.duration || 30,
+                    startTime: options.startTime,
+                    isAnchored: !!options.isAnchored,
+                    children: []
+                };
 
-                if (newNode && this.component) {
-                    if (typeof this.component.addTaskToQueue === 'function') {
-                        this.component.addTaskToQueue(newNode);
-                    }
+                if (this.component && typeof this.component.addTaskToQueue === 'function') {
+                    this.component.addTaskToQueue(tempNode);
                 }
+
+                // Background: Create actual file
+                this.onCreateTask(result.title, options).then((newNode) => {
+                    if (newNode) {
+                        tempNode.id = newNode.id; // Update ID with real path
+                        // Ideally we'd update other props if they changed during creation
+                    } else {
+                        // Rollback or Error state?
+                        if (this.logger) this.logger.error(`[TriageView] Failed to create task for ${result.title}`);
+                    }
+                });
             } else if (result.type === 'file' && result.file) {
                 // BUG-012: Handle existing file selection
                 const file = result.file;

@@ -20,12 +20,14 @@ import { ExportService } from '../services/ExportService.js';
 import { SetDurationCommand } from '../commands/stack-commands.js';
 import moment from 'moment';
 import { type ViewManager } from '../ViewManager.js';
+import { type StackUIState } from './ViewTypes.js';
 
 export const VIEW_TYPE_STACK = "todo-flow-stack-view";
 
 export class StackView extends ItemView {
     component: any;
     rootPath: string | null = null;
+    parentTaskName: string | null = null;
     private currentTaskIds: string[] | null = null;
     tasks: TaskNode[] = [];
     settings: TodoFlowSettings;
@@ -66,15 +68,23 @@ export class StackView extends ItemView {
             if (this.logger) this.logger.info(`[StackView] State change detected in NavigationManager. Updating view.`);
             this.tasks = state.currentStack;
             this.rootPath = state.currentSource;
-            if (this.logger) this.logger.info(`[StackView] New rootPath from NavigationManager: ${this.rootPath}`);
+            this.parentTaskName = this.resolveParentName(this.rootPath);
 
-            if (this.component && this.component.setTasks) {
-                this.component.setTasks(this.tasks);
-                if (this.component.setCanGoBack) {
-                    this.component.setCanGoBack(this.navManager.canGoBack());
-                }
-                if (state.currentFocusedIndex !== undefined) {
-                    this.component.setFocus(state.currentFocusedIndex);
+            if (this.component) {
+                const uiState: StackUIState = {
+                    tasks: this.tasks,
+                    focusedIndex: state.currentFocusedIndex ?? 0,
+                    parentTaskName: this.parentTaskName,
+                    canGoBack: this.navManager.canGoBack(),
+                    rootPath: this.rootPath,
+                    isMobile: (this.app as any).isMobile
+                };
+
+                if (this.logger) this.logger.info(`[StackView] Pushing atomic navState: tasks=${uiState.tasks.length}, focus=${uiState.focusedIndex}, parent=${uiState.parentTaskName}`);
+
+                // Single source of truth update
+                if (this.component.setNavState) {
+                    this.component.setNavState(uiState);
                 }
             }
         });
@@ -107,8 +117,6 @@ export class StackView extends ItemView {
 
     async setState(state: any, result: any): Promise<void> {
         const now = this.getNow();
-        if (this.logger) await this.logger.info(`[StackView] setState called. Root: ${state?.rootPath}, ForceRefresh: ${!!state?.navState?.forceRefresh}`);
-
         if (state && (state.rootPath || state.ids)) {
             let rawTasks: TaskNode[] = [];
 
@@ -117,16 +125,23 @@ export class StackView extends ItemView {
             const hasStack = state.navState?.currentStack && state.navState.currentStack.length > 0;
 
             if (state.navState && (hasHistory || hasStack) && !state.navState.forceRefresh) {
-                if (this.logger) await this.logger.info(`[StackView] Restoring from memory/history.`);
                 this.navManager.setState(state.navState);
                 this.tasks = this.navManager.getCurrentStack();
                 this.rootPath = state.rootPath || state.navState.currentSource;
+                this.parentTaskName = this.resolveParentName(this.rootPath);
 
-                if (this.component && this.component.setTasks) {
-                    this.component.setTasks(this.tasks);
-                    if (state.navState.currentFocusedIndex !== undefined) {
-                        this.component.setFocus(state.navState.currentFocusedIndex);
-                    }
+                if (this.logger) await this.logger.info(`[StackView] Restoration success. Root: ${this.rootPath}, Parent: ${this.parentTaskName}`);
+
+                if (this.component && this.component.setNavState) {
+                    const uiState: StackUIState = {
+                        tasks: this.tasks,
+                        focusedIndex: state.navState.currentFocusedIndex ?? 0,
+                        parentTaskName: this.parentTaskName,
+                        canGoBack: this.navManager.canGoBack(),
+                        rootPath: this.rootPath,
+                        isMobile: (this.app as any).isMobile
+                    };
+                    this.component.setNavState(uiState);
                 }
                 return;
             }
@@ -147,6 +162,8 @@ export class StackView extends ItemView {
                 rawTasks = await this.loader.load(state.rootPath);
             }
 
+            this.parentTaskName = this.resolveParentName(this.rootPath);
+
             if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks.length}. Any children? ${rawTasks.some(t => t.children && t.children.length > 0)}`);
 
             if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks.length}`);
@@ -155,13 +172,13 @@ export class StackView extends ItemView {
             this.navManager.setStack(initialTasks, this.rootPath!);
 
             const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
-            if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md') {
-                try {
-                    await this.persistenceService.saveStack(this.navManager.getCurrentStack(), persistencePath);
-                    this.lastSavedIds = this.navManager.getCurrentStack().map(t => `${t.id}:${t.status}`);
-                } catch (e) {
-                    if (this.logger) this.logger.error(`[StackView] Failed to save CurrentStack.md: ${e}`);
-                }
+            // 3. Save & Activate
+            try {
+                await this.persistenceService.saveStack(
+                    this.navManager.getCurrentStack(), persistencePath);
+                this.lastSavedIds = this.navManager.getCurrentStack().map(t => `${t.id}:${t.status}`);
+            } catch (e) {
+                if (this.logger) this.logger.error(`[StackView] Failed to save CurrentStack.md: ${e}`);
             }
         }
 
@@ -287,6 +304,9 @@ export class StackView extends ItemView {
             }, 60 * 1000)
         );
 
+        // Initialize state non-blocking to ensure view mounts immediately
+        this.reload();
+
         this.component = mount(StackViewSvelte, {
             target: this.contentEl,
             props: {
@@ -298,6 +318,20 @@ export class StackView extends ItemView {
                 onTaskUpdate: this.onTaskUpdate,
                 onTaskCreate: this.onTaskCreate,
                 canGoBack: this.navManager.canGoBack(),
+                parentTaskName: this.parentTaskName,
+                isMobile: (this.app as any).isMobile,
+                navState: {
+                    tasks: this.tasks,
+                    focusedIndex: this.navManager.getState().currentFocusedIndex,
+                    parentTaskName: this.parentTaskName,
+                    canGoBack: this.navManager.canGoBack(),
+                    rootPath: this.rootPath,
+                    isMobile: (this.app as any).isMobile
+                } as StackUIState,
+                onFocusChange: (index: number) => {
+                    if (this.logger) this.logger.info(`[StackView] Focus change from UI: ${index}`);
+                    this.navManager.setFocus(index);
+                },
                 onStackChange: (tasks: TaskNode[]) => {
                     this.tasks = tasks;
                     this.navManager.setStack(tasks, this.rootPath!);
@@ -408,46 +442,30 @@ export class StackView extends ItemView {
                 onOpenFile: (path: string) => {
                     this.app.workspace.openLinkText(path, '', true);
                 },
-                onNavigate: async (path: string, currentFocus: number) => {
-                    this.logger.info(`[StackView] onNavigate entry: ${path}`);
-                    const success = await this.navManager.drillDown(path, currentFocus);
-                    if (success) {
-                        this.tasks = this.navManager.getCurrentStack();
-                        this.rootPath = this.navManager.getState().currentSource;
-                        if (this.logger) this.logger.info(`[StackView] onNavigate success. New rootPath: ${this.rootPath}`);
-                        if (this.component && this.component.setTasks) {
-                            this.component.setTasks(this.tasks);
-                            if (this.component.setFocus) this.component.setFocus(0);
-                            if (this.component.setCanGoBack) {
-                                this.component.setCanGoBack(this.navManager.canGoBack());
-                            }
-                        }
-                        if (this.logger) this.logger.info(`[StackView] Pushing state to Obsidian for path: ${path}. History Depth: ${this.navManager.getState().history.length}`);
-                        // Pass { history: true } as eState - Obsidian runtime often looks for this
-                        await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState(true), active: true }, { history: true } as any);
-                        if (this.logger) this.logger.info(`[StackView] State push completed.`);
-                    } else {
-                        // NO FALLBACK: Enter should never open a file as standard Obsidian editor.
-                        if (this.logger) this.logger.warn(`[StackView] drillDown FAILED for path: ${path}. No fallback applied.`);
-                    }
-                },
+                onNavigate: this.onNavigate.bind(this),
                 onGoBack: async () => {
                     const result = await this.navManager.goBack();
                     if (result.success) {
                         this.tasks = this.navManager.getCurrentStack();
                         this.rootPath = this.navManager.getState().currentSource;
-                        if (this.component && this.component.setTasks) {
-                            this.component.setTasks(this.tasks);
-                            if (this.component.setFocus) this.component.setFocus(result.focusedIndex);
-                            if (this.component.setCanGoBack) {
-                                this.component.setCanGoBack(this.navManager.canGoBack());
-                            }
+                        this.parentTaskName = this.resolveParentName(this.rootPath);
+                        if (this.component && this.component.setNavState) {
+                            const uiState: StackUIState = {
+                                tasks: this.tasks,
+                                focusedIndex: result.focusedIndex,
+                                parentTaskName: this.parentTaskName,
+                                canGoBack: this.navManager.canGoBack(),
+                                rootPath: this.rootPath,
+                                isMobile: (this.app as any).isMobile
+                            };
+                            this.component.setNavState(uiState);
                         }
                         await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true } as any);
                     }
                 }
             }
         });
+
     }
 
     private getNow(): moment.Moment {
@@ -456,6 +474,36 @@ export class StackView extends ItemView {
             return moment().set({ hour: parseInt(hh || '9'), minute: parseInt(mm || '0'), second: 0, millisecond: 0 });
         }
         return moment();
+    }
+
+    async onNavigate(path: string, currentFocus: number) {
+        this.logger.info(`[StackView] onNavigate entry: ${path}`);
+        const success = await this.navManager.drillDown(path, currentFocus);
+        if (success) {
+            this.tasks = this.navManager.getCurrentStack();
+            this.rootPath = this.navManager.getState().currentSource;
+            this.parentTaskName = this.resolveParentName(this.rootPath);
+            if (this.logger) this.logger.info(`[StackView] onNavigate success. New rootPath: ${this.rootPath}, New parentTaskName: ${this.parentTaskName}`);
+
+            if (this.component && this.component.setNavState) {
+                const uiState: StackUIState = {
+                    tasks: this.tasks,
+                    focusedIndex: 0,
+                    parentTaskName: this.parentTaskName,
+                    canGoBack: this.navManager.canGoBack(),
+                    rootPath: this.rootPath,
+                    isMobile: (this.app as any).isMobile
+                };
+                this.component.setNavState(uiState);
+            }
+
+            if (this.logger) this.logger.info(`[StackView] Pushing state to Obsidian for path: ${path}. History Depth: ${this.navManager.getState().history.length}`);
+            // Pass { history: true } as eState - Obsidian runtime often looks for this
+            await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState(true), active: true }, { history: true } as any);
+            if (this.logger) this.logger.info(`[StackView] State push completed.`);
+        } else {
+            if (this.logger) this.logger.warn(`[StackView] drillDown FAILED for path: ${path}. No fallback applied.`);
+        }
     }
 
     updateSettings(settings: TodoFlowSettings) {
@@ -479,5 +527,30 @@ export class StackView extends ItemView {
 
     onActivate() {
         this.contentEl.focus();
+    }
+
+    onResize() {
+        if (this.component && this.component.setIsMobile) {
+            this.component.setIsMobile((this.app as any).isMobile);
+        }
+    }
+
+    private resolveParentName(path: string | null): string | null {
+        if (!path) return null;
+        if (path === 'QUERY:SHORTLIST') return 'Shortlist';
+        if (path.startsWith('EXPLICIT:')) return 'Stack';
+
+        // If it's the target folder, it's the root
+        if (path === this.settings.targetFolder) return null;
+        if (path === 'CurrentStack.md' || path.includes('/CurrentStack.md')) return null;
+
+        // Try to parse from filename
+        const filename = path.split('/').pop();
+        if (filename) {
+            const result = parseTitleFromFilename(filename).replace(/\.md$/, '');
+            if (this.logger) this.logger.info(`[StackView] resolveParentName: path='${path}', result='${result}'`);
+            return result;
+        }
+        return null;
     }
 }

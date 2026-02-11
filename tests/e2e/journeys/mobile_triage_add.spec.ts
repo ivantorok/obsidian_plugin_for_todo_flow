@@ -25,22 +25,10 @@ describe('Mobile Triage Addition (FEAT-001)', () => {
     });
 
     it('should allow adding tasks via a floating "+" button on mobile triage', async () => {
-        // 1. Create a fresh dump task directly
-        await browser.execute(async () => {
-            const content = `---
-task: Triage Test Task
-status: todo
-duration: 30
-flow_state: dump
----
-# Triage Test Task
-`;
-            const adapter = app.vault.adapter;
-            if (!(await adapter.exists('todo-flow'))) {
-                await adapter.mkdir('todo-flow');
-            }
-            await app.vault.create('todo-flow/TriageTestTask.md', content);
-        });
+        // 1. Scaffold Vault (Steady State)
+        // @ts-ignore
+        const { scaffoldVault } = await import('../e2e_utils.js');
+        await scaffoldVault('basic_stack');
         await browser.pause(500);
 
         // 2. Start Triage
@@ -85,6 +73,7 @@ flow_state: dump
         const initialTitleEl = await $('.todo-flow-card .todo-flow-card-header');
         const initialTitle = await initialTitleEl.getText();
         console.log(`[Test] Initial Card Title: "${initialTitle}"`);
+        await expect(initialTitleEl).toHaveText('TASK A');
 
         // Swipe away the current task ("Triage Test Task")
         console.log('[Test] Swiping right...');

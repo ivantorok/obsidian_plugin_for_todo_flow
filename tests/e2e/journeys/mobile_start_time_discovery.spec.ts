@@ -27,8 +27,17 @@ describe('Mobile Start Time Discovery (UX-001)', () => {
     });
 
     it('should show an edit indicator and trigger start time editing on click', async () => {
-        // Step 1: Setup Task A
+        // Step 1: Setup Task A and Anchor it (required for edit icon since FEAT-002)
         await setupStackWithTasks(['Task A']);
+        await browser.execute(() => {
+            // @ts-ignore
+            const leaf = app.workspace.getLeavesOfType('todo-flow-stack-view')[0];
+            const view = leaf?.view;
+            if (view && view.tasks[0]) {
+                view.tasks[0].isAnchored = true;
+                if (view.component) view.component.setTasks(view.tasks);
+            }
+        });
         await focusStack();
 
         const taskCard = await $('.todo-flow-task-card*=Task A');

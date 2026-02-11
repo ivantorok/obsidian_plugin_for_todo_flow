@@ -22,12 +22,12 @@ export function formatDuration(minutes: number): string {
 /**
  * Formats a date relative to another date.
  * If same day: HH:mm
- * If different day: YYYY-MM-DD HH:mm
+ * If different day: YYYY-MM-DD HH:mm (unless hideDate is true)
  */
-export function formatDateRelative(date: moment.Moment | undefined, now: moment.Moment): string {
+export function formatDateRelative(date: moment.Moment | undefined, now: moment.Moment, hideDate: boolean = false): string {
     if (!date) return '';
 
-    if (date.isSame(now, 'day')) {
+    if (hideDate || date.isSame(now, 'day')) {
         return date.format('HH:mm');
     }
 

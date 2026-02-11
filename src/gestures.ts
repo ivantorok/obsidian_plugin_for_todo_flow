@@ -1,5 +1,5 @@
 export const SWIPE_THRESHOLD = 80;
-export const DOUBLE_TAP_WINDOW = 300;
+export const DOUBLE_TAP_WINDOW = 450;
 
 export function resolveSwipe(deltaX: number, deltaY: number = 0): 'right' | 'left' | 'none' {
     const absX = Math.abs(deltaX);

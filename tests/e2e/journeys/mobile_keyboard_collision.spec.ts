@@ -90,7 +90,7 @@ describe('Mobile Viewport Collision (BUG-016)', () => {
 
         // 2. Verify input is visible
         const inputResult = await browser.execute(() => {
-            const input = document.querySelector('.todo-flow-title-input');
+            const input = document.querySelector('.rename-input');
             if (!input) return { found: false };
 
             const rect = input.getBoundingClientRect();

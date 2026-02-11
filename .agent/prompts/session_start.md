@@ -5,6 +5,7 @@ Use this prompt to initialize a new coding session with Antigravity to ensure hi
 ---
 
 Initialize session with a **Full Protocol Boot**:
+0.  **Session Goal**: State the specific ID (e.g., `FEAT-002`) or objective you want to tackle today.
 1.  **Backlog Audit**: Review `docs/BACKLOG.md` and `docs/backlog/*.md` to identify the next priority task.
 2.  **KI Synchronization**: Review `docs/KNOWLEDGE_BASE.md` and `docs/UX_GOVERNANCE.md` for patterns relevant to the chosen task.
 3.  **Build & Baseline**: Run `npm run build` followed by the **Golden Suite** (`npm run test:quick`) to confirm a 100% stable baseline before any changes.

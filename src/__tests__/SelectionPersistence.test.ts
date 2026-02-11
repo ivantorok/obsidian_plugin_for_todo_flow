@@ -91,6 +91,7 @@ const mocks = vi.hoisted(() => ({
     },
     component: {
         setTasks: vi.fn(),
+        setNavState: vi.fn(),
         setFocus: vi.fn(),
         getFocusedIndex: vi.fn(),
         updateSettings: vi.fn(),
@@ -177,7 +178,11 @@ describe('StackView Selection Persistence', () => {
         // 1. NavigationManager should have updated its focused index to 1 (where Task A is now)
         expect(view.navManager.getState().currentFocusedIndex).toBe(1);
 
-        // 2. Component should have been notified via setFocus(1)
-        expect(mocks.component.setFocus).toHaveBeenCalledWith(1);
+        // 2. Component should have been notified via setNavState (Unified State)
+        expect(mocks.component.setNavState).toHaveBeenCalled();
+        const calls = mocks.component.setNavState.mock.calls;
+        expect(calls.length).toBeGreaterThan(0);
+        const calledState = calls[calls.length - 1][0];
+        expect(calledState?.focusedIndex).toBe(1);
     });
 });

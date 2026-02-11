@@ -34,6 +34,10 @@ export class StackController {
         return this.tasks;
     }
 
+    setTasks(tasks: TaskNode[]) {
+        this.tasks = computeSchedule(tasks, this.currentTime);
+    }
+
     moveUp(index: number): number {
         if (index <= 0) return index;
         if (this.tasks[index]?.isAnchored) return index; // Anchors shouldn't move via list reordering

@@ -17,8 +17,9 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 3: Component Polishing (The Presentation)
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
-| BUG-020 | Mobile: Selection Jump after Anchor | Bug | [Spec](./backlog/BUG-020_mobile_selection_jump.md) | 2026-02-10 |
-| FEAT-002 | Mobile Stack View Refinements | Feat | [Spec](./backlog/FEAT-002_mobile_stack_refinements.md) | 2026-02-09 |
+| FEAT-001 | Mobile: Chore Addition in Triage | Feat | - | 2026-02-11 | v1.2.36 |
+| BUG-020 | Mobile: Selection Jump after Anchor | Bug | [Spec](./archive/backlog/BUG-020_mobile_selection_jump.md) | 2026-02-10 | v1.2.33 |
+| FEAT-002 | Mobile Stack View Refinements | Feat | [Spec](./archive/backlog/FEAT-002_mobile_stack_refinements.md) | 2026-02-09 | v1.2.33 |
 | BUG-018 | Mobile: Start Time Input Keyboard Gap | Bug | [Spec](./archive/backlog/BUG-018_start_time_keyboard_gap.md) | 2026-02-10 | v1.2.33 |
 | BUG-019 | Triage Workflow Data Loss | Bug | [Spec](./archive/backlog/BUG-019_triage_flow_broken.md) | 2026-02-09 | v1.2.30 |
 | UI-002 | Stack View: Long title overflow | Bug | [Spec](./archive/backlog/UI-002_long_title_overflow.md) | 2026-02-09 | v1.2.30 |

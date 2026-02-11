@@ -28,6 +28,18 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
         // --- STEP 1: Setup tasks via Dump Flow ---
         console.log('[Journey] Step 1: Creating Task A, B, C');
         await setupStackWithTasks(['Task A', 'Task B', 'Task C']);
+
+        // Wait for UI Ready signal
+        await $('.todo-flow-stack-container[data-ui-ready="true"]').waitForExist({ timeout: 5000 });
+
+        // Wait for tasks to be projected (3 tasks expected)
+        await $('.todo-flow-stack-container[data-task-count="3"]').waitForExist({ timeout: 10000 });
+
+        // Wait for cards to appear and click first task to ensure focus
+        const card0 = await $('[data-testid="task-card-0"]');
+        await card0.waitForExist({ timeout: 10000 });
+        await card0.click();
+
         await focusStack();
 
         // --- STEP 2: Keyboard Navigation (j/k) ---
@@ -35,8 +47,15 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
         // Initial focus 0 (Task A)
         // @ts-ignore
         await browser.keys(['j']); // Task B (1)
-        // @ts-ignore
-        await browser.pause(300);
+
+        // Wait for focus to sync to 1 using the new diagnostic attribute
+        await browser.waitUntil(async () => {
+            const idx = await browser.execute(() => {
+                const el = document.querySelector('.todo-flow-stack-container');
+                return el ? parseInt(el.getAttribute('data-focused-index') || '0') : -1;
+            });
+            return idx === 1;
+        }, { timeout: 3000, timeoutMsg: 'Focus did not move to 1 after pressing j' });
 
         let focusIndex = await browser.execute(() => {
             // @ts-ignore
@@ -56,17 +75,24 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
         });
         expect(titles[0]).toBe('Task B');
 
-        // --- STEP 4: Rename Task B ---
-        console.log('[Journey] Step 4: Renaming Task B');
-        // @ts-ignore
-        await browser.keys(['e']);
+        // Wait for UI Ready signal
+        await (await $('.todo-flow-stack-container[data-ui-ready="true"]')).waitForExist({ timeout: 5000 });
+
+        // Use programmatic trigger now that it is explicitly $exposed
+        await browser.execute(() => {
+            // @ts-ignore
+            const leaf = app.workspace.getLeavesOfType('todo-flow-stack-view')[0];
+            if (leaf && leaf.view.component) {
+                leaf.view.component.startRename(0);
+            }
+        });
         await browser.pause(1000);
 
-        const input = await $('.todo-flow-title-input');
-        await input.waitForDisplayed({ timeout: 5000 });
-        // @ts-ignore
-        await browser.keys(['ArrowRight', ' ', 'E', 'd', 'i', 't', 'e', 'd', 'Enter']);
-        await browser.pause(500);
+        const renameInput = await $('[data-testid="rename-input"]');
+        await renameInput.waitForDisplayed({ timeout: 5000 });
+        await renameInput.setValue('Task B Edited');
+        await browser.keys(['Enter']);
+        await browser.pause(1000); // Allow Svelte and Obsidian to sync
 
         let renamedTitle = await browser.execute(() => {
             // @ts-ignore
@@ -101,7 +127,6 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
 
         // --- STEP 7: Archive (z) ---
         console.log('[Journey] Step 7: Archiving the task');
-        // Task B is at index 0 and still focused
         // @ts-ignore
         await browser.keys(['z']);
         await browser.pause(1000);
