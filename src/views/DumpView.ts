@@ -10,9 +10,9 @@ export class DumpView extends ItemView {
     component: any;
     settings: any; // TodoFlowSettings
     logger: FileLogger;
-    onComplete: (tasks: TaskNode[]) => void;
+    onComplete: (tasks: TaskNode[]) => void | Promise<void>;
 
-    constructor(leaf: WorkspaceLeaf, settings: any, logger: FileLogger, onComplete: (tasks: TaskNode[]) => void) {
+    constructor(leaf: WorkspaceLeaf, settings: any, logger: FileLogger, onComplete: (tasks: TaskNode[]) => void | Promise<void>) {
         super(leaf);
         this.settings = settings;
         this.logger = logger;
@@ -34,8 +34,8 @@ export class DumpView extends ItemView {
                 app: this.app,
                 folder: this.settings.targetFolder, // Pass dynamic value
                 logger: this.logger,
-                onComplete: (tasks: TaskNode[]) => {
-                    this.onComplete(tasks);
+                onComplete: async (tasks: TaskNode[]) => {
+                    await this.onComplete(tasks);
                     // Close dump view after completion
                     this.leaf.detach();
                 }

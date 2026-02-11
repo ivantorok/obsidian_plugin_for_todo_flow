@@ -182,7 +182,7 @@ describe('StackView Selection Persistence', () => {
         expect(mocks.component.setNavState).toHaveBeenCalled();
         const calls = mocks.component.setNavState.mock.calls;
         expect(calls.length).toBeGreaterThan(0);
-        const calledState = calls[calls.length - 1][0];
+        const calledState = calls[calls.length - 1]![0];
         expect(calledState?.focusedIndex).toBe(1);
     });
 });

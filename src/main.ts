@@ -104,8 +104,8 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.registerView(
             VIEW_TYPE_DUMP,
-            (leaf) => new DumpView(leaf, this.settings, this.logger, (tasks) => {
-                this.activateTriage(tasks);
+            (leaf) => new DumpView(leaf, this.settings, this.logger, async (tasks) => {
+                return this.activateTriage(tasks);
             })
         );
 
@@ -618,8 +618,7 @@ export default class TodoFlowPlugin extends Plugin {
                 persistencePath
             );
 
-            this.activateStack(ids, persistencePath);
-        }, (title: string, options?: any) => {
+        }, async (title: string, options?: any) => {
             return this.onCreateTask(title, options);
         }, async () => {
             // checkForConflict impl

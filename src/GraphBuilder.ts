@@ -55,10 +55,11 @@ export class GraphBuilder {
             startTime: frontmatter.startTime ? moment(frontmatter.startTime) : (parsed.startTime ?? undefined)
         };
 
-        // 1. Pruning: If status is done, we do NOT traverse children.
-        if (status === 'done') {
-            return node;
-        }
+        // 1. Pruning: Removed. We MUST traverse children even if done, 
+        // to ensure they are available if the task is later unmarked.
+        // if (status === 'done') {
+        //     return node;
+        // }
 
         // 3. Link Resolution & Cycle Prevention
         const links = this.app.metadataCache.resolvedLinks[file.path] || {};

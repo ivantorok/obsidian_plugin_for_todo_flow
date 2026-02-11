@@ -40,6 +40,7 @@ To prevent "Obsidian Ghosting," Todo Flow uses deterministic intent locking.
 - **Relaxed Precision**: Double-tap gestures must use a relaxed window (>400ms) to accommodate valid mobile input speeds without requiring superhuman reflexes.
 - **Workflow Continuity**: When a workflow transition (like Triage -> Stack) encounters existing data, it MUST NOT proceed automatically. A "Conflict Card" or modal must be presented. The primary action (Swipe Right/Confirm) should default to "Merge (Append)" to prioritize data retention, while a secondary or destructive action (Swipe Left/Cancel) handles "Overwrite (Fresh)."
 - **Optimistic UI Pattern**: For high-latency operations like task creation, the UI MUST update immediately to reflect intent. The backing system performs disk I/O asynchronously. If the operation fails, the UI must self-correct (revert), but the happy path assumes success to maintain flow.
+- **Atomic Handoff Synchronization**: Any view transition (e.g., Dump -> Triage, Triage -> Stack) MUST be treated as an atomic operation. The departing view MUST await the successful initialization of the arriving view before closing to prevent "Host Leak" (flashing of the Obsidian background) and ensure focus sovereignty is maintained throughout the handover.
 
 ---
 

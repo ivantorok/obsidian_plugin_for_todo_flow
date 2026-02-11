@@ -55,7 +55,7 @@ describe('GraphBuilder', () => {
         expect(parentNode!.children[0]!.id).toBe('folder/Child.md');
     });
 
-    it('should prune children if parent is done (Recursive Pruning)', async () => {
+    it('should NOT prune children if parent is done (Recursive Durability)', async () => {
         // A (done) -> B (todo)
         const fileA = mockTFile('A.md', 'A');
         const fileB = mockTFile('B.md', 'B');
@@ -86,7 +86,8 @@ describe('GraphBuilder', () => {
 
         expect(nodeA).toBeDefined();
         expect(nodeA!.status).toBe('done');
-        expect(nodeA!.children).toHaveLength(0); // Pruned!
+        expect(nodeA!.children).toHaveLength(1); // Should NOT be pruned!
+        expect(nodeA!.children[0]!.id).toBe('B.md');
     });
 
     it('should handle circular dependencies gracefully', async () => {

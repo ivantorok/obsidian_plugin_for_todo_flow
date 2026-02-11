@@ -1,4 +1,5 @@
 import * as path from "path";
+import * as fs from "fs";
 import type { Options } from '@wdio/types';
 
 export const config: Options.Testrunner = {
@@ -89,5 +90,17 @@ export const config: Options.Testrunner = {
 
     after: function () {
         console.log('[WDIO] E2E test session complete');
+    },
+
+    afterTest: async function (test, context, { error, result, duration, passed, retries }) {
+        if (!passed) {
+            const screenshotPath = path.resolve(`./tests/e2e/failures/${test.title.replace(/\s+/g, '_')}.png`);
+            const screenshotDir = path.dirname(screenshotPath);
+            if (!fs.existsSync(screenshotDir)) {
+                fs.mkdirSync(screenshotDir, { recursive: true });
+            }
+            await browser.saveScreenshot(screenshotPath);
+            console.log(`[WDIO] Screenshot saved to: ${screenshotPath}`);
+        }
     }
 };

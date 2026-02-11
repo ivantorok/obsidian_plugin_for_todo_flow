@@ -52,3 +52,7 @@ To prevent state drift between the Logic Layer (`NavigationManager`) and the UI 
 - **Single Source of Truth**: `NavigationManager` holds the canonical `currentStack` and `focusedIndex`.
 - **Reactive Bridge**: `StackUIState` acts as the reactive glue, converting imperative class state into Svelte 5 runes (`$state`).
 - **The Funnel**: `StackView.svelte` uses an `$effect` to ingest the `navState` derived from the manager. It NEVER modifies local state directly for navigation or data; it calls methods on the Controller/Manager, which update the Truth, which then flows back down to the UI.
+
+## 7. Performance vs. Durability (The Graphite Fix)
+- **Non-Destructive Graph Building**: The `GraphBuilder` MUST never prune sub-tasks based on the parent's current status (e.g., DONE). This ensures that structural data (sub-task durations) remains durable if a task is toggled back to TODO.
+- **Asynchronous View Transitions**: All major view transitions (Dump -> Triage -> Stack) must be awaited. This prevents UI race conditions where one view closes before the next has fully computed its projection from the disk.
