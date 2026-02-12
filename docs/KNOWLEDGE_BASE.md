@@ -45,3 +45,9 @@ This document serves as the "Persistent Memory" for agents working on the Todo F
 - **Issue**: Hardened `scrollIntoView({ block: 'center' })` fails on items at the very bottom of a scrollable container because there is no "space" to scroll into.
 - **Fix**: Inject dynamic bottom padding (e.g., `50vh`) to the container while an input is active (`is-editing` state). Use CSS transitions for smooth entry/exit.
 - **Reference**: BUG-018 Fix in `StackView.svelte` (v1.2.33).
+
+### Svelte 5 Mount Failures (Silent Errors)
+- **Issue**: ReferenceErrors or runtime exceptions during Svelte 5 `mount()` can cause components to fail silently if the error isn't explicitly caught in the host class. In E2E, this manifests as "element not found".
+- **Fix**: Wrap `mount()` in a try-catch block and log the error message + stack to a global array (e.g., `window._logs`). Use `browser.getLogs('browser')` in E2E failures to capture the exact exception.
+- **Pattern**: When using `$derived` values that depend on cross-platform props (like `isMobileProp`), ensure the prop is declared as `$state` before any function usage to avoid ReferenceErrors during initial reactive tracking.
+- **Reference**: v1.2.42 release (Rollup Spec Fix).

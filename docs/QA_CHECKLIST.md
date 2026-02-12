@@ -58,7 +58,7 @@
 ## 3. Core Mechanics
 | ID | Feature | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **CM-01** | **Rollup Logic** | **[PASS]** | Verified via unit script `tests/verify_fixes.ts`. Children now persist even when parent is DONE. |
+| **CM-01** | **Rollup Logic** | **[PASS]** | Verified via unit script `tests/verify_fixes.ts` and E2E `rollup.spec.ts`. |
 | **CM-02** | **Rock & Water Scheduler** | **[PASS]** | Golden Suite Passed. |
 | **CM-03** | **Persistence** | **[PASS]** | Verified via logic sync. |
 | **CM-04** | **Dump -> Triage Handoff** | **[PASS]** | Async race condition fixed in `main.ts` by awaiting `activateTriage`. |
