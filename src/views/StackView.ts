@@ -175,11 +175,11 @@ export class StackView extends ItemView {
 
             this.parentTaskName = this.resolveParentName(this.rootPath);
 
-            if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks.length}. Any children? ${rawTasks.some(t => t.children && t.children.length > 0)}`);
+            if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks?.length || 0}. Any children? ${rawTasks?.some(t => t.children && t.children.length > 0) || false}`);
 
-            if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks.length}`);
+            if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks?.length || 0}`);
 
-            const initialTasks = computeSchedule(rawTasks, now);
+            const initialTasks = computeSchedule(rawTasks || [], now);
             this.navManager.setStack(initialTasks, this.rootPath!);
 
             const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
@@ -318,165 +318,174 @@ export class StackView extends ItemView {
         // Initialize state non-blocking to ensure view mounts immediately
         this.reload();
 
-        this.component = mount(StackViewSvelte, {
-            target: this.contentEl,
-            props: {
-                initialTasks: this.tasks,
-                settings: this.settings,
-                now: this.getNow(),
-                historyManager: this.historyManager,
-                logger: this.logger,
-                onTaskUpdate: this.onTaskUpdate,
-                onTaskCreate: this.onTaskCreate,
-                canGoBack: this.navManager.canGoBack(),
-                parentTaskName: this.parentTaskName,
-                isMobile: (this.app as any).isMobile,
-                navState: {
-                    tasks: this.tasks,
-                    focusedIndex: this.navManager.getState().currentFocusedIndex,
-                    parentTaskName: this.parentTaskName,
+        if (this.settings.debug) {
+            console.log('[StackView] Mounting Svelte component...');
+        }
+        try {
+            this.component = mount(StackViewSvelte, {
+                target: this.contentEl,
+                props: {
+                    initialTasks: this.tasks,
+                    settings: this.settings,
+                    now: this.getNow(),
+                    historyManager: this.historyManager,
+                    logger: this.logger,
+                    onTaskUpdate: this.onTaskUpdate,
+                    onTaskCreate: this.onTaskCreate,
                     canGoBack: this.navManager.canGoBack(),
-                    rootPath: this.rootPath,
-                    isMobile: (this.app as any).isMobile
-                } as StackUIState,
-                onFocusChange: (index: number) => {
-                    if (this.logger) this.logger.info(`[StackView] Focus change from UI: ${index}`);
-                    this.navManager.setFocus(index);
-                },
-                onStackChange: (tasks: TaskNode[]) => {
-                    this.tasks = tasks;
-                    this.navManager.setStack(tasks, this.rootPath!);
-                    this.app.workspace.requestSaveLayout();
+                    parentTaskName: this.parentTaskName,
+                    isMobile: (this.app as any).isMobile,
+                    debug: this.settings.debug,
+                    navState: {
+                        tasks: this.tasks,
+                        focusedIndex: this.navManager.getState().currentFocusedIndex,
+                        parentTaskName: this.parentTaskName,
+                        canGoBack: this.navManager.canGoBack(),
+                        rootPath: this.rootPath,
+                        isMobile: (this.app as any).isMobile
+                    } as StackUIState,
+                    onFocusChange: (index: number) => {
+                        if (this.logger) this.logger.info(`[StackView] Focus change from UI: ${index}`);
+                        this.navManager.setFocus(index);
+                    },
+                    onStackChange: (tasks: TaskNode[]) => {
+                        this.tasks = tasks;
+                        this.navManager.setStack(tasks, this.rootPath!);
+                        this.app.workspace.requestSaveLayout();
 
-                    const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
-                    if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
-                        if (tasks.length === 0 && (!this.lastSavedIds || this.lastSavedIds.length === 0)) return;
-                        const currentIds = tasks.map(t => `${t.id}:${t.status}`);
-                        const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
+                        const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+                        if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
+                            if (tasks.length === 0 && (!this.lastSavedIds || this.lastSavedIds.length === 0)) return;
+                            const currentIds = tasks.map(t => `${t.id}:${t.status}`);
+                            const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
 
-                        if (idsChanged) {
-                            if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
-                            this.saveTimeout = window.setTimeout(async () => {
-                                const savePath = (this.rootPath && this.rootPath.includes('CurrentStack.md')) ? this.rootPath : persistencePath;
-                                try {
-                                    await this.persistenceService.saveStack(tasks, savePath);
-                                    this.lastSavedIds = currentIds;
-                                } finally {
-                                    this.saveTimeout = null;
-                                    const resolvers = [...this.flushResolvers];
-                                    this.flushResolvers = [];
-                                    resolvers.forEach(resolve => resolve());
-                                }
-                            }, 500);
-                        }
-                    }
-                },
-                openQuickAddModal: (currentIndex: number) => {
-                    this.isModalOpen = true;
-                    const modal = new QuickAddModal(this.app, async (result) => {
-                        let nodeToInsert: TaskNode | null = null;
-                        if (result.type === 'new' && result.title) {
-                            const options: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean, parentPath?: string | undefined } = {};
-                            if (result.startTime) options.startTime = result.startTime;
-                            if (result.duration !== undefined) options.duration = result.duration;
-                            if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
-
-                            if (this.logger) this.logger.info(`[StackView] (openQuickAddModal prop) Creating new task "${result.title}" with rootPath: ${this.rootPath}`);
-                            options.parentPath = this.rootPath?.endsWith('.md') ? this.rootPath : undefined;
-
-                            nodeToInsert = await this.onTaskCreate(result.title, options);
-                        } else if (result.type === 'file' && result.file) {
-                            const nodes = await this.loader.loadSpecificFiles([result.file.path]);
-                            if (nodes.length > 0) nodeToInsert = nodes[0]!;
-                        }
-
-                        if (nodeToInsert && this.component) {
-                            const controller = this.component.getController();
-                            if (controller) {
-                                const cmd = new InsertTaskCommand(controller, currentIndex, nodeToInsert);
-                                await this.historyManager.executeCommand(cmd);
-                                if (this.component.update) {
-                                    this.component.update();
-                                    if (cmd.resultIndex !== null) this.component.setFocus(cmd.resultIndex);
-                                }
+                            if (idsChanged) {
+                                if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
+                                this.saveTimeout = window.setTimeout(async () => {
+                                    const savePath = (this.rootPath && this.rootPath.includes('CurrentStack.md')) ? this.rootPath : persistencePath;
+                                    try {
+                                        await this.persistenceService.saveStack(tasks, savePath);
+                                        this.lastSavedIds = currentIds;
+                                    } finally {
+                                        this.saveTimeout = null;
+                                        const resolvers = [...this.flushResolvers];
+                                        this.flushResolvers = [];
+                                        resolvers.forEach(resolve => resolve());
+                                    }
+                                }, 500);
                             }
                         }
-                    }, VIEW_TYPE_STACK);
+                    },
+                    openQuickAddModal: (currentIndex: number) => {
+                        this.isModalOpen = true;
+                        const modal = new QuickAddModal(this.app, async (result) => {
+                            let nodeToInsert: TaskNode | null = null;
+                            if (result.type === 'new' && result.title) {
+                                const options: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean, parentPath?: string | undefined } = {};
+                                if (result.startTime) options.startTime = result.startTime;
+                                if (result.duration !== undefined) options.duration = result.duration;
+                                if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
 
-                    const originalOnClose = modal.onClose.bind(modal);
-                    modal.onClose = () => {
-                        this.lastModalCloseTime = Date.now();
-                        originalOnClose();
-                        setTimeout(() => { this.isModalOpen = false; }, 500);
-                    };
-                    modal.open();
-                },
-                openDurationPicker: (index: number) => {
-                    this.isModalOpen = true;
-                    const modal = new DurationPickerModal(this.app, async (minutes: number) => {
-                        if (this.component) {
-                            const controller = this.component.getController();
-                            if (controller) {
-                                const cmd = new SetDurationCommand(controller, index, minutes);
-                                await this.historyManager.executeCommand(cmd);
-                                if (this.component.update) this.component.update();
+                                if (this.logger) this.logger.info(`[StackView] (openQuickAddModal prop) Creating new task "${result.title}" with rootPath: ${this.rootPath}`);
+                                options.parentPath = this.rootPath?.endsWith('.md') ? this.rootPath : undefined;
+
+                                nodeToInsert = await this.onTaskCreate(result.title, options);
+                            } else if (result.type === 'file' && result.file) {
+                                const nodes = await this.loader.loadSpecificFiles([result.file.path]);
+                                if (nodes.length > 0) nodeToInsert = nodes[0]!;
                             }
-                        }
-                    });
 
-                    const originalOnClose = modal.onClose.bind(modal);
-                    modal.onClose = () => {
-                        this.lastModalCloseTime = Date.now();
-                        originalOnClose();
-                        setTimeout(() => { this.isModalOpen = false; }, 500);
-                    };
-                    modal.open();
-                },
-                onExport: async () => {
-                    const tasks = this.getTasks();
-                    const exportService = new ExportService();
-                    const content = exportService.formatExport(tasks);
-                    if (this.settings.exportFolder) {
-                        try {
-                            const fileName = `Export-${moment().format('YYYY-MM-DD-HHmm')}.md`;
-                            const folderPath = this.settings.exportFolder.endsWith('/') ? this.settings.exportFolder : this.settings.exportFolder + '/';
-                            const fullPath = folderPath + fileName;
-                            await this.app.vault.create(fullPath, content);
-                            new (window as any).Notice(`Export saved to ${fullPath}`);
-                        } catch (err) {
-                            new (window as any).Notice('Failed to save export file.');
+                            if (nodeToInsert && this.component) {
+                                const controller = this.component.getController();
+                                if (controller) {
+                                    const cmd = new InsertTaskCommand(controller, currentIndex, nodeToInsert);
+                                    await this.historyManager.executeCommand(cmd);
+                                    if (this.component.update) {
+                                        this.component.update();
+                                        if (cmd.resultIndex !== null) this.component.setFocus(cmd.resultIndex);
+                                    }
+                                }
+                            }
+                        }, VIEW_TYPE_STACK);
+
+                        const originalOnClose = modal.onClose.bind(modal);
+                        modal.onClose = () => {
+                            this.lastModalCloseTime = Date.now();
+                            originalOnClose();
+                            setTimeout(() => { this.isModalOpen = false; }, 500);
+                        };
+                        modal.open();
+                    },
+                    openDurationPicker: (index: number) => {
+                        this.isModalOpen = true;
+                        const modal = new DurationPickerModal(this.app, async (minutes: number) => {
+                            if (this.component) {
+                                const controller = this.component.getController();
+                                if (controller) {
+                                    const cmd = new SetDurationCommand(controller, index, minutes);
+                                    await this.historyManager.executeCommand(cmd);
+                                    if (this.component.update) this.component.update();
+                                }
+                            }
+                        });
+
+                        const originalOnClose = modal.onClose.bind(modal);
+                        modal.onClose = () => {
+                            this.lastModalCloseTime = Date.now();
+                            originalOnClose();
+                            setTimeout(() => { this.isModalOpen = false; }, 500);
+                        };
+                        modal.open();
+                    },
+                    onExport: async () => {
+                        const tasks = this.getTasks();
+                        const exportService = new ExportService();
+                        const content = exportService.formatExport(tasks);
+                        if (this.settings.exportFolder) {
+                            try {
+                                const fileName = `Export-${moment().format('YYYY-MM-DD-HHmm')}.md`;
+                                const folderPath = this.settings.exportFolder.endsWith('/') ? this.settings.exportFolder : this.settings.exportFolder + '/';
+                                const fullPath = folderPath + fileName;
+                                await this.app.vault.create(fullPath, content);
+                                new (window as any).Notice(`Export saved to ${fullPath}`);
+                            } catch (err) {
+                                new (window as any).Notice('Failed to save export file.');
+                            }
+                        } else {
+                            new (window as any).Notice('Please configure an Export Folder in settings.');
                         }
-                    } else {
-                        new (window as any).Notice('Please configure an Export Folder in settings.');
-                    }
-                },
-                onOpenFile: (path: string) => {
-                    this.app.workspace.openLinkText(path, '', true);
-                },
-                onNavigate: this.onNavigate.bind(this),
-                onGoBack: async () => {
-                    const result = await this.navManager.goBack();
-                    if (result.success) {
-                        this.tasks = this.navManager.getCurrentStack();
-                        this.rootPath = this.navManager.getState().currentSource;
-                        this.parentTaskName = this.resolveParentName(this.rootPath);
-                        if (this.component && this.component.setNavState) {
-                            const uiState: StackUIState = {
-                                tasks: this.tasks,
-                                focusedIndex: result.focusedIndex,
-                                parentTaskName: this.parentTaskName,
-                                canGoBack: this.navManager.canGoBack(),
-                                rootPath: this.rootPath,
-                                isMobile: (this.app as any).isMobile
-                            };
-                            this.component.setNavState(uiState);
+                    },
+                    onOpenFile: (path: string) => {
+                        this.app.workspace.openLinkText(path, '', true);
+                    },
+                    onNavigate: this.onNavigate.bind(this),
+                    onGoBack: async () => {
+                        const result = await this.navManager.goBack();
+                        if (result.success) {
+                            this.tasks = this.navManager.getCurrentStack();
+                            this.rootPath = this.navManager.getState().currentSource;
+                            this.parentTaskName = this.resolveParentName(this.rootPath);
+                            if (this.component && this.component.setNavState) {
+                                const uiState: StackUIState = {
+                                    tasks: this.tasks,
+                                    focusedIndex: result.focusedIndex,
+                                    parentTaskName: this.parentTaskName,
+                                    canGoBack: this.navManager.canGoBack(),
+                                    rootPath: this.rootPath,
+                                    isMobile: (this.app as any).isMobile
+                                };
+                                this.component.setNavState(uiState);
+                            }
+                            await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true } as any);
                         }
-                        await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true } as any);
                     }
                 }
-            }
-        });
-
+            });
+            if (this.settings.debug) console.log('[StackView] Svelte component mounted successfully');
+        } catch (e) {
+            console.error('[StackView] Failed to mount Svelte component:', e);
+            this.contentEl.createEl('div', { text: 'Failed to load Daily Stack view. Check console for details.', cls: 'error-msg' });
+        }
     }
 
     private getNow(): moment.Moment {
@@ -541,6 +550,12 @@ export class StackView extends ItemView {
     }
 
     onResize() {
+        if (this.component && this.component.setIsMobile) {
+            this.component.setIsMobile((this.app as any).isMobile);
+        }
+    }
+
+    refreshMobileDetection() {
         if (this.component && this.component.setIsMobile) {
             this.component.setIsMobile((this.app as any).isMobile);
         }

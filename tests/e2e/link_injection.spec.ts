@@ -55,19 +55,18 @@ describe('Link Injection in Child Stacks', () => {
             await browser.keys(['Shift', 'Enter']);
             await browser.pause(3000);
 
-            // 3. VERIFY: via app.vault API
+            // 3. VERIFY: via app.vault.adapter API for direct disk access
             const verificationResult = await browser.execute(async () => {
                 // @ts-ignore
                 const adapter = app.vault.adapter;
                 // @ts-ignore
-                const parentFile = app.vault.getAbstractFileByPath('ParentTask.md');
+                const parentPath = 'ParentTask.md';
                 // @ts-ignore
                 const targetFolder = app.vault.getAbstractFileByPath('todo-flow');
 
                 let parentContent = "";
-                if (parentFile) {
-                    // @ts-ignore
-                    parentContent = await app.vault.read(parentFile);
+                if (await adapter.exists(parentPath)) {
+                    parentContent = await adapter.read(parentPath);
                 }
 
                 let childFound = false;
@@ -86,6 +85,7 @@ describe('Link Injection in Child Stacks', () => {
 
                 return {
                     parentContent,
+                    parentLength: parentContent.length,
                     childFound,
                     childFilename
                 };

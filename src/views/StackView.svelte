@@ -41,7 +41,7 @@
         onGoBack,
         onExport,
         onFocusChange,
-        debug = false
+        debug = true
     } = $props();
 
     let navState = $state(initialNavState || {
@@ -52,6 +52,8 @@
         rootPath: null,
         isMobile: false
     });
+    
+    let isMobileProp = $state(initialNavState?.isMobile || false);
     
     export function setNavState(newState: StackUIState) {
         if (logger && internalSettings.debug) logger.info(`[StackView.svelte] setNavState received: tasks=${newState.tasks.length}, focus=${newState.focusedIndex}`);
@@ -87,18 +89,33 @@
 
     // --- Backward Compatibility / Wrapper API ---
     export function setTasks(newTasks: TaskNode[]) {
-        tasks = newTasks;
+        if (controller) {
+            controller.setTasks(newTasks);
+            tasks = controller.getTasks();
+        } else {
+            tasks = newTasks;
+        }
+        
         // Also update navState to keep them in sync if navState exists
         if (navState) {
             navState.tasks = newTasks;
+            // Force navState to be "processed" to avoid redundant syncs
+            lastProcessedNavState = navState; 
         }
     }
 
     export function setFocus(index: number) {
         focusedIndex = index;
-         if (navState) {
+        if (navState) {
             navState.focusedIndex = index;
+            lastProcessedNavState = navState;
         }
+    }
+
+    export function setIsMobile(mobile: boolean) {
+        if (logger && debug) logger.info(`[StackView.svelte] setIsMobile manual trigger: ${mobile}`);
+        isMobileProp = mobile;
+        tick++; // Force re-evaluation of derived state
     }
 
     export function getController() {
@@ -112,26 +129,33 @@
     let internalSettings = $state(settings);
     let internalNow = $state(now);
     let tick = $state(0);
-    let isMobileProp = $state(navState?.isMobile || false);
-
+    let appMobile = $derived((typeof window !== 'undefined') && (window as any).app?.isMobile === true);
+    
     let isMobileState = $derived.by(() => {
-        tick;
-        return isMobileProp || (typeof window !== 'undefined' && (window.innerWidth <= 600 || document.body.classList.contains('is-mobile')));
+        const t = tick; 
+        const prop = isMobileProp;
+        const width = (typeof window !== 'undefined') ? window.innerWidth : 1000;
+        const bodyClass = (typeof window !== 'undefined') && document.body.classList.contains('is-mobile');
+        
+        return prop || width <= 600 || bodyClass || appMobile;
     });
 
+    let containerEl: HTMLElement | null = $state(null);
     let mounted = $state(false);
     let navStateReceived = $state(false);
     let isReady = $derived(mounted && navStateReceived);
+    let lastProcessedNavState = $state(null);
     let showHelp = $state(false); // Help Layer State
 
     onMount(async () => {
         mounted = true;
-        if (debug) console.log('[TODO_FLOW_TRACE] onMount entry');
         
-        window.onclick = (e) => {
-             console.log(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
-             if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
-        };
+        // if (debug) console.log('[TODO_FLOW_TRACE] onMount entry'); // Removed debug logging
+        
+        // window.onclick = (e) => { // Removed debug logging
+        //      console.log(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
+        //      if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
+        // };
 
         // Setup periodic refresh
         const interval = setInterval(() => {
@@ -207,7 +231,11 @@
     });
 
     $effect(() => {
-        if (navState) {
+        // Only react to changes in navState object itself
+        const currentNavState = navState;
+        if (!currentNavState || currentNavState === untrack(() => lastProcessedNavState)) return;
+
+        untrack(() => {
             // Only sync if fundamentally different to avoid race conditions with local pessimistic updates
             // Also BLOCK synchronization while editing to prevent UI flicker/focus loss
             if (editingIndex !== -1 || editingStartTimeIndex !== -1) {
@@ -215,32 +243,22 @@
                 return;
             }
 
-            const incomingTaskIds = navState.tasks.map(t => t.id).join(',');
-            const currentTaskIds = tasks.map(t => t.id).join(',');
+            if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Truth Funnel Sync Triggered: tasks=${currentNavState.tasks.length}, focus=${currentNavState.focusedIndex}`);
+            navStateReceived = true;
+            lastProcessedNavState = currentNavState;
             
-            const needsSync = !navStateReceived || 
-                              incomingTaskIds !== currentTaskIds || 
-                              navState.focusedIndex !== focusedIndex ||
-                              navState.parentTaskName !== internalParentTaskName ||
-                              navState.canGoBack !== internalCanGoBack;
-
-            if (needsSync) {
-                if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Truth Funnel Sync Triggered: tasks=${navState.tasks.length}, focus=${navState.focusedIndex}`);
-                navStateReceived = true;
-                
-                if (!controller) {
-                    controller = new StackController(navState.tasks, internalNow, onTaskUpdate, onTaskCreate);
-                } else {
-                    controller.setTasks(navState.tasks);
-                }
-                
-                tasks = controller.getTasks();
-                focusedIndex = navState.focusedIndex;
-                internalParentTaskName = navState.parentTaskName;
-                internalCanGoBack = navState.canGoBack;
-                isMobileProp = navState.isMobile;
+            if (!controller) {
+                controller = new StackController(currentNavState.tasks, internalNow, onTaskUpdate, onTaskCreate);
+            } else {
+                controller.setTasks(currentNavState.tasks);
             }
-        }
+            
+            tasks = controller.getTasks();
+            focusedIndex = currentNavState.focusedIndex;
+            internalParentTaskName = currentNavState.parentTaskName;
+            internalCanGoBack = currentNavState.canGoBack;
+            isMobileProp = currentNavState.isMobile;
+        });
     });
 
     $effect(() => {
@@ -261,7 +279,6 @@
     // We need to instantiate the manager
     let keyManager: KeybindingManager;
 
-    let containerEl: HTMLElement;
     let taskElements: HTMLElement[] = $state([]);
     let renameInputs: HTMLInputElement[] = $state([]);
 
@@ -682,10 +699,12 @@
 
 
     function touchBlocking(node: HTMLElement, handler: (e: TouchEvent) => void) {
-        const options = { passive: false };
+        const options = { passive: false, capture: true };
+        node.addEventListener('touchstart', handler as EventListener, options);
         node.addEventListener('touchmove', handler as EventListener, options);
         return {
             destroy() {
+                node.removeEventListener('touchstart', handler as EventListener, options);
                 node.removeEventListener('touchmove', handler as EventListener, options);
             }
         };
@@ -1013,8 +1032,9 @@
 <div 
     bind:this={containerEl}
     class="todo-flow-stack-container" 
-    class:is-mobile={isMobileState}
+    class:is-mobile-layout={isMobileState}
     data-is-mobile={isMobileState}
+    data-testid="stack-container"
     data-ui-ready={isReady}
     data-focused-index={focusedIndex}
     data-task-count={tasks.length}
@@ -1043,6 +1063,7 @@
             <div 
                 bind:this={taskElements[i]}
                 class="todo-flow-task-card" 
+                class:is-mobile={isMobileState}
                 data-testid="task-card-{i}"
                 class:is-focused={focusedIndex === i}
                 class:anchored={task.isAnchored}
@@ -1058,9 +1079,9 @@
                 onpointercancel={handlePointerCancel}
                 
                 use:touchBlocking={handleTouchBlocking}
-                style:transform={getCardTransform(task.id)}
-                style:touch-action="none"
-                style={isMobileState ? "flex-wrap: wrap; padding: 0.75rem; gap: 0.5rem;" : ""}
+                style={isMobileState 
+                    ? `touch-action: none; transform: ${getCardTransform(task.id)}; flex-wrap: wrap !important; padding: 0.75rem !important; gap: 0.5rem !important;` 
+                    : `touch-action: none; transform: ${getCardTransform(task.id)};`}
             >
                 <div 
                     class="drag-handle" 
@@ -1094,7 +1115,7 @@
                         {/if}
                     {/if}
                 </div>
-                <div class="content-col" style={isMobileState ? "order: 2; width: 100%; flex: none;" : ""}>
+                <div class="content-col" class:mobile-layout={isMobileState}>
                     {#if editingIndex === i}
                         <input
                             bind:this={renameInputs[i]}
@@ -1115,19 +1136,20 @@
                             use:selectOnFocus
                         />
                     {:else}
-                        <div 
+                        <button 
                             class="title" 
+                            class:mobile-clamp={isMobileState}
+                            style={isMobileState ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal;" : ""}
                             data-testid="task-card-title"
                             onclick={() => startRename(i)} 
                             title={task.isMissing ? "Note missing" : "Click to rename"} 
                             role="button" 
                             tabindex="0"
-                            style={isMobileState ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; flex: 1 1 100%; max-width: 100%; line-height: 1.2;" : ""}
                         >
                             {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span> {/if}{task.title}
-                        </div>
+                        </button>
                     {/if}
-                    <div class="metadata" style={isMobileState ? "flex: 1 1 100%; width: 100%; order: 2; display: flex; justify-content: flex-start; gap: 0.75rem; font-size: var(--font-ui-smaller); opacity: 0.8; padding-top: 0.25rem; border-top: 1px solid var(--background-modifier-border);" : ""}>
+                    <div class="metadata" class:mobile-layout={isMobileState}>
                         <div class="duration">
                             <button 
                                 class="duration-btn minus" 
@@ -1558,63 +1580,71 @@
         border-top: 1px solid var(--background-modifier-border) !important;
     }
 
-    /* Keep the class-based ones too as backup */
-    .is-mobile-layout .todo-flow-task-card {
-        flex-wrap: wrap;
-        padding: 0.75rem;
-        gap: 0.5rem;
+    /* Refactored Mobile Styles */
+    :global(.todo-flow-task-card.is-mobile) {
+        flex-wrap: wrap !important;
+        padding: 0.75rem !important;
+        gap: 0.5rem !important;
     }
-    .is-mobile-layout .title {
+    :global(.title.mobile-clamp) {
         display: -webkit-box !important;
         -webkit-line-clamp: 2 !important;
         -webkit-box-orient: vertical !important;
         white-space: normal !important;
+        overflow: hidden !important;
     }
-
-    .is-mobile-layout .drag-handle {
+    .todo-flow-task-card.is-mobile .drag-handle {
         padding: 0;
         width: 20px;
     }
-
-    .is-mobile-layout .time-col {
+    .todo-flow-task-card.is-mobile .time-col {
         flex: 1;
         justify-content: flex-start;
         min-width: unset;
     }
+    .todo-flow-task-card.is-mobile .content-col {
+        order: 2;
+        width: 100%;
+        flex: none;
+    }
 
-    .is-mobile-layout .desktop-only-time {
+    :global(.is-mobile-layout) .desktop-only-time {
         display: none;
     }
 
-    .is-mobile-layout .mobile-only-time {
+    :global(.is-mobile-layout) .mobile-only-time {
         display: inline;
         font-size: 0.85rem;
         font-weight: 600;
     }
 
-    .is-mobile-layout .content-col {
+    :global(.is-mobile-layout) .content-col {
         order: 2;
         width: 100%;
         flex: none;
     }
-    .is-mobile-layout .duration {
+    :global(.is-mobile-layout) .duration {
         margin-top: 0.4rem;
         justify-content: flex-start;
         padding-left: 0;
     }
 
-    .is-mobile .desktop-only-anchor {
+    :global(.is-mobile) .desktop-only-anchor {
         display: none;
     }
 
-    .is-mobile .mobile-anchor-badge {
+    :global(.is-mobile) .mobile-anchor-badge {
         display: block;
         font-size: 1rem;
         margin-left: auto;
     }
 
-    /* Keep media query for cases where body class might not be present but screen is small */
-    @media (max-width: 600px), .todo-flow-stack-container.is-mobile {
+    /* Mobile Layout Refinements */
+    .is-mobile-layout {
+        background-color: rgba(255, 0, 0, 0.2) !important;
+    }
+
+    @media (max-width: 600px) {
         .todo-flow-task-card {
             flex-wrap: wrap;
             padding: 0.75rem;

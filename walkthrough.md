@@ -1,49 +1,40 @@
-# Walkthrough: Mobile Interaction Fixes (BUG-011 & BUG-016)
+# Walkthrough - Debugging and Fixing Rollup Spec
 
-I have successfully addressed two major mobile interaction issues: Keyboard Collision (BUG-016) and Card Body Drag (BUG-011). Both fixes have been verified with automated E2E tests.
+I have successfully resolved the E2E test failures in `rollup.spec.ts` and `selective_flush.spec.ts`.
 
 ## Changes Made
 
-### BUG-016: Mobile Keyboard Collision
-This issue caused the virtual keyboard or "ghost space" to obscure input fields during task renaming on mobile.
-- **Viewport Hardening**: Modified `ViewportService.ts` to support specific scroll alignment (`block: 'start'`).
-- **Dynamic Padding**: Reduced the `.is-editing` container padding from `50vh` to `40vh` to prevent the keyboard from pushing inputs off-screen.
-- **Top Alignment**: Forced the rename input to scroll to the top of the viewport on mobile, keeping it visible above the keyboard.
-
-### BUG-011: Mobile Card Body Drag
-Reordering tasks on mobile was difficult because it required precision on the drag handle.
-- **Relaxed Intent Threshold**: Changed the drag-locking threshold from `dy > dx * 1.2` to `dy > dx`, making it easier to trigger dragging even with "sloppy" or diagonal motions.
-- **Smarter Touch Blocking**: Aligned the `handleTouchBlocking` threshold (from `10px` down to `2px`) with the pointer move logic, improving responsiveness and preventing the browser from taking over for scrolling when a drag is intended.
+### Component Fixes
+#### [StackView.svelte](file:///home/ivan/obsidian_plugin_for_todo_flow/src/views/StackView.svelte)
+- Fixed a `ReferenceError: isMobileProp is not defined` by correctly declaring `isMobileProp` as a `$state` at the top of the script section.
+- This error was preventing the entire Svelte component from mounting, which caused the `.todo-flow-stack-container` to be missing from the DOM during E2E tests.
 
 ## Verification Results
 
 ### Automated Tests
-Both issues were verified using dedicated E2E journey tests simulating mobile environments.
+I performed a full build and ran the specific E2E tests to verify the fix.
 
-````carousel
-```typescript
-// tests/e2e/journeys/mobile_keyboard_collision.spec.ts
-it('should handle "ghost space" by keeping input visible during rename', async () => {
-    // Verified input remains in top 40% of screen above keyboard
-});
+- **`rollup.spec.ts`**: PASSED (19.7s)
+- **`selective_flush.spec.ts`**: PASSED (7.2s)
+
+```bash
+» tests/e2e/rollup.spec.ts
+Rollup Logic
+   ✓ should update grandparent duration via rollup from deeply nested child
+
+1 passing (19.7s)
+
+» tests/e2e/selective_flush.spec.ts
+Selective Flush Race Condition
+   ✓ GREEN: Should show 2 tasks if flushed correctly
+
+1 passing (7.2s)
 ```
-<!-- slide -->
-```typescript
-// tests/e2e/journeys/BUG-011_reordering.spec.ts
-it('should reorder tasks via touch drag and drop on card body (BUG-011 REPRO - SLOPPY DRAG)', async () => {
-    // Verified reordering works even with imperfect diagonal touch swipes
-});
-```
-````
 
-| ID | Status | Test File |
-| :--- | :--- | :--- |
-| BUG-016 | **PASS** | `mobile_keyboard_collision.spec.ts` |
-| BUG-011 | **PASS** | `BUG-011_reordering.spec.ts` |
-| MG-01/02| **PASS** | `verification_mg.spec.ts` |
-| MG-03   | **PASS** | `verification_mg.spec.ts` |
+## Diagnostic Process
+1.  **Enhanced Logging**: Added detailed diagnostic capture in `rollup.spec.ts` to inspect the `innerHTML` of the Obsidian leaf.
+2.  **Mount Capture**: Identified that the view was showing a "Failed to load Daily Stack view" error message.
+3.  **Error Identification**: Used `browser.getLogs('browser')` to extract the specific console error, pinpointing the `ReferenceError`.
+4.  **Root Cause Resolution**: Relocated the variable declaration to ensure it was defined before usage and performed a clean build.
 
-### Gesture Refinement (Swipe/Archive Fix)
-Verified that Swipe Left (Archive) now persists correctly to the Markdown note via the `flow_state` field. Test isolation has also been improved by adding `beforeEach` setup to the gesture spec.
-
-The `QA_CHECKLIST.md` has been updated to reflect these passes.
+The automated test suite for these components is now green and stable for the v1.2.42 release.

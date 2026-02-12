@@ -61,58 +61,27 @@ describe('Mobile Stack Layout Refinements (FEAT-002)', () => {
         const container = await $('.todo-flow-stack-container[data-is-mobile="true"]');
         await container.waitForExist({ timeout: 5000 });
 
-        // 1.5 Debug: Check classes on container
-        const debugResult = await browser.execute(() => {
-            const container = document.querySelector('.todo-flow-stack-container');
-            return {
-                classList: container ? Array.from(container.classList) : [],
-                appIsMobile: (window as any).app?.isMobile,
-                innerWidth: window.innerWidth,
-                bodyHasClass: document.body.classList.contains('is-mobile')
-            };
-        });
-        console.log('[Test FEAT-002] Container Debug:', debugResult);
-
         // 2. Verify Title Clamping (2 lines)
         await browser.waitUntil(async () => {
             const res = await browser.execute(() => {
-                const title = document.querySelector('[data-testid="task-card-title"]') as HTMLElement;
+                function findElements(root: Document | ShadowRoot | Element): Element[] {
+                    let elements = Array.from(root.querySelectorAll('*'));
+                    let shadowElements: Element[] = [];
+                    for (const el of elements) {
+                        if (el.shadowRoot) {
+                            shadowElements = shadowElements.concat(findElements(el.shadowRoot));
+                        }
+                    }
+                    return elements.concat(shadowElements);
+                }
+                const all = findElements(document);
+                const title = all.find(el => el.getAttribute('data-testid') === 'task-card-title') as HTMLElement;
                 if (!title) return false;
                 const style = window.getComputedStyle(title);
                 return style.webkitLineClamp === '2' || (style as any).webkitLineClamp == 2;
             });
             return res === true;
         }, { timeout: 10000, timeoutMsg: 'Title clamping not applied in time' });
-
-        const clampingResult = await browser.execute(() => {
-            const title = document.querySelector('[data-testid="task-card-title"]') as HTMLElement;
-            if (!title) return { found: false };
-            const style = window.getComputedStyle(title);
-
-            // Log hierarchy for debugging
-            let hierarchy = [];
-            let curr = title as HTMLElement | null;
-            while (curr) {
-                hierarchy.push({
-                    tag: curr.tagName.toLowerCase(),
-                    classes: Array.from(curr.classList),
-                    style: curr.getAttribute('style')
-                });
-                curr = curr.parentElement;
-            }
-
-            return {
-                found: true,
-                lineClamp: style.webkitLineClamp,
-                display: style.display,
-                boxOrient: style.webkitBoxOrient,
-                overflow: style.overflow,
-                hierarchy
-            };
-        });
-        console.log('[Test FEAT-002] Clamping Style Detail:', JSON.stringify(clampingResult, null, 2));
-        expect(clampingResult.found).toBe(true);
-        expect(clampingResult.lineClamp).toBe('2');
 
         // 3. Verify Date is Hidden and Time is visible
         const timeResult = await browser.execute(() => {

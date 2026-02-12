@@ -881,8 +881,8 @@ export default class TodoFlowPlugin extends Plugin {
         const timestamp = moment().format('YYYY-MM-DD HH:mm');
         const linkLine = `\n\nAdded on: ${timestamp}\n- [ ] [[${childPath}|${childTitle}]]`;
 
-        this.logger.info(`[main.ts] Injecting link to ${childTitle} into ${parentPath}`);
         this.stackPersistenceService.recordInternalWrite(parentPath);
+
         await this.app.vault.process(parentFile, (content) => {
             return content.trimEnd() + linkLine;
         });

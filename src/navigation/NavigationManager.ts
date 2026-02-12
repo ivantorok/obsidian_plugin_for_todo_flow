@@ -67,9 +67,12 @@ export class NavigationManager {
             const isOurSource = file.path === this.state.currentSource;
             const isItemInStack = this.state.currentStack.some(t => t.id === file.path);
 
-            if ((isOurSource || isItemInStack) && this.persistenceService.isExternalUpdate(file.path)) {
+            const isExternal = this.persistenceService.isExternalUpdate(file.path);
+            if ((isOurSource || isItemInStack) && isExternal) {
                 if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] External update detected for ${file.path}. Triggering refresh...`);
                 await this.refresh();
+            } else if (isOurSource || isItemInStack) {
+                if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] Update detected for ${file.path} but REJECTED (Internal/Recent). isExternal=${isExternal}`);
             }
         });
     }
@@ -122,6 +125,8 @@ export class NavigationManager {
             }
 
             const processed = this.preprocessor ? this.preprocessor(rawTasks) : rawTasks;
+
+            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] Refresh success. Tasks: ${this.state.currentStack.length} -> ${processed.length}`);
 
             // Preserve focus if possible
             const focusedId = this.state.currentStack[this.state.currentFocusedIndex]?.id;

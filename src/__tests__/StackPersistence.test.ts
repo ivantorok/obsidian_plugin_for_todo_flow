@@ -187,6 +187,7 @@ describe('Stack Persistence', () => {
                 rootPath: 'root',
                 navState: {
                     history: [[{ id: 'task1' } as TaskNode]],
+                    currentStack: [{ id: 'task1' } as TaskNode],
                     currentSource: 'child-context',
                     currentFocusedIndex: 2
                 }

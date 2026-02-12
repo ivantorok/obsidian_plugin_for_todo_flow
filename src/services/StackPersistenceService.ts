@@ -65,9 +65,14 @@ export class StackPersistenceService {
         const now = Date.now();
         const diff = now - lastWrite;
 
+        const isExternal = diff > 2000;
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(`[StackPersistenceService] isExternalUpdate(${filePath}): diff=${diff}ms, isExternal=${isExternal}`);
+        }
+
         // If the update happened within 2 seconds of our own write to THIS file, 
         // it's likely our own write or a delayed event from it.
-        return diff > 2000;
+        return isExternal;
     }
 
     async loadStackIds(filePath: string): Promise<string[]> {

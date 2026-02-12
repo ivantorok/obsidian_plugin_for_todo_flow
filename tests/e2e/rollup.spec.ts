@@ -91,13 +91,16 @@ describe('Rollup Logic', () => {
 
         const stackContainer = await $('.todo-flow-stack-container');
         await stackContainer.waitForDisplayed({ timeout: 10000 });
+
+
         await focusStack();
 
         // Initial Total: GP(30) + P(30) + CA(30) + CB(30) = 120
         // @ts-ignore
         let gpDuration = await browser.execute(() => {
             // @ts-ignore
-            return app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view.getTasks()[0].duration;
+            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
+            return view.getTasks()[0].duration;
         });
         console.log(`[Test] Initial grandparent duration: ${gpDuration}min`);
         expect(gpDuration).toBe(120);
