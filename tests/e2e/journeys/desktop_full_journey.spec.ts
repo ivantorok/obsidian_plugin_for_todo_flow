@@ -69,6 +69,11 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
         await browser.keys(['K']);
         await browser.pause(500);
 
+        const logs = await browser.execute(() => (window as any)._logs || []);
+        console.log('--- BROWSER LOGS ---');
+        console.log(logs.join('\n'));
+        console.log('--------------------');
+
         let titles = await browser.execute(() => {
             // @ts-ignore
             return app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view.getTasks().map(t => t.title);
@@ -78,14 +83,8 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
         // Wait for UI Ready signal
         await (await $('.todo-flow-stack-container[data-ui-ready="true"]')).waitForExist({ timeout: 5000 });
 
-        // Use programmatic trigger now that it is explicitly $exposed
-        await browser.execute(() => {
-            // @ts-ignore
-            const leaf = app.workspace.getLeavesOfType('todo-flow-stack-view')[0];
-            if (leaf && leaf.view.component) {
-                leaf.view.component.startRename(0);
-            }
-        });
+        // Use the actual keybinding 'e' for renaming
+        await browser.keys(['e']);
         await browser.pause(1000);
 
         const renameInput = await $('[data-testid="rename-input"]');
@@ -115,6 +114,10 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
 
         // --- STEP 6: Go Back (h) ---
         console.log('[Journey] Step 6: Navigating back');
+
+        // Ensure stack is focused (setActiveLeaf + container focus)
+        await focusStack();
+
         // @ts-ignore
         await browser.keys(['h']);
         await browser.pause(1000);
@@ -138,5 +141,12 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
         expect(taskCount).toBe(2);
 
         console.log('[Journey] ✅ Desktop Full Journey completed successfully');
+    });
+
+    after(async () => {
+        const logs = await browser.execute(() => (window as any)._logs || []);
+        console.log('--- BROWSER LOGS (AFTER) ---');
+        console.log(logs.join('\n'));
+        console.log('----------------------------');
     });
 });

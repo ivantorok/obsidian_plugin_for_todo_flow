@@ -20,6 +20,10 @@ describe('Mobile Triage Existing Task Selection (BUG-012)', () => {
         });
     });
 
+    beforeEach(async function () {
+        await cleanupVault();
+    });
+
     after(async function () {
         await cleanupVault();
     });

@@ -42,7 +42,7 @@ describe('BUG-017: Gesture Shadowing Regression', () => {
                         defaultPrevented: e.defaultPrevented,
                         cancelable: e.cancelable
                     });
-                }, { capture: true });
+                }, { capture: false });
             }
         });
 
@@ -86,8 +86,8 @@ describe('BUG-017: Gesture Shadowing Regression', () => {
         // We expect at least some events to be prevented if the plugin recognized the swipe
         expect(stats.totalEvents).toBeGreaterThan(0);
 
-        // Check if our handleTouchBlocking was entered
-        const wasEntered = stats.logs.some((l: string) => l.includes('handleTouchBlocking entry'));
-        expect(wasEntered).toBe(true);
+        // Check if our handleTouchBlocking blocked events
+        // We expect preventedCount to be > 0
+        expect(stats.preventedCount).toBeGreaterThan(0);
     });
 });

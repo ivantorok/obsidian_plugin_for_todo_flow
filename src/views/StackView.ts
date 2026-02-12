@@ -124,7 +124,18 @@ export class StackView extends ItemView {
             const hasHistory = state.navState?.history && state.navState.history.length > 0;
             const hasStack = state.navState?.currentStack && state.navState.currentStack.length > 0;
 
-            if (state.navState && (hasHistory || hasStack) && !state.navState.forceRefresh) {
+            // SAFETY: If we have navigation history but the current stack is empty,
+            // this suggests we're restoring a drilled-down state. However, if this happens
+            // at workspace load (not after explicit user navigation), it's likely stale state
+            // from a previous session/test. Force a refresh instead.
+            const suspiciousState = hasHistory && !hasStack;
+            const shouldForceRefresh = state.navState?.forceRefresh || suspiciousState;
+
+            if (state.navState && (hasHistory || hasStack) && !shouldForceRefresh) {
+                if (this.logger && suspiciousState) {
+                    await this.logger.warn(`[StackView] REJECTING SUSPICIOUS STATE: history=${state.navState.history.length}, stack=${state.navState.currentStack?.length || 0}`);
+                }
+
                 this.navManager.setState(state.navState);
                 this.tasks = this.navManager.getCurrentStack();
                 this.rootPath = state.rootPath || state.navState.currentSource;

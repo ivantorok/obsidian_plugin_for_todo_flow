@@ -49,6 +49,10 @@ export class NavigationManager {
             currentSource: ''
         };
 
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] BORN. History size: ${this.state.history.length}`);
+        }
+
         this.registerWatcher();
     }
 
@@ -64,7 +68,7 @@ export class NavigationManager {
             const isItemInStack = this.state.currentStack.some(t => t.id === file.path);
 
             if ((isOurSource || isItemInStack) && this.persistenceService.isExternalUpdate(file.path)) {
-                console.log(`[NavigationManager] External update detected for ${file.path}. Triggering refresh...`);
+                if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] External update detected for ${file.path}. Triggering refresh...`);
                 await this.refresh();
             }
         });
@@ -101,6 +105,7 @@ export class NavigationManager {
         if (!this.state.currentSource) return;
 
         console.log(`[NavigationManager] Refreshing stack. Source: ${this.state.currentSource}, Current tasks: ${this.state.currentStack.length}`);
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] Refreshing stack. Source: ${this.state.currentSource}, Current tasks: ${this.state.currentStack.length}`);
         let rawTasks: TaskNode[] = [];
         try {
             if (this.state.currentSource.startsWith('EXPLICIT')) {
@@ -142,6 +147,7 @@ export class NavigationManager {
     setStack(tasks: TaskNode[], source: string): void {
         const msg = `[NavigationManager] setStack() with ${tasks.length} tasks from ${source}`;
         console.log(msg);
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(msg);
         if (typeof window !== 'undefined') {
             const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
             localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + msg);
@@ -187,9 +193,12 @@ export class NavigationManager {
         // Use StackLoader to load children (handles both files and folders)
         const children = await this.loader.load(task.id);
 
+        // Log BEFORE pushing to history (to accurately report "before" state)
+        const depthBefore = this.state.history.length;
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] drillDown into ${task.id}, stack depth before: ${depthBefore}`);
 
         // Push current state to history
-        console.log(`[NavigationManager] push history. Current stack size: ${this.state.currentStack.length}, History index before: ${this.state.history.length}`);
+        console.log(`[NavigationManager] push history. Current stack size: ${this.state.currentStack.length}, History depth before: ${depthBefore}`);
         this.state.history.push([...this.state.currentStack]);
         this.state.focusedHistory.push(currentFocusIndex);
         this.state.sourceHistory.push(this.state.currentSource);
@@ -230,11 +239,14 @@ export class NavigationManager {
         }
 
         // Pop history entries
-        const previousStack = this.state.history.pop(); // SNAPSHOT: Contains exactly what we had (including archive state)
+        const previousStack = this.state.history.pop();
         const previousSource = this.state.sourceHistory.pop();
         const previousFocusIndex = this.state.focusedHistory.pop() ?? 0;
 
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] goBack() popped. previousStack exists: ${!!previousStack}, count: ${previousStack?.length}, depth now: ${this.state.history.length}`);
+
         if (!previousStack || previousSource === undefined) {
+            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] goBack() FAILED - history empty or corrupt`);
             return { success: false, focusedIndex: 0 };
         }
 
@@ -328,6 +340,9 @@ export class NavigationManager {
      * Set navigation state (for restoration)
      */
     setState(state: NavigationState): void {
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] setState called. Incoming history size: ${state.history?.length}`);
+        }
         this.state = state;
         this.notifyListeners();
     }

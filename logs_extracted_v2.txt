@@ -1,0 +1,443 @@
+[0-0] [Test MG] BROWSER LOGS after Swipe Right: [
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=786.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right"
+[0-0] ]
+[0-0] [Test] File content after Swipe Right: ---
+[0-0] task: Swipe Task
+[0-0] duration: 30
+[0-0] status: done
+[0-0] anchored: false
+[0-0] ---
+[0-0] # Swipe Task
+[0-0] 2026-02-12T07:04:42.508Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:04:42.508Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/execute/sync
+[0-0] 2026-02-12T07:04:42.509Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const file=app.vault.getAbstractFileByPath(\"SwipeTask.md\");if(file){await app.vault.process(file,data=>data.replace(\"status: done\",\"status: todo\"))}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:04:42.527Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T07:04:42.531Z INFO webdriver: COMMAND executeScript("app.commands.executeCommandById("todo-flow:open-daily-stack")", <object>)
+[0-0] 2026-02-12T07:04:42.531Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/execute/sync
+[0-0] 2026-02-12T07:04:42.532Z INFO webdriver: DATA {"script":"app.commands.executeCommandById(\"todo-flow:open-daily-stack\")","args":[]}
+[0-0] 2026-02-12T07:04:42.554Z INFO webdriver: RESULT null
+[0-0] [Test] Swiping Left from 786 to 286 at y=242
+[0-0] 2026-02-12T07:04:43.555Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T07:04:43.556Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/actions
+[0-0] 2026-02-12T07:04:43.556Z INFO webdriver: DATA {"actions":[{"type":"pointer","id":"finger1","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":786,"y":242},{"type":"pointerDown","button":0},{"type":"pointerMove","duration":300,"x":286,"y":242},{"type":"pointerUp","button":0}]}]}
+[0-0] 2026-02-12T07:04:43.929Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T07:04:45.930Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:04:45.931Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/execute/sync
+[0-0] 2026-02-12T07:04:45.932Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const file=app.vault.getAbstractFileByPath(\"SwipeTask.md\");if(!file)return false;const content=await app.vault.read(file);return content.includes(\"flow_state: archive\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:04:45.947Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T07:04:45.948Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:04:45.948Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/execute/sync
+[0-0] 2026-02-12T07:04:45.949Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>window._logs||[]).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:04:45.960Z INFO webdriver: RESULT [
+[0-0]   '[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0',
+[0-0]   '[GESTURE] pointermove clientX=786.0 clientY=242.0',
+[0-0]   '[GESTURE] move dx=500.0 dy=0.0 handle=false',
+[0-0]   '[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md',
+[0-0]   '[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right',
+[0-0]   '[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0',
+[0-0]   '[GESTURE] pointermove clientX=286.0 clientY=242.0',
+[0-0]   '[GESTURE] move dx=500.0 dy=0.0 handle=false',
+[0-0]   '[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md',
+[0-0]   '[GESTURE] handlePointerEnd deltaX=-500.0 deltaY=0.0 swipe=left'
+[0-0] ]
+[0-0] [Test MG] BROWSER LOGS after Swipe Left: [
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=786.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right",
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=286.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=-500.0 deltaY=0.0 swipe=left"
+[0-0] ]
+[0-0] [Test] Is Archived after Swipe Left: false
+[0-0] 2026-02-12T07:04:46.016Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-02-12T07:04:46.017Z INFO webdriver: [GET] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/screenshot
+[0-0] 2026-02-12T07:04:46.097Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAABAAAAAMgCAIAAAAydIdsAAAQAElEQVR4nOzdC...
+[0-0] [WDIO] Screenshot saved to: /home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/failures/MG-01_&_MG-02:_Swipe_Actions_(Done/Archive).png
+[0-0] 2026-02-12T07:04:46.098Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 84ms
+[0-0] Error in "Mobile Gesture Verification (MG-01 to MG-03) - Final Refined.MG-01 & MG-02: Swipe Actions (Done/Archive)"
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/verification_mg.spec.ts:111:28)
+[0-0] 2026-02-12T07:04:46.100Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 0ms
+[0-0] 2026-02-12T07:04:46.101Z INFO webdriver: COMMAND findElement("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.101Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/element
+[0-0] 2026-02-12T07:04:46.101Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.119Z INFO webdriver: RESULT {
+[0-0]   error: 'no such element',
+[0-0]   message: 'no such element: Unable to locate element: {"method":"css selector","selector":"[data-testid="task-card-0"]"}\n' +
+[0-0]     '  (Session info: chrome=142.0.7444.265)',
+[0-0]   stacktrace: '#0 0x5b76d401a19a <unknown>\n' +
+[0-0]     '#1 0x5b76d3ab7bcc <unknown>\n' +
+[0-0]     '#2 0x5b76d3b09146 <unknown>\n' +
+[0-0]     '#3 0x5b76d3b09411 <unknown>\n' +
+[0-0]     '#4 0x5b76d3b548e4 <unknown>\n' +
+[0-0]     '#5 0x5b76d3b51db5 <unknown>\n' +
+[0-0]     '#6 0x5b76d3afa76f <unknown>\n' +
+[0-0]     '#7 0x5b76d3afb8c1 <unknown>\n' +
+[0-0]     '#8 0x5b76d3fe2dcf <unknown>\n' +
+[0-0]     '#9 0x5b76d3fe6222 <unknown>\n' +
+[0-0]     '#10 0x5b76d3fcb653 <unknown>\n' +
+[0-0]     '#11 0x5b76d3fe69f7 <unknown>\n' +
+[0-0]     '#12 0x5b76d3fb402e <unknown>\n' +
+[0-0]     '#13 0x5b76d4007a98 <unknown>\n' +
+[0-0]     '#14 0x5b76d4007ca5 <unknown>\n' +
+[0-0]     '#15 0x5b76d4018e7c <unknown>\n' +
+[0-0]     '#16 0x79e74eca3d64 <unknown>\n' +
+[0-0]     '#17 0x79e74ed373fc <unknown>\n'
+[0-0] }
+[0-0] 2026-02-12T07:04:46.132Z DEBUG webdriverio: command getLocation was called on an element ("[data-testid="task-card-0"]") that wasn't found, waiting for it...
+[0-0] 2026-02-12T07:04:46.133Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.134Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.134Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.153Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:46.234Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.234Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.234Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.246Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:46.334Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.334Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.335Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.351Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:46.434Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.435Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.435Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.463Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:46.534Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.535Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.535Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.548Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:46.635Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.635Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.635Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.646Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:46.733Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.733Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.733Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.742Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:46.834Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.835Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.835Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.864Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:46.934Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:46.934Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:46.934Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:46.945Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:47.035Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:47.035Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:47.036Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:47.052Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:47.134Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:47.135Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:47.135Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:47.169Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:47.234Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:04:47.234Z INFO webdriver: [POST] http://localhost:38591/session/a4b03accf02480339886ede6e1c94ec5/elements
+[0-0] 2026-02-12T07:04:47.235Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:04:47.253Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:04:47.334Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+--
+[0-0] [Test MG] BROWSER LOGS after Swipe Right: [
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=786.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right"
+[0-0] ]
+[0-0] [Test] File content after Swipe Right: ---
+[0-0] task: Swipe Task
+[0-0] duration: 30
+[0-0] status: done
+[0-0] anchored: false
+[0-0] ---
+[0-0] # Swipe Task
+[0-0] 2026-02-12T07:05:14.554Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:05:14.555Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/execute/sync
+[0-0] 2026-02-12T07:05:14.555Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const file=app.vault.getAbstractFileByPath(\"SwipeTask.md\");if(file){await app.vault.process(file,data=>data.replace(\"status: done\",\"status: todo\"))}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:05:14.565Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T07:05:14.566Z INFO webdriver: COMMAND executeScript("app.commands.executeCommandById("todo-flow:open-daily-stack")", <object>)
+[0-0] 2026-02-12T07:05:14.566Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/execute/sync
+[0-0] 2026-02-12T07:05:14.567Z INFO webdriver: DATA {"script":"app.commands.executeCommandById(\"todo-flow:open-daily-stack\")","args":[]}
+[0-0] 2026-02-12T07:05:14.579Z INFO webdriver: RESULT null
+[0-0] [Test] Swiping Left from 786 to 286 at y=242
+[0-0] 2026-02-12T07:05:15.580Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T07:05:15.581Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/actions
+[0-0] 2026-02-12T07:05:15.581Z INFO webdriver: DATA {"actions":[{"type":"pointer","id":"finger1","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":786,"y":242},{"type":"pointerDown","button":0},{"type":"pointerMove","duration":300,"x":286,"y":242},{"type":"pointerUp","button":0}]}]}
+[0-0] 2026-02-12T07:05:15.935Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T07:05:17.937Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:05:17.938Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/execute/sync
+[0-0] 2026-02-12T07:05:17.939Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const file=app.vault.getAbstractFileByPath(\"SwipeTask.md\");if(!file)return false;const content=await app.vault.read(file);return content.includes(\"flow_state: archive\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:05:17.951Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T07:05:17.952Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:05:17.952Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/execute/sync
+[0-0] 2026-02-12T07:05:17.953Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>window._logs||[]).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:05:17.967Z INFO webdriver: RESULT [
+[0-0]   '[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0',
+[0-0]   '[GESTURE] pointermove clientX=786.0 clientY=242.0',
+[0-0]   '[GESTURE] move dx=500.0 dy=0.0 handle=false',
+[0-0]   '[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md',
+[0-0]   '[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right',
+[0-0]   '[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0',
+[0-0]   '[GESTURE] pointermove clientX=286.0 clientY=242.0',
+[0-0]   '[GESTURE] move dx=500.0 dy=0.0 handle=false',
+[0-0]   '[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md',
+[0-0]   '[GESTURE] handlePointerEnd deltaX=-500.0 deltaY=0.0 swipe=left'
+[0-0] ]
+[0-0] [Test MG] BROWSER LOGS after Swipe Left: [
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=786.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right",
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=286.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=-500.0 deltaY=0.0 swipe=left"
+[0-0] ]
+[0-0] [Test] Is Archived after Swipe Left: false
+[0-0] 2026-02-12T07:05:18.010Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-02-12T07:05:18.010Z INFO webdriver: [GET] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/screenshot
+[0-0] 2026-02-12T07:05:18.079Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAABAAAAAMgCAIAAAAydIdsAAAQAElEQVR4nOzdC...
+[0-0] [WDIO] Screenshot saved to: /home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/failures/MG-01_&_MG-02:_Swipe_Actions_(Done/Archive).png
+[0-0] 2026-02-12T07:05:18.080Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 71ms
+[0-0] Error in "Mobile Gesture Verification (MG-01 to MG-03) - Final Refined.MG-01 & MG-02: Swipe Actions (Done/Archive)"
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/verification_mg.spec.ts:111:28)
+[0-0] 2026-02-12T07:05:18.082Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 0ms
+[0-0] 2026-02-12T07:05:18.082Z INFO webdriver: COMMAND findElement("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.083Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/element
+[0-0] 2026-02-12T07:05:18.083Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.097Z INFO webdriver: RESULT {
+[0-0]   error: 'no such element',
+[0-0]   message: 'no such element: Unable to locate element: {"method":"css selector","selector":"[data-testid="task-card-0"]"}\n' +
+[0-0]     '  (Session info: chrome=142.0.7444.265)',
+[0-0]   stacktrace: '#0 0x5d01b26cb19a <unknown>\n' +
+[0-0]     '#1 0x5d01b2168bcc <unknown>\n' +
+[0-0]     '#2 0x5d01b21ba146 <unknown>\n' +
+[0-0]     '#3 0x5d01b21ba411 <unknown>\n' +
+[0-0]     '#4 0x5d01b22058e4 <unknown>\n' +
+[0-0]     '#5 0x5d01b2202db5 <unknown>\n' +
+[0-0]     '#6 0x5d01b21ab76f <unknown>\n' +
+[0-0]     '#7 0x5d01b21ac8c1 <unknown>\n' +
+[0-0]     '#8 0x5d01b2693dcf <unknown>\n' +
+[0-0]     '#9 0x5d01b2697222 <unknown>\n' +
+[0-0]     '#10 0x5d01b267c653 <unknown>\n' +
+[0-0]     '#11 0x5d01b26979f7 <unknown>\n' +
+[0-0]     '#12 0x5d01b266502e <unknown>\n' +
+[0-0]     '#13 0x5d01b26b8a98 <unknown>\n' +
+[0-0]     '#14 0x5d01b26b8ca5 <unknown>\n' +
+[0-0]     '#15 0x5d01b26c9e7c <unknown>\n' +
+[0-0]     '#16 0x7f1463ca3d64 <unknown>\n' +
+[0-0]     '#17 0x7f1463d373fc <unknown>\n'
+[0-0] }
+[0-0] 2026-02-12T07:05:18.102Z DEBUG webdriverio: command getLocation was called on an element ("[data-testid="task-card-0"]") that wasn't found, waiting for it...
+[0-0] 2026-02-12T07:05:18.102Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.103Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.103Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.129Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:18.203Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.206Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.207Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.218Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:18.303Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.303Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.303Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.313Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:18.403Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.404Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.404Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.419Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:18.503Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.504Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.504Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.516Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:18.607Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.609Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.610Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.624Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:18.703Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.704Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.704Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.715Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:18.808Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.809Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.809Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.861Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:18.906Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:18.906Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:18.907Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:18.934Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:19.007Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:19.011Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:19.011Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:19.020Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:19.102Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:19.105Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:19.106Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:19.119Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:19.203Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:19.204Z INFO webdriver: [POST] http://localhost:45387/session/ed21e9d1dd3d49e5d8b2800ff20cceb3/elements
+[0-0] 2026-02-12T07:05:19.204Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:19.214Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:19.303Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+--
+[0-0] [Test MG] BROWSER LOGS after Swipe Right: [
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=786.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right"
+[0-0] ]
+[0-0] [Test] File content after Swipe Right: ---
+[0-0] task: Swipe Task
+[0-0] duration: 30
+[0-0] status: done
+[0-0] anchored: false
+[0-0] ---
+[0-0] # Swipe Task
+[0-0] 2026-02-12T07:05:46.788Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:05:46.789Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/execute/sync
+[0-0] 2026-02-12T07:05:46.789Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const file=app.vault.getAbstractFileByPath(\"SwipeTask.md\");if(file){await app.vault.process(file,data=>data.replace(\"status: done\",\"status: todo\"))}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:05:46.799Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T07:05:46.800Z INFO webdriver: COMMAND executeScript("app.commands.executeCommandById("todo-flow:open-daily-stack")", <object>)
+[0-0] 2026-02-12T07:05:46.801Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/execute/sync
+[0-0] 2026-02-12T07:05:46.801Z INFO webdriver: DATA {"script":"app.commands.executeCommandById(\"todo-flow:open-daily-stack\")","args":[]}
+[0-0] 2026-02-12T07:05:46.817Z INFO webdriver: RESULT null
+[0-0] [Test] Swiping Left from 786 to 286 at y=242
+[0-0] 2026-02-12T07:05:47.822Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T07:05:47.826Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/actions
+[0-0] 2026-02-12T07:05:47.827Z INFO webdriver: DATA {"actions":[{"type":"pointer","id":"finger1","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":786,"y":242},{"type":"pointerDown","button":0},{"type":"pointerMove","duration":300,"x":286,"y":242},{"type":"pointerUp","button":0}]}]}
+[0-0] 2026-02-12T07:05:48.185Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T07:05:50.187Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:05:50.188Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/execute/sync
+[0-0] 2026-02-12T07:05:50.189Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const file=app.vault.getAbstractFileByPath(\"SwipeTask.md\");if(!file)return false;const content=await app.vault.read(file);return content.includes(\"flow_state: archive\")}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:05:50.212Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T07:05:50.213Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T07:05:50.213Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/execute/sync
+[0-0] 2026-02-12T07:05:50.213Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>window._logs||[]).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T07:05:50.219Z INFO webdriver: RESULT [
+[0-0]   '[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0',
+[0-0]   '[GESTURE] pointermove clientX=786.0 clientY=242.0',
+[0-0]   '[GESTURE] move dx=500.0 dy=0.0 handle=false',
+[0-0]   '[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md',
+[0-0]   '[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right',
+[0-0]   '[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0',
+[0-0]   '[GESTURE] pointermove clientX=286.0 clientY=242.0',
+[0-0]   '[GESTURE] move dx=500.0 dy=0.0 handle=false',
+[0-0]   '[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md',
+[0-0]   '[GESTURE] handlePointerEnd deltaX=-500.0 deltaY=0.0 swipe=left'
+[0-0] ]
+[0-0] [Test MG] BROWSER LOGS after Swipe Left: [
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=786.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=500.0 deltaY=0.0 swipe=right",
+[0-0]   "[GESTURE] pointerdown taskId=SwipeTask.md isPrimary=true button=0",
+[0-0]   "[GESTURE] pointermove clientX=286.0 clientY=242.0",
+[0-0]   "[GESTURE] move dx=500.0 dy=0.0 handle=false",
+[0-0]   "[GESTURE] handleTouchBlocking entry swiping=SwipeTask.md",
+[0-0]   "[GESTURE] handlePointerEnd deltaX=-500.0 deltaY=0.0 swipe=left"
+[0-0] ]
+[0-0] [Test] Is Archived after Swipe Left: false
+[0-0] 2026-02-12T07:05:50.252Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-02-12T07:05:50.252Z INFO webdriver: [GET] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/screenshot
+[0-0] 2026-02-12T07:05:50.330Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAABAAAAAMgCAIAAAAydIdsAAAQAElEQVR4nOzdC...
+[0-0] [WDIO] Screenshot saved to: /home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/failures/MG-01_&_MG-02:_Swipe_Actions_(Done/Archive).png
+[0-0] 2026-02-12T07:05:50.331Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 80ms
+[0-0] Error in "Mobile Gesture Verification (MG-01 to MG-03) - Final Refined.MG-01 & MG-02: Swipe Actions (Done/Archive)"
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/verification_mg.spec.ts:111:28)
+[0-0] 2026-02-12T07:05:50.333Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 0ms
+[0-0] 2026-02-12T07:05:50.334Z INFO webdriver: COMMAND findElement("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:50.334Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/element
+[0-0] 2026-02-12T07:05:50.334Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:50.348Z INFO webdriver: RESULT {
+[0-0]   error: 'no such element',
+[0-0]   message: 'no such element: Unable to locate element: {"method":"css selector","selector":"[data-testid="task-card-0"]"}\n' +
+[0-0]     '  (Session info: chrome=142.0.7444.265)',
+[0-0]   stacktrace: '#0 0x61b86cbc819a <unknown>\n' +
+[0-0]     '#1 0x61b86c665bcc <unknown>\n' +
+[0-0]     '#2 0x61b86c6b7146 <unknown>\n' +
+[0-0]     '#3 0x61b86c6b7411 <unknown>\n' +
+[0-0]     '#4 0x61b86c7028e4 <unknown>\n' +
+[0-0]     '#5 0x61b86c6ffdb5 <unknown>\n' +
+[0-0]     '#6 0x61b86c6a876f <unknown>\n' +
+[0-0]     '#7 0x61b86c6a98c1 <unknown>\n' +
+[0-0]     '#8 0x61b86cb90dcf <unknown>\n' +
+[0-0]     '#9 0x61b86cb94222 <unknown>\n' +
+[0-0]     '#10 0x61b86cb79653 <unknown>\n' +
+[0-0]     '#11 0x61b86cb949f7 <unknown>\n' +
+[0-0]     '#12 0x61b86cb6202e <unknown>\n' +
+[0-0]     '#13 0x61b86cbb5a98 <unknown>\n' +
+[0-0]     '#14 0x61b86cbb5ca5 <unknown>\n' +
+[0-0]     '#15 0x61b86cbc6e7c <unknown>\n' +
+[0-0]     '#16 0x7f71002a3d64 <unknown>\n' +
+[0-0]     '#17 0x7f71003373fc <unknown>\n'
+[0-0] }
+[0-0] 2026-02-12T07:05:50.351Z DEBUG webdriverio: command getLocation was called on an element ("[data-testid="task-card-0"]") that wasn't found, waiting for it...
+[0-0] 2026-02-12T07:05:50.352Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:50.352Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:50.352Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:50.393Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:50.451Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:50.452Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:50.452Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:50.467Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:50.553Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:50.554Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:50.554Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:50.567Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:50.652Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:50.652Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:50.653Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:50.670Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:50.752Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:50.752Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:50.752Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:50.777Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:50.853Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:50.854Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:50.855Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:50.886Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:50.954Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:50.956Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:50.956Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:50.969Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:51.052Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:51.053Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:51.053Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:51.067Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:51.153Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:51.154Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:51.155Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:51.188Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:51.257Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:51.259Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:51.260Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:51.269Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:51.352Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:51.353Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:51.354Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:51.371Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:51.452Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")
+[0-0] 2026-02-12T07:05:51.453Z INFO webdriver: [POST] http://localhost:41929/session/e8fca2c717e73be0a2894cea64b534c7/elements
+[0-0] 2026-02-12T07:05:51.453Z INFO webdriver: DATA {"using":"css selector","value":"[data-testid=\"task-card-0\"]"}
+[0-0] 2026-02-12T07:05:51.467Z INFO webdriver: RESULT []
+[0-0] 2026-02-12T07:05:51.552Z INFO webdriver: COMMAND findElements("css selector", "[data-testid="task-card-0"]")

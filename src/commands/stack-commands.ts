@@ -242,7 +242,7 @@ export class ArchiveCommand implements Command {
 
     async execute(): Promise<void> {
         // 1. Update metadata in vault
-        const updatedTask = { ...this.task, flow_state: 'archived' };
+        const updatedTask: TaskNode = { ...this.task, flow_state: 'archived' };
         await this.onSync(updatedTask);
         // 2. Remove from local list
         this.controller.removeTask(this.index);
@@ -250,7 +250,7 @@ export class ArchiveCommand implements Command {
 
     async undo(): Promise<void> {
         // 1. Restore metadata in vault
-        const restoredTask = { ...this.task, flow_state: 'shortlist' };
+        const restoredTask: TaskNode = { ...this.task, flow_state: 'shortlist' };
         await this.onSync(restoredTask);
         // 2. Insert back into local list
         this.controller.insertTask(this.index, this.task);

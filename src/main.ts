@@ -618,6 +618,10 @@ export default class TodoFlowPlugin extends Plugin {
                 persistencePath
             );
 
+            // Auto-start Stack after Triage (Workflow)
+            // @ts-ignore
+            this.app.commands.executeCommandById('todo-flow:open-daily-stack');
+
         }, async (title: string, options?: any) => {
             return this.onCreateTask(title, options);
         }, async () => {
@@ -779,6 +783,9 @@ export default class TodoFlowPlugin extends Plugin {
             updated = updateMetadataField(updated, 'duration', ownDuration);
             updated = updateMetadataField(updated, 'status', task.status);
             updated = updateMetadataField(updated, 'anchored', task.isAnchored);
+            if (task.flow_state) {
+                updated = updateMetadataField(updated, 'flow_state', task.flow_state);
+            }
             if (task.isAnchored && task.startTime) {
                 updated = updateMetadataField(updated, 'startTime', task.startTime.format('YYYY-MM-DD HH:mm'));
             }

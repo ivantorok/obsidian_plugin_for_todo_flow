@@ -56,6 +56,33 @@
     export function setNavState(newState: StackUIState) {
         if (logger && internalSettings.debug) logger.info(`[StackView.svelte] setNavState received: tasks=${newState.tasks.length}, focus=${newState.focusedIndex}`);
         navState = newState;
+        
+        // CRITICAL: Ensure container remains focused after state updates (especially for empty stacks)
+        // Use requestAnimationFrame for immediate next-frame restoration + setTimeout as fallback
+        if (typeof window !== 'undefined' && containerEl) {
+            const shouldFocus = () => {
+                const activeEl = document.activeElement;
+                // Focus if: not already focused, not in an input field, or if body/null (focus lost)
+                return activeEl !== containerEl && 
+                       !(activeEl instanceof HTMLInputElement) &&
+                       !(activeEl instanceof HTMLTextAreaElement);
+            };
+            
+            requestAnimationFrame(() => {
+                if (shouldFocus()) {
+                    if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Restoring focus to container (RAF)`);
+                    containerEl.focus();
+                }
+            });
+            
+            // Fallback for cases where RAF isn't sufficient
+            setTimeout(() => {
+                if (shouldFocus()) {
+                    if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Restoring focus to container (timeout)`);
+                    containerEl.focus();
+                }
+            }, 100);
+        }
     }
 
     // --- Backward Compatibility / Wrapper API ---
@@ -118,7 +145,24 @@
             tick++;
         };
         update();
-        window.addEventListener('resize', update);
+        // Resize handler that updates mobile detection and forces re-render
+        const handleResize = () => {
+            // Explicitly update isMobileProp by checking mobile conditions
+            // This ensures reactivity when emulateMobile() adds 'is-mobile' class
+            const detectedMobile = window.innerWidth <= 600 || 
+                                 document.body.classList.contains('is-mobile') ||
+                                 // @ts-ignore
+                                 (typeof app !== 'undefined' && app?.isMobile === true);
+            
+            if (isMobileProp !== detectedMobile) {
+                isMobileProp = detectedMobile;
+            }
+            
+            tick++; // Force isMobileState to re-evaluate
+            update();
+        };
+        
+        window.addEventListener('resize', handleResize);
 
         keyManager = new KeybindingManager(keys);
         
@@ -128,7 +172,7 @@
 
         return () => {
             clearInterval(interval);
-            window.removeEventListener('resize', update);
+            window.removeEventListener('resize', handleResize);
             if (focusTimer) clearTimeout(focusTimer);
             if (tapTimer) clearTimeout(tapTimer);
         };
@@ -164,22 +208,38 @@
 
     $effect(() => {
         if (navState) {
-            navStateReceived = true;
-            
-            if (logger) logger.info(`[StackView.svelte] Truth Funnel Ingestion: parent=${navState.parentTaskName}, tasks=${navState.tasks.length}`);
-            
-            if (!controller) {
-                controller = new StackController(navState.tasks, internalNow, onTaskUpdate, onTaskCreate);
-            } else {
-                controller.setTasks(navState.tasks);
+            // Only sync if fundamentally different to avoid race conditions with local pessimistic updates
+            // Also BLOCK synchronization while editing to prevent UI flicker/focus loss
+            if (editingIndex !== -1 || editingStartTimeIndex !== -1) {
+                if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Truth Funnel Sync BLOCKED - Editing in progress`);
+                return;
             }
+
+            const incomingTaskIds = navState.tasks.map(t => t.id).join(',');
+            const currentTaskIds = tasks.map(t => t.id).join(',');
             
-            tasks = controller.getTasks();
-            
-            focusedIndex = navState.focusedIndex;
-            internalParentTaskName = navState.parentTaskName;
-            internalCanGoBack = navState.canGoBack;
-            isMobileProp = navState.isMobile;
+            const needsSync = !navStateReceived || 
+                              incomingTaskIds !== currentTaskIds || 
+                              navState.focusedIndex !== focusedIndex ||
+                              navState.parentTaskName !== internalParentTaskName ||
+                              navState.canGoBack !== internalCanGoBack;
+
+            if (needsSync) {
+                if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Truth Funnel Sync Triggered: tasks=${navState.tasks.length}, focus=${navState.focusedIndex}`);
+                navStateReceived = true;
+                
+                if (!controller) {
+                    controller = new StackController(navState.tasks, internalNow, onTaskUpdate, onTaskCreate);
+                } else {
+                    controller.setTasks(navState.tasks);
+                }
+                
+                tasks = controller.getTasks();
+                focusedIndex = navState.focusedIndex;
+                internalParentTaskName = navState.parentTaskName;
+                internalCanGoBack = navState.canGoBack;
+                isMobileProp = navState.isMobile;
+            }
         }
     });
 
@@ -195,6 +255,7 @@
         }
     });
     let editingIndex = $state(-1); // -1 means no task is being renamed
+    let renamingText = $state("");
     let editingStartTimeIndex = $state(-1); // -1 means no task is being time-edited
     
     // We need to instantiate the manager
@@ -218,6 +279,7 @@
     let startedOnHandle = false;
     let dragLogged = false;
     let lastDragEndTime = 0;
+    let lastRenameStartTime = 0;
     let focusTimer: any = null;
     let tapTimer: any = null;
 
@@ -227,7 +289,8 @@
     $effect(() => {
         if (taskElements[focusedIndex]) {
             // Use hardened ViewportService to ensure centered focus on mobile
-            ViewportService.scrollIntoView(taskElements[focusedIndex], 'smooth');
+            // For navigation, stick to center, but hardened
+            ViewportService.scrollIntoView(taskElements[focusedIndex], 'smooth', isMobileState ? 'center' : 'center');
         }
     });
 
@@ -253,6 +316,21 @@
         if (onFocusChange) onFocusChange(focusedIndex);
         if (debug) console.debug('[TODO_FLOW_TRACE] update() complete. New tasks:', tasks.length);
     }
+    
+    /**
+     * Manually refresh mobile detection (useful for E2E tests)
+     * @public
+     */
+    export function refreshMobileDetection() {
+        const detectedMobile = (typeof window !== 'undefined') && (
+            window.innerWidth <= 600 || 
+            document.body.classList.contains('is-mobile') ||
+            // @ts-ignore
+            (typeof app !== 'undefined' && app?.isMobile === true)
+        );
+        isMobileProp = detectedMobile;
+        tick++;
+    }
 
     export function getFocusedIndex() {
         return focusedIndex;
@@ -262,7 +340,15 @@
 
 
     export function startRename(index: number) {
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] startRename(${index})`);
         if (logger) logger.info(`[StackView.svelte] startRename called for index ${index}`);
+        
+        lastRenameStartTime = Date.now();
+        
+        if (index >= 0 && index < tasks.length) {
+            renamingText = tasks[index].title;
+        }
+        
         editingIndex = index;
         // Focus the input on the next tick
         setTimeout(() => {
@@ -274,7 +360,14 @@
     }
 
     let activeRenameId: string | null = null;
-    async function finishRename(id: string, newTitle: string) {
+    async function finishRename(id: string, newTitle: string, source: 'blur' | 'submit' = 'submit') {
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] finishRename(${id}, "${newTitle}", source=${source})`);
+        
+        if (source === 'blur' && Date.now() - lastRenameStartTime < 500) {
+            if (logger) logger.info(`[StackView.svelte] finishRename BLOCKED - Premature blur from ${id}`);
+            return;
+        }
+
         if (activeRenameId === id) {
             if (logger) logger.info(`[StackView.svelte] finishRename BLOCKED - ID ${id} already processing`);
             return;
@@ -311,6 +404,16 @@
         }
     }
     
+    function cancelRename() {
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] cancelRename()`);
+        editingIndex = -1;
+        if (focusTimer) clearTimeout(focusTimer);
+        focusTimer = setTimeout(() => {
+            containerEl?.focus();
+            focusTimer = null;
+        }, 50);
+    }
+
     function startEditStartTime(index: number) {
         editingStartTimeIndex = index;
     }
@@ -339,6 +442,7 @@
 
     // Gesture Handlers
     function handlePointerStart(e: PointerEvent, taskId: string) {
+        if (editingIndex !== -1 || editingStartTimeIndex !== -1) return;
         if (!(window as any)._logs) (window as any)._logs = [];
         (window as any)._logs.push(`[GESTURE] pointerdown taskId=${taskId} isPrimary=${e.isPrimary} button=${e.button}`);
         
@@ -412,6 +516,10 @@
         const dx = Math.abs(touchCurrentX - touchStartX);
         const dy = Math.abs(touchCurrentY - touchStartY);
 
+        if (typeof window !== 'undefined' && !(draggingTaskId)) {
+            ((window as any)._logs = (window as any)._logs || []).push(`[GESTURE] move dx=${dx.toFixed(1)} dy=${dy.toFixed(1)} handle=${startedOnHandle}`);
+        }
+        
         // 1. INTENT LOCKING: Deciding between Swipe vs Drag
         if (!draggingTaskId && (dy > 2 || dx > 2 || startedOnHandle)) {
             // Immediate lock if on handle
@@ -431,7 +539,7 @@
                         logger.info(`[GESTURE] Intent locked: DRAG (taskId: ${draggingTaskId})`);
                         dragLogged = true;
                     }
-                    (window as any)._logs.push(`[GESTURE] DRAG START (Immediate): ${draggingTaskId}`);
+                    if (typeof window !== 'undefined') (window as any)._logs.push(`[GESTURE] DRAG START (Immediate): ${draggingTaskId}`);
                 }
             } else if (dx > 20) {
                 // Stay in swipe mode
@@ -508,6 +616,7 @@
         const deltaX = touchCurrentX - touchStartX;
         const deltaY = touchCurrentY - touchStartY;
         const swipe = resolveSwipe(deltaX, deltaY);
+        
         const index = tasks.findIndex(t => t.id === task.id);
 
 
@@ -526,14 +635,12 @@
     }
 
     function handlePointerCancel(e: PointerEvent) {
-        if (!(window as any)._logs) (window as any)._logs = [];
-        (window as any)._logs.push(`[GESTURE] pointercancel taskId=${swipingTaskId || draggingTaskId} pointerType=${e.pointerType} reason=${(e as any).reason || 'unknown'}`);
         swipingTaskId = null;
         draggingTaskId = null;
     }
 
     async function executeGestureAction(action: string, task: TaskNode, index: number) {
-        if (debug || true) console.log(`[StackView DEBUG] executeGestureAction action=${action}, task=${task.title}, index=${index}`);
+        if (debug) console.log(`[StackView DEBUG] executeGestureAction action=${action}, task=${task.title}, index=${index}`);
         if (!action || action === 'none') return;
 
         let cmd;
@@ -573,13 +680,20 @@
     }
 
 
+
+    function touchBlocking(node: HTMLElement, handler: (e: TouchEvent) => void) {
+        const options = { passive: false };
+        node.addEventListener('touchmove', handler as EventListener, options);
+        return {
+            destroy() {
+                node.removeEventListener('touchmove', handler as EventListener, options);
+            }
+        };
+    }
+
     function handleTouchBlocking(e: TouchEvent) {
-        if (!(window as any)._logs) (window as any)._logs = [];
-        (window as any)._logs.push(`[GESTURE] handleTouchBlocking entry swiping=${swipingTaskId}`);
-        if (logger && internalSettings.debug) logger.info(`[GESTURE] handleTouchBlocking entry. swipingTaskId=${swipingTaskId}, draggingTaskId=${draggingTaskId}`);
         // High-level blocking for Obsidian's gesture engine
         e.stopPropagation();
-        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
         
         const dx = Math.abs(touchCurrentX - touchStartX);
         const dy = Math.abs(touchCurrentY - touchStartY);
@@ -593,6 +707,8 @@
     }
 
     async function handleTap(e: MouseEvent, task: TaskNode, index: number) {
+        if (editingIndex !== -1 || editingStartTimeIndex !== -1) return;
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] handleTap: index=${index}, focused=${focusedIndex}, event=${e.type}, x=${e.clientX}, y=${e.clientY}, detail=${e.detail}, button=${e.button}, target=${(e.target as HTMLElement).tagName}`);
         // Prevent click events if we just finished a drag
         const now = Date.now();
         if (now - lastDragEndTime < 300) {
@@ -663,7 +779,8 @@
     function selectOnFocus(node: HTMLInputElement) {
         node.focus();
         node.select();
-        ViewportService.scrollIntoView(node);
+        // On mobile, use 'start' to ensure it's above the keyboard
+        ViewportService.scrollIntoView(node, 'smooth', isMobileState ? 'start' : 'center');
     }
 
     export async function handleKeyDown(e: KeyboardEvent) {
@@ -691,12 +808,25 @@
             return;
         }
 
-        // Prevent default scrolling for arrows to avoid moving the page wrapper if Obsidian has one
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
-            e.preventDefault();
+
+        // DIAGNOSTIC: Log keyboard events for debugging
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(`[StackView] handleKeyDown ENTRY: key="${e.key}", mounted=${mounted}, tasks=${tasks.length}`);
+        }
+        
+        // Early return only for non-mounted state
+        // CRITICAL: We removed !tasks.length check because GO_BACK must work on empty stacks!
+        if (!mounted) return;
+        
+        const action = keyManager.resolveAction(e);
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] KeyDown: ${e.key} (Shift=${e.shiftKey}) -> Action: ${action} (Focused: ${focusedIndex})`);
+        
+        // CANCEL PENDING TAPS ON KEYBOARD INTERACTION (Fixes Ghost Click Race)
+        if (tapTimer) {
+            clearTimeout(tapTimer);
+            tapTimer = null;
         }
 
-        const action = keyManager.resolveAction(e);
         if (logger && internalSettings.debug) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: resolved action="${action}"`);
         
         if (!action) return;
@@ -728,6 +858,7 @@
 
         // Prevent default browser/Obsidian actions for matched plugin keys
         e.preventDefault();
+        e.stopImmediatePropagation();
 
         // Handle global undo/redo separately
         if (action === 'UNDO') {
@@ -760,6 +891,7 @@
                 break;
                 
              case 'GO_BACK':
+                if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] GO_BACK action triggered. onGoBack exists: ${!!onGoBack}`);
                 if (debug) console.log(`[TODO_FLOW_TRACE] Executing GO_BACK action. onGoBack callback exists: ${!!onGoBack}`);
                 if (onGoBack) onGoBack();
                 break;
@@ -924,8 +1056,8 @@
                 onpointermove={handlePointerMove}
                 onpointerup={(e) => handlePointerEnd(e, task)}
                 onpointercancel={handlePointerCancel}
-                ontouchstart={(e) => { e.stopPropagation(); if (e.stopImmediatePropagation) e.stopImmediatePropagation(); }}
-                ontouchmove={handleTouchBlocking}
+                
+                use:touchBlocking={handleTouchBlocking}
                 style:transform={getCardTransform(task.id)}
                 style:touch-action="none"
                 style={isMobileState ? "flex-wrap: wrap; padding: 0.75rem; gap: 0.5rem;" : ""}
@@ -942,8 +1074,14 @@
                             class="todo-flow-time-input"
                             value={task.startTime.format('HH:mm')}
                             onkeydown={(e) => {
-                                if (e.key === 'Enter') finishEditStartTime(task.id, e.currentTarget.value);
-                                if (e.key === 'Escape') editingStartTimeIndex = -1;
+                                if (e.key === 'Enter') {
+                                    e.stopPropagation();
+                                    finishEditStartTime(task.id, e.currentTarget.value);
+                                }
+                                if (e.key === 'Escape') {
+                                    e.stopPropagation();
+                                    editingStartTimeIndex = -1;
+                                }
                             }}
                             onblur={(e) => finishEditStartTime(task.id, e.currentTarget.value)}
                              use:selectOnFocus
@@ -960,16 +1098,26 @@
                     {#if editingIndex === i}
                         <input
                             bind:this={renameInputs[i]}
+                            bind:value={renamingText}
                             type="text"
                             class="rename-input"
                             data-testid="rename-input"
-                            value={task.title}
-                            onblur={(e) => finishRename(task.id, e.currentTarget.value)}
-                            onkeydown={(e) => { if (e.key === 'Enter') finishRename(task.id, e.currentTarget.value); if (e.key === 'Escape') cancelRename(); }}
+                            onkeydown={(e) => { 
+                                if (e.key === 'Enter') {
+                                    e.stopPropagation();
+                                    finishRename(task.id, renamingText, 'submit');
+                                }
+                                if (e.key === 'Escape') {
+                                    e.stopPropagation();
+                                    cancelRename();
+                                }
+                            }}
+                            use:selectOnFocus
                         />
                     {:else}
                         <div 
                             class="title" 
+                            data-testid="task-card-title"
                             onclick={() => startRename(i)} 
                             title={task.isMissing ? "Note missing" : "Click to rename"} 
                             role="button" 
@@ -1063,7 +1211,7 @@
     }
 
     .todo-flow-stack-container.is-editing {
-        padding-bottom: 50vh;
+        padding-bottom: 40vh; /* Reduced from 50vh to avoid ghost space covering inputs */
     }
 
     /* Mobile Scrollbar Visibility (UI-001) */
@@ -1174,8 +1322,10 @@
         display: flex;
         padding: 1rem;
         background: var(--background-secondary);
+        background: var(--background-primary);
         border-radius: 0.5rem;
         border: 2px solid transparent;
+        scroll-margin-top: 5rem; /* Ensure card is not hidden under sticky header when using block: 'start' */
         gap: 1rem;
         align-items: center;
         transition: all 0.2s;

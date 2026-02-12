@@ -11,6 +11,7 @@ export interface TaskNode {
     children: TaskNode[];
     trace?: string[]; // Audit trail for duration roll-up
     isMissing?: boolean;
+    flow_state?: 'shortlist' | 'archived' | 'trash';
 }
 
 /**
@@ -90,6 +91,7 @@ export function getTotalGreedyDuration(root: TaskNode, registry?: TaskRegistry):
 }
 
 export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment): TaskNode[] {
+    if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[Scheduler] computeSchedule entry. Tasks: ${tasks.length}`);
     // 1. Identify all anchored "Rocks" and resolve collisions between them (Pushing Rocks)
     // We want rocks to form a solid chain if they overlap.
     const rocks = tasks

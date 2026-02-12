@@ -21,6 +21,8 @@ export class StackLoader {
      * Load tasks from a path (file or folder)
      */
     async load(path: string): Promise<TaskNode[]> {
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackLoader] load("${path}") called.`);
+
         if (path === 'QUERY:SHORTLIST') {
             return this.loadShortlisted();
         }

@@ -10,20 +10,20 @@ export class ViewportService {
      * On mobile, this accounts for the virtual keyboard by forcing a 
      * secondary scroll after the keyboard layout shift is likely complete.
      */
-    static scrollIntoView(el: HTMLElement | null, behavior: ScrollBehavior = 'smooth') {
+    static scrollIntoView(el: HTMLElement | null, behavior: ScrollBehavior = 'smooth', block: ScrollLogicalPosition = 'center') {
         if (!el) return;
 
         // Native scroll first
-        el.scrollIntoView({ block: 'center', behavior });
+        el.scrollIntoView({ block, behavior });
 
         // Mobile hardening: The keyboard layout shift often happens AFTER focus.
-        // We trigger a second pass to ensure it STAYS centered.
+        // We trigger a second pass to ensure it STAYS visible/centered.
         if (this.isMobile()) {
             setTimeout(() => {
                 if (el && document.body.contains(el)) {
-                    el.scrollIntoView({ block: 'center', behavior });
+                    el.scrollIntoView({ block, behavior });
                 }
-            }, 300); // 300ms is usually enough for keyboard transition
+            }, 400); // Increased to 400ms for more stable keyboard transition
         }
     }
 

@@ -35,10 +35,12 @@ export class StackController {
     }
 
     setTasks(tasks: TaskNode[]) {
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] setTasks called with ${tasks.length} tasks`);
         this.tasks = computeSchedule(tasks, this.currentTime);
     }
 
     moveUp(index: number): number {
+        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] moveUp(${index}) called. Tasks: ${this.tasks.length}`);
         if (index <= 0) return index;
         if (this.tasks[index]?.isAnchored) return index; // Anchors shouldn't move via list reordering
 

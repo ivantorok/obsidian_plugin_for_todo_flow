@@ -11,8 +11,13 @@ This document tracks bugs and feature requests. To request work, add an item her
 
 
 ### Phase 2: Sovereign Navigation & Gestures (The Behavior)
-| ID | Title | Type | Spec |
-| :--- | :--- | :--- | :--- |
+| ID | Title | Type | Spec | Date | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./archive/backlog/BUG-016_mobile_keyboard_collision.md) | 2026-02-11 | **[PLANNED]** |
+| BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./archive/backlog/BUG-011_mobile_card_body_drag.md) | 2026-02-11 | **[PLANNED]** |
+| BUG-012 | Mobile: Existing Task Selection via FAB -> Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-11 | **[PLANNED]** |
+| BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-11 | **[PLANNED]** |
+| BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-11 | **[PLANNED]** |
 
 ### Phase 3: Component Polishing (The Presentation)
 | ID | Title | Type | Spec |
@@ -28,20 +33,19 @@ This document tracks bugs and feature requests. To request work, add an item her
 | BUG-001 | Desktop Shortcut Leak | Bug | [Spec](./archive/backlog/BUG-001_triage_shortcut_leak.md) | 2026-02-09 | v1.2.27 |
 | UX-002 | Mobile: Drill-down Back Navigation | UX | [Spec](./archive/backlog/UX-002_mobile_navigation_back.md) | 2026-02-09 | v1.2.26 |
 | BUG-017 | Mobile: Gesture shadowing regression | Bug | [Spec](./archive/backlog/BUG-017_gesture_shadowing_regression.md) | 2026-02-09 | v1.2.28 |
-| BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./archive/backlog/BUG-016_mobile_keyboard_collision.md) | 2026-02-08 |
-| BUG-012 | Mobile: Existing Task Selection via FAB Doesn't Add to Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-07 |
-| BUG-015 | Static Triage Buttons | Bug | [Spec](./archive/backlog/BUG-015_static_triage_buttons.md) | 2026-02-07 |
-| UI-001 | Mobile: Visible scrollbar needed | Bug | [Spec](./archive/backlog/UI-001_mobile_scrollbar.md) | 2026-02-07 |
-| BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./archive/backlog/BUG-011_mobile_card_body_drag.md) | 2026-02-07 |
+| BUG-012 | Mobile: Existing Task Selection via FAB -> Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-07 | **[MOVED]** |
+| BUG-015 | Static Triage Buttons | Bug | [Spec](./archive/backlog/BUG-015_static_triage_buttons.md) | 2026-02-07 | v1.2.37 |
+| UI-001 | Mobile: Visible scrollbar needed | Bug | [Spec](./archive/backlog/UI-001_mobile_scrollbar.md) | 2026-02-07 | v1.2.37 |
+| BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./archive/backlog/BUG-011_mobile_card_body_drag.md) | 2026-02-07 | **[MOVED]** |
 | CHORE-02 | Remove tracked sandbox/node_modules/ | Chore | [Spec](./archive/backlog/CHORE-02_remove_sandbox_node_modules.md) | 2026-02-06 |
 | BUG-002 | Mobile: Adding existing or new task fails | Bug | [Spec](./archive/backlog/BUG-002_mobile_add_task_fails.md) | 2026-02-06 |
 | BUG-003 | Mobile: Exporting fails | Bug | [Spec](./archive/backlog/BUG-003_mobile_export_fails.md) | 2026-02-06 |
 | BUG-004 | Mobile: Reordering fails | Bug | [Spec](./archive/backlog/BUG-004_mobile_reordering_fails.md) | 2026-02-06 |
 | BUG-005 | Mobile: Duration values do not follow sequence | Bug | [Spec](./archive/backlog/BUG-005_mobile_duration_sequence.md) | 2026-02-06 |
 | BUG-006 | Mobile: Drag & Drop Precision & Selection | Bug | [Spec](./archive/backlog/BUG-006_mobile_drag_precision_selection.md) | 2026-02-06 |
-| BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-06 |
-| BUG-008 | Desktop: Duration buttons broken | Bug | [Spec](./archive/backlog/BUG-008_desktop_duration_buttons_broken.md) | 2026-02-06 |
-| BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-06 |
+| BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-06 | **[MOVED]** |
+| BUG-008 | Desktop: Duration buttons broken | Bug | [Spec](./archive/backlog/BUG-008_desktop_duration_buttons_broken.md) | 2026-02-06 | v1.2.37 |
+| BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-06 | **[MOVED]** |
 | FIX-01 | Smart Import Folder Bug | Bug | - | 2026-02-01 |
 | FIX-02 | Rename Test Stability | Bug | - | 2026-02-01 |
 | CHORE-01 | Pre-push Hook Stdin Conflict | Chore | - | 2026-02-01 |

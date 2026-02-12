@@ -46,6 +46,17 @@ describe('Mobile Stack Layout Refinements (FEAT-002)', () => {
 
         await focusStack();
 
+        // Explicitly refresh mobile detection in StackView
+        await browser.execute(() => {
+            // @ts-ignore
+            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0]?.view;
+            if (view?.refreshMobileDetection) {
+                view.refreshMobileDetection();
+            }
+        });
+
+        await browser.pause(200); // Allow mobile state to apply
+
         // Wait for Mobile signal
         const container = await $('.todo-flow-stack-container[data-is-mobile="true"]');
         await container.waitForExist({ timeout: 5000 });
@@ -66,17 +77,15 @@ describe('Mobile Stack Layout Refinements (FEAT-002)', () => {
         await browser.waitUntil(async () => {
             const res = await browser.execute(() => {
                 const title = document.querySelector('[data-testid="task-card-title"]') as HTMLElement;
-                if (!title) return null;
+                if (!title) return false;
                 const style = window.getComputedStyle(title);
-                // In some environments, it might be a number or a string. 
-                // We check the raw value from the style object.
                 return style.webkitLineClamp === '2' || (style as any).webkitLineClamp == 2;
             });
             return res === true;
         }, { timeout: 10000, timeoutMsg: 'Title clamping not applied in time' });
 
         const clampingResult = await browser.execute(() => {
-            const title = document.querySelector('.todo-flow-task-card .title') as HTMLElement;
+            const title = document.querySelector('[data-testid="task-card-title"]') as HTMLElement;
             if (!title) return { found: false };
             const style = window.getComputedStyle(title);
 

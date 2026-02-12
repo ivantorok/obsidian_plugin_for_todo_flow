@@ -112,7 +112,7 @@ describe('BUG-00X: Rollup Reactivation', () => {
         await childCard.waitForExist({ timeout: 5000 });
 
         console.log('[Test] Increasing Child duration...');
-        await childCard.click();
+        // await childCard.click(); // REMOVED: Triggers accidental drill-down because it's already focused
         await browser.keys(['f']); // +15m
         await browser.keys(['f']); // +15m (Total 30m)
         await browser.pause(500);
@@ -128,7 +128,7 @@ describe('BUG-00X: Rollup Reactivation', () => {
         console.log(`[Test] Initial Parent Duration: ${initialDurationText}`);
 
         console.log('[Test] Marking Parent DONE...');
-        await parentCard.click();
+        // await parentCard.click(); // REMOVED: Triggers accidental drill-down
         await browser.keys(['x']);
         await browser.pause(1000);
 

@@ -86,9 +86,10 @@ describe('Mobile Viewport Collision (BUG-016)', () => {
         // 1. Trigger rename on the currently focused task
         console.log('[Test BUG-016] Triggering rename (shortcut "e")');
         await browser.keys(['e']);
-        await browser.pause(1000);
+        await browser.pause(2000); // Wait for potential keyboard shifts and padding
 
-        // 2. Verify input is visible
+        // 2. Verify input is visible and NOT in the bottom half of the screen
+        // (Simulating that the bottom half is likely covered by a keyboard)
         const inputResult = await browser.execute(() => {
             const input = document.querySelector('.rename-input');
             if (!input) return { found: false };
@@ -96,16 +97,28 @@ describe('Mobile Viewport Collision (BUG-016)', () => {
             const rect = input.getBoundingClientRect();
             const viewHeight = window.innerHeight;
 
+            // Strict check: Input should be in the TOP 40% of the screen 
+            // to be safely away from the mobile keyboard and avoid "ghost space" collisions.
+            const isVisible = rect.top >= 0 && rect.bottom <= viewHeight;
+            const isSafeFromKeyboard = rect.bottom < (viewHeight * 0.45);
+
             return {
                 found: true,
-                isVisible: rect.top >= 0 && rect.bottom <= viewHeight,
+                isVisible,
+                isSafeFromKeyboard,
                 top: rect.top,
-                bottom: rect.bottom
+                bottom: rect.bottom,
+                viewHeight
             };
         });
+
+        const logs = await browser.execute(() => (window as any)._logs || []);
+        console.log('[Test BUG-016] BROWSER LOGS:', JSON.stringify(logs, null, 2));
 
         console.log('[Test BUG-016] Input Visibility Result:', JSON.stringify(inputResult, null, 2));
         expect(inputResult.found).toBe(true);
         expect(inputResult.isVisible).toBe(true);
+        // This is expected to FAIL if the element is centered in the full window height
+        expect(inputResult.isSafeFromKeyboard).toBe(true);
     });
 });

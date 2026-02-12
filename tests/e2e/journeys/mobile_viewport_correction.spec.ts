@@ -60,8 +60,10 @@ describe('Mobile Viewport Correction (BUG-018)', () => {
             const viewportCenterY = viewHeight / 2;
             const offsetFromCenter = Math.abs(inputCenterY - viewportCenterY);
 
-            // Allow 15% tolerance of viewport height for "centering"
-            const isCentered = offsetFromCenter < (viewHeight * 0.15);
+            // BUG-016 Fix changed alignment to 'start' (top)
+            // So we check if it is in the top 40% of the viewport (visible above keyboard)
+            const isAtTop = rect.top < (viewHeight * 0.4);
+            const isCentered = isAtTop && (rect.top > 0); // Reusing variable name to minimize diff, but logic is "Top Aligned"
 
             return {
                 found: true,

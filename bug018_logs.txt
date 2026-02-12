@@ -1,0 +1,1244 @@
+
+> obsidian_plugin_for_todo_flow@1.2.39 e2e
+> npm run e2e:setup && wdio run wdio.conf.mts --spec tests/e2e/journeys/mobile_viewport_correction.spec.ts
+
+
+> obsidian_plugin_for_todo_flow@1.2.39 e2e:setup
+> npx tsx tests/e2e/setup-vault.ts
+
+Stopping existing Obsidian instances...
+[E2E Setup] Initializing vault at: /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[E2E Setup] Existing plugins found: todo-flow
+[E2E Setup] Community plugins config updated at: /home/ivan/obsidian_plugin_for_todo_flow/.test-vault/.obsidian/community-plugins.json
+[E2E Setup] Copied main.js to vault plugins.
+[E2E Setup] Copied styles.css to vault plugins.
+[E2E Setup] Copied manifest.json to vault plugins.
+[E2E Setup] Creating vault config to trust plugins...
+[E2E Setup] Vault config created at: /home/ivan/obsidian_plugin_for_todo_flow/.test-vault/.obsidian/config.json
+[E2E Setup] Creating vault app.json to disable safe mode...
+[E2E Setup] Vault app.json created at: /home/ivan/obsidian_plugin_for_todo_flow/.test-vault/.obsidian/app.json
+[E2E Setup] --- Vault initialization complete ---
+2026-02-12T08:58:53.483Z DEBUG @wdio/utils:initializeServices: initialize service "obsidian" as NPM package
+2026-02-12T08:58:53.962Z INFO @wdio/cli:launcher: Run onPrepare hook
+2026-02-12T08:58:53.979Z DEBUG @wdio/cli:utils: Finished to run "onPrepare" hook in 16ms
+2026-02-12T08:58:53.982Z WARN @wdio/config:ConfigParser: pattern tests/e2e/manual-open.spec.ts did not match any file
+
+Execution of 1 workers started at 2026-02-12T08:58:53.985Z
+
+2026-02-12T08:58:53.987Z WARN @wdio/config:ConfigParser: pattern tests/e2e/manual-open.spec.ts did not match any file
+2026-02-12T08:58:53.992Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-02-12T08:58:53.992Z DEBUG @wdio/cli:utils: Finished to run "onWorkerStart" hook in 0ms
+2026-02-12T08:58:53.993Z INFO @wdio/xvfb: XvfbManager.init() called
+2026-02-12T08:58:53.993Z INFO @wdio/xvfb: Xvfb not needed on current platform
+2026-02-12T08:58:53.995Z INFO @wdio/local-runner: Start worker 0-0 with arg: run wdio.conf.mts --spec tests/e2e/journeys/mobile_viewport_correction.spec.ts
+2026-02-12T08:58:54.002Z INFO @wdio/xvfb:ProcessFactory: xvfb-run found in PATH
+2026-02-12T08:58:54.002Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=true
+2026-02-12T08:58:54.002Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-02-12T08:58:54.013Z DEBUG @wdio/local-runner: Send command run to worker with cid "0-0"
+[0-0] 2026-02-12T08:58:55.881Z INFO @wdio/local-runner: Run worker command: run
+[0-0] 2026-02-12T08:58:55.931Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-12T08:58:55.942Z DEBUG @wdio/utils:initializeServices: initialize service "obsidian" as NPM package
+[0-0] 2026-02-12T08:58:56.437Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-12T08:58:56.497Z DEBUG @wdio/utils:shim: Finished to run "beforeSession" hook in 59ms
+[0-0] RUNNING in chrome(142.0.7444.265) - file:///tests/e2e/journeys/mobile_viewport_correction.spec.ts
+[0-0] 2026-02-12T08:58:56.695Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-12T08:58:56.698Z INFO webdriver: Initiate new session using the WebDriver protocol
+[0-0] 2026-02-12T08:58:56.975Z INFO chromedriver: Starting ChromeDriver 142.0.7444.265 (89456eca6f8894896db6610718f6712b235f6b8f-refs/heads/main@{#1577487}) on port 38189
+[0-0] 2026-02-12T08:58:56.976Z INFO chromedriver: Only local connections are allowed.
+[0-0] 2026-02-12T08:58:56.977Z INFO chromedriver: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[0-0] 2026-02-12T08:58:56.978Z INFO chromedriver: ChromeDriver was started successfully on port 38189.
+[0-0] 2026-02-12T08:58:56.981Z INFO @wdio/utils: Started Chromedriver v142.0.7444.265 with params --port=38189 --binary=/home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/electron-chromedriver/linux-x64/39.5.1/chromedriver --allowed-origins=* in 38ms on port 38189
+[0-0] 2026-02-12T08:58:57.010Z INFO webdriver: [POST] http://localhost:38189/session
+[0-0] 2026-02-12T08:58:57.501Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-12T08:58:57.865Z INFO chromedriver: 2026-02-12 08:58:57 Loaded main app package /home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/obsidian-installer/linux-x64/Obsidian-1.11.7/resources/obsidian.asar
+[0-0] 2026-02-12T08:58:58.058Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-tD2Xp2/27c6a13cd97f0470.json'
+[0-0] 2026-02-12T08:58:58.516Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-12T08:58:58.519Z INFO webdriver: [GET] http://localhost:38189/session/19c0bacc4e442b467f730bcf9e82c75c/window
+[0-0] 2026-02-12T08:58:58.533Z INFO webdriver: RESULT 250E235AB90CF00050806444A3AB1C01
+[0-0] [WDIO] Starting E2E test session
+[0-0] 2026-02-12T08:58:58.543Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:58:58.545Z INFO webdriver: [POST] http://localhost:38189/session/19c0bacc4e442b467f730bcf9e82c75c/execute/sync
+[0-0] 2026-02-12T08:58:58.546Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:58:59.127Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:58:59.135Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:58:59.136Z INFO webdriver: [POST] http://localhost:38189/session/19c0bacc4e442b467f730bcf9e82c75c/execute/sync
+[0-0] 2026-02-12T08:58:59.136Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:58:59.187Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:58:59.195Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:58:59.199Z INFO webdriver: [POST] http://localhost:38189/session/19c0bacc4e442b467f730bcf9e82c75c/execute/sync
+[0-0] 2026-02-12T08:58:59.200Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:58:59.252Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:58:59.254Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:58:59.255Z INFO webdriver: [POST] http://localhost:38189/session/19c0bacc4e442b467f730bcf9e82c75c/execute/sync
+[0-0] 2026-02-12T08:58:59.255Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:58:59.304Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:58:59.313Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-12T08:58:59.317Z INFO webdriver: [POST] http://localhost:38189/session/19c0bacc4e442b467f730bcf9e82c75c/execute/sync
+[0-0] 2026-02-12T08:58:59.318Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-12T08:58:59.496Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:58:59.496Z DEBUG @wdio/utils:shim: Finished to run "before" hook in 956ms
+[0-0] 2026-02-12T08:58:59.531Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-12T08:58:59.612Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-12T08:58:59.616Z INFO webdriver: [DELETE] http://localhost:38189/session/19c0bacc4e442b467f730bcf9e82c75c
+[0-0] 2026-02-12T08:58:59.617Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-12T08:58:59.708Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:58:59.711Z INFO webdriver: [POST] http://localhost:38189/session
+[0-0] 2026-02-12T08:58:59.982Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-12T08:59:00.332Z INFO chromedriver: 2026-02-12 08:59:00 Loaded main app package /home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/obsidian-installer/linux-x64/Obsidian-1.11.7/resources/obsidian.asar
+[0-0] 2026-02-12T08:59:00.456Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-D5Q7Ho/8bd2930ff3ed3c9b.json'
+[0-0] 2026-02-12T08:59:00.841Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-12T08:59:00.842Z INFO webdriver: [GET] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/window
+[0-0] 2026-02-12T08:59:00.855Z INFO webdriver: RESULT 90E5296EB63A459E4388CA09A45861B0
+[0-0] 2026-02-12T08:59:00.856Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:00.857Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:00.858Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:01.416Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:01.421Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:01.425Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:01.428Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:01.505Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:01.510Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:01.514Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:01.516Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:01.586Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:01.591Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:01.599Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:01.600Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:01.665Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:01.671Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-12T08:59:01.673Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:01.673Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-12T08:59:01.904Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:01.905Z INFO webdriver: COMMAND setWindowRect(null, null, 390, 844)
+[0-0] 2026-02-12T08:59:01.906Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/window/rect
+[0-0] 2026-02-12T08:59:01.906Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:01.951Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:01.953Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:01.954Z INFO webdriver: Retrying 1/3
+[0-0] 2026-02-12T08:59:01.954Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/window/rect
+[0-0] 2026-02-12T08:59:01.955Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:01.978Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:02.479Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:02.479Z INFO webdriver: Retrying 2/3
+[0-0] 2026-02-12T08:59:02.479Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/window/rect
+[0-0] 2026-02-12T08:59:02.480Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:02.495Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:03.498Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:03.499Z INFO webdriver: Retrying 3/3
+[0-0] 2026-02-12T08:59:03.499Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/window/rect
+[0-0] 2026-02-12T08:59:03.499Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:03.536Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:03.538Z ERROR webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] [WDIO] Failed to set window size, continuing with CSS emulation: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:03.544Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:03.548Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:03.549Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{document.body.classList.add(\"is-mobile\");document.body.classList.remove(\"is-desktop\");if(window.app){window.app.isMobile=true}window.dispatchEvent(new Event(\"resize\"))}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:03.649Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:03.650Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:03.651Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:03.651Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];if(plugin){plugin.settings.targetFolder=\"todo-flow\";plugin.settings.debug=true;await plugin.saveSettings()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:03.668Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:03.672Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 0ms
+[0-0] 2026-02-12T08:59:03.673Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:03.674Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:03.674Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const plugins=window.app.plugins.enabledPlugins;const isEnabled=plugins.has(\"todo-flow\");const pluginInstance=window.app.plugins.getPlugin(\"todo-flow\");if(pluginInstance){pluginInstance.settings.debug=true;pluginInstance.logger.setEnabled(true)}return{isEnabled,hasInstance:!!pluginInstance,allEnabled:Array.from(plugins)}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:03.688Z INFO webdriver: RESULT {
+[0-0]   allEnabled: [ 'todo-flow', 'wdio-obsidian-service-plugin' ],
+[0-0]   hasInstance: true,
+[0-0]   isEnabled: true
+[0-0] }
+[0-0] [Test Setup] Plugin Status: {"allEnabled":["todo-flow","wdio-obsidian-service-plugin"],"hasInstance":true,"isEnabled":true}
+[0-0] 2026-02-12T08:59:03.697Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:03.700Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:03.701Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{try{const rootFiles=app.vault.getMarkdownFiles();for(const file of rootFiles){await app.vault.delete(file)}console.log(`[Test Setup] Deleted existing markdown files`);const folder=app.vault.getAbstractFileByPath(\"todo-flow\");if(folder){await app.vault.delete(folder,true);console.log(\"[Test Setup] Deleted existing todo-flow folder\")}localStorage.removeItem(\"_todo_flow_debug_logs\")}catch(e){console.error(\"Cleanup or Writability test failed:\",e)}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:03.735Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:03.735Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:03.736Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:03.736Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>app.commands.executeCommandById(\"todo-flow:open-todo-dump\")).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:03.806Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:03.811Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:03.812Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:03.815Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{return app.workspace.getLeavesOfType(\"todo-flow-dump-view\").length>0}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:03.824Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:03.829Z INFO webdriver: COMMAND findElement("css selector", "textarea.todo-flow-dump-input")
+[0-0] 2026-02-12T08:59:03.829Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element
+[0-0] 2026-02-12T08:59:03.829Z INFO webdriver: DATA {"using":"css selector","value":"textarea.todo-flow-dump-input"}
+[0-0] 2026-02-12T08:59:03.856Z INFO webdriver: RESULT {
+[0-0]   'element-6066-11e4-a52e-4f735466cecf': 'f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42'
+[0-0] }
+[0-0] [Test Setup] Creating task: Task 1
+[0-0] 2026-02-12T08:59:03.887Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:03.888Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:03.888Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:03.937Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:03.938Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "Task 1")
+[0-0] 2026-02-12T08:59:03.938Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:03.938Z INFO webdriver: DATA {"text":"Task 1"}
+[0-0] 2026-02-12T08:59:04.013Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:04.019Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:04.019Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:04.019Z INFO webdriver: DATA {"actions":[{"id":"key1","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:04.040Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 2
+[0-0] 2026-02-12T08:59:04.543Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:04.544Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:04.544Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:04.606Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:04.609Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "Task 2")
+[0-0] 2026-02-12T08:59:04.610Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:04.611Z INFO webdriver: DATA {"text":"Task 2"}
+[0-0] 2026-02-12T08:59:04.669Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:04.670Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:04.670Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:04.671Z INFO webdriver: DATA {"actions":[{"id":"key2","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:04.696Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 3
+[0-0] 2026-02-12T08:59:05.200Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:05.204Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:05.204Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:05.305Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:05.306Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "Task 3")
+[0-0] 2026-02-12T08:59:05.307Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:05.308Z INFO webdriver: DATA {"text":"Task 3"}
+[0-0] 2026-02-12T08:59:05.414Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:05.415Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:05.415Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:05.415Z INFO webdriver: DATA {"actions":[{"id":"key3","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:05.437Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 4
+[0-0] 2026-02-12T08:59:05.940Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:05.941Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:05.942Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:06.040Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:06.041Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "Task 4")
+[0-0] 2026-02-12T08:59:06.042Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:06.042Z INFO webdriver: DATA {"text":"Task 4"}
+[0-0] 2026-02-12T08:59:06.139Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:06.141Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:06.141Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:06.142Z INFO webdriver: DATA {"actions":[{"id":"key4","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:06.169Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 5
+[0-0] 2026-02-12T08:59:06.672Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:06.674Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:06.675Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:06.769Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:06.770Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "Task 5")
+[0-0] 2026-02-12T08:59:06.771Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:06.771Z INFO webdriver: DATA {"text":"Task 5"}
+[0-0] 2026-02-12T08:59:06.839Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:06.839Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:06.840Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:06.840Z INFO webdriver: DATA {"actions":[{"id":"key5","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:06.863Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 6
+[0-0] 2026-02-12T08:59:07.365Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:07.367Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:07.368Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:07.473Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:07.474Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "Task 6")
+[0-0] 2026-02-12T08:59:07.475Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:07.476Z INFO webdriver: DATA {"text":"Task 6"}
+[0-0] 2026-02-12T08:59:07.592Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:07.594Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:07.595Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:07.596Z INFO webdriver: DATA {"actions":[{"id":"key6","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:07.624Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 7
+[0-0] 2026-02-12T08:59:08.126Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:08.127Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:08.127Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:08.211Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:08.213Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "Task 7")
+[0-0] 2026-02-12T08:59:08.214Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:08.215Z INFO webdriver: DATA {"text":"Task 7"}
+[0-0] 2026-02-12T08:59:08.274Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:08.275Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:08.275Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:08.276Z INFO webdriver: DATA {"actions":[{"id":"key7","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:08.297Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 8
+[0-0] 2026-02-12T08:59:08.802Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:08.805Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:08.806Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:08.848Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:08.848Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "Task 8")
+[0-0] 2026-02-12T08:59:08.849Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:08.849Z INFO webdriver: DATA {"text":"Task 8"}
+[0-0] 2026-02-12T08:59:08.909Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:08.914Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:08.916Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:08.916Z INFO webdriver: DATA {"actions":[{"id":"key8","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:08.940Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Submitting dump...
+[0-0] 2026-02-12T08:59:09.442Z INFO webdriver: COMMAND elementClear("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42")
+[0-0] 2026-02-12T08:59:09.444Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/clear
+[0-0] 2026-02-12T08:59:09.444Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:09.546Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:09.551Z INFO webdriver: COMMAND elementSendKeys("f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42", "<Screenshot[base64]>")
+[0-0] 2026-02-12T08:59:09.553Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/element/f.90E5296EB63A459E4388CA09A45861B0.d.F5C93EB2086227A048702D489A7C559C.e.42/value
+[0-0] 2026-02-12T08:59:09.554Z INFO webdriver: DATA {"text":"done"}
+[0-0] 2026-02-12T08:59:09.646Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:09.648Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:09.649Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:09.649Z INFO webdriver: DATA {"actions":[{"id":"key9","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:09.758Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:09.759Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:09.762Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:09.763Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{return app.workspace.getLeavesOfType(\"todo-flow-triage-view\").length>0}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:09.792Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:09.793Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:09.794Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:09.794Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-triage-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true})}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:09.808Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 0: Task 1...
+[0-0] 2026-02-12T08:59:09.810Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:09.812Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:09.813Z INFO webdriver: DATA {"actions":[{"id":"key10","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:09.835Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 1: Task 2...
+[0-0] 2026-02-12T08:59:10.638Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:10.640Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:10.640Z INFO webdriver: DATA {"actions":[{"id":"key11","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:10.673Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 2: Task 3...
+[0-0] 2026-02-12T08:59:11.476Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:11.477Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:11.477Z INFO webdriver: DATA {"actions":[{"id":"key12","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:11.501Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 3: Task 4...
+[0-0] 2026-02-12T08:59:12.305Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:12.307Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:12.308Z INFO webdriver: DATA {"actions":[{"id":"key13","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:12.347Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 4: Task 5...
+[0-0] 2026-02-12T08:59:13.150Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:13.152Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:13.152Z INFO webdriver: DATA {"actions":[{"id":"key14","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:13.182Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 5: Task 6...
+[0-0] 2026-02-12T08:59:13.985Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:13.987Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:13.988Z INFO webdriver: DATA {"actions":[{"id":"key15","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:14.036Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 6: Task 7...
+[0-0] 2026-02-12T08:59:14.839Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:14.842Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:14.842Z INFO webdriver: DATA {"actions":[{"id":"key16","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:14.873Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 7: Task 8...
+[0-0] 2026-02-12T08:59:15.676Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:15.678Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/actions
+[0-0] 2026-02-12T08:59:15.678Z INFO webdriver: DATA {"actions":[{"id":"key17","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:15.723Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:16.527Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:16.529Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:16.530Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>app.workspace.getLeavesOfType(\"todo-flow-stack-view\").length>0).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:16.544Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:18.547Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:18.548Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:18.549Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true});const container=document.querySelector(\".todo-flow-stack-container\");if(container)container.focus()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:18.575Z INFO webdriver: RESULT null
+[0-0] [Test BUG-018] Clicking edit icon for Task 8 Start Time
+[0-0] 2026-02-12T08:59:18.878Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:18.880Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:18.881Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const taskCards=document.querySelectorAll(\".todo-flow-task-card\");const lastTask=taskCards[7];const timeCol=lastTask?.querySelector(\".time-col\");if(timeCol)timeCol.click()}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:18.925Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:19.527Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:19.529Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:19.530Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const input=document.querySelector(\".todo-flow-time-input\");if(!input)return{found:false};const rect=input.getBoundingClientRect();const viewHeight=window.innerHeight;const isVisible=rect.top>=0&&rect.bottom<=viewHeight;const inputCenterY=rect.top+rect.height/2;const viewportCenterY=viewHeight/2;const offsetFromCenter=Math.abs(inputCenterY-viewportCenterY);const isCentered=offsetFromCenter<viewHeight*.15;return{found:true,isVisible,isCentered,inputCenterY,viewportCenterY,offsetFromCenter,viewHeight}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:19.558Z INFO webdriver: RESULT {
+[0-0]   found: true,
+[0-0]   inputCenterY: 257.75,
+[0-0]   isCentered: false,
+[0-0]   isVisible: true,
+[0-0]   offsetFromCenter: 142.25,
+[0-0]   viewHeight: 800,
+[0-0]   viewportCenterY: 400
+[0-0] }
+[0-0] [Test BUG-018] Centering Check Result: found=true, isVisible=true, isCentered=false
+[0-0] [Test BUG-018] RAW: inputCenterY=257.75, viewportCenterY=400, offset=142.25, viewHeight=800
+[0-0] 2026-02-12T08:59:19.639Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-02-12T08:59:19.640Z INFO webdriver: [GET] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/screenshot
+[0-0] 2026-02-12T08:59:19.712Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAABAAAAAMgCAIAAAAydIdsAAAQAElEQVR4nOzdC...
+[0-0] [WDIO] Screenshot saved to: /home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/failures/should_center_the_Start_Time_input_in_the_viewport_on_mobile.png
+[0-0] 2026-02-12T08:59:19.713Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 75ms
+[0-0] Error in "Mobile Viewport Correction (BUG-018).should center the Start Time input in the viewport on mobile"
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/journeys/mobile_viewport_correction.spec.ts:84:35)
+[0-0] 2026-02-12T08:59:19.717Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:19.717Z INFO webdriver: [POST] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f/execute/sync
+[0-0] 2026-02-12T08:59:19.718Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const adapter=app.vault.adapter;const rootListing=await adapter.list(\"\");for(const file of rootListing.files){if(file.startsWith(\".\"))continue;try{await adapter.remove(file)}catch(e){}}for(const folder of rootListing.folders){if(folder===\".obsidian\"||folder===\".obsidian-cache\")continue;try{await adapter.rmdir(folder,true)}catch(e){}}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:19.733Z INFO webdriver: RESULT null
+[0-0] [WDIO] E2E test session complete
+[0-0] 2026-02-12T08:59:19.739Z DEBUG @wdio/utils:shim: Finished to run "after" hook in 0ms
+[0-0] 2026-02-12T08:59:19.740Z INFO webdriver: COMMAND deleteSession()
+[0-0] 2026-02-12T08:59:19.741Z INFO webdriver: [DELETE] http://localhost:38189/session/bea56262060c1b216a743c708c5ad12f
+[0-0] 2026-02-12T08:59:19.841Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:19.842Z INFO webdriver: Kill driver process with PID 58039
+[0-0] 2026-02-12T08:59:19.893Z DEBUG @wdio/utils:shim: Finished to run "afterSession" hook in 49ms
+2026-02-12T08:59:20.045Z DEBUG @wdio/local-runner: Runner 0-0 finished with exit code 1
+[0-0] RETRYING in chrome(142.0.7444.265) - file:///tests/e2e/journeys/mobile_viewport_correction.spec.ts
+2026-02-12T08:59:20.047Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-02-12T08:59:20.047Z DEBUG @wdio/cli:utils: Finished to run "onWorkerEnd" hook in 0ms
+2026-02-12T08:59:20.049Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-02-12T08:59:20.051Z DEBUG @wdio/cli:utils: Finished to run "onWorkerStart" hook in 1ms
+2026-02-12T08:59:20.054Z INFO @wdio/local-runner: Start worker 0-0 with arg: run wdio.conf.mts --spec tests/e2e/journeys/mobile_viewport_correction.spec.ts
+2026-02-12T08:59:20.064Z INFO @wdio/xvfb:ProcessFactory: xvfb-run found in PATH
+2026-02-12T08:59:20.064Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=true
+2026-02-12T08:59:20.064Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-02-12T08:59:20.078Z DEBUG @wdio/local-runner: Send command run to worker with cid "0-0"
+[0-0] 2026-02-12T08:59:21.921Z INFO @wdio/local-runner: Run worker command: run
+[0-0] 2026-02-12T08:59:21.961Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-12T08:59:21.968Z DEBUG @wdio/utils:initializeServices: initialize service "obsidian" as NPM package
+[0-0] 2026-02-12T08:59:22.448Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-12T08:59:22.514Z DEBUG @wdio/utils:shim: Finished to run "beforeSession" hook in 66ms
+[0-0] RUNNING in chrome(142.0.7444.265) - file:///tests/e2e/journeys/mobile_viewport_correction.spec.ts
+[0-0] 2026-02-12T08:59:22.701Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-12T08:59:22.705Z INFO webdriver: Initiate new session using the WebDriver protocol
+[0-0] 2026-02-12T08:59:23.091Z INFO chromedriver: Starting ChromeDriver 142.0.7444.265 (89456eca6f8894896db6610718f6712b235f6b8f-refs/heads/main@{#1577487}) on port 43331
+[0-0] 2026-02-12T08:59:23.092Z INFO chromedriver: Only local connections are allowed.
+[0-0] 2026-02-12T08:59:23.092Z INFO chromedriver: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[0-0] 2026-02-12T08:59:23.093Z INFO chromedriver: ChromeDriver was started successfully on port 43331.
+[0-0] 2026-02-12T08:59:23.095Z INFO @wdio/utils: Started Chromedriver v142.0.7444.265 with params --port=43331 --binary=/home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/electron-chromedriver/linux-x64/39.5.1/chromedriver --allowed-origins=* in 31ms on port 43331
+[0-0] 2026-02-12T08:59:23.125Z INFO webdriver: [POST] http://localhost:43331/session
+[0-0] 2026-02-12T08:59:23.400Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-12T08:59:23.749Z INFO chromedriver: 2026-02-12 08:59:23 Loaded main app package /home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/obsidian-installer/linux-x64/Obsidian-1.11.7/resources/obsidian.asar
+[0-0] 2026-02-12T08:59:23.871Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-fYYlYF/cf74d8607a58b6c1.json'
+[0-0] 2026-02-12T08:59:24.303Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-12T08:59:24.304Z INFO webdriver: [GET] http://localhost:43331/session/eddca9aee7c01e8ccd4dca7ee0a9f269/window
+[0-0] 2026-02-12T08:59:24.318Z INFO webdriver: RESULT 1C2AF058A92174E2CF67A3FC62C3DE26
+[0-0] [WDIO] Starting E2E test session
+[0-0] 2026-02-12T08:59:24.327Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:24.328Z INFO webdriver: [POST] http://localhost:43331/session/eddca9aee7c01e8ccd4dca7ee0a9f269/execute/sync
+[0-0] 2026-02-12T08:59:24.329Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:24.973Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:24.980Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:24.983Z INFO webdriver: [POST] http://localhost:43331/session/eddca9aee7c01e8ccd4dca7ee0a9f269/execute/sync
+[0-0] 2026-02-12T08:59:24.984Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:25.101Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:25.108Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-12T08:59:25.112Z INFO webdriver: [POST] http://localhost:43331/session/eddca9aee7c01e8ccd4dca7ee0a9f269/execute/sync
+[0-0] 2026-02-12T08:59:25.112Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-12T08:59:25.391Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:25.391Z DEBUG @wdio/utils:shim: Finished to run "before" hook in 1070ms
+[0-0] 2026-02-12T08:59:25.444Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-12T08:59:25.559Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-12T08:59:25.560Z INFO webdriver: [DELETE] http://localhost:43331/session/eddca9aee7c01e8ccd4dca7ee0a9f269
+[0-0] 2026-02-12T08:59:25.560Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-12T08:59:25.650Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:25.654Z INFO webdriver: [POST] http://localhost:43331/session
+[0-0] 2026-02-12T08:59:26.018Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-12T08:59:26.377Z INFO chromedriver: 2026-02-12 08:59:26 Loaded main app package /home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/obsidian-installer/linux-x64/Obsidian-1.11.7/resources/obsidian.asar
+[0-0] 2026-02-12T08:59:26.487Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-3Vkt5K/66dbf38fcc2dd752.json'
+[0-0] 2026-02-12T08:59:26.812Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-12T08:59:26.813Z INFO webdriver: [GET] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/window
+[0-0] 2026-02-12T08:59:26.831Z INFO webdriver: RESULT 45AADB2A9923091F7351FC7E7AFF9853
+[0-0] 2026-02-12T08:59:26.832Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:26.832Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:26.833Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:27.436Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:27.439Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:27.440Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:27.440Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:27.463Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:27.466Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:27.467Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:27.470Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:27.539Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:27.545Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-12T08:59:27.548Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:27.549Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-12T08:59:27.734Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:27.738Z INFO webdriver: COMMAND setWindowRect(null, null, 390, 844)
+[0-0] 2026-02-12T08:59:27.739Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/window/rect
+[0-0] 2026-02-12T08:59:27.739Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:27.767Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:27.769Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:27.773Z INFO webdriver: Retrying 1/3
+[0-0] 2026-02-12T08:59:27.774Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/window/rect
+[0-0] 2026-02-12T08:59:27.774Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:27.794Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:28.295Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:28.295Z INFO webdriver: Retrying 2/3
+[0-0] 2026-02-12T08:59:28.296Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/window/rect
+[0-0] 2026-02-12T08:59:28.296Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:28.322Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:29.324Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:29.325Z INFO webdriver: Retrying 3/3
+[0-0] 2026-02-12T08:59:29.325Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/window/rect
+[0-0] 2026-02-12T08:59:29.325Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:29.359Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:29.361Z ERROR webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] [WDIO] Failed to set window size, continuing with CSS emulation: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:29.367Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:29.373Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:29.375Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{document.body.classList.add(\"is-mobile\");document.body.classList.remove(\"is-desktop\");if(window.app){window.app.isMobile=true}window.dispatchEvent(new Event(\"resize\"))}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:29.424Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:29.424Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:29.425Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:29.425Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];if(plugin){plugin.settings.targetFolder=\"todo-flow\";plugin.settings.debug=true;await plugin.saveSettings()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:29.443Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:29.449Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 0ms
+[0-0] 2026-02-12T08:59:29.451Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:29.451Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:29.452Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const plugins=window.app.plugins.enabledPlugins;const isEnabled=plugins.has(\"todo-flow\");const pluginInstance=window.app.plugins.getPlugin(\"todo-flow\");if(pluginInstance){pluginInstance.settings.debug=true;pluginInstance.logger.setEnabled(true)}return{isEnabled,hasInstance:!!pluginInstance,allEnabled:Array.from(plugins)}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:29.472Z INFO webdriver: RESULT {
+[0-0]   allEnabled: [ 'todo-flow', 'wdio-obsidian-service-plugin' ],
+[0-0]   hasInstance: true,
+[0-0]   isEnabled: true
+[0-0] }
+[0-0] [Test Setup] Plugin Status: {"allEnabled":["todo-flow","wdio-obsidian-service-plugin"],"hasInstance":true,"isEnabled":true}
+[0-0] 2026-02-12T08:59:29.477Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:29.478Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:29.478Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{try{const rootFiles=app.vault.getMarkdownFiles();for(const file of rootFiles){await app.vault.delete(file)}console.log(`[Test Setup] Deleted existing markdown files`);const folder=app.vault.getAbstractFileByPath(\"todo-flow\");if(folder){await app.vault.delete(folder,true);console.log(\"[Test Setup] Deleted existing todo-flow folder\")}localStorage.removeItem(\"_todo_flow_debug_logs\")}catch(e){console.error(\"Cleanup or Writability test failed:\",e)}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:29.511Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:29.512Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:29.513Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:29.513Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>app.commands.executeCommandById(\"todo-flow:open-todo-dump\")).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:29.585Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:29.586Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:29.587Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:29.587Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{return app.workspace.getLeavesOfType(\"todo-flow-dump-view\").length>0}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:29.598Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:29.602Z INFO webdriver: COMMAND findElement("css selector", "textarea.todo-flow-dump-input")
+[0-0] 2026-02-12T08:59:29.603Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element
+[0-0] 2026-02-12T08:59:29.603Z INFO webdriver: DATA {"using":"css selector","value":"textarea.todo-flow-dump-input"}
+[0-0] 2026-02-12T08:59:29.640Z INFO webdriver: RESULT {
+[0-0]   'element-6066-11e4-a52e-4f735466cecf': 'f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42'
+[0-0] }
+[0-0] [Test Setup] Creating task: Task 1
+[0-0] 2026-02-12T08:59:29.663Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:29.664Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:29.664Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:29.717Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:29.718Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "Task 1")
+[0-0] 2026-02-12T08:59:29.718Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:29.719Z INFO webdriver: DATA {"text":"Task 1"}
+[0-0] 2026-02-12T08:59:29.791Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:29.794Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:29.794Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:29.795Z INFO webdriver: DATA {"actions":[{"id":"key1","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:29.812Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 2
+[0-0] 2026-02-12T08:59:30.314Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:30.315Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:30.315Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:30.373Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:30.376Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "Task 2")
+[0-0] 2026-02-12T08:59:30.379Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:30.379Z INFO webdriver: DATA {"text":"Task 2"}
+[0-0] 2026-02-12T08:59:30.461Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:30.462Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:30.462Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:30.462Z INFO webdriver: DATA {"actions":[{"id":"key2","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:30.485Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 3
+[0-0] 2026-02-12T08:59:30.987Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:30.988Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:30.989Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:31.090Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:31.092Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "Task 3")
+[0-0] 2026-02-12T08:59:31.093Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:31.093Z INFO webdriver: DATA {"text":"Task 3"}
+[0-0] 2026-02-12T08:59:31.193Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:31.196Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:31.197Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:31.197Z INFO webdriver: DATA {"actions":[{"id":"key3","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:31.228Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 4
+[0-0] 2026-02-12T08:59:31.732Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:31.734Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:31.734Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:31.766Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:31.767Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "Task 4")
+[0-0] 2026-02-12T08:59:31.767Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:31.768Z INFO webdriver: DATA {"text":"Task 4"}
+[0-0] 2026-02-12T08:59:31.837Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:31.838Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:31.838Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:31.838Z INFO webdriver: DATA {"actions":[{"id":"key4","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:31.869Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 5
+[0-0] 2026-02-12T08:59:32.372Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:32.373Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:32.374Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:32.479Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:32.482Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "Task 5")
+[0-0] 2026-02-12T08:59:32.484Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:32.485Z INFO webdriver: DATA {"text":"Task 5"}
+[0-0] 2026-02-12T08:59:32.567Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:32.568Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:32.568Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:32.568Z INFO webdriver: DATA {"actions":[{"id":"key5","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:32.596Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 6
+[0-0] 2026-02-12T08:59:33.099Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:33.100Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:33.100Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:33.196Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:33.197Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "Task 6")
+[0-0] 2026-02-12T08:59:33.199Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:33.199Z INFO webdriver: DATA {"text":"Task 6"}
+[0-0] 2026-02-12T08:59:33.304Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:33.304Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:33.305Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:33.305Z INFO webdriver: DATA {"actions":[{"id":"key6","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:33.331Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 7
+[0-0] 2026-02-12T08:59:33.833Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:33.835Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:33.835Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:33.906Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:33.906Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "Task 7")
+[0-0] 2026-02-12T08:59:33.907Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:33.907Z INFO webdriver: DATA {"text":"Task 7"}
+[0-0] 2026-02-12T08:59:33.954Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:33.955Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:33.955Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:33.955Z INFO webdriver: DATA {"actions":[{"id":"key7","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:33.976Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 8
+[0-0] 2026-02-12T08:59:34.480Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:34.483Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:34.484Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:34.573Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:34.579Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "Task 8")
+[0-0] 2026-02-12T08:59:34.583Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:34.584Z INFO webdriver: DATA {"text":"Task 8"}
+[0-0] 2026-02-12T08:59:34.684Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:34.685Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:34.686Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:34.686Z INFO webdriver: DATA {"actions":[{"id":"key8","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:34.706Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Submitting dump...
+[0-0] 2026-02-12T08:59:35.213Z INFO webdriver: COMMAND elementClear("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42")
+[0-0] 2026-02-12T08:59:35.215Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/clear
+[0-0] 2026-02-12T08:59:35.215Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:35.310Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:35.313Z INFO webdriver: COMMAND elementSendKeys("f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42", "<Screenshot[base64]>")
+[0-0] 2026-02-12T08:59:35.314Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/element/f.45AADB2A9923091F7351FC7E7AFF9853.d.6CD0109399520BC4679865542A670DD9.e.42/value
+[0-0] 2026-02-12T08:59:35.315Z INFO webdriver: DATA {"text":"done"}
+[0-0] 2026-02-12T08:59:35.409Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:35.410Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:35.410Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:35.411Z INFO webdriver: DATA {"actions":[{"id":"key9","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:35.485Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:35.486Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:35.487Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:35.487Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{return app.workspace.getLeavesOfType(\"todo-flow-triage-view\").length>0}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:35.503Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:35.503Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:35.504Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:35.504Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-triage-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true})}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:35.517Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 0: Task 1...
+[0-0] 2026-02-12T08:59:35.518Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:35.518Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:35.518Z INFO webdriver: DATA {"actions":[{"id":"key10","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:35.536Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 1: Task 2...
+[0-0] 2026-02-12T08:59:36.338Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:36.340Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:36.341Z INFO webdriver: DATA {"actions":[{"id":"key11","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:36.390Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 2: Task 3...
+[0-0] 2026-02-12T08:59:37.195Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:37.198Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:37.200Z INFO webdriver: DATA {"actions":[{"id":"key12","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:37.241Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 3: Task 4...
+[0-0] 2026-02-12T08:59:38.047Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:38.049Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:38.049Z INFO webdriver: DATA {"actions":[{"id":"key13","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:38.088Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 4: Task 5...
+[0-0] 2026-02-12T08:59:38.891Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:38.893Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:38.893Z INFO webdriver: DATA {"actions":[{"id":"key14","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:38.930Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 5: Task 6...
+[0-0] 2026-02-12T08:59:39.735Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:39.736Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:39.737Z INFO webdriver: DATA {"actions":[{"id":"key15","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:39.784Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 6: Task 7...
+[0-0] 2026-02-12T08:59:40.587Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:40.588Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:40.589Z INFO webdriver: DATA {"actions":[{"id":"key16","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:40.624Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 7: Task 8...
+[0-0] 2026-02-12T08:59:41.428Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:41.430Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/actions
+[0-0] 2026-02-12T08:59:41.430Z INFO webdriver: DATA {"actions":[{"id":"key17","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T08:59:41.469Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:42.273Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:42.274Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:42.275Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>app.workspace.getLeavesOfType(\"todo-flow-stack-view\").length>0).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:42.293Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:44.295Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:44.297Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:44.298Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true});const container=document.querySelector(\".todo-flow-stack-container\");if(container)container.focus()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:44.323Z INFO webdriver: RESULT null
+[0-0] [Test BUG-018] Clicking edit icon for Task 8 Start Time
+[0-0] 2026-02-12T08:59:44.626Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:44.627Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:44.628Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const taskCards=document.querySelectorAll(\".todo-flow-task-card\");const lastTask=taskCards[7];const timeCol=lastTask?.querySelector(\".time-col\");if(timeCol)timeCol.click()}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:44.688Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:45.293Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:45.295Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:45.295Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const input=document.querySelector(\".todo-flow-time-input\");if(!input)return{found:false};const rect=input.getBoundingClientRect();const viewHeight=window.innerHeight;const isVisible=rect.top>=0&&rect.bottom<=viewHeight;const inputCenterY=rect.top+rect.height/2;const viewportCenterY=viewHeight/2;const offsetFromCenter=Math.abs(inputCenterY-viewportCenterY);const isCentered=offsetFromCenter<viewHeight*.15;return{found:true,isVisible,isCentered,inputCenterY,viewportCenterY,offsetFromCenter,viewHeight}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:45.322Z INFO webdriver: RESULT {
+[0-0]   found: true,
+[0-0]   inputCenterY: 255.75,
+[0-0]   isCentered: false,
+[0-0]   isVisible: true,
+[0-0]   offsetFromCenter: 144.25,
+[0-0]   viewHeight: 800,
+[0-0]   viewportCenterY: 400
+[0-0] }
+[0-0] [Test BUG-018] Centering Check Result: found=true, isVisible=true, isCentered=false
+[0-0] [Test BUG-018] RAW: inputCenterY=255.75, viewportCenterY=400, offset=144.25, viewHeight=800
+[0-0] 2026-02-12T08:59:45.373Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-02-12T08:59:45.374Z INFO webdriver: [GET] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/screenshot
+[0-0] 2026-02-12T08:59:45.480Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAABAAAAAMgCAIAAAAydIdsAAAQAElEQVR4nOzdC...
+[0-0] [WDIO] Screenshot saved to: /home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/failures/should_center_the_Start_Time_input_in_the_viewport_on_mobile.png
+[0-0] 2026-02-12T08:59:45.481Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 111ms
+[0-0] Error in "Mobile Viewport Correction (BUG-018).should center the Start Time input in the viewport on mobile"
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/journeys/mobile_viewport_correction.spec.ts:84:35)
+[0-0] 2026-02-12T08:59:45.484Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:45.484Z INFO webdriver: [POST] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5/execute/sync
+[0-0] 2026-02-12T08:59:45.484Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const adapter=app.vault.adapter;const rootListing=await adapter.list(\"\");for(const file of rootListing.files){if(file.startsWith(\".\"))continue;try{await adapter.remove(file)}catch(e){}}for(const folder of rootListing.folders){if(folder===\".obsidian\"||folder===\".obsidian-cache\")continue;try{await adapter.rmdir(folder,true)}catch(e){}}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:45.498Z INFO webdriver: RESULT null
+[0-0] [WDIO] E2E test session complete
+[0-0] 2026-02-12T08:59:45.502Z DEBUG @wdio/utils:shim: Finished to run "after" hook in 0ms
+[0-0] 2026-02-12T08:59:45.503Z INFO webdriver: COMMAND deleteSession()
+[0-0] 2026-02-12T08:59:45.503Z INFO webdriver: [DELETE] http://localhost:43331/session/704dbc7f78af4b06da1cc4791c62f1e5
+[0-0] 2026-02-12T08:59:45.589Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:45.589Z INFO webdriver: Kill driver process with PID 58361
+[0-0] 2026-02-12T08:59:45.621Z DEBUG @wdio/utils:shim: Finished to run "afterSession" hook in 31ms
+2026-02-12T08:59:45.756Z DEBUG @wdio/local-runner: Runner 0-0 finished with exit code 1
+[0-0] RETRYING in chrome(142.0.7444.265) - file:///tests/e2e/journeys/mobile_viewport_correction.spec.ts (1 retries)
+2026-02-12T08:59:45.756Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-02-12T08:59:45.756Z DEBUG @wdio/cli:utils: Finished to run "onWorkerEnd" hook in 0ms
+2026-02-12T08:59:45.757Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-02-12T08:59:45.758Z DEBUG @wdio/cli:utils: Finished to run "onWorkerStart" hook in 0ms
+2026-02-12T08:59:45.759Z INFO @wdio/local-runner: Start worker 0-0 with arg: run wdio.conf.mts --spec tests/e2e/journeys/mobile_viewport_correction.spec.ts
+2026-02-12T08:59:45.766Z INFO @wdio/xvfb:ProcessFactory: xvfb-run found in PATH
+2026-02-12T08:59:45.767Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=true
+2026-02-12T08:59:45.767Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-02-12T08:59:45.772Z DEBUG @wdio/local-runner: Send command run to worker with cid "0-0"
+[0-0] 2026-02-12T08:59:47.601Z INFO @wdio/local-runner: Run worker command: run
+[0-0] 2026-02-12T08:59:47.636Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-12T08:59:47.643Z DEBUG @wdio/utils:initializeServices: initialize service "obsidian" as NPM package
+[0-0] 2026-02-12T08:59:48.135Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-12T08:59:48.201Z DEBUG @wdio/utils:shim: Finished to run "beforeSession" hook in 65ms
+[0-0] RUNNING in chrome(142.0.7444.265) - file:///tests/e2e/journeys/mobile_viewport_correction.spec.ts
+[0-0] 2026-02-12T08:59:48.365Z DEBUG @wdio/runner: init remote session
+[0-0] 2026-02-12T08:59:48.368Z INFO webdriver: Initiate new session using the WebDriver protocol
+[0-0] 2026-02-12T08:59:48.677Z INFO chromedriver: Starting ChromeDriver 142.0.7444.265 (89456eca6f8894896db6610718f6712b235f6b8f-refs/heads/main@{#1577487}) on port 37329
+[0-0] 2026-02-12T08:59:48.677Z INFO chromedriver: Only local connections are allowed.
+[0-0] 2026-02-12T08:59:48.677Z INFO chromedriver: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[0-0] 2026-02-12T08:59:48.678Z INFO chromedriver: ChromeDriver was started successfully on port 37329.
+[0-0] 2026-02-12T08:59:48.679Z INFO @wdio/utils: Started Chromedriver v142.0.7444.265 with params --port=37329 --binary=/home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/electron-chromedriver/linux-x64/39.5.1/chromedriver --allowed-origins=* in 46ms on port 37329
+[0-0] 2026-02-12T08:59:48.708Z INFO webdriver: [POST] http://localhost:37329/session
+[0-0] 2026-02-12T08:59:48.970Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-12T08:59:49.310Z INFO chromedriver: 2026-02-12 08:59:49 Loaded main app package /home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/obsidian-installer/linux-x64/Obsidian-1.11.7/resources/obsidian.asar
+[0-0] 2026-02-12T08:59:49.439Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-5MzmZh/98da0fac7ee36b26.json'
+[0-0] 2026-02-12T08:59:49.859Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-12T08:59:49.862Z INFO webdriver: [GET] http://localhost:37329/session/9503f71fdef7de9060fc0abd82a25b95/window
+[0-0] 2026-02-12T08:59:49.885Z INFO webdriver: RESULT 35C3FE582CDA7E5A2CA1B3B922224250
+[0-0] [WDIO] Starting E2E test session
+[0-0] 2026-02-12T08:59:49.892Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:49.893Z INFO webdriver: [POST] http://localhost:37329/session/9503f71fdef7de9060fc0abd82a25b95/execute/sync
+[0-0] 2026-02-12T08:59:49.894Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:50.511Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:50.528Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:50.531Z INFO webdriver: [POST] http://localhost:37329/session/9503f71fdef7de9060fc0abd82a25b95/execute/sync
+[0-0] 2026-02-12T08:59:50.531Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:50.564Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:50.574Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:50.577Z INFO webdriver: [POST] http://localhost:37329/session/9503f71fdef7de9060fc0abd82a25b95/execute/sync
+[0-0] 2026-02-12T08:59:50.577Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:50.630Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:50.632Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-12T08:59:50.634Z INFO webdriver: [POST] http://localhost:37329/session/9503f71fdef7de9060fc0abd82a25b95/execute/sync
+[0-0] 2026-02-12T08:59:50.634Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-12T08:59:50.791Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:50.792Z DEBUG @wdio/utils:shim: Finished to run "before" hook in 904ms
+[0-0] 2026-02-12T08:59:50.838Z INFO wdio-obsidian-service: Opening vault /home/ivan/obsidian_plugin_for_todo_flow/.test-vault
+[0-0] 2026-02-12T08:59:50.903Z INFO webdriver: COMMAND deleteSession(<object>)
+[0-0] 2026-02-12T08:59:50.904Z INFO webdriver: [DELETE] http://localhost:37329/session/9503f71fdef7de9060fc0abd82a25b95
+[0-0] 2026-02-12T08:59:50.904Z INFO webdriver: DATA {"deleteSessionOpts":{"shutdownDriver":false}}
+[0-0] 2026-02-12T08:59:50.996Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:51.001Z INFO webdriver: [POST] http://localhost:37329/session
+[0-0] 2026-02-12T08:59:51.414Z INFO chromedriver: Updates disabled.
+[0-0] 2026-02-12T08:59:51.819Z INFO chromedriver: 2026-02-12 08:59:51 Loaded main app package /home/ivan/obsidian_plugin_for_todo_flow/.obsidian-cache/obsidian-installer/linux-x64/Obsidian-1.11.7/resources/obsidian.asar
+[0-0] 2026-02-12T08:59:51.949Z INFO chromedriver: Ignored: Error: ENOENT: no such file or directory, open '/tmp/obsidian-launcher-config-7ZW5F6/575ccc09d2c00bfc.json'
+[0-0] 2026-02-12T08:59:52.345Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-02-12T08:59:52.346Z INFO webdriver: [GET] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/window
+[0-0] 2026-02-12T08:59:52.355Z INFO webdriver: RESULT 3A13CEB31F74E731D58F4CD341215D05
+[0-0] 2026-02-12T08:59:52.356Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:52.357Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:52.357Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:52.950Z INFO webdriver: RESULT false
+[0-0] 2026-02-12T08:59:52.954Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:52.955Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:52.955Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!window.wdioObsidianService).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:53.015Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:53.017Z INFO webdriver: COMMAND executeScript("
+[0-0]             const require = window.wdioObsidianService().require;
+[0-0]             try {
+[0-0]                 return await (
+[0-0]                     async ({ app }) => {
+[0-0]         await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));
+[0-0]       }
+[0-0]                 ).call(null, window.wdioObsidianService(), ...arguments);
+[0-0]             } catch (e) {
+[0-0]                 if ("code" in e && typeof e.code != "number") {
+[0-0]                     delete e.code;
+[0-0]                 }
+[0-0]                 throw e;
+[0-0]             }
+[0-0]         ", <object>)
+[0-0] 2026-02-12T08:59:53.018Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:53.018Z INFO webdriver: DATA {"script":"\n            const require = window.wdioObsidianService().require;\n            try {\n                return await (\n                    async ({ app }) => {\n        await new Promise((resolve2) => app.workspace.onLayoutReady(resolve2));\n      }\n                ).call(null, window.wdioObsidianService(), ...arguments);\n            } catch (e) {\n                if (\"code\" in e && typeof e.code != \"number\") {\n                    delete e.code;\n                }\n                throw e;\n            }\n        ","args":[]}
+[0-0] 2026-02-12T08:59:53.228Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:53.231Z INFO webdriver: COMMAND setWindowRect(null, null, 390, 844)
+[0-0] 2026-02-12T08:59:53.234Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/window/rect
+[0-0] 2026-02-12T08:59:53.235Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:53.261Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:53.264Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:53.264Z INFO webdriver: Retrying 1/3
+[0-0] 2026-02-12T08:59:53.265Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/window/rect
+[0-0] 2026-02-12T08:59:53.265Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:53.283Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:53.785Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:53.785Z INFO webdriver: Retrying 2/3
+[0-0] 2026-02-12T08:59:53.786Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/window/rect
+[0-0] 2026-02-12T08:59:53.786Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:53.820Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:54.822Z WARN webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:54.823Z INFO webdriver: Retrying 3/3
+[0-0] 2026-02-12T08:59:54.823Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/window/rect
+[0-0] 2026-02-12T08:59:54.824Z INFO webdriver: DATA {"x":null,"y":null,"width":390,"height":844}
+[0-0] 2026-02-12T08:59:54.857Z DEBUG webdriver: request failed due to response error: unknown command
+[0-0] 2026-02-12T08:59:54.858Z ERROR webdriver: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] [WDIO] Failed to set window size, continuing with CSS emulation: WebDriverError: unknown command: 'Browser.getWindowForTarget' wasn't found
+[0-0]   (Session info: chrome=142.0.7444.265) when running "window/rect" with method "POST"
+[0-0] 2026-02-12T08:59:54.862Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:54.864Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:54.865Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{document.body.classList.add(\"is-mobile\");document.body.classList.remove(\"is-desktop\");if(window.app){window.app.isMobile=true}window.dispatchEvent(new Event(\"resize\"))}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:54.946Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:54.947Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:54.948Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:54.949Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const plugin=app.plugins.plugins[\"todo-flow\"];if(plugin){plugin.settings.targetFolder=\"todo-flow\";plugin.settings.debug=true;await plugin.saveSettings()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:54.987Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:54.992Z DEBUG @wdio/utils:shim: Finished to run "beforeTest" hook in 1ms
+[0-0] 2026-02-12T08:59:54.994Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:54.994Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:54.994Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const plugins=window.app.plugins.enabledPlugins;const isEnabled=plugins.has(\"todo-flow\");const pluginInstance=window.app.plugins.getPlugin(\"todo-flow\");if(pluginInstance){pluginInstance.settings.debug=true;pluginInstance.logger.setEnabled(true)}return{isEnabled,hasInstance:!!pluginInstance,allEnabled:Array.from(plugins)}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:55.002Z INFO webdriver: RESULT {
+[0-0]   allEnabled: [ 'todo-flow', 'wdio-obsidian-service-plugin' ],
+[0-0]   hasInstance: true,
+[0-0]   isEnabled: true
+[0-0] }
+[0-0] [Test Setup] Plugin Status: {"allEnabled":["todo-flow","wdio-obsidian-service-plugin"],"hasInstance":true,"isEnabled":true}
+[0-0] 2026-02-12T08:59:55.006Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:55.007Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:55.007Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{try{const rootFiles=app.vault.getMarkdownFiles();for(const file of rootFiles){await app.vault.delete(file)}console.log(`[Test Setup] Deleted existing markdown files`);const folder=app.vault.getAbstractFileByPath(\"todo-flow\");if(folder){await app.vault.delete(folder,true);console.log(\"[Test Setup] Deleted existing todo-flow folder\")}localStorage.removeItem(\"_todo_flow_debug_logs\")}catch(e){console.error(\"Cleanup or Writability test failed:\",e)}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:55.045Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:55.045Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:55.045Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:55.046Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>app.commands.executeCommandById(\"todo-flow:open-todo-dump\")).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:55.112Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:55.114Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T08:59:55.115Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T08:59:55.116Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{return app.workspace.getLeavesOfType(\"todo-flow-dump-view\").length>0}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T08:59:55.131Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T08:59:55.139Z INFO webdriver: COMMAND findElement("css selector", "textarea.todo-flow-dump-input")
+[0-0] 2026-02-12T08:59:55.140Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element
+[0-0] 2026-02-12T08:59:55.141Z INFO webdriver: DATA {"using":"css selector","value":"textarea.todo-flow-dump-input"}
+[0-0] 2026-02-12T08:59:55.166Z INFO webdriver: RESULT {
+[0-0]   'element-6066-11e4-a52e-4f735466cecf': 'f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42'
+[0-0] }
+[0-0] [Test Setup] Creating task: Task 1
+[0-0] 2026-02-12T08:59:55.180Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T08:59:55.181Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T08:59:55.181Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:55.233Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:55.233Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "Task 1")
+[0-0] 2026-02-12T08:59:55.234Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T08:59:55.234Z INFO webdriver: DATA {"text":"Task 1"}
+[0-0] 2026-02-12T08:59:55.296Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:55.298Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:55.299Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T08:59:55.299Z INFO webdriver: DATA {"actions":[{"id":"key1","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:55.327Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 2
+[0-0] 2026-02-12T08:59:55.829Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T08:59:55.829Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T08:59:55.829Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:55.885Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:55.886Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "Task 2")
+[0-0] 2026-02-12T08:59:55.887Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T08:59:55.888Z INFO webdriver: DATA {"text":"Task 2"}
+[0-0] 2026-02-12T08:59:55.945Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:55.946Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:55.947Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T08:59:55.947Z INFO webdriver: DATA {"actions":[{"id":"key2","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:55.965Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 3
+[0-0] 2026-02-12T08:59:56.466Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T08:59:56.468Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T08:59:56.468Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:56.580Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:56.582Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "Task 3")
+[0-0] 2026-02-12T08:59:56.583Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T08:59:56.583Z INFO webdriver: DATA {"text":"Task 3"}
+[0-0] 2026-02-12T08:59:56.652Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:56.655Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:56.656Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T08:59:56.657Z INFO webdriver: DATA {"actions":[{"id":"key3","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:56.682Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 4
+[0-0] 2026-02-12T08:59:57.184Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T08:59:57.184Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T08:59:57.184Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:57.207Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:57.208Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "Task 4")
+[0-0] 2026-02-12T08:59:57.208Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T08:59:57.208Z INFO webdriver: DATA {"text":"Task 4"}
+[0-0] 2026-02-12T08:59:57.255Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:57.255Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:57.256Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T08:59:57.256Z INFO webdriver: DATA {"actions":[{"id":"key4","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:57.273Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 5
+[0-0] 2026-02-12T08:59:57.777Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T08:59:57.778Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T08:59:57.779Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:57.878Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:57.879Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "Task 5")
+[0-0] 2026-02-12T08:59:57.880Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T08:59:57.880Z INFO webdriver: DATA {"text":"Task 5"}
+[0-0] 2026-02-12T08:59:57.926Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:57.926Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:57.927Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T08:59:57.927Z INFO webdriver: DATA {"actions":[{"id":"key5","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:57.948Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 6
+[0-0] 2026-02-12T08:59:58.451Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T08:59:58.452Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T08:59:58.453Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:58.543Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:58.544Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "Task 6")
+[0-0] 2026-02-12T08:59:58.545Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T08:59:58.546Z INFO webdriver: DATA {"text":"Task 6"}
+[0-0] 2026-02-12T08:59:58.651Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:58.654Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:58.657Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T08:59:58.658Z INFO webdriver: DATA {"actions":[{"id":"key6","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:58.682Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 7
+[0-0] 2026-02-12T08:59:59.184Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T08:59:59.185Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T08:59:59.185Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:59.215Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:59.216Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "Task 7")
+[0-0] 2026-02-12T08:59:59.216Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T08:59:59.216Z INFO webdriver: DATA {"text":"Task 7"}
+[0-0] 2026-02-12T08:59:59.271Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:59.272Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:59.272Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T08:59:59.273Z INFO webdriver: DATA {"actions":[{"id":"key7","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T08:59:59.295Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Creating task: Task 8
+[0-0] 2026-02-12T08:59:59.797Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T08:59:59.799Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T08:59:59.800Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T08:59:59.897Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:59.898Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "Task 8")
+[0-0] 2026-02-12T08:59:59.899Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T08:59:59.899Z INFO webdriver: DATA {"text":"Task 8"}
+[0-0] 2026-02-12T08:59:59.986Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T08:59:59.988Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T08:59:59.989Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T08:59:59.990Z INFO webdriver: DATA {"actions":[{"id":"key8","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T09:00:00.012Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Submitting dump...
+[0-0] 2026-02-12T09:00:00.514Z INFO webdriver: COMMAND elementClear("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42")
+[0-0] 2026-02-12T09:00:00.516Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/clear
+[0-0] 2026-02-12T09:00:00.516Z INFO webdriver: DATA {}
+[0-0] 2026-02-12T09:00:00.609Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T09:00:00.611Z INFO webdriver: COMMAND elementSendKeys("f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42", "<Screenshot[base64]>")
+[0-0] 2026-02-12T09:00:00.613Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/element/f.3A13CEB31F74E731D58F4CD341215D05.d.F8667A44D05C43A0BFD013DC9DD15D28.e.42/value
+[0-0] 2026-02-12T09:00:00.613Z INFO webdriver: DATA {"text":"done"}
+[0-0] 2026-02-12T09:00:00.709Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T09:00:00.711Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:00.711Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:00.711Z INFO webdriver: DATA {"actions":[{"id":"key9","type":"key","parameters":{},"actions":[{"type":"keyDown","value":""},{"type":"pause","duration":10},{"type":"keyUp","value":""}]}]}
+[0-0] 2026-02-12T09:00:00.813Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T09:00:00.814Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T09:00:00.815Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T09:00:00.815Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{return app.workspace.getLeavesOfType(\"todo-flow-triage-view\").length>0}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T09:00:00.838Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T09:00:00.840Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T09:00:00.841Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T09:00:00.841Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-triage-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true})}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T09:00:00.855Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 0: Task 1...
+[0-0] 2026-02-12T09:00:00.858Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:00.859Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:00.859Z INFO webdriver: DATA {"actions":[{"id":"key10","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T09:00:00.883Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 1: Task 2...
+[0-0] 2026-02-12T09:00:01.686Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:01.690Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:01.691Z INFO webdriver: DATA {"actions":[{"id":"key11","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T09:00:01.733Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 2: Task 3...
+[0-0] 2026-02-12T09:00:02.535Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:02.536Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:02.536Z INFO webdriver: DATA {"actions":[{"id":"key12","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T09:00:02.580Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 3: Task 4...
+[0-0] 2026-02-12T09:00:03.384Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:03.385Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:03.386Z INFO webdriver: DATA {"actions":[{"id":"key13","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T09:00:03.408Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 4: Task 5...
+[0-0] 2026-02-12T09:00:04.210Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:04.213Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:04.213Z INFO webdriver: DATA {"actions":[{"id":"key14","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T09:00:04.262Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 5: Task 6...
+[0-0] 2026-02-12T09:00:05.067Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:05.068Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:05.069Z INFO webdriver: DATA {"actions":[{"id":"key15","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T09:00:05.105Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 6: Task 7...
+[0-0] 2026-02-12T09:00:05.910Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:05.911Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:05.912Z INFO webdriver: DATA {"actions":[{"id":"key16","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T09:00:05.956Z INFO webdriver: RESULT null
+[0-0] [Test Setup] Shortlisting task 7: Task 8...
+[0-0] 2026-02-12T09:00:06.763Z INFO webdriver: COMMAND performActions(<object>)
+[0-0] 2026-02-12T09:00:06.764Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/actions
+[0-0] 2026-02-12T09:00:06.765Z INFO webdriver: DATA {"actions":[{"id":"key17","type":"key","parameters":{},"actions":[{"type":"keyDown","value":"k"},{"type":"pause","duration":10},{"type":"keyUp","value":"k"}]}]}
+[0-0] 2026-02-12T09:00:06.819Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T09:00:07.623Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T09:00:07.626Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T09:00:07.627Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>app.workspace.getLeavesOfType(\"todo-flow-stack-view\").length>0).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T09:00:07.641Z INFO webdriver: RESULT true
+[0-0] 2026-02-12T09:00:09.644Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T09:00:09.646Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T09:00:09.647Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const leaf=app.workspace.getLeavesOfType(\"todo-flow-stack-view\")[0];if(leaf){app.workspace.setActiveLeaf(leaf,{focus:true});const container=document.querySelector(\".todo-flow-stack-container\");if(container)container.focus()}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T09:00:09.674Z INFO webdriver: RESULT null
+[0-0] [Test BUG-018] Clicking edit icon for Task 8 Start Time
+[0-0] 2026-02-12T09:00:09.977Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T09:00:09.979Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T09:00:09.979Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const taskCards=document.querySelectorAll(\".todo-flow-task-card\");const lastTask=taskCards[7];const timeCol=lastTask?.querySelector(\".time-col\");if(timeCol)timeCol.click()}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T09:00:10.029Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T09:00:10.632Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T09:00:10.633Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T09:00:10.634Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (()=>{const input=document.querySelector(\".todo-flow-time-input\");if(!input)return{found:false};const rect=input.getBoundingClientRect();const viewHeight=window.innerHeight;const isVisible=rect.top>=0&&rect.bottom<=viewHeight;const inputCenterY=rect.top+rect.height/2;const viewportCenterY=viewHeight/2;const offsetFromCenter=Math.abs(inputCenterY-viewportCenterY);const isCentered=offsetFromCenter<viewHeight*.15;return{found:true,isVisible,isCentered,inputCenterY,viewportCenterY,offsetFromCenter,viewHeight}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T09:00:10.660Z INFO webdriver: RESULT {
+[0-0]   found: true,
+[0-0]   inputCenterY: 257.75,
+[0-0]   isCentered: false,
+[0-0]   isVisible: true,
+[0-0]   offsetFromCenter: 142.25,
+[0-0]   viewHeight: 800,
+[0-0]   viewportCenterY: 400
+[0-0] }
+[0-0] [Test BUG-018] Centering Check Result: found=true, isVisible=true, isCentered=false
+[0-0] [Test BUG-018] RAW: inputCenterY=257.75, viewportCenterY=400, offset=142.25, viewHeight=800
+[0-0] 2026-02-12T09:00:10.724Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-02-12T09:00:10.725Z INFO webdriver: [GET] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/screenshot
+[0-0] 2026-02-12T09:00:10.844Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAABAAAAAMgCAIAAAAydIdsAAAQAElEQVR4nOzdC...
+[0-0] [WDIO] Screenshot saved to: /home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/failures/should_center_the_Start_Time_input_in_the_viewport_on_mobile.png
+[0-0] 2026-02-12T09:00:10.846Z DEBUG @wdio/utils:shim: Finished to run "afterTest" hook in 123ms
+[0-0] Error in "Mobile Viewport Correction (BUG-018).should center the Start Time input in the viewport on mobile"
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/journeys/mobile_viewport_correction.spec.ts:84:35)
+[0-0] 2026-02-12T09:00:10.849Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-02-12T09:00:10.849Z INFO webdriver: [POST] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a/execute/sync
+[0-0] 2026-02-12T09:00:10.849Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (async()=>{const adapter=app.vault.adapter;const rootListing=await adapter.list(\"\");for(const file of rootListing.files){if(file.startsWith(\".\"))continue;try{await adapter.remove(file)}catch(e){}}for(const folder of rootListing.folders){if(folder===\".obsidian\"||folder===\".obsidian-cache\")continue;try{await adapter.rmdir(folder,true)}catch(e){}}}).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-02-12T09:00:10.867Z INFO webdriver: RESULT null
+[0-0] [WDIO] E2E test session complete
+[0-0] 2026-02-12T09:00:10.872Z DEBUG @wdio/utils:shim: Finished to run "after" hook in 1ms
+[0-0] 2026-02-12T09:00:10.873Z INFO webdriver: COMMAND deleteSession()
+[0-0] 2026-02-12T09:00:10.873Z INFO webdriver: [DELETE] http://localhost:37329/session/25cea6ddf7b47d04ba20c327946d4e8a
+[0-0] 2026-02-12T09:00:10.972Z INFO webdriver: RESULT null
+[0-0] 2026-02-12T09:00:10.972Z INFO webdriver: Kill driver process with PID 58667
+[0-0] 2026-02-12T09:00:11.012Z DEBUG @wdio/utils:shim: Finished to run "afterSession" hook in 39ms
+2026-02-12T09:00:11.137Z DEBUG @wdio/local-runner: Runner 0-0 finished with exit code 1
+[0-0] FAILED in chrome(142.0.7444.265) - file:///tests/e2e/journeys/mobile_viewport_correction.spec.ts (2 retries)
+2026-02-12T09:00:11.137Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-02-12T09:00:11.138Z DEBUG @wdio/cli:utils: Finished to run "onWorkerEnd" hook in 0ms
+
+ "obsidian" Reporter:
+------------------------------------------------------------------
+Running: obsidian v1.11.7 (installer: v1.11.7, platform: linux)
+Session ID: 19c0bacc4e442b467f730bcf9e82c75c
+
+» tests/e2e/journeys/mobile_viewport_correction.spec.ts
+Mobile Viewport Correction (BUG-018)
+   ✖ should center the Start Time input in the viewport on mobile
+
+1 failing (20.3s)
+
+1) Mobile Viewport Correction (BUG-018) should center the Start Time input in the viewport on mobile
+expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/journeys/mobile_viewport_correction.spec.ts:84:35)
+------------------------------------------------------------------
+Running: obsidian v1.11.7 (installer: v1.11.7, platform: linux)
+Session ID: eddca9aee7c01e8ccd4dca7ee0a9f269
+
+» tests/e2e/journeys/mobile_viewport_correction.spec.ts
+Mobile Viewport Correction (BUG-018)
+   ✖ should center the Start Time input in the viewport on mobile
+
+1 failing (20.2s)
+
+1) Mobile Viewport Correction (BUG-018) should center the Start Time input in the viewport on mobile
+expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/journeys/mobile_viewport_correction.spec.ts:84:35)
+------------------------------------------------------------------
+Running: obsidian v1.11.7 (installer: v1.11.7, platform: linux)
+Session ID: 9503f71fdef7de9060fc0abd82a25b95
+
+» tests/e2e/journeys/mobile_viewport_correction.spec.ts
+Mobile Viewport Correction (BUG-018)
+   ✖ should center the Start Time input in the viewport on mobile
+
+1 failing (20.2s)
+
+1) Mobile Viewport Correction (BUG-018) should center the Start Time input in the viewport on mobile
+expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Context.<anonymous> (/home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/journeys/mobile_viewport_correction.spec.ts:84:35)
+
+
+Spec Files:	 0 passed, 2 retries, 1 failed, 1 total (100% completed) in 00:01:17  
+
+2026-02-12T09:00:11.140Z INFO @wdio/local-runner: Shutting down spawned worker
+2026-02-12T09:00:11.392Z INFO @wdio/local-runner: Waiting for 0 to shut down gracefully
+2026-02-12T09:00:11.394Z INFO @wdio/local-runner: shutting down
+2026-02-12T09:00:11.395Z INFO @wdio/cli:launcher: Run onComplete hook
+2026-02-12T09:00:11.396Z DEBUG @wdio/cli:utils: Finished to run "onComplete" hook in 0ms

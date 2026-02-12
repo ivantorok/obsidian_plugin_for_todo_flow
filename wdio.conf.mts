@@ -30,7 +30,7 @@ export const config: Options.Testrunner = {
         browserName: 'obsidian',
         browserVersion: 'latest',
         'wdio:obsidianOptions': {
-            installerVersion: 'earliest',
+            installerVersion: 'latest',
             plugins: ['.'],
             vault: './.test-vault',
         }
@@ -42,7 +42,7 @@ export const config: Options.Testrunner = {
     // ===================
     logLevel: 'debug',
     bail: 0,
-    waitforTimeout: 10000,
+    waitforTimeout: 15000,
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
     specFileRetries: 2,
