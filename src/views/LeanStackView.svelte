@@ -12,6 +12,8 @@
         onAppendInbox: (text: string) => Promise<void>;
     }
 
+    import { LoopManager } from '../services/LoopManager.js';
+
     let { 
         settings, 
         logger, 
@@ -24,6 +26,7 @@
     let loading = $state(true);
     let captureText = $state("");
     let showCapture = $state(false);
+    let showVictory = $state(false);
 
     let currentTask = $derived(tasks[currentIndex]);
 
@@ -31,6 +34,7 @@
         tasks = newTasks;
         currentIndex = 0;
         loading = false;
+        showVictory = false;
     }
 
     async function handleDone() {
@@ -52,11 +56,33 @@
     }
 
     function nextTask() {
-        if (currentIndex < tasks.length - 1) {
-            currentIndex++;
+        const result = LoopManager.resolveNextIndex(currentIndex, tasks.length, true);
+        if (result.showVictory) {
+            showVictory = true;
+            logger.info("[LeanStackView] Showing Victory Lap card");
         } else {
-            logger.info("[LeanStackView] End of stack reached");
+            currentIndex = result.nextIndex;
         }
+    }
+
+    function restartLoop() {
+        currentIndex = LoopManager.restartLoop();
+        showVictory = false;
+        logger.info("[LeanStackView] Loop restarted");
+    }
+
+    function closeSession() {
+        // @ts-ignore - leaf is available on View but not explicitly in Props here
+        // We'll need to pass the view or use app to find the leaf.
+        // For simplicity in Svelte, we can dispatch an event or use a callback.
+        // But LeanStackView is a View, so it has access to its leaf if we expose it.
+        // @ts-ignore
+        app.workspace.getLeavesOfType('todo-flow-stack-view').forEach(leaf => {
+            // @ts-ignore
+            if (leaf.view === this || (leaf.view && (leaf.view as any).view === this)) {
+                leaf.detach();
+            }
+        });
     }
 
     async function submitCapture() {
@@ -72,6 +98,24 @@
         <div class="loading">Loading Stack...</div>
     {:else if tasks.length === 0}
         <div class="empty-state">No tasks in stack.</div>
+    {:else if showVictory}
+        <div class="victory-card" data-testid="victory-lap-card">
+            <h2>Victory Lap! 🏆</h2>
+            <div class="summary-list">
+                {#each tasks as task}
+                    <div class="summary-item {task.status === 'done' ? 'is-done' : ''} {task.flow_state === 'parked' ? 'is-parked' : ''}" data-testid="victory-summary-item">
+                        <span class="status-icon">
+                            {#if task.status === 'done'}✅{:else if task.flow_state === 'parked'}⏸️{:else}⬜{/if}
+                        </span>
+                        <span class="title">{task.title}</span>
+                    </div>
+                {/each}
+            </div>
+            <div class="victory-actions">
+                <button class="action-btn next" data-testid="victory-restart-btn" onclick={restartLoop}>Restart Loop</button>
+                <button class="action-btn park" data-testid="victory-close-btn" onclick={closeSession}>Close Session</button>
+            </div>
+        </div>
     {:else if currentTask}
         <div class="task-card" data-testid="lean-task-card">
             <div class="task-title" data-testid="lean-task-title">{currentTask.title}</div>
@@ -180,9 +224,62 @@
         color: white;
     }
 
-    .next {
+    .action-btn.next {
         background-color: var(--background-modifier-border);
         color: var(--text-normal);
+        grid-column: span 2;
+    }
+
+    .victory-card {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        border: 2px solid var(--interactive-success);
+        border-radius: 12px;
+        padding: 30px;
+        background-color: var(--background-secondary);
+        overflow-y: auto;
+    }
+
+    .summary-list {
+        width: 100%;
+        margin: 20px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: var(--background-primary);
+        border: 1px solid var(--background-modifier-border);
+        font-size: 1.1em;
+        text-align: left;
+    }
+
+    .summary-item.is-done {
+        opacity: 0.7;
+        background-color: var(--background-modifier-success);
+    }
+
+    .summary-item.is-parked {
+        opacity: 0.7;
+        background-color: var(--background-modifier-accent);
+    }
+
+    .victory-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        width: 100%;
+        max-width: 400px;
+        margin-top: auto;
     }
 
     .fab-btn {

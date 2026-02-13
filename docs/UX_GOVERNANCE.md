@@ -12,6 +12,8 @@ Focus is the primary indicator of intent. Todo Flow assumes "Greedy Focus" when 
 - **Escape to Home**: Pressing `Escape` inside any plugin modal MUST return focus to the `StackView` container upon closing.
 - **Auto-Refocus**: If a user clicks a task card, the `StackView` container must immediately regain focus so that subsequent keyboard commands work without an extra click.
 - **Selection Parity**: The `focusedIndex` MUST remain synchronized across all interaction layers (Keyboard, Gestures, Menu). If a command moves a task (e.g., via Double-Tap Anchor), the reactive selection must follow the task to its new index immediately. Stale selection is considered a Core Bug.
+- **Lean Single-Card Focus (Mobile)**: On mobile devices using `LeanStackView`, focus is limited to exactly ONE task card at a time. All navigation actions (`NEXT`, `BACK`) must transition the viewport to the next discrete state.
+- **The Perpetual Loop (Momentum)**: Mobile navigation MUST conclude each stack session with a "Victory Lap" (Bird’s Eye View) before looping back to the first task.
 
 ### Conflict Resolution
 - **Obsidian Editor vs. Stack**: If the user is typing in a Markdown note (Obsidian Editor), Todo Flow MUST NOT capture navigation keys (`j`, `k`, `Space`).

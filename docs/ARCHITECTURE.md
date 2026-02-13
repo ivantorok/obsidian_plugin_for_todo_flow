@@ -33,6 +33,7 @@ With multiple views and complex gestures, the plugin must meticulously manage "w
 - **Static Pattern**: High-frequency mobile buttons use static visual states to ensure hardware-level stability (Android), relying on the Reactive Projection for feedback.
 - **Navigation Integration**: To respect the host environment and enable native back/forward buttons, views must set `this.navigation = true`. This ensures Obsidian's history stack captures internal plugin navigation (e.g., drill-downs).
 - **Editing Sovereignty (The Buffer)**: The "Handshake" ensures keyboard dominance, but physical visibility requires space. Views must inject a dynamic "Editing Buffer" (bottom padding) while an input is active to ensure the task remains centerable during viewport shifts.
+- **E2E Mobile Mocking**: To ensure reliable E2E tests, the plugin uses a global `window.WDIO_MOBILE_MOCK` flag. This overrides `Platform.isMobile` detection to force a "Mobile Mode Transition" even when the environment doesn't natively report as mobile.
 
 ## 4. Design Philosophy: Home Row First
 The system is built for users who want to stay on the keyboard.
@@ -56,3 +57,4 @@ To prevent state drift between the Logic Layer (`NavigationManager`) and the UI 
 ## 7. Performance vs. Durability (The Graphite Fix)
 - **Non-Destructive Graph Building**: The `GraphBuilder` MUST never prune sub-tasks based on the parent's current status (e.g., DONE). This ensures that structural data (sub-task durations) remains durable if a task is toggled back to TODO.
 - **Asynchronous View Transitions**: All major view transitions (Dump -> Triage -> Stack) must be awaited. This prevents UI race conditions where one view closes before the next has fully computed its projection from the disk.
+- **Mobile Environment Stability**: In automated testing (E2E), environments often fail to emulate `Platform.isMobile` correctly. The plugin MUST provide a dedicated setter/mock for this state to prevent "View Mismatch" where a Desktop view is registered in a Mobile test.
