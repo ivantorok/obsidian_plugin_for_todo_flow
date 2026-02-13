@@ -8,6 +8,7 @@ describe('LeanStackView.svelte', () => {
     let mockTasks: TaskNode[];
     let mockOnTaskUpdate: any;
     let mockOnAppendInbox: any;
+    let mockOnAppendStack: any;
 
     beforeEach(() => {
         mockTasks = [
@@ -16,6 +17,7 @@ describe('LeanStackView.svelte', () => {
         ] as any;
         mockOnTaskUpdate = vi.fn();
         mockOnAppendInbox = vi.fn();
+        mockOnAppendStack = vi.fn();
     });
 
     it('should render the first task in the stack', async () => {
@@ -25,7 +27,8 @@ describe('LeanStackView.svelte', () => {
                 settings: {} as any,
                 logger: { info: vi.fn() } as any,
                 onTaskUpdate: mockOnTaskUpdate,
-                onAppendInbox: mockOnAppendInbox
+                onAppendInbox: mockOnAppendInbox,
+                onAppendStack: mockOnAppendStack
             }
         });
 
@@ -43,7 +46,8 @@ describe('LeanStackView.svelte', () => {
                 settings: {} as any,
                 logger: { info: vi.fn() } as any,
                 onTaskUpdate: mockOnTaskUpdate,
-                onAppendInbox: mockOnAppendInbox
+                onAppendInbox: mockOnAppendInbox,
+                onAppendStack: mockOnAppendStack
             }
         });
 
@@ -70,7 +74,8 @@ describe('LeanStackView.svelte', () => {
                 settings: {} as any,
                 logger: { info: vi.fn() } as any,
                 onTaskUpdate: mockOnTaskUpdate,
-                onAppendInbox: mockOnAppendInbox
+                onAppendInbox: mockOnAppendInbox,
+                onAppendStack: mockOnAppendStack
             }
         });
 
@@ -97,7 +102,8 @@ describe('LeanStackView.svelte', () => {
                 settings: {} as any,
                 logger: { info: vi.fn() } as any,
                 onTaskUpdate: mockOnTaskUpdate,
-                onAppendInbox: mockOnAppendInbox
+                onAppendInbox: mockOnAppendInbox,
+                onAppendStack: mockOnAppendStack
             }
         });
 
@@ -105,14 +111,14 @@ describe('LeanStackView.svelte', () => {
         await fireEvent.click(fab);
         await tick();
 
-        const textarea = screen.getByPlaceholderText('New Idea...');
+        const textarea = screen.getByPlaceholderText('Add to stack...');
         await fireEvent.input(textarea, { target: { value: 'Test capture' } });
         await tick();
 
-        const captureBtn = screen.getByText('Capture');
+        const captureBtn = screen.getByText('Add to Stack');
         await fireEvent.click(captureBtn);
         await tick();
 
-        expect(mockOnAppendInbox).toHaveBeenCalledWith('Test capture');
+        expect(mockOnAppendStack).toHaveBeenCalledWith('Test capture');
     });
 });
