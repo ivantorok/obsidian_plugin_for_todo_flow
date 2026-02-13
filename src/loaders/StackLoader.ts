@@ -58,7 +58,22 @@ export class StackLoader {
                 // Use GraphBuilder to build the deep graph
                 const { GraphBuilder } = await import('../GraphBuilder.js');
                 const builder = new GraphBuilder(this.app);
-                return await builder.buildGraph(linkedFiles);
+                const graphNodes = await builder.buildGraph(linkedFiles);
+
+                // Merge metadata from linkedNodes (the stack file) into graphNodes
+                // Priority: LinkParser (stack file line) > GraphBuilder (individual file)
+                return graphNodes.map(gNode => {
+                    const lNode = linkedNodes.find(ln => ln.id === gNode.id);
+                    if (lNode) {
+                        return {
+                            ...gNode,
+                            isAnchored: lNode.isAnchored || gNode.isAnchored,
+                            startTime: lNode.startTime || gNode.startTime,
+                            duration: lNode.duration !== 30 ? lNode.duration : gNode.duration // 30 is default
+                        };
+                    }
+                    return gNode;
+                });
             }
         } catch (e) {
             if (this.logger) await this.logger.error(`[StackLoader] CRITICAL ERROR loading path "${path}": ${e}`);

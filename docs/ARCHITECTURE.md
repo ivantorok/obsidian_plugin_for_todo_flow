@@ -11,6 +11,8 @@ graph TD
     B -->|Shortlist| C[Daily Stack]
     C -->|Drill Down| D[Sub-Stacks]
     D -->|Rollup| C
+    C -.->|Immersion Capture| C
+    C -->|Victory Lap| B
 ```
 
 - **Draft/Dump**: Rapid text entry. Tasks are appended to files with `flow_state: dump`.
@@ -23,6 +25,8 @@ Unlike many plugins that maintain state in memory, Todo Flow treats the filesyst
 - **Reactive Projections**: The UI (Svelte components) is a reactive projection of the Markdown files.
 - **Immediate Persistence**: Any UI interaction (reordering, duration change) triggers an immediate disk write.
 - **External Sync**: The `NavigationManager` monitors for external file changes (e.g., from Obsidian Sync) and triggers a UI refresh to maintain consistency.
+- **Inline Metadata Sovereignty**: In Elias 1.1 (Momentum), the "Daily Stack" file can contain inline metadata (e.g., `- [ ] [[Task]] {18:00}`). The `LinkParser` and `StackLoader` prioritize this local context over individual task note frontmatter to enable dynamic daily planning.
+
 
 ## 3. Interaction Sovereignty
 With multiple views and complex gestures, the plugin must meticulously manage "who is listening."

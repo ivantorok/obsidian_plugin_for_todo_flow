@@ -1,6 +1,8 @@
 import { type App } from 'obsidian';
 import { type TaskNode } from '../scheduler.js';
 import { resolveTaskTitle, getFirstNonMetadataLine } from '../utils/title-resolver.js';
+import moment from 'moment';
+
 
 /**
  * LinkParser - Parses markdown files with [[wikilinks]] into TaskNode arrays
@@ -30,30 +32,45 @@ export class LinkParser implements TaskSource {
         // Read file content
         const content = await this.app.vault.adapter.read(filePath);
 
-        // Extract all wikilinks
-        const links = this.extractWikilinks(content);
+        // Extract all wikilinks with their surrounding context (the whole line)
+        const lines = content.split('\n');
+        const tasks: TaskNode[] = [];
 
-        // Convert to TaskNodes with resolved metadata
-        const tasks: TaskNode[] = await Promise.all(
-            links.map(async link => {
+        for (const line of lines) {
+            const wikilinkRegex = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/;
+            const match = line.match(wikilinkRegex);
+
+            if (match && match[1]) {
+                const linkPath = match[1].trim();
+                const displayText = match[2]?.trim();
+
                 // Resolve the link to a specific file in the vault
-                const file = this.app.metadataCache.getFirstLinkpathDest(link.path, filePath);
-                const resolvedPath = file ? file.path : (link.path.endsWith('.md') ? link.path : `${link.path}.md`);
+                const file = this.app.metadataCache.getFirstLinkpathDest(linkPath, filePath);
+                const resolvedPath = file ? file.path : (linkPath.endsWith('.md') ? linkPath : `${linkPath}.md`);
+
+                // Create a "raw" title from the line to parse for NLP (e.g., "[[Task]] {18:00}")
+                // Remove the link itself to avoid confusion and strip metadata wrappers like {}
+                const nlpInput = line.replace(match[0], '')
+                    .replace('- [ ]', '')
+                    .replace('- [x]', '')
+                    .replace(/[{}]/g, '') // Strip curly braces
+                    .trim();
 
                 // Resolve metadata from the linked file
-                const metadata = await this.resolveTaskMetadata(resolvedPath);
+                const metadata = await this.resolveTaskMetadata(resolvedPath, nlpInput);
 
-                return {
+                tasks.push({
                     id: resolvedPath,
                     // Use custom display text if provided, otherwise resolved title
-                    title: link.displayText || metadata.title,
+                    title: displayText || metadata.title,
                     duration: metadata.duration ?? 30,
-                    status: (metadata.status as 'todo' | 'done') ?? 'todo',
+                    status: (metadata.status as 'todo' | 'done') ?? (line.includes('[x]') ? 'done' : 'todo'),
                     isAnchored: metadata.isAnchored ?? false,
+                    startTime: metadata.startTime,
                     children: []
-                };
-            })
-        );
+                });
+            }
+        }
 
         return tasks;
     }
@@ -63,11 +80,12 @@ export class LinkParser implements TaskSource {
      * 1. Read file if it exists
      * 2. Extract title, duration, status, isAnchored
      */
-    public async resolveTaskMetadata(filePath: string): Promise<{
+    public async resolveTaskMetadata(filePath: string, nlpInput?: string): Promise<{
         title: string;
         duration?: number;
         status?: string;
         isAnchored?: boolean;
+        startTime?: moment.Moment | undefined;
     }> {
         try {
             // Default title is filename
@@ -95,11 +113,32 @@ export class LinkParser implements TaskSource {
             const firstLine = getFirstNonMetadataLine(content);
             const title = resolveTaskTitle(metadata, firstLine, filePath.split('/').pop() || filePath);
 
+            // NLP Enrichment: Try to extract from first line of file, but allow nlpInput to override/augment
+            const { DateParser } = await import('../utils/DateParser.js');
+            const fileNlp = DateParser.parseTaskInput(title);
+
+            let finalIsAnchored = metadata.anchored !== undefined ? metadata.anchored : fileNlp.isAnchored;
+            let finalStartTime = metadata.startTime ? moment(metadata.startTime) : fileNlp.startTime;
+            let finalDuration = metadata.duration ?? fileNlp.duration;
+
+            // If we have nlpInput (from the line in the stack file), it takes priority for anchors
+            if (nlpInput) {
+                const lineNlp = DateParser.parseTaskInput(nlpInput);
+                if (lineNlp.isAnchored) {
+                    finalIsAnchored = true;
+                    finalStartTime = lineNlp.startTime;
+                }
+                if (lineNlp.duration) {
+                    finalDuration = lineNlp.duration;
+                }
+            }
+
             return {
                 title,
-                duration: metadata.duration,
+                duration: finalDuration,
                 status: metadata.status,
-                isAnchored: metadata.anchored // We use 'anchored' in frontmatter
+                isAnchored: finalIsAnchored,
+                startTime: finalStartTime
             };
         } catch (error) {
             return { title: this.getFilenameWithoutExtension(filePath) };

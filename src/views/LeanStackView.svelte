@@ -14,6 +14,7 @@
     }
 
     import { LoopManager } from '../services/LoopManager.js';
+    import moment from 'moment';
 
     let { 
         settings, 
@@ -30,13 +31,42 @@
     let showCapture = $state(false);
     let showImmersion = $state(false);
     let showVictory = $state(false);
+    let currentTime = $state(moment());
+    let undoStack = $state<{ index: number, task: TaskNode }[]>([]);
+
+    // Update current time every minute for the guardian countdown
+    $effect(() => {
+        const interval = setInterval(() => {
+            currentTime = moment();
+        }, 60000);
+        return () => clearInterval(interval);
+    });
 
     let currentTask = $derived(tasks[currentIndex]);
+
+    let nextAnchoredTask = $derived.by(() => {
+        if (tasks.length === 0) return null;
+        // Search forward from the task AFTER the current one
+        for (let i = currentIndex + 1; i < tasks.length; i++) {
+            if (tasks[i].isAnchored && tasks[i].startTime && tasks[i].status !== 'done') {
+                return tasks[i];
+            }
+        }
+        return null;
+    });
+
+    let guardianCountdown = $derived.by(() => {
+        if (!nextAnchoredTask || !nextAnchoredTask.startTime) return null;
+        return nextAnchoredTask.startTime.diff(currentTime, 'minutes');
+    });
+
+    let guardianUrgency = $derived(guardianCountdown !== null && guardianCountdown < 5);
 
     export function setTasks(newTasks: TaskNode[], resetIndex: boolean = true) {
         tasks = newTasks;
         if (resetIndex) {
             currentIndex = 0;
+            undoStack = [];
         }
         loading = false;
         showVictory = false;
@@ -45,22 +75,34 @@
     async function handleDone() {
         if (!currentTask) return;
         
+        // Push state to undo stack before change
+        undoStack.push({ index: currentIndex, task: { ...currentTask } });
+        if (undoStack.length > 5) undoStack.shift();
+
         const updatedTask = { ...currentTask, status: 'done' as const };
         await onTaskUpdate(updatedTask);
         
-        nextTask();
+        nextTask(false); // don't push again
     }
 
     async function handlePark() {
         if (!currentTask) return;
         
+        undoStack.push({ index: currentIndex, task: { ...currentTask } });
+        if (undoStack.length > 5) undoStack.shift();
+
         const updatedTask = { ...currentTask, flow_state: 'parked' as const };
         await onTaskUpdate(updatedTask);
         
-        nextTask();
+        nextTask(false); // don't push again
     }
 
-    function nextTask() {
+    function nextTask(pushToUndo: boolean = true) {
+        if (pushToUndo && currentTask) {
+            undoStack.push({ index: currentIndex, task: { ...currentTask } });
+            if (undoStack.length > 5) undoStack.shift();
+        }
+
         const result = LoopManager.resolveNextIndex(currentIndex, tasks.length, true);
         if (result.showVictory) {
             showVictory = true;
@@ -70,6 +112,29 @@
         }
     }
 
+    async function handleUndo() {
+        const lastAction = undoStack.pop();
+        if (!lastAction) return;
+
+        logger.info(`[LeanStackView] Performing Undo to index ${lastAction.index}`);
+
+        const restoredTask = lastAction.task;
+        const currentInArray = tasks.find(t => t.id === restoredTask.id);
+        
+        if (currentInArray && (currentInArray.status !== restoredTask.status || currentInArray.flow_state !== restoredTask.flow_state)) {
+            await onTaskUpdate(restoredTask);
+            // We need to update the task in our local state as well
+            const taskIdx = tasks.findIndex(t => t.id === restoredTask.id);
+            if (taskIdx !== -1) {
+                tasks[taskIdx] = restoredTask;
+            }
+        }
+
+        currentIndex = lastAction.index;
+        showVictory = false;
+    }
+
+
     function restartLoop() {
         currentIndex = LoopManager.restartLoop();
         showVictory = false;
@@ -78,7 +143,7 @@
 
     function closeSession() {
         // @ts-ignore
-        app.workspace.getLeavesOfType('todo-flow-stack-view').forEach(leaf => {
+        app.workspace.getLeavesOfType('todo-flow-lean-stack').forEach(leaf => {
             // @ts-ignore
             if (leaf.view === this || (leaf.view && (leaf.view as any).view === this)) {
                 leaf.detach();
@@ -102,7 +167,16 @@
 </script>
 
 <div class="todo-flow-lean-container">
+    {#if nextAnchoredTask && guardianCountdown !== null}
+        <div class="horizon-guardian {guardianUrgency ? 'is-urgent' : ''}" data-testid="horizon-guardian">
+            <span class="guardian-label">Horizon:</span>
+            <span class="guardian-title" data-testid="guardian-task-title">{nextAnchoredTask.title}</span>
+            <span class="guardian-countdown" data-testid="guardian-countdown">{guardianCountdown}m</span>
+        </div>
+    {/if}
+
     {#if loading}
+
         <div class="loading">Loading Stack...</div>
     {:else if tasks.length === 0}
         <div class="empty-state">No tasks in stack.</div>
@@ -121,9 +195,11 @@
                 {/each}
             </div>
             <div class="victory-actions">
-                <button class="action-btn next" data-testid="victory-restart-btn" onclick={restartLoop}>Restart Loop</button>
+                <button class="action-btn restart" data-testid="victory-restart-btn" onclick={restartLoop}>Restart Loop</button>
+                <button class="action-btn undo {undoStack.length === 0 ? 'is-disabled' : ''}" data-testid="victory-undo-btn" onclick={handleUndo} disabled={undoStack.length === 0}>Undo Last</button>
                 <button class="action-btn park" data-testid="victory-close-btn" onclick={closeSession}>Close Session</button>
             </div>
+
         </div>
     {:else if currentTask}
         <div class="task-card" data-testid="lean-task-card">
@@ -135,10 +211,12 @@
             </div>
             
             <div class="actions">
+                <button class="action-btn undo {undoStack.length === 0 ? 'is-disabled' : ''}" data-testid="lean-undo-btn" onclick={handleUndo} disabled={undoStack.length === 0}>UNDO</button>
                 <button class="action-btn done" data-testid="lean-done-btn" onclick={handleDone}>DONE</button>
                 <button class="action-btn park" data-testid="lean-park-btn" onclick={handlePark}>PARK</button>
-                <button class="action-btn next" data-testid="lean-next-btn" onclick={nextTask}>NEXT</button>
+                <button class="action-btn next" data-testid="lean-next-btn" onclick={() => nextTask()}>NEXT</button>
             </div>
+
         </div>
     {/if}
 
@@ -191,13 +269,70 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        padding: 20px;
+        padding: 0; /* Remove padding to let guardian be full width */
         position: relative;
         background-color: var(--background-primary);
     }
 
-    .task-card {
+    .horizon-guardian {
+        background-color: var(--background-secondary);
+        border-bottom: 1px solid var(--background-modifier-border);
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9em;
+        flex-shrink: 0;
+    }
+
+    .horizon-guardian.is-urgent {
+        background-color: var(--background-modifier-error);
+        color: var(--text-on-accent);
+    }
+
+    .guardian-label {
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.75em;
+        letter-spacing: 0.1em;
+        font-weight: 600;
+    }
+
+    .horizon-guardian.is-urgent .guardian-label {
+        color: inherit;
+        opacity: 0.8;
+    }
+
+    .guardian-title {
+        font-weight: 600;
         flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .guardian-countdown {
+        font-family: var(--font-monospace);
+        padding: 2px 8px;
+        background-color: var(--background-primary);
+        border-radius: 4px;
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+
+    .horizon-guardian.is-urgent .guardian-countdown {
+        background-color: rgba(0,0,0,0.2);
+        color: white;
+    }
+
+    .loading, .empty-state {
+        padding: 20px;
+    }
+
+    .task-card {
+        margin: 20px;
+        flex-grow: 1;
+
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -227,34 +362,50 @@
     .actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        gap: 15px;
         width: 100%;
-        max-width: 400px;
+        max-width: 450px;
     }
 
     .action-btn {
-        padding: 20px;
-        font-size: 1.5em;
+        padding: 18px;
+        font-size: 1.3em;
         font-weight: bold;
         border-radius: 8px;
         border: none;
         cursor: pointer;
-        transition: transform 0.1s;
+        transition: transform 0.1s, opacity 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .action-btn:active {
         transform: scale(0.95);
     }
 
+    .action-btn.is-disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
     .done {
         background-color: var(--interactive-success);
         color: white;
-        grid-column: span 2;
+        grid-column: span 1;
     }
 
     .park {
         background-color: var(--interactive-accent);
         color: white;
+        grid-column: span 1;
+    }
+
+    .undo {
+        background-color: var(--background-modifier-border);
+        color: var(--text-normal);
+        grid-column: span 2;
+        border: 1px solid var(--background-modifier-border);
     }
 
     .action-btn.next {
@@ -262,6 +413,13 @@
         color: var(--text-normal);
         grid-column: span 2;
     }
+
+    .action-btn.restart {
+        background-color: var(--interactive-success);
+        color: white;
+        grid-column: span 2;
+    }
+
 
     .victory-card {
         flex-grow: 1;

@@ -55,15 +55,15 @@ export class LeanStackView extends ItemView {
         this.logger.info(`[LeanStackView] setState called: ${JSON.stringify(state)}`);
         if (state && (state.ids || state.rootPath)) {
             let tasks: TaskNode[] = [];
-            if (state.ids && Array.isArray(state.ids)) {
-                tasks = await this.loader.loadSpecificFiles(state.ids);
-            } else if (state.rootPath) {
+            if (state.rootPath) {
                 this.currentRootPath = state.rootPath;
                 tasks = await this.loader.load(state.rootPath);
+            } else if (state.ids && Array.isArray(state.ids)) {
+                tasks = await this.loader.loadSpecificFiles(state.ids);
             }
 
             if (this.component) {
-                this.component.setTasks(tasks);
+                this.component.setTasks(tasks, false);
             }
         }
         await super.setState(state, result);

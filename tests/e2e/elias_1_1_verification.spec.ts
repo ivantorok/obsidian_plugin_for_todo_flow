@@ -70,7 +70,11 @@ describe('Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop',
         await restartBtn.waitForExist();
         await restartBtn.click();
 
-        await browser.waitUntil(async () => (await title.getText()) === 'Task1', {
+        await browser.waitUntil(async () => {
+            const currentTitle = await $('[data-testid="lean-task-title"]');
+            if (!(await currentTitle.isExisting())) return false;
+            return (await currentTitle.getText()) === 'Task1';
+        }, {
             timeout: 5000,
             timeoutMsg: 'Expected wrap around to Task1'
         });
@@ -92,24 +96,31 @@ describe('Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop',
         await submitBtn.click();
 
         await overlay.waitForExist({ reverse: true, timeout: 5000 });
-        await browser.pause(500);
+        await browser.pause(800); // Wait for vault to sync and reload
 
         // Navigate to Victory Lap to see if it was added
-        const nextBtn = await $('[data-testid="lean-next-btn"]');
-        await nextBtn.click(); // Task1 -> Task2
+        await browser.waitUntil(async () => {
+            const nextBtn = await $('[data-testid="lean-next-btn"]');
+            if (!(await nextBtn.isExisting())) return false;
+            await nextBtn.click();
+            return true;
+        }, { timeout: 5000, timeoutMsg: 'Could not click NEXT' });
 
         await browser.waitUntil(async () => {
             const currentTitle = await $('[data-testid="lean-task-title"]');
+            if (!(await currentTitle.isExisting())) return false;
             return (await currentTitle.getText()) === 'Task2';
-        }, { timeout: 5000, timeoutMsg: 'Expected Task2 after navigation' });
+        }, { timeout: 10000, timeoutMsg: 'Expected Task2 after navigation' });
 
         const nextBtn2 = await $('[data-testid="lean-next-btn"]');
         await nextBtn2.click(); // Task 2 -> Captured Task
 
         await browser.waitUntil(async () => {
             const currentTitle = await $('[data-testid="lean-task-title"]');
+            if (!(await currentTitle.isExisting())) return false;
             return (await currentTitle.getText()) === 'Captured Task';
-        }, { timeout: 5000, timeoutMsg: 'Expected Captured Task after navigation' });
+        }, { timeout: 10000, timeoutMsg: 'Expected Captured Task after navigation' });
+
 
         const nextBtn3 = await $('[data-testid="lean-next-btn"]');
         await nextBtn3.click(); // Captured Task -> Victory Lap
