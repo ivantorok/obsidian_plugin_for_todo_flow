@@ -10,6 +10,7 @@
         logger: FileLogger;
         onTaskUpdate: (task: TaskNode) => void | Promise<void>;
         onAppendInbox: (text: string) => Promise<void>;
+        onAppendStack: (text: string) => Promise<void>;
     }
 
     import { LoopManager } from '../services/LoopManager.js';
@@ -18,7 +19,8 @@
         settings, 
         logger, 
         onTaskUpdate, 
-        onAppendInbox 
+        onAppendInbox,
+        onAppendStack
     } = $props<Props>();
 
     let tasks = $state<TaskNode[]>([]);
@@ -26,13 +28,16 @@
     let loading = $state(true);
     let captureText = $state("");
     let showCapture = $state(false);
+    let showImmersion = $state(false);
     let showVictory = $state(false);
 
     let currentTask = $derived(tasks[currentIndex]);
 
-    export function setTasks(newTasks: TaskNode[]) {
+    export function setTasks(newTasks: TaskNode[], resetIndex: boolean = true) {
         tasks = newTasks;
-        currentIndex = 0;
+        if (resetIndex) {
+            currentIndex = 0;
+        }
         loading = false;
         showVictory = false;
     }
@@ -72,10 +77,6 @@
     }
 
     function closeSession() {
-        // @ts-ignore - leaf is available on View but not explicitly in Props here
-        // We'll need to pass the view or use app to find the leaf.
-        // For simplicity in Svelte, we can dispatch an event or use a callback.
-        // But LeanStackView is a View, so it has access to its leaf if we expose it.
         // @ts-ignore
         app.workspace.getLeavesOfType('todo-flow-stack-view').forEach(leaf => {
             // @ts-ignore
@@ -85,11 +86,18 @@
         });
     }
 
-    async function submitCapture() {
+    async function submitImmersionCapture() {
         if (!captureText.trim()) return;
-        await onAppendInbox(captureText.trim());
+        await onAppendStack(captureText.trim());
         captureText = "";
+        showImmersion = false;
         showCapture = false;
+        logger.info("[LeanStackView] Immersion Capture submitted");
+    }
+
+    function toggleCapture() {
+        showCapture = !showCapture;
+        showImmersion = showCapture;
     }
 </script>
 
@@ -99,6 +107,7 @@
     {:else if tasks.length === 0}
         <div class="empty-state">No tasks in stack.</div>
     {:else if showVictory}
+        <!-- Victory Lap items ... (unchanged) -->
         <div class="victory-card" data-testid="victory-lap-card">
             <h2>Victory Lap! 🏆</h2>
             <div class="summary-list">
@@ -134,20 +143,43 @@
     {/if}
 
     <!-- Capture FAB -->
-    <button class="fab-btn" data-testid="lean-capture-fab" onclick={() => showCapture = !showCapture}>+</button>
+    <button class="fab-btn" data-testid="lean-capture-fab" onclick={toggleCapture}>+</button>
 
-    {#if showCapture}
-        <div class="capture-overlay" data-testid="lean-capture-overlay" onclick={({ target, currentTarget }) => target === currentTarget && (showCapture = false)}>
-            <div class="capture-modal">
+    {#if showImmersion}
+        <div class="immersion-overlay" data-testid="immersion-overlay">
+            <div class="immersion-header">
+                <h2>Captured Moment</h2>
+                <button class="close-btn" onclick={() => { showImmersion = false; showCapture = false; }}>✕</button>
+            </div>
+            
+            <div class="immersion-context" data-testid="immersion-context">
+                <div class="context-label">Current Stack</div>
+                <div class="context-scroll">
+                    {#each tasks as task}
+                        <div class="context-item {task.status === 'done' ? 'is-done' : ''} {task.flow_state === 'parked' ? 'is-parked' : ''}">
+                            <span class="dot"></span>
+                            <span class="title">{task.title}</span>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+
+            <div class="immersion-input-container">
                 <textarea 
                     bind:value={captureText} 
-                    placeholder="New Idea..."
-                    data-testid="lean-capture-input"
+                    placeholder="Add to stack..."
+                    data-testid="immersion-input"
                     autofocus
+                    onkeydown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            submitImmersionCapture();
+                        }
+                    }}
                 ></textarea>
-                <div class="capture-actions">
-                    <button class="mod-cta" data-testid="lean-submit-capture" onclick={submitCapture}>Capture</button>
-                    <button data-testid="lean-cancel-capture" onclick={() => showCapture = false}>Cancel</button>
+                <div class="input-actions">
+                    <button class="mod-cta" data-testid="immersion-submit-btn" onclick={submitImmersionCapture}>Add to Stack</button>
+                    <div class="input-hint">Press Enter or click to add</div>
                 </div>
             </div>
         </div>
@@ -183,6 +215,7 @@
         font-weight: bold;
         margin-bottom: 10px;
         color: var(--text-normal);
+        word-break: break-word;
     }
 
     .task-meta {
@@ -298,47 +331,118 @@
         justify-content: center;
         align-items: center;
         cursor: pointer;
+        z-index: 10;
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .capture-overlay {
+    /* Immersion Overlay Styles */
+    .immersion-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0,0,0,0.7);
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        padding-top: 100px;
-        z-index: 1000;
-    }
-
-    .capture-modal {
         background-color: var(--background-primary);
-        padding: 20px;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 500px;
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        z-index: 1000;
+        padding: 20px;
+        padding-top: env(safe-area-inset-top, 20px);
+    }
+
+    .immersion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .immersion-header h2 {
+        margin: 0;
+        font-size: 1.5em;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 10px;
+    }
+
+    .immersion-context {
+        flex-grow: 1;
+        background-color: var(--background-secondary);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .context-label {
+        font-size: 0.8em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        letter-spacing: 0.1em;
+    }
+
+    .context-scroll {
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .context-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.1em;
+        padding: 4px 0;
+    }
+
+    .context-item.is-done {
+        opacity: 0.5;
+        text-decoration: line-through;
+    }
+
+    .context-item.is-parked {
+        opacity: 0.7;
+        font-style: italic;
+    }
+
+    .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--text-muted);
+    }
+
+    .immersion-input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     textarea {
         width: 100%;
-        height: 100px;
-        padding: 10px;
+        height: 120px;
+        padding: 15px;
         border-radius: 8px;
-        border: 1px solid var(--background-modifier-border);
-        background-color: var(--background-secondary);
+        border: 2px solid var(--interactive-accent);
+        background-color: var(--background-primary);
         color: var(--text-normal);
         font-size: 1.2em;
+        resize: none;
     }
 
-    .capture-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
+    .input-hint {
+        font-size: 0.9em;
+        color: var(--text-muted);
+        text-align: center;
     }
 </style>
