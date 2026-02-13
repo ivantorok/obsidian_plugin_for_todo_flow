@@ -2,6 +2,7 @@ import { Plugin, PluginSettingTab, App, Setting, WorkspaceLeaf, TFolder, TFile, 
 import { DumpView, VIEW_TYPE_DUMP } from './views/DumpView.js';
 import { TriageView, VIEW_TYPE_TRIAGE } from './views/TriageView.js';
 import { StackView, VIEW_TYPE_STACK } from './views/StackView.js';
+import { LeanStackView } from './views/LeanStackView.js';
 import { type TaskNode } from './scheduler.js';
 import { parseTitleFromFilename, updateMetadataField, generateFilename, serializeStackToMarkdown } from './persistence.js';
 import { GraphBuilder } from './GraphBuilder.js';
@@ -123,11 +124,21 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.registerView(
             VIEW_TYPE_STACK,
-            (leaf) => new StackView(leaf, this.settings, this.historyManager, this.logger, this.viewManager, this.stackPersistenceService, (task: TaskNode) => {
-                this.syncTaskToNote(task);
-            }, (title: string, options: any) => {
-                return this.onCreateTask(title, options);
-            })
+            (leaf) => {
+                console.log(`[Todo Flow] registerView(STACK) factory called. Platform.isMobile: ${Platform.isMobile}`);
+                if (Platform.isMobile) {
+                    console.log('[Todo Flow] Instantiating LeanStackView');
+                    return new LeanStackView(leaf, this.settings, this.logger, this.stackPersistenceService, (task: TaskNode) => {
+                        this.syncTaskToNote(task);
+                    });
+                }
+                console.log('[Todo Flow] Instantiating standard StackView');
+                return new StackView(leaf, this.settings, this.historyManager, this.logger, this.viewManager, this.stackPersistenceService, (task: TaskNode) => {
+                    this.syncTaskToNote(task);
+                }, (title: string, options: any) => {
+                    return this.onCreateTask(title, options);
+                });
+            }
         );
 
         // Register ViewManager events

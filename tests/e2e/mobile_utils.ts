@@ -16,7 +16,7 @@ export async function emulateMobile() {
     }
 
     // 2. Inject CSS class and mock app.isMobile
-    await browser.execute(() => {
+    await browser.execute(async () => {
         document.body.classList.add('is-mobile');
         document.body.classList.remove('is-desktop');
 
@@ -24,6 +24,36 @@ export async function emulateMobile() {
         if (window.app) {
             // @ts-ignore
             window.app.isMobile = true;
+        }
+
+        // Shadow Platform.isMobile (which is often what plugins use)
+        try {
+            // @ts-ignore
+            const obsidian = require('obsidian');
+            if (obsidian && obsidian.Platform) {
+                obsidian.Platform.isMobile = true;
+            }
+        } catch (e) {
+            // Fallback for environments where require('obsidian') fails
+            // @ts-ignore
+            window.Platform = window.Platform || {};
+            // @ts-ignore
+            window.Platform.isMobile = true;
+        }
+
+        // 3. Force plugin reload to pick up Platform.isMobile change
+        // @ts-ignore
+        if (window.app && window.app.plugins) {
+            // @ts-ignore
+            const pluginId = 'todo-flow';
+            // @ts-ignore
+            if (window.app.plugins.enabledPlugins.has(pluginId)) {
+                // @ts-ignore
+                await window.app.plugins.disablePlugin(pluginId);
+                // @ts-ignore
+                await window.app.plugins.enablePlugin(pluginId);
+                console.log('[WDIO] Plugin reloaded to activate mobile view');
+            }
         }
 
         // Trigger a resize event to ensure Svelte/UI components update
@@ -50,6 +80,17 @@ export async function resetToDesktop() {
         if (window.app) {
             // @ts-ignore
             window.app.isMobile = false;
+        }
+
+        try {
+            // @ts-ignore
+            const obsidian = require('obsidian');
+            if (obsidian && obsidian.Platform) {
+                obsidian.Platform.isMobile = false;
+            }
+        } catch (e) {
+            // @ts-ignore
+            if (window.Platform) window.Platform.isMobile = false;
         }
 
         window.dispatchEvent(new Event('resize'));

@@ -8,6 +8,8 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 1: Interaction & Space Sovereignty (The Foundation)
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
+| BUG-021 | Schedule Recalculation Jank during Gestures | Bug | [Spec](./backlog/BUG-021_freeze_on_interaction.md) |
+| FEAT-003 | Mobile Modal Capture Side-Channel | Feat | [Spec](./backlog/FEAT-003_modal_capture_mobile.md) |
 
 
 ### Phase 2: Sovereign Navigation & Gestures (The Behavior)

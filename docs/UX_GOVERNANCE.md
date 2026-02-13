@@ -1,6 +1,6 @@
 # Todo Flow: UX Governance
 
-This document codifies the "Rules of the World" for the Todo Flow plugin. It serves as the source of truth for focus management, gesture handling, and keyboard interactions to ensure a consistent experience across Desktop and Mobile.
+This document codifies the "Rules of the World" for the Todo Flow plugin. It serves as the source of truth for focus management, gesture handling, and keyboard interactions to ensure a consistent experience across Desktop and Mobile. For a complete list of terms and interaction patterns, see the [Mobile UX Glossary](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/MOBILE_UX_GLOSSARY.md).
 
 ## 1. Focus Sovereignty: Who Owns the World?
 

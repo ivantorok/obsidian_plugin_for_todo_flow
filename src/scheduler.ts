@@ -11,7 +11,7 @@ export interface TaskNode {
     children: TaskNode[];
     trace?: string[]; // Audit trail for duration roll-up
     isMissing?: boolean;
-    flow_state?: 'shortlist' | 'archived' | 'trash';
+    flow_state?: 'shortlist' | 'archived' | 'trash' | 'parked';
 }
 
 /**
