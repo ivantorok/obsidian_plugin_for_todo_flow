@@ -6,21 +6,41 @@ describe('Elias 1.0 (Lean Mobile) Verification', () => {
     before(async function () {
         // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
+
+        // Emulate mobile and check what was set
         await emulateMobile();
+
+        const platformState = await browser.execute(() => {
+            const results: any = {};
+            // @ts-ignore
+            results.appIsMobile = window.app?.isMobile;
+            try {
+                // @ts-ignore
+                const obs = require('obsidian');
+                results.obsidianPlatformIsMobile = obs?.Platform?.isMobile;
+            } catch (e) { }
+            // @ts-ignore
+            results.globalPlatformIsMobile = window.Platform?.isMobile;
+            return results;
+        });
+        console.log('[E2E Diagnostics] Browser Platform State:', JSON.stringify(platformState, null, 2));
     });
 
     beforeEach(async () => {
         await browser.execute(async () => {
+            // Close any existing stack views to force a fresh factory call
+            app.workspace.getLeavesOfType('todo-flow-stack-view').forEach(leaf => leaf.detach());
+
             const persistencePath = 'todo-flow/CurrentStack.md';
             const adapter = app.vault.adapter;
             if (!(await adapter.exists('todo-flow'))) {
                 await adapter.mkdir('todo-flow');
             }
             // Create a stack with two tasks
-            await adapter.write(persistencePath, '# Current Stack\n\n- [ ] [[Task1]]\n- [ ] [[Task2]]');
+            await adapter.write(persistencePath, '# Current Stack\n\n- [ ] [[Task 1]]\n- [ ] [[Task 2]]');
 
-            if (!(await adapter.exists('Task1.md'))) await app.vault.create('Task1.md', '# Task 1');
-            if (!(await adapter.exists('Task2.md'))) await app.vault.create('Task2.md', '# Task 2');
+            if (!(await adapter.exists('Task 1.md'))) await app.vault.create('Task 1.md', '# Task 1');
+            if (!(await adapter.exists('Task 2.md'))) await app.vault.create('Task 2.md', '# Task 2');
         });
 
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
@@ -42,7 +62,7 @@ describe('Elias 1.0 (Lean Mobile) Verification', () => {
 
         // Verify Task 1 is marked done in vault
         const task1Content = await browser.execute(async () => {
-            const file = app.vault.getAbstractFileByPath('Task1.md');
+            const file = app.vault.getAbstractFileByPath('Task 1.md');
             // @ts-ignore
             return file ? await app.vault.read(file) : '';
         });
@@ -62,7 +82,7 @@ describe('Elias 1.0 (Lean Mobile) Verification', () => {
 
         // Verify Task 1 is parked in vault
         const task1Content = await browser.execute(async () => {
-            const file = app.vault.getAbstractFileByPath('Task1.md');
+            const file = app.vault.getAbstractFileByPath('Task 1.md');
             // @ts-ignore
             return file ? await app.vault.read(file) : '';
         });

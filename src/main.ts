@@ -63,8 +63,14 @@ export default class TodoFlowPlugin extends Plugin {
     shakeDetector?: ShakeDetector;
     stackPersistenceService!: StackPersistenceService;
 
+    get isMobile() {
+        // @ts-ignore
+        return Platform.isMobile || (typeof window !== 'undefined' && (window as any).WDIO_MOBILE_MOCK);
+    }
+
     async onload() {
         console.log('[Todo Flow] Plugin Loading...');
+
         await this.loadSettings();
         this.historyManager = new HistoryManager();
         const logPath = this.settings.absoluteLogPath || 'logs/todo-flow.log';
@@ -125,14 +131,11 @@ export default class TodoFlowPlugin extends Plugin {
         this.registerView(
             VIEW_TYPE_STACK,
             (leaf) => {
-                console.log(`[Todo Flow] registerView(STACK) factory called. Platform.isMobile: ${Platform.isMobile}`);
-                if (Platform.isMobile) {
-                    console.log('[Todo Flow] Instantiating LeanStackView');
+                if (this.isMobile) {
                     return new LeanStackView(leaf, this.settings, this.logger, this.stackPersistenceService, (task: TaskNode) => {
                         this.syncTaskToNote(task);
                     });
                 }
-                console.log('[Todo Flow] Instantiating standard StackView');
                 return new StackView(leaf, this.settings, this.historyManager, this.logger, this.viewManager, this.stackPersistenceService, (task: TaskNode) => {
                     this.syncTaskToNote(task);
                 }, (title: string, options: any) => {

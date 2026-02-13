@@ -26,6 +26,9 @@ export async function emulateMobile() {
             window.app.isMobile = true;
         }
 
+        // @ts-ignore
+        window.WDIO_MOBILE_MOCK = true;
+
         // Shadow Platform.isMobile (which is often what plugins use)
         try {
             // @ts-ignore
