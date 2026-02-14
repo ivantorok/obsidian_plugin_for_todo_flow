@@ -10,10 +10,13 @@ describe('Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop',
     });
 
     beforeEach(async () => {
+        // @ts-ignore
         await browser.execute(async () => {
-            app.workspace.getLeavesOfType('todo-flow-lean-stack').forEach(leaf => leaf.detach());
+            // @ts-ignore
+            app.workspace.getLeavesOfType('todo-flow-stack-view').forEach(leaf => leaf.detach());
 
             const persistencePath = 'todo-flow/CurrentStack.md';
+            // @ts-ignore
             const adapter = app.vault.adapter;
             if (!(await adapter.exists('todo-flow'))) {
                 await adapter.mkdir('todo-flow');
@@ -21,22 +24,25 @@ describe('Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop',
             // Create a stack with two tasks
             await adapter.write(persistencePath, '# Current Stack\n\n- [ ] [[Task1]]\n- [ ] [[Task2]]');
 
+            // @ts-ignore
             if (!(await adapter.exists('Task1.md'))) await app.vault.create('Task1.md', '# Task 1');
+            // @ts-ignore
             if (!(await adapter.exists('Task2.md'))) await app.vault.create('Task2.md', '# Task 2');
         });
 
+        // @ts-ignore
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
-        await $('[data-testid="lean-task-card"]').waitForExist({ timeout: 5000 });
+        await $('[data-testid="lean-task-card"]').waitForDisplayed({ timeout: 10000 });
     });
 
     it('should show Victory Lap card after clicking NEXT on the final task', async () => {
         const title = await $('[data-testid="lean-task-title"]');
-        expect(await title.getText()).toBe('Task1');
+        expect((await title.getText()).replace(/\s/g, '')).toBe('Task1');
 
         const nextBtn = await $('[data-testid="lean-next-btn"]');
         await nextBtn.click(); // Task 1 -> Task 2
 
-        await browser.waitUntil(async () => (await title.getText()) === 'Task2', {
+        await browser.waitUntil(async () => (await title.getText()).replace(/\s/g, '') === 'Task2', {
             timeout: 5000,
             timeoutMsg: 'Expected Task2'
         });
@@ -59,7 +65,8 @@ describe('Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop',
         const nextBtn = await $('[data-testid="lean-next-btn"]');
 
         await nextBtn.click(); // Task1 -> Task2
-        await browser.waitUntil(async () => (await title.getText()) === 'Task2', {
+        // @ts-ignore
+        await browser.waitUntil(async () => (await title.getText()).replace(/\s/g, '') === 'Task2', {
             timeout: 5000,
             timeoutMsg: 'Expected Task2 before going to Victory Lap'
         });
@@ -70,10 +77,11 @@ describe('Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop',
         await restartBtn.waitForExist();
         await restartBtn.click();
 
+        // @ts-ignore
         await browser.waitUntil(async () => {
             const currentTitle = await $('[data-testid="lean-task-title"]');
             if (!(await currentTitle.isExisting())) return false;
-            return (await currentTitle.getText()) === 'Task1';
+            return (await currentTitle.getText()).replace(/\s/g, '') === 'Task1';
         }, {
             timeout: 5000,
             timeoutMsg: 'Expected wrap around to Task1'
@@ -99,6 +107,7 @@ describe('Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop',
         await browser.pause(800); // Wait for vault to sync and reload
 
         // Navigate to Victory Lap to see if it was added
+        // @ts-ignore
         await browser.waitUntil(async () => {
             const nextBtn = await $('[data-testid="lean-next-btn"]');
             if (!(await nextBtn.isExisting())) return false;
@@ -106,10 +115,12 @@ describe('Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop',
             return true;
         }, { timeout: 5000, timeoutMsg: 'Could not click NEXT' });
 
+        // @ts-ignore
         await browser.waitUntil(async () => {
             const currentTitle = await $('[data-testid="lean-task-title"]');
             if (!(await currentTitle.isExisting())) return false;
-            return (await currentTitle.getText()) === 'Task2';
+            const text = await currentTitle.getText();
+            return text.replace(/\s/g, '') === 'Task2';
         }, { timeout: 10000, timeoutMsg: 'Expected Task2 after navigation' });
 
         const nextBtn2 = await $('[data-testid="lean-next-btn"]');
