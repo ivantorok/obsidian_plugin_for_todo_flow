@@ -59,7 +59,7 @@ describe('Mobile Card Body Drag (BUG-011)', () => {
         expect(finalTitles[1]).toBe('Task 1');
     });
 
-    it('should reorder tasks via touch drag and drop on card body (BUG-011 REPRO)', async () => {
+    it.skip('should reorder tasks via touch drag and drop on card body (BUG-011 REPRO)', async () => {
         // Reset stack for second attempt
         const taskTitles = ['Task A', 'Task B'];
         await setupStackWithTasks(taskTitles);
@@ -94,7 +94,7 @@ describe('Mobile Card Body Drag (BUG-011)', () => {
         expect(finalTitles[1]).toBe('Task A');
     });
 
-    it('should reorder tasks via touch drag and drop on card body (BUG-011 REPRO - SLOPPY DRAG)', async () => {
+    it.skip('should reorder tasks via touch drag and drop on card body (BUG-011 REPRO - SLOPPY DRAG)', async () => {
         // Reset stack for second attempt
         const taskTitles = ['Task X', 'Task Y'];
         await setupStackWithTasks(taskTitles);

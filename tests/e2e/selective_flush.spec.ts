@@ -41,6 +41,9 @@ describe('Selective Flush Race Condition', () => {
     });
 
     it('GREEN: Should show 2 tasks if flushed correctly', async () => {
+        // Ensure UI is ready initially
+        await $('.todo-flow-stack-container[data-ui-ready="true"][data-task-count="3"]').waitForExist({ timeout: 10000 });
+
         // Focus container for keyboard
         await browser.execute(() => {
             const container = document.querySelector('.todo-flow-stack-container') as HTMLElement;
@@ -51,11 +54,16 @@ describe('Selective Flush Race Condition', () => {
         // 1. Archive Task1 (Starts 500ms debounce)
         await browser.keys(['z']);
 
-        // 2. IMMEDIATELY reload
+        // Wait for UI to show 2 tasks OR for the debounce to at least be in flight
+        await browser.pause(200);
+
+        // 2. IMMEDIATELY reload while debounce is likely pending
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
 
-        // 3. Wait for the reload to finish
-        await browser.pause(2000);
+        // 3. Wait for the reload to finish AND for the count to be correct (2)
+        // We look for data-task-count="2" on the ready container
+        const container = await $('.todo-flow-stack-container[data-ui-ready="true"][data-task-count="2"]');
+        await container.waitForExist({ timeout: 10000, timeoutMsg: 'Tasks did not settle to 2 after rapid reload' });
 
         // 4. Print in-memory logs for debugging
         const logs = await browser.execute(() => {
@@ -67,9 +75,8 @@ describe('Selective Flush Race Condition', () => {
         logs.forEach((l: string) => console.log(l));
         console.log('-----------------------------');
 
-        // 5. VERIFY: Task count should be 2
+        // 5. VERIFY: Final check
         const cards = await $$('.todo-flow-task-card');
-
         console.log(`[TEST] Task count after rapid reload: ${cards.length}`);
         expect(cards.length).toBe(2);
     });

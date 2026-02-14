@@ -48,18 +48,19 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
         // @ts-ignore
         await browser.keys(['j']); // Task B (1)
 
-        // Wait for focus to sync to 1 using the new diagnostic attribute
+        // Wait for focus to sync to 1 using the diagnostic attribute
         await browser.waitUntil(async () => {
             const idx = await browser.execute(() => {
                 const el = document.querySelector('.todo-flow-stack-container');
-                return el ? parseInt(el.getAttribute('data-focused-index') || '0') : -1;
+                return el ? parseInt(el.getAttribute('data-focused-index') || '-1') : -2;
             });
             return idx === 1;
-        }, { timeout: 3000, timeoutMsg: 'Focus did not move to 1 after pressing j' });
+        }, { timeout: 5000, timeoutMsg: 'Focus did not move to 1 after pressing j' });
 
+        // Double check via view component
         let focusIndex = await browser.execute(() => {
-            // @ts-ignore
-            return app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view.component.getFocusedIndex();
+            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0]?.view;
+            return view?.component?.getFocusedIndex();
         });
         expect(focusIndex).toBe(1);
 

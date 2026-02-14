@@ -59,16 +59,17 @@ describe('Rollup Logic', () => {
     }
 
     beforeEach(async function () {
+        // 1. Setup fixtures FIRST so Obsidian sees them on boot
+        await setupFixtures();
+
+        // 2. Reload Obsidian
         // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
-        await setupFixtures();
+
         // @ts-ignore
-        await browser.pause(3000);
+        await browser.pause(5000); // Give it time to index
 
-        await waitForLinks('j3_root.md', ['j3_gp.md']);
-        await waitForLinks('j3_gp.md', ['j3_p.md']);
-        await waitForLinks('j3_p.md', ['j3_ca.md', 'j3_cb.md']);
-
+        // 3. Configure Plugin BEFORE waiting for links
         // @ts-ignore
         await browser.execute(() => {
             // @ts-ignore
@@ -78,6 +79,11 @@ describe('Rollup Logic', () => {
                 plugin.saveSettings();
             }
         });
+
+        // 4. Wait for links with a more generous timeout and better debug logging
+        await waitForLinks('j3_root.md', ['j3_gp.md']);
+        await waitForLinks('j3_gp.md', ['j3_p.md']);
+        await waitForLinks('j3_p.md', ['j3_ca.md', 'j3_cb.md']);
     });
 
     it('should update grandparent duration via rollup from deeply nested child', async () => {

@@ -93,18 +93,29 @@ describe('Elias 1.0 (Lean Mobile) Verification', () => {
         const fab = await $('[data-testid="lean-capture-fab"]');
         await fab.click();
 
-        const input = await $('[data-testid="lean-capture-input"]');
-        await input.waitForExist();
+        // The FAB opens the immersion overlay in LeanStackView
+        const overlay = await $('[data-testid="immersion-overlay"]');
+        await overlay.waitForExist({ timeout: 5000 });
+
+        const input = await $('[data-testid="immersion-input"]');
+        await input.waitForExist({ timeout: 5000 });
         await input.setValue('An amazing new thought');
 
-        const submit = await $('[data-testid="lean-submit-capture"]');
+        const submit = await $('[data-testid="immersion-submit-btn"]');
         await submit.click();
 
+        // Wait for overlay to close
+        await overlay.waitForExist({ reverse: true, timeout: 5000 });
+
         // Verify it was appended to Mobile_Inbox.md
+        // Note: LeanStackView.onAppendInbox uses 'Mobile_Inbox.md'
         const inboxContent = await browser.execute(async () => {
-            const file = app.vault.getAbstractFileByPath('Mobile_Inbox.md');
-            // @ts-ignore
-            return file ? await app.vault.read(file) : '';
+            const adapter = app.vault.adapter;
+            const path = 'Mobile_Inbox.md';
+            if (await adapter.exists(path)) {
+                return await adapter.read(path);
+            }
+            return '';
         });
         expect(inboxContent).toContain('An amazing new thought');
     });
