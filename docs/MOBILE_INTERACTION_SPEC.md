@@ -1,6 +1,6 @@
 # Mobile Interaction Specification
 
-This document translates the user-facing features and "civilian" stories into technical interaction patterns using the vocabulary defined in the [Mobile UX Glossary](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/MOBILE_UX_GLOSSARY.md).
+This document translates the user-facing features and "civilian" stories into technical interaction patterns using the vocabulary defined in the [Mobile UX Glossary](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_UX_GLOSSARY.md).
 
 ## 1. Feature-to-Interaction Mapping
 

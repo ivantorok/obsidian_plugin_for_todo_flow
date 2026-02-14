@@ -6,7 +6,7 @@ We have successfully implemented Phase 2 (BDD) for the first feature of Elias 1.
 
 ### [Logic Layer] LoopManager
 We introduced a stateless `LoopManager` to handle navigation logic.
-- [LoopManager.ts](file:///home/ivan/obsidian_plugin_for_todo_flow/src/services/LoopManager.ts)
+- [LoopManager.ts](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/services/LoopManager.ts)
 
 ### [UI Layer] LeanStackView
 - Integrated `LoopManager`.
@@ -20,7 +20,7 @@ We introduced a stateless `LoopManager` to handle navigation logic.
 - **E2E Tests**: Passed. Verified the full journey from Task 1 -> Task 2 -> Victory Lap -> Restart -> Task 1.
 
 ### Evidence
-![Victory Lap Card](file:///home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/failures/should_wrap_around_to_the_first_task_when_clicking_"Restart_Loop"_on_Victory_Lap_card.png)
+![Victory Lap Card](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/tests/e2e/failures/should_wrap_around_to_the_first_task_when_clicking_"Restart_Loop"_on_Victory_Lap_card.png)
 > [!NOTE]
 > The image above was captured during a "failed" run where it timed out waiting for the card, proving the card was visible but the test needed hardening. The test is now passing.
 

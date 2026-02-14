@@ -1,7 +1,7 @@
 # Next Session Strategy: Elias 1.2 Graduation
 
 > [!IMPORTANT]
-> **MANDATORY STARTUP**: Read the `[[Concept Atlas]]` ([docs/atlas/00_INDEX.md](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/atlas/00_INDEX.md)) and follow the `[[Concept Atlas Maintenance]]` skill before analyzing any new stories or making code changes.
+> **MANDATORY STARTUP**: Read the `[[Concept Atlas]]` ([docs/atlas/00_INDEX.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/atlas/00_INDEX.md)) and follow the `[[Concept Atlas Maintenance]]` skill before analyzing any new stories or making code changes.
 
 ## Initial Prompt
 Copy and paste this into the next chat session to resume exactly where we left off:
@@ -13,7 +13,7 @@ Copy and paste this into the next chat session to resume exactly where we left o
 > 2. **Concept Atlas**: 10+ core mechanics and stages are codified in `docs/atlas/`.
 > 3. **Workflow Integration**: `WORKFLOW_ARC.md` and `WORKING_AGREEMENT.md` are synchronized with the Atlas.
 > 4. **Latest Fix**: Added `UI_FEEDBACK` (Notice) to the `Triage Folder` command.
-> 5. **Walkthrough**: [walkthrough.md](file:///home/ivan/.gemini/antigravity/brain/80127420-70f5-4bf7-bc59-cc67b448bb6f/walkthrough.md).
+> 5. **Walkthrough**: See `docs/sessions/` for session walkthroughs.
 >
 > **Your Task**: 
 > 1. Maintain the "Rules of the World" by strictly following the `Concept Atlas Maintenance` skill.
@@ -27,7 +27,7 @@ Copy and paste this into the next chat session to resume exactly where we left o
 *   **Verification Status**: 25/31 specs passing initially, all critical specs passing 100% on retry or direct run.
 
 ## Critical Files
-- [Stability Walkthrough](file:///home/ivan/.gemini/antigravity/brain/d552867a-b832-4474-a160-df8e346b7ae9/walkthrough.md)
-- [LeanStackView.svelte](file:///home/ivan/obsidian_plugin_for_todo_flow/src/views/LeanStackView.svelte)
-- [E2E Scaling Spec](file:///home/ivan/obsidian_plugin_for_todo_flow/tests/e2e/elias_1_2_scaling.spec.ts)
+- Stability Walkthrough: See `docs/sessions/2026-02-11_Handover.md`
+- [LeanStackView.svelte](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/views/LeanStackView.svelte)
+- [E2E Scaling Spec](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/tests/e2e/elias_1_2_scaling.spec.ts)
 

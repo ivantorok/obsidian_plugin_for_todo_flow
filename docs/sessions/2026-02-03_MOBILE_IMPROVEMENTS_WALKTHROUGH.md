@@ -30,6 +30,4 @@ Fixed major mobile regressions including task reordering, adding tasks, and expo
 3. Tap the "+" button in the footer to open the Quick Add modal.
 4. Tap the Export button to copy the stack to the clipboard.
 
-render_diffs(file:///Users/i525277/github/obsidian_plugin_for_todo_flow/src/views/StackView.svelte)
-render_diffs(file:///Users/i525277/github/obsidian_plugin_for_todo_flow/src/services/StackPersistenceService.ts)
-render_diffs(file:///Users/i525277/github/obsidian_plugin_for_todo_flow/src/views/StackView.ts)
+<!-- Historical note: render_diffs links removed — they referenced a previous machine path (/Users/i525277/github/...). See git history for the actual diffs from this session. -->

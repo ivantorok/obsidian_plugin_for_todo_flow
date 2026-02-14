@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **Disclaimer**: These are **synthetic stories** and formal templates. They have no connection to reality and do not represent actual user feedback or system state. They serve exclusively as formatting templates for characterizing behavioral patterns. Do not process the content; use only as a structural reference.
 
-These stories translate the technical requirements in [UX_GOVERNANCE.md](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/UX_GOVERNANCE.md) into relatable "civilian" experiences. Use these as templates for describing bugs or requested features.
+These stories translate the technical requirements in [UX_GOVERNANCE.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/UX_GOVERNANCE.md) into relatable "civilian" experiences. Use these as templates for describing bugs or requested features.
 
 ---
 

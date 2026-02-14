@@ -11,6 +11,17 @@ This document tracks bugs and feature requests. To request work, add an item her
 | BUG-021 | Schedule Recalculation Jank during Gestures | Bug | [Spec](./backlog/BUG-021_freeze_on_interaction.md) |
 | FEAT-003 | Mobile Modal Capture Side-Channel | Feat | [Spec](./backlog/FEAT-003_modal_capture_mobile.md) |
 
+### Elias 1.1 Features (Shipped)
+| ID | Title | Type | Spec | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| FEAT-001 | Mobile: Chore Addition in Triage | Feat | [Spec](./backlog/FEAT-001_mobile_triage_addition.md) | v1.2.36 |
+| FEAT-004 | Perpetual Loop | Feat | [Spec](./backlog/FEAT-004_perpetual_loop.md) | v1.2.45 |
+| FEAT-005 | Immersion Capture (Triage) | Feat | [Spec](./backlog/FEAT-005_immersion_capture.md) | v1.2.47 |
+| FEAT-006 | Horizon Guardian | Feat | [Spec](./backlog/FEAT-006_horizon_guardian.md) | v1.2.48 |
+| FEAT-007 | Sovereign Undo | Feat | [Spec](./backlog/FEAT-007_sovereign_undo.md) | v1.2.48 |
+| - | Elias 1.1 Onboarding | Ref | [Spec](./backlog/ELIAS-1.1_onboarding.md) | - |
+| - | Release Notes v1.2.39 | Ref | [Notes](./backlog/RELEASE_NOTES_v1.2.39.md) | - |
+
 
 ### Phase 2: Sovereign Navigation & Gestures (The Behavior)
 | ID | Title | Type | Spec | Date | Status |
@@ -25,7 +36,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 3: Component Polishing (The Presentation)
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
-| FEAT-001 | Mobile: Chore Addition in Triage | Feat | - | 2026-02-11 | v1.2.36 |
+| FEAT-001 | Mobile: Chore Addition in Triage | Feat | [Spec](./backlog/FEAT-001_mobile_triage_addition.md) | 2026-02-11 | v1.2.36 |
 | BUG-020 | Mobile: Selection Jump after Anchor | Bug | [Spec](./archive/backlog/BUG-020_mobile_selection_jump.md) | 2026-02-10 | v1.2.33 |
 | FEAT-002 | Mobile Stack View Refinements | Feat | [Spec](./archive/backlog/FEAT-002_mobile_stack_refinements.md) | 2026-02-09 | v1.2.33 |
 | BUG-018 | Mobile: Start Time Input Keyboard Gap | Bug | [Spec](./archive/backlog/BUG-018_start_time_keyboard_gap.md) | 2026-02-10 | v1.2.33 |

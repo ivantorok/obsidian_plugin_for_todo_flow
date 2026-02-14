@@ -28,6 +28,7 @@ Every significant change follows this "Strict TDD" loop:
 ## 3. Communication Standards
 - **Task Boundaries**: I will use the Task View whenever I start a backlog item so you can track granularity.
 - **Walkthroughs**: Every completed item will have a `walkthrough.md` with proof of work (test results, diffs).
+- **Timestamps**: All significant documentation updates and artifact captures MUST include a `yyyy-mm-dd hh:mm:ss` timestamp to ensure chronological traceability in case of conflicts.
 
 ## 4. Definition of Done (DoD)
 An item is considered **Done** only when:

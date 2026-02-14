@@ -15,6 +15,7 @@ When an observation (fix/feature/bug report) is received:
     - If behavior is undocumented: Update/Create a Mechanic primitive FIRST.
     - If behavior is an exception: Detail it in the Stage file with a link to the Mechanic.
 4.  **TDD Linkage**: Ensure test case descriptions reference the Atlas Mechanic.
+5.  **Chronological Traceability**: All updates MUST include a `yyyy-mm-dd hh:mm:ss` timestamp to resolve future conflicts.
 
 ## Definition of Done (DoD)
 - [ ] **Atlas Coherence**: The `[[Concept Atlas]]` has been updated/referenced for any logic changes.

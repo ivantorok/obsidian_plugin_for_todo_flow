@@ -127,6 +127,17 @@ async function setupVault() {
     fs.writeFileSync(vaultAppConfigPath, JSON.stringify(vaultAppConfig, null, 2));
     console.log(`[E2E Setup] Vault app.json created at: ${vaultAppConfigPath}`);
 
+    // 8. Create data.json for plugin settings to standardize logging
+    const pluginSettingsPath = path.join(pluginDestPath, 'data.json');
+    console.log(`[E2E Setup] Creating plugin data.json at: ${pluginSettingsPath}`);
+    const pluginSettings = {
+        absoluteLogPath: path.join(pluginSourcePath, 'logs/e2e.log'),
+        debug: true,
+        targetFolder: 'todo-flow'
+    };
+    fs.writeFileSync(pluginSettingsPath, JSON.stringify(pluginSettings, null, 2));
+    console.log(`[E2E Setup] Plugin settings initialized with absoluteLogPath.`);
+
     console.log('[E2E Setup] --- Vault initialization complete ---');
 }
 

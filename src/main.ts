@@ -252,7 +252,9 @@ export default class TodoFlowPlugin extends Plugin {
                     await this.activateStack(this.settings.lastTray, persistencePath); // Save to file next time
                 } else {
                     // 3. Fallback to Shortlist BUT use persistencePath as backing file
+                    this.logger.info(`[main] No saved stack or lastTray found. Defaulting to QUERY:SHORTLIST`);
                     await this.activateStack('QUERY:SHORTLIST', persistencePath); // Pass backing file
+                    new Notice('Loading Stack from Shortlist...');
                 }
             }
         });
@@ -329,6 +331,11 @@ export default class TodoFlowPlugin extends Plugin {
                     const content = editor.getValue();
                     const service = new SyncService(this.app);
                     const count = await service.syncExportToVault(content);
+                    if (count > 0) {
+                        new Notice(`Synced ${count} tasks back to their original notes.`);
+                    } else {
+                        new Notice('No matching tasks found to sync.');
+                    }
                 }
             }
         });

@@ -1,6 +1,6 @@
 # Elias 1.1 - Phase 1: Ingestion & Alignment Log
 
-This document records the Phase 1 "Alignment & Conflict Check" for the Elias 1.1 feature set, as defined in [WORKFLOW_ARC.md](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/WORKFLOW_ARC.md).
+This document records the Phase 1 "Alignment & Conflict Check" for the Elias 1.1 feature set, as defined in [WORKFLOW_ARC.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/WORKFLOW_ARC.md).
 
 ---
 

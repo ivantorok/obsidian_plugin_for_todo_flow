@@ -35,6 +35,7 @@ export class FileLogger {
     private async log(level: string, message: string) {
         if (!this.enabled) return;
 
+        // Standard: yyyy-mm-dd hh:mm:ss for chronological traceability
         const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
         const line = `[${timestamp}] [${this.buildId}] [${level}] ${message}\n`;
 

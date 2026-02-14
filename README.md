@@ -5,14 +5,14 @@
 
 ## Documentation Index 📚
 
-- [Architecture & Design](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/ARCHITECTURE.md)
-- [UX Governance (Rules of the World)](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/UX_GOVERNANCE.md)
-- [Mobile UX Glossary (Terms & Interactions)](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/MOBILE_UX_GLOSSARY.md)
-- [Mobile Technical Constraints & Contradictions](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/MOBILE_TECHNICAL_CONSTRAINTS.md)
-- [Mobile Interaction Specification](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/MOBILE_INTERACTION_SPEC.md)
-- [Strategy: Lean Mobile (The "Elias" Model)](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/STRATEGY_LEAN_MOBILE.md)
-- [Feature Inventory](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/FEATURE_INVENTORY.md)
-- [Developer Guide](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/DEVELOPER_GUIDE.md)
+- [Architecture & Design](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/ARCHITECTURE.md)
+- [UX Governance (Rules of the World)](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/UX_GOVERNANCE.md)
+- [Mobile UX Glossary (Terms & Interactions)](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_UX_GLOSSARY.md)
+- [Mobile Technical Constraints & Contradictions](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_TECHNICAL_CONSTRAINTS.md)
+- [Mobile Interaction Specification](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_INTERACTION_SPEC.md)
+- [Strategy: Lean Mobile (The "Elias" Model)](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/STRATEGY_LEAN_MOBILE.md)
+- [Feature Inventory](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/FEATURE_INVENTORY.md)
+- [Developer Guide](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/DEVELOPER_GUIDE.md)
 
 ---
 

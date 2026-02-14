@@ -1,4 +1,5 @@
 # [TYPE]-[ID]: [Brief Description]
+**Capture Date**: `yyyy-mm-dd hh:mm:ss`
 
 ## Problem / Goal
 Briefly describe the bug or the feature request.

@@ -8,6 +8,7 @@ export class StackController {
     private currentTime: moment.Moment;
     private onTaskUpdate: ((task: TaskNode) => void) | undefined;
     private onTaskCreate: ((title: string) => TaskNode) | undefined;
+    private isFrozen: boolean = false;
 
     constructor(
         initialTasks: TaskNode[],
@@ -23,6 +24,17 @@ export class StackController {
 
     updateTime(newTime: moment.Moment) {
         this.currentTime = newTime;
+        if (!this.isFrozen) {
+            this.tasks = computeSchedule(this.tasks, this.currentTime);
+        }
+    }
+
+    freeze() {
+        this.isFrozen = true;
+    }
+
+    unfreeze() {
+        this.isFrozen = false;
         this.tasks = computeSchedule(this.tasks, this.currentTime);
     }
 
@@ -36,7 +48,7 @@ export class StackController {
 
     setTasks(tasks: TaskNode[]) {
         if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] setTasks called with ${tasks.length} tasks`);
-        this.tasks = computeSchedule(tasks, this.currentTime);
+        this.tasks = this.isFrozen ? tasks : computeSchedule(tasks, this.currentTime);
     }
 
     moveUp(index: number): number {
@@ -56,7 +68,7 @@ export class StackController {
         const newTasks = [...this.tasks];
         // Swap selection with valid target
         [newTasks[index], newTasks[target]] = [newTasks[target]!, newTasks[index]!];
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         // Return the new index of the moved task (it might have been re-sorted)
         return this.tasks.findIndex(t => t.id === taskToMove.id);
@@ -78,7 +90,7 @@ export class StackController {
         const newTasks = [...this.tasks];
         // Swap selection with valid target
         [newTasks[index], newTasks[target]] = [newTasks[target]!, newTasks[index]!];
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         // Return the new index of the moved task
         return this.tasks.findIndex(t => t.id === taskToMove.id);
@@ -98,7 +110,7 @@ export class StackController {
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
         if (newIndex !== -1) {
@@ -116,7 +128,7 @@ export class StackController {
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
         if (newIndex !== -1) {
@@ -135,7 +147,7 @@ export class StackController {
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
         // We log here because this is where the title officially changes in state
@@ -162,7 +174,7 @@ export class StackController {
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
         console.log(`[StackController] updateTaskMetadata index ${index} -> ${newIndex}. Updates: ${JSON.stringify(updates)}`);
@@ -191,7 +203,7 @@ export class StackController {
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === id);
         if (newIndex !== -1) {
@@ -209,7 +221,7 @@ export class StackController {
         // Insert AFTER current index
         newTasks.splice(index + 1, 0, newTask);
 
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         // Find the index of the newly added task (in case schedule reordered it, though unlikely for new floating task)
         const newIndex = this.tasks.findIndex(t => t.id === newTask.id);
@@ -221,13 +233,13 @@ export class StackController {
         if (!this.tasks[index]) return;
         const newTasks = [...this.tasks];
         newTasks.splice(index, 1);
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
     }
 
     insertTask(index: number, task: TaskNode) {
         const newTasks = [...this.tasks];
         newTasks.splice(index, 0, task);
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
     }
 
     insertAfter(index: number, task: TaskNode): number {
@@ -235,7 +247,7 @@ export class StackController {
         // Insert AFTER current index
         newTasks.splice(index + 1, 0, task);
 
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         // Find the index of the newly added task
         return this.tasks.findIndex(t => t.id === task.id);
@@ -287,7 +299,7 @@ export class StackController {
             localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + logMsg1);
         }
         console.log(logMsg1);
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
         const logMsg2 = `[StackController DEBUG] Post-schedule tasks: ${this.tasks.map(t => t.title).join(', ')}`;
         if (typeof window !== 'undefined') {
             ((window as any)._logs = (window as any)._logs || []).push(logMsg2);
@@ -315,7 +327,7 @@ export class StackController {
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
         if (newIndex !== -1) {
@@ -343,7 +355,7 @@ export class StackController {
         newTasks.splice(target, 0, taskToMove);
         console.log(`[StackController] After splice-in: ${newTasks.map(t => t.title).join(', ')}`);
 
-        this.tasks = computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
         const finalIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
         console.log(`[StackController] Final order: ${this.tasks.map(t => t.title).join(', ')} (moved task now at ${finalIndex})`);
         return finalIndex;

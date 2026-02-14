@@ -476,6 +476,8 @@
         touchCurrentY = touchStartY;
         swipingTaskId = taskId;
         
+        if (controller) controller.freeze();
+        
         // Detect if we started on the handle for immediate reorder intent
         const target = e.target as HTMLElement;
         startedOnHandle = target.closest('.drag-handle') !== null;
@@ -623,6 +625,8 @@
             dragLogged = false;
             lastDragEndTime = Date.now();
             
+            if (controller) controller.unfreeze();
+            
             // IMPORTANT: If we just finished a drag, we don't want to trigger a swipe
             swipingTaskId = null;
             touchStartX = 0;
@@ -646,12 +650,15 @@
             }
         }
 
+        if (controller) controller.unfreeze();
+
         swipingTaskId = null;
         touchStartX = 0;
         touchCurrentX = 0;
     }
 
     function handlePointerCancel(e: PointerEvent) {
+        if (controller) controller.unfreeze();
         swipingTaskId = null;
         draggingTaskId = null;
     }

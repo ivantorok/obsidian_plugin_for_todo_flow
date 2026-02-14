@@ -1,6 +1,6 @@
 # Todo Flow: The Arc of Work
 
-This document defines the process for transforming a User Story (synthetic or real) into a verified, deployed feature or fix. We use a combined **BDD (Behavior Driven Development)** and **TDD (Test Driven Development)** approach, governed by our [UX_GOVERNANCE.md](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/UX_GOVERNANCE.md).
+This document defines the process for transforming a User Story (synthetic or real) into a verified, deployed feature or fix. We use a combined **BDD (Behavior Driven Development)** and **TDD (Test Driven Development)** approach, governed by our [UX_GOVERNANCE.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/UX_GOVERNANCE.md).
 
 ---
 
