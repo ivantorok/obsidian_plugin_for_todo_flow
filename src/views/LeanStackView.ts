@@ -46,7 +46,10 @@ export class LeanStackView extends ItemView {
                 logger: this.logger,
                 onTaskUpdate: this.onTaskUpdate,
                 onAppendInbox: this.onAppendInbox.bind(this),
-                onAppendStack: this.onAppendStack.bind(this)
+                onAppendStack: this.onAppendStack.bind(this),
+                onArchive: async (task: TaskNode) => {
+                    await this.onTaskUpdate(task);
+                }
             }
         });
     }

@@ -11,6 +11,7 @@
         onTaskUpdate: (task: TaskNode) => void | Promise<void>;
         onAppendInbox: (text: string) => Promise<void>;
         onAppendStack: (text: string) => Promise<void>;
+        onArchive?: (task: TaskNode) => Promise<void>;
     }
 
     import { LoopManager } from '../services/LoopManager.js';
@@ -21,7 +22,8 @@
         logger, 
         onTaskUpdate, 
         onAppendInbox,
-        onAppendStack
+        onAppendStack,
+        onArchive
     } = $props<Props>();
 
     let tasks = $state<TaskNode[]>([]);
@@ -112,6 +114,97 @@
         }
     }
 
+    async function handleArchive() {
+        if (!currentTask) return;
+        
+        undoStack.push({ index: currentIndex, task: { ...currentTask } });
+        if (undoStack.length > 5) undoStack.shift();
+
+        const updatedTask = { ...currentTask, flow_state: 'archived' as const };
+        
+        if (onArchive) {
+            await onArchive(updatedTask);
+        } else {
+            await onTaskUpdate(updatedTask);
+        }
+        
+        // Remove locally as well to prevent "ghost" tasks in mobile view
+        tasks = tasks.filter(t => t.id !== currentTask.id);
+        if (currentIndex >= tasks.length && tasks.length > 0) {
+            currentIndex = 0;
+        } else if (tasks.length === 0) {
+            loading = false;
+        }
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+        if (showCapture || showImmersion) return;
+        
+        const target = e.target as HTMLElement;
+        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable) {
+            return;
+        }
+
+        switch (e.key.toLowerCase()) {
+            case 'x':
+                handleDone();
+                break;
+            case 'p':
+                handlePark();
+                break;
+            case 'z':
+                handleArchive();
+                break;
+            case 'u':
+                handleUndo();
+                break;
+            case 'n':
+                nextTask();
+                break;
+            case '[':
+                handleScale('down');
+                break;
+            case ']':
+                handleScale('up');
+                break;
+        }
+    }
+
+    const DURATION_SEQUENCE = [2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300, 360, 420, 480];
+
+    async function handleScale(direction: 'up' | 'down') {
+        if (!currentTask) return;
+        
+        undoStack.push({ index: currentIndex, task: { ...currentTask } });
+        if (undoStack.length > 5) undoStack.shift();
+
+        const currentOwn = currentTask.originalDuration ?? currentTask.duration;
+        let seqIndex = DURATION_SEQUENCE.findIndex(d => d >= currentOwn);
+        if (seqIndex === -1) seqIndex = DURATION_SEQUENCE.length - 1;
+
+        let newDuration;
+        if (direction === 'up') {
+            if (DURATION_SEQUENCE[seqIndex] === currentOwn) {
+                seqIndex = Math.min(DURATION_SEQUENCE.length - 1, seqIndex + 1);
+            }
+            newDuration = DURATION_SEQUENCE[seqIndex];
+        } else {
+            seqIndex = Math.max(0, seqIndex - 1);
+            newDuration = DURATION_SEQUENCE[seqIndex];
+        }
+
+        const updatedTask = { 
+            ...currentTask, 
+            duration: newDuration,
+            originalDuration: newDuration 
+        };
+        
+        // Update local state for immediate feedback
+        tasks[currentIndex] = updatedTask;
+        await onTaskUpdate(updatedTask);
+        logger.info(`[LeanStackView] Scaled ${direction}: ${currentOwn} -> ${newDuration}`);
+    }
+
     async function handleUndo() {
         const lastAction = undoStack.pop();
         if (!lastAction) return;
@@ -143,7 +236,7 @@
 
     function closeSession() {
         // @ts-ignore
-        app.workspace.getLeavesOfType('todo-flow-lean-stack').forEach(leaf => {
+        app.workspace.getLeavesOfType('todo-flow-stack-view').forEach(leaf => {
             // @ts-ignore
             if (leaf.view === this || (leaf.view && (leaf.view as any).view === this)) {
                 leaf.detach();
@@ -166,7 +259,7 @@
     }
 </script>
 
-<div class="todo-flow-lean-container">
+<div class="todo-flow-lean-container todo-flow-stack-container" onkeydown={handleKeyDown} tabindex="0">
     {#if nextAnchoredTask && guardianCountdown !== null}
         <div class="horizon-guardian {guardianUrgency ? 'is-urgent' : ''}" data-testid="horizon-guardian">
             <span class="guardian-label">Horizon:</span>
@@ -205,9 +298,11 @@
         <div class="task-card" data-testid="lean-task-card">
             <div class="task-title" data-testid="lean-task-title">{currentTask.title}</div>
             <div class="task-meta">
+                <button class="scale-btn minus" data-testid="lean-scale-down-btn" onclick={() => handleScale('down')}>-</button>
                 {#if currentTask.duration}
-                    <span class="duration">{currentTask.duration}m</span>
+                    <span class="duration" data-testid="lean-task-duration">{currentTask.duration}m</span>
                 {/if}
+                <button class="scale-btn plus" data-testid="lean-scale-up-btn" onclick={() => handleScale('up')}>+</button>
             </div>
             
             <div class="actions">
@@ -215,8 +310,10 @@
                 <button class="action-btn done" data-testid="lean-done-btn" onclick={handleDone}>DONE</button>
                 <button class="action-btn park" data-testid="lean-park-btn" onclick={handlePark}>PARK</button>
                 <button class="action-btn next" data-testid="lean-next-btn" onclick={() => nextTask()}>NEXT</button>
+                <button class="action-btn archive" data-testid="lean-archive-btn" onclick={handleArchive}>ARCHIVE</button>
             </div>
 
+            <div class="duration-buffer"></div>
         </div>
     {/if}
 
@@ -330,7 +427,7 @@
     }
 
     .task-card {
-        margin: 20px;
+        margin: 10px;
         flex-grow: 1;
 
         display: flex;
@@ -340,31 +437,60 @@
         text-align: center;
         border: 1px solid var(--background-modifier-border);
         border-radius: 12px;
-        padding: 40px;
+        padding: 20px;
         background-color: var(--background-secondary);
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        overflow: hidden;
     }
 
     .task-title {
         font-size: 2.5em;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         color: var(--text-normal);
         word-break: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.2em; /* Ensure consistent spacing */
     }
 
     .task-meta {
-        font-size: 1.2em;
+        font-size: 1.5em;
         color: var(--text-muted);
         margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .scale-btn {
+        background-color: var(--background-modifier-border);
+        color: var(--text-normal);
+        border: 1px solid var(--background-modifier-border);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        font-size: 1.2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .scale-btn:active {
+        background-color: var(--interactive-accent);
+        color: white;
     }
 
     .actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        gap: 12px;
         width: 100%;
-        max-width: 450px;
+        max-width: 480px;
     }
 
     .action-btn {
@@ -389,10 +515,16 @@
         cursor: not-allowed;
     }
 
+    .action-btn:active {
+        background-color: var(--interactive-accent-hover);
+        color: white;
+    }
+
     .done {
         background-color: var(--interactive-success);
-        color: white;
+        color: var(--text-on-accent); /* Usually white but more consistent */
         grid-column: span 1;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
 
     .park {
@@ -411,7 +543,18 @@
     .action-btn.next {
         background-color: var(--background-modifier-border);
         color: var(--text-normal);
-        grid-column: span 2;
+        grid-column: span 1;
+    }
+
+    .action-btn.archive {
+        background-color: var(--background-modifier-error);
+        color: var(--text-on-accent);
+        grid-column: span 1;
+    }
+
+    .duration-buffer {
+        height: 60px;
+        flex-shrink: 0;
     }
 
     .action-btn.restart {
