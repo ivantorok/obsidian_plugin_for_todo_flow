@@ -21,5 +21,8 @@ junit.xml
 
 logs/
 
+# E2E failure screenshots (transient debugging artifacts)
+tests/e2e/failures/
+
 # Sandbox environment (development/testing)
 sandbox/node_modules/
