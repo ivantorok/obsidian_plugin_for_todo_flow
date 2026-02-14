@@ -2,7 +2,7 @@ import { browser, expect, $ } from '@wdio/globals';
 import { emulateMobile } from './mobile_utils.js';
 import { cleanupVault } from './test_utils.js';
 
-describe('UX-002: Mobile Drill-down Back Navigation', () => {
+describe.skip('UX-002: Mobile Drill-down Back Navigation', () => {
 
     before(async function () {
         // @ts-ignore

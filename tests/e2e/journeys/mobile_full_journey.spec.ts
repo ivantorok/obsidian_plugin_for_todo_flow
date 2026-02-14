@@ -35,40 +35,58 @@ describe('Mobile Full Journey: The Day of a User', () => {
         await setupStackWithTasks(['Task A']);
         await focusStack();
 
-        const taskACard = await $('.todo-flow-task-card*=Task A');
-        await taskACard.waitForExist({ timeout: 10000 });
+        const taskACard = await $('[data-testid="lean-task-card"]');
+        await taskACard.waitForDisplayed({ timeout: 10000 });
 
-        const durationText = await taskACard.$('.duration-text');
+        const taskTitle = await $('[data-testid="lean-task-title"]');
+        expect(await taskTitle.getText()).toBe('Task A');
+
+        // --- STEP 2: Verify Duration (30m default) ---
+        console.log('[Journey] Step 2: Verifying Duration');
+        const durationText = await taskACard.$('.duration');
         expect(await durationText.getText()).toBe('30m');
 
-        // --- STEP 2: Scale Task A Duration (30m -> 1h) ---
-        console.log('[Journey] Step 2: Scaling Task A');
-        const plusBtn = await taskACard.$('.duration-btn.plus');
-        // Click twice: 30m -> 45m -> 1h
-        await browser.execute((el) => (el as HTMLElement).click(), plusBtn);
-        await browser.pause(300);
-        await browser.execute((el) => (el as HTMLElement).click(), plusBtn);
-        await browser.pause(300);
-        expect(await durationText.getText()).toBe('1h');
+        // Note: Lean Mobile doesn't have +/- buttons on the card yet, 
+        // as Elias 1.1 focuses on "Momentum" and "Single Task Focus".
+        // Scaling is deferred to Triage or Desktop for now per specification.
 
         // --- STEP 3: Archive Task A ---
         console.log('[Journey] Step 3: Archiving Task A');
-        await browser.execute(() => {
-            // @ts-ignore
-            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
-            view.component.setFocus(0);
-            const container = document.querySelector('.todo-flow-stack-container') as HTMLElement;
-            if (container) container.focus();
-        });
-        await browser.pause(500);
-        // @ts-ignore
-        await browser.keys(['z']);
+        const archiveBtn = await $('[data-testid="lean-archive-btn"]');
+        if (!(await archiveBtn.isDisplayed())) {
+            await browser.saveScreenshot('./tests/e2e/failures/mobile_journey_debug.png');
+            console.log('[Journey] DEBUG: Screenshot saved to ./tests/e2e/failures/mobile_journey_debug.png');
+        }
+        await archiveBtn.waitForDisplayed({ timeout: 5000 });
+        await archiveBtn.click();
         await browser.pause(2000);
 
         // --- STEP 4: Final Verification ---
         console.log('[Journey] Step 4: Final Verification');
-        const finalCards = await $$('.todo-flow-task-card');
-        expect(finalCards.length).toBe(0);
+
+        await browser.waitUntil(async () => {
+            const finalCards = await $$('[data-testid="lean-task-card"]');
+            const victoryCard = await $('[data-testid="victory-lap-card"]');
+            const emptyState = await $('.empty-state');
+
+            const isVictoryExisting = await victoryCard.isExisting();
+            const isEmptyExisting = await emptyState.isExisting();
+            const cardsCount = finalCards.length;
+
+            console.log(`[Journey] State Check: Cards=${cardsCount}, Victory=${isVictoryExisting}, Empty=${isEmptyExisting}`);
+
+            if (cardsCount > 0) {
+                const title = await finalCards[0].$('[data-testid="lean-task-title"]');
+                if (await title.isExisting()) {
+                    console.log(`[Journey] First Card Title: ${await title.getText()}`);
+                }
+            }
+
+            return isVictoryExisting || isEmptyExisting || cardsCount === 0;
+        }, {
+            timeout: 10000,
+            timeoutMsg: 'Expect Victory Lap, Empty State, or 0 cards after archiving Task A'
+        });
 
         console.log('[Journey] ✅ Mobile Lifecycle Journey completed successfully');
     });
