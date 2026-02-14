@@ -453,6 +453,7 @@ export default class TodoFlowPlugin extends Plugin {
             callback: async () => {
                 const { FolderSuggester } = await import('./ui/Suggesters.js');
                 new FolderSuggester(this.app, async (folder) => {
+                    new Notice(`Triage: Processing ${folder.name}...`);
                     const tasks = await this.getTasksFromFolder(folder.path);
                     if (tasks.length === 0) {
                         new (window as any).Notice('No markdown files in folder!');

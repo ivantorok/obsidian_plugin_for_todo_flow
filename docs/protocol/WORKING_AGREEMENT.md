@@ -32,6 +32,7 @@ Every significant change follows this "Strict TDD" loop:
 ## 4. Definition of Done (DoD)
 An item is considered **Done** only when:
 - [ ] Code follows project style (Svelte 5 runes, TypeScript).
+- [ ] **Atlas Coherence**: If a new behavior was added, the `[[Concept Atlas]]` has been updated/referenced.
 - [ ] At least one new test covers the specific fix/feature.
 - [ ] Full `npm test` and `npm run e2e` suites are green.
 - [ ] The backlog spec is moved to the archive.

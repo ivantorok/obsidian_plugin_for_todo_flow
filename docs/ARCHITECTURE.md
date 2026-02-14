@@ -1,5 +1,8 @@
 # Architecture Overview
 
+> [!NOTE]
+> This document is the high-level summary. For the authoritative map of mechanics and stages, see the `[[Concept Atlas]]` (docs/atlas/00_INDEX.md).
+
 This document describes the high-level conceptual model and interaction patterns of the Todo Flow plugin.
 
 ## 1. The Data Funnel

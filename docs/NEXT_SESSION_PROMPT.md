@@ -1,20 +1,23 @@
 # Next Session Strategy: Elias 1.2 Graduation
 
+> [!IMPORTANT]
+> **MANDATORY STARTUP**: Read the `[[Concept Atlas]]` ([docs/atlas/00_INDEX.md](file:///home/ivan/obsidian_plugin_for_todo_flow/docs/atlas/00_INDEX.md)) and follow the `[[Concept Atlas Maintenance]]` skill before analyzing any new stories or making code changes.
+
 ## Initial Prompt
 Copy and paste this into the next chat session to resume exactly where we left off:
 
-> I have successfully completed **Elias 1.2 Phase 1**, stabilizing the mobile core and implementing the first iteration of Horizon Scaling.
+> I have successfully graduated the codebase to **v1.2.49 (Elias 1.2 Graduation)** and implemented the **Concept Atlas**.
 >
 > **Current Context**: 
-> 1. **Elias 1.2 Stability**: All core mobile specs (Verification, Scaling, Journey, Capture FAB) are passing 100%. UI-002 (Truncation) is fixed in `LeanStackView`.
-> 2. **Horizon Scaling**: `[-]`/`[+]` buttons and `[`/`]` shortcuts are implemented and verified.
-> 3. **Desktop Status**: The full suite (`npm run test:full`) is mostly green; Link Injection and Rollup flakes are now stable on retry.
-> 4. **Walkthrough**: [walkthrough.md](file:///home/ivan/.gemini/antigravity/brain/d552867a-b832-4474-a160-df8e346b7ae9/walkthrough.md).
+> 1. **Codebase Consolidation**: Elias 1.2 features (Horizon Guardian, Sovereign Undo, Circular Loop, Victory Lap) are stable and verified.
+> 2. **Concept Atlas**: 10+ core mechanics and stages are codified in `docs/atlas/`.
+> 3. **Workflow Integration**: `WORKFLOW_ARC.md` and `WORKING_AGREEMENT.md` are synchronized with the Atlas.
+> 4. **Latest Fix**: Added `UI_FEEDBACK` (Notice) to the `Triage Folder` command.
+> 5. **Walkthrough**: [walkthrough.md](file:///home/ivan/.gemini/antigravity/brain/80127420-70f5-4bf7-bc59-cc67b448bb6f/walkthrough.md).
 >
 > **Your Task**: 
-> 1. Proceed with the final release of Elias 1.2 Phase 1 (version 1.2.48).
-> 2. Begin planning **Elias 1.2 Phase 3 (Horizon Exploration)** or any remaining desktop-specific polish.
-> 3. Monitor for any regressions in deeply nested stacks (Link Injection) as we start larger test runs.
+> 1. Maintain the "Rules of the World" by strictly following the `Concept Atlas Maintenance` skill.
+> 2. Continue with the next designated phase (Elias 1.2 Phase 3 or Desktop Polish).
 
 ---
 

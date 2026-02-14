@@ -9,12 +9,13 @@ This document defines the process for transforming a User Story (synthetic or re
 ### Phase 1: Ingestion & The "Rubbish" Filter
 Every story must be evaluated before a single line of code is written.
 
-1.  **Alignment**: Does this story serve the "Home Row First" philosophy?
-2.  **Conflict Check**: Does it violate any Axioms in `UX_GOVERNANCE.md`?
-3.  **Scope**: Is this trying to solve a problem that belongs to the Obsidian Editor rather than the Todo Flow Stack?
-4.  **Decision**:
-    *   **ACCEPT**: If it fills a gap or fixes a regression without breaking axioms.
-    *   **REFINE**: If the intent is good but the interaction violates governance.
+1.  **Atlas Alignment**: Check the `[[Concept Atlas]]`. Does this story conflict with any `[[MECHANICS]]`? Does it belong to an existing `[[STAGE]]`?
+2.  **Home Row Alignment**: Does this story serve the "Home Row First" philosophy?
+3.  **Conflict Check**: Does it violate any Axioms in `UX_GOVERNANCE.md`?
+4.  **Scope**: Is this trying to solve a problem that belongs to the Obsidian Editor rather than the Todo Flow Stack?
+5.  **Decision**:
+    *   **ACCEPT**: If it aligns with the Atlas and fixes a regression without breaking axioms.
+    *   **REFINE**: If the intent is good but require an Atlas update (new Primitive).
     *   **REJECT**: If it is "rubbish" (contradictory, out-of-scope, or harmful to UX).
 
 ### Phase 2: BDD (The Journey)
