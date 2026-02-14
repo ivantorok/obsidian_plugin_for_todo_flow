@@ -38,11 +38,12 @@ const mockPersistenceService = { saveStack: vi.fn() };
 let capturedCallback: (result: any) => Promise<void>;
 vi.mock('../ui/QuickAddModal.js', () => ({
     QuickAddModal: class {
+        onClose: any;
         constructor(app: any, onChoose: (result: any) => Promise<void>) {
             capturedCallback = onChoose;
+            this.onClose = () => { };
         }
         open() { }
-        onClose() { }
     }
 }));
 
