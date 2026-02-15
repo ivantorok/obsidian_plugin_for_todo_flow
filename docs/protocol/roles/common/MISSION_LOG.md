@@ -47,5 +47,9 @@
     - [x] Regression tests confirmed.
     - **Verdict**: **MISSION COMPLETE**. Handing off to **Release Manager (RM)** for deployment.
 
-## Next Role: Release Manager (RM)
+- [2026-02-15 12:35]: **Release Manager (RM)** execution complete.
+    - [x] Pre-flight audit passed (`walkthrough.md` updated).
+    - [x] `./ship.sh` executed successfully.
+    - **Release**: [v1.2.54](https://github.com/ivantorok/obsidian_plugin_for_todo_flow/releases/tag/v1.2.54)
+    - **Status**: **SHIPPED**.
 
