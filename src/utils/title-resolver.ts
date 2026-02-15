@@ -1,7 +1,7 @@
 export function resolveTaskTitle(metadata: any, firstLine: string | null, filename: string): string {
     // 1. Metadata 'task' field
     if (metadata && metadata.task) {
-        return metadata.task;
+        return String(metadata.task);
     }
 
     // 2. First line of content (if not empty/metadata)

@@ -9,7 +9,7 @@ export interface ParsedTask {
 
 export class DateParser {
     static parseTaskInput(input: string, now: moment.Moment = moment()): ParsedTask {
-        let title = input;
+        let title = typeof input === 'string' ? input : String(input || '');
         let duration: number | undefined;
         let startTime: moment.Moment | undefined;
         let isAnchored = false;
