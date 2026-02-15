@@ -39,6 +39,7 @@
   "exclude": [
     "sandbox",
     "tests/e2e/**/*",
-    "wdio.conf.mts"
+    "wdio.conf.mts",
+    "src/**/__tests__/**/*"
   ]
 }
