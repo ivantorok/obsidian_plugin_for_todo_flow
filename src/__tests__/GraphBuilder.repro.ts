@@ -1,7 +1,19 @@
-import { App, TFile } from 'obsidian';
-import { type TaskNode } from './scheduler.js';
-import { resolveTaskTitle, getFirstNonMetadataLine } from './utils/title-resolver.js';
-import { DateParser } from './utils/DateParser.js';
+// STUBBED FOR TESTING
+export class App {
+    vault: any;
+    metadataCache: any;
+}
+export class TFile {
+    path!: string;
+    name!: string;
+    extension!: string;
+}
+export class TFolder {
+    children!: any[];
+}
+import { type TaskNode } from '../scheduler.js';
+import { resolveTaskTitle, getFirstNonMetadataLine } from '../utils/title-resolver.js';
+import { DateParser } from '../utils/DateParser.js';
 import moment from 'moment';
 
 export class GraphBuilder {
@@ -51,7 +63,6 @@ export class GraphBuilder {
         const firstLine = getFirstNonMetadataLine(content);
 
         const baseTitle = resolveTaskTitle(frontmatter, firstLine, file.name);
-        if (this.logger) this.logger.info(`[GraphBuilder] Resolved title for ${file.path}: "${baseTitle}"`);
 
         // NLP Enrichment: If frontmatter is missing data, try to extract from title
         const parsed = DateParser.parseTaskInput(baseTitle);

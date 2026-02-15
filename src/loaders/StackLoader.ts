@@ -107,7 +107,7 @@ export class StackLoader {
             if (this.logger) await this.logger.info(`[StackLoader] loadSpecificFiles() returning ${nodes.length} nodes.`);
             return nodes;
         } catch (e) {
-            if (this.logger) await this.logger.error(`[StackLoader] CRITICAL ERROR in loadSpecificFiles: ${e}`);
+            if (this.logger) await this.logger.error(`[StackLoader] CRITICAL ERROR in loadSpecificFiles: ${e instanceof Error ? e.stack : e}`);
             console.error(e);
             return [];
         }
