@@ -30,13 +30,15 @@ export class LinkParser implements TaskSource {
 
     async parse(filePath: string): Promise<TaskNode[]> {
         // Read file content
-        const content = await this.app.vault.adapter.read(filePath);
+        let content = await this.app.vault.adapter.read(filePath);
+        if (typeof content !== 'string') content = String(content || '');
 
         // Extract all wikilinks with their surrounding context (the whole line)
         const lines = content.split('\n');
         const tasks: TaskNode[] = [];
 
         for (const line of lines) {
+            if (typeof line !== 'string') continue;
             const wikilinkRegex = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/;
             const match = line.match(wikilinkRegex);
 
@@ -98,7 +100,8 @@ export class LinkParser implements TaskSource {
             }
 
             // Read file content
-            const content = await this.app.vault.adapter.read(filePath);
+            let content = await this.app.vault.adapter.read(filePath);
+            if (typeof content !== 'string') content = String(content || '');
 
             // Parse frontmatter
             const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---/;
@@ -267,6 +270,7 @@ export class LinkParser implements TaskSource {
         const lines = frontmatterText.split('\n');
 
         for (const line of lines) {
+            if (typeof line !== 'string') continue;
             const match = line.match(/^(\w+):\s*(.+)$/);
             if (match && match[1] && match[2]) {
                 const key = match[1];

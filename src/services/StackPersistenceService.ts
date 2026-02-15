@@ -1,12 +1,18 @@
 import { App, TFile } from 'obsidian';
 import type { TaskNode } from '../scheduler.js';
+import { FileLogger } from '../logger.js';
 
 export class StackPersistenceService {
     private lastInternalWriteTime: number = 0;
     private fileWriteTimes: Map<string, number> = new Map();
     private silencedUntil: number = 0;
+    private logger: FileLogger | undefined;
 
     constructor(private app: App) { }
+
+    setLogger(logger: FileLogger) {
+        this.logger = logger;
+    }
 
     /**
      * Silences external update detection for a set duration.
@@ -14,13 +20,16 @@ export class StackPersistenceService {
      */
     silence(ms: number = 1000): void {
         this.silencedUntil = Date.now() + ms;
+        const msg = `[StackPersistenceService] Silencing for ${ms}ms (Until ${new Date(this.silencedUntil).toISOString()})`;
+        if (this.logger) this.logger.info(msg);
         if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(`[StackPersistenceService] Silencing for ${ms}ms (Until ${new Date(this.silencedUntil).toISOString()})`);
+            ((window as any)._logs = (window as any)._logs || []).push(msg);
         }
     }
 
     async saveStack(tasks: TaskNode[], filePath: string): Promise<void> {
         const msg = `[StackPersistenceService] saveStack() path=${filePath}, count=${tasks.length}`;
+        if (this.logger) await this.logger.info(msg);
         console.log(msg);
         if (typeof window !== 'undefined') {
             const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
@@ -78,8 +87,10 @@ export class StackPersistenceService {
 
         // 0. Sovereign Silence Check
         if (now < this.silencedUntil) {
+            const msg = `[StackPersistenceService] isExternalUpdate REJECTED (Sovereign Silence). Remaining: ${this.silencedUntil - now}ms`;
+            if (this.logger) this.logger.info(msg);
             if (typeof window !== 'undefined') {
-                ((window as any)._logs = (window as any)._logs || []).push(`[StackPersistenceService] isExternalUpdate REJECTED (Sovereign Silence). Remaining: ${this.silencedUntil - now}ms`);
+                ((window as any)._logs = (window as any)._logs || []).push(msg);
             }
             return false;
         }
@@ -87,8 +98,10 @@ export class StackPersistenceService {
         const diff = now - lastWrite;
 
         const isExternal = diff > 2000;
+        const msg = `[StackPersistenceService] isExternalUpdate(${filePath}): diff=${diff}ms, isExternal=${isExternal}`;
+        if (this.logger) this.logger.info(msg);
         if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(`[StackPersistenceService] isExternalUpdate(${filePath}): diff=${diff}ms, isExternal=${isExternal}`);
+            ((window as any)._logs = (window as any)._logs || []).push(msg);
         }
 
         // If the update happened within 2 seconds of our own write to THIS file, 
@@ -104,13 +117,15 @@ export class StackPersistenceService {
             return [];
         }
 
-        const content = await this.app.vault.read(file as TFile);
+        let content = await this.app.vault.read(file as TFile);
+        if (typeof content !== 'string') content = String(content || '');
 
         const lines = content.split('\n');
         const ids: string[] = [];
         const linkRegex = /\[\[(.*?)\]\]/;
 
         for (const line of lines) {
+            if (typeof line !== 'string') continue;
             const match = line.match(linkRegex);
             if (match && match[1]) {
                 const linkContent = match[1];

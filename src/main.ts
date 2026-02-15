@@ -77,6 +77,7 @@ export default class TodoFlowPlugin extends Plugin {
         this.logger = new FileLogger(this.app, this.settings.debug, logPath);
         this.viewManager = new ViewManager(this.app, this.logger);
         this.stackPersistenceService = new StackPersistenceService(this.app);
+        this.stackPersistenceService.setLogger(this.logger);
 
         const buildId = typeof process !== 'undefined' ? (process.env as any).BUILD_ID : 'unknown';
         await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build ${buildId})`);
@@ -87,8 +88,9 @@ export default class TodoFlowPlugin extends Plugin {
             this.app.metadataCache.on('changed', async (file) => {
                 if (!(file instanceof TFile)) return;
 
-                // Smoke signal for E2E (in gitignored logs/)
+                // Smoke signal for E2E (in gitignored logs/) (RESTORED FOR DIAGNOSTICS)
                 try {
+                    await this.logger.info(`[main] MetadataCache Changed: ${file.path}`);
                     if (!(await this.app.vault.adapter.exists('logs'))) {
                         await this.app.vault.adapter.mkdir('logs');
                     }
@@ -645,8 +647,10 @@ export default class TodoFlowPlugin extends Plugin {
             // we pass the known IDs directly to activateStack.
 
             // Sovereignty Protection: Silence watchers during the handoff window (Desktop race condition)
-            this.stackPersistenceService.silence(1000);
+            // Sovereignty Protection: Silence watchers during the handoff window (Desktop race condition)
+            this.stackPersistenceService.silence(2000); // Increased to 2s for diagnostics
 
+            this.logger.info(`[main] Handoff Trace: Calling activateStack with ${ids.length} IDs. NOW=${Date.now()}`);
             await this.activateStack(ids, persistencePath);
 
         }, async (title: string, options?: any) => {

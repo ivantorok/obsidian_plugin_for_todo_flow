@@ -158,7 +158,7 @@ export class StackView extends ItemView {
             }
 
             // Case 2: Standard Load
-            if (this.logger) await this.logger.info(`[StackView] Loading from DISK (Case 2).`);
+            if (this.logger) await this.logger.info(`[StackView] Loading from DISK (Case 2). rootPath=${state.rootPath}, backingFile=${this.settings.targetFolder}/CurrentStack.md`);
 
             if (state.rootPath === 'QUERY:SHORTLIST') {
                 rawTasks = await this.loader.loadShortlisted();
@@ -252,7 +252,7 @@ export class StackView extends ItemView {
     }
 
     async reload(): Promise<void> {
-        if (this.logger) await this.logger.info(`[StackView] Reload triggered.`);
+        if (this.logger) await this.logger.info(`[StackView] Reload triggered. Calling flushPersistence and navManager.refresh(). NOW=${Date.now()}`);
         const controller = this.getController();
         if (controller) {
             const reprocessCmd = new ReprocessTaskCommand(controller, this.onTaskUpdate);
@@ -321,6 +321,7 @@ export class StackView extends ItemView {
 
         if (this.settings.debug) {
             console.log('[StackView] Mounting Svelte component...');
+            if (this.logger) this.logger.info(`[StackView] Mounting Svelte Component. Tasks=${this.tasks.length}`);
         }
         try {
             this.component = mount(StackViewSvelte, {

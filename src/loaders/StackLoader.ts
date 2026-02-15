@@ -97,10 +97,19 @@ export class StackLoader {
      * This provides Session Isolation.
      */
     async loadSpecificFiles(ids: string[]): Promise<TaskNode[]> {
-        if (this.logger) await this.logger.info(`[StackLoader] loadSpecificFiles() entry with ${ids.length} IDs.`);
+        if (this.logger) await this.logger.info(`[StackLoader] loadSpecificFiles() entry with ${ids.length} IDs: ${JSON.stringify(ids)}`);
 
-        const { GraphBuilder } = await import('../GraphBuilder.js');
-        const builder = new GraphBuilder(this.app);
-        return await builder.buildGraph(ids);
+        try {
+            const { GraphBuilder } = await import('../GraphBuilder.js');
+            const builder = new GraphBuilder(this.app, this.logger); // Pass logger
+            const nodes = await builder.buildGraph(ids);
+
+            if (this.logger) await this.logger.info(`[StackLoader] loadSpecificFiles() returning ${nodes.length} nodes.`);
+            return nodes;
+        } catch (e) {
+            if (this.logger) await this.logger.error(`[StackLoader] CRITICAL ERROR in loadSpecificFiles: ${e}`);
+            console.error(e);
+            return [];
+        }
     }
 }

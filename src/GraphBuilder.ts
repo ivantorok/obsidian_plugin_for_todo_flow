@@ -5,10 +5,11 @@ import { DateParser } from './utils/DateParser.js';
 import moment from 'moment';
 
 export class GraphBuilder {
-    constructor(private app: App) { }
+    constructor(private app: App, private logger?: any) { }
 
     async buildGraph(files: (TFile | string)[]): Promise<TaskNode[]> {
-        return Promise.all(files.map(f => {
+        // if (this.logger) await this.logger.info(`[GraphBuilder] buildGraph() called with ${files.length} items.`); // Too noisy?
+        return Promise.all(files.map(async f => {
             if (typeof f === 'string') {
                 const resolved = this.app.vault.getAbstractFileByPath(f);
                 if (resolved && (resolved instanceof TFile || (resolved as any).extension)) return this.buildNode(resolved as TFile, []);
@@ -33,11 +34,20 @@ export class GraphBuilder {
     }
 
     private async buildNode(file: TFile, visitedPath: string[]): Promise<TaskNode> {
+        // if (this.logger) this.logger.info(`[GraphBuilder] Processing ${file.path}`);
         const cache = this.app.metadataCache.getFileCache(file);
         const frontmatter = cache?.frontmatter || {};
         const status = frontmatter.status || 'todo';
 
-        const content = await this.app.vault.read(file);
+        if (this.logger) this.logger.info(`[GraphBuilder] Reading ${file.path}...`);
+        let content = await this.app.vault.read(file);
+        if (this.logger) this.logger.info(`[GraphBuilder] Read ${file.path} (${content?.length} chars)`);
+        if (typeof content !== 'string') {
+            if (this.logger) this.logger.warn(`[GraphBuilder] Non-string content for ${file.path}`);
+            content = String(content || '');
+        }
+
+        // if (this.logger) this.logger.info(`[GraphBuilder] Read ${file.path} (${content.length} chars)`);
         const firstLine = getFirstNonMetadataLine(content);
 
         const baseTitle = resolveTaskTitle(frontmatter, firstLine, file.name);
