@@ -315,8 +315,9 @@ export class StackView extends ItemView {
             }, 60 * 1000)
         );
 
-        // Initialize state non-blocking to ensure view mounts immediately
-        this.reload();
+        // Initialize state via setState (Obsidian internal lifecycle)
+        // We removed this.reload() from here to prevent BUG-022 where an immediate
+        // disk refresh would overwrite the triaged memory state during handoff.
 
         if (this.settings.debug) {
             console.log('[StackView] Mounting Svelte component...');

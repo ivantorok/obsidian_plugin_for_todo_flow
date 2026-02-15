@@ -640,9 +640,10 @@ export default class TodoFlowPlugin extends Plugin {
                 persistencePath
             );
 
-            // Auto-start Stack after Triage (Workflow)
-            // @ts-ignore
-            this.app.commands.executeCommandById('todo-flow:open-daily-stack');
+            // AUTO-START STACK: Direct Injection (BUG-022 FIX)
+            // Instead of triggering a general command that re-loads from disk,
+            // we pass the known IDs directly to activateStack.
+            await this.activateStack(ids, persistencePath);
 
         }, async (title: string, options?: any) => {
             return this.onCreateTask(title, options);

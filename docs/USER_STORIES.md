@@ -48,3 +48,4 @@ These stories translate the technical requirements in [UX_GOVERNANCE.md](file://
 > **The User:** "I'm trying to use the swipes to organize my day. When I swipe a card to the right to mark it finished, it works, but at the exact same time, the phone's left-hand menu slides out! And if I try to drag a card down to reorder it, the phone thinks I'm trying to search for a command and brings up the 'Command Palette'. It's like I'm playing a game of Twister with my phone—it's trying to do two things at once for every single move I make."
 
 
+

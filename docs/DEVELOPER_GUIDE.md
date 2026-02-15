@@ -119,11 +119,13 @@ Standard `console.log` is often invisible in Obsidian or lost on refresh.
 ### 1. Development Cycle
 
 #### The Backlog-First Workflow (Preferred)
-For complex bugs or feature requests, use the protocol documented in [BACKLOG.md](./BACKLOG.md):
-1. **Report**: Create a spec in `docs/backlog/` using the [TEMPLATE.md](./backlog/TEMPLATE.md).
-2. **Review**: The AI picks up the item and creates an `implementation_plan.md`.
-3. **TDD**: A failing test is written *before* any implementation code.
-4. **Complete**: Once tests pass, the item is moved to the archive.
+For complex bugs or feature requests, use the protocol documented in [WORKING_AGREEMENT.md](./protocol/WORKING_AGREEMENT.md):
+1. **Report & Distill**: USER provides feedback; Antigravity creates a **Synthetic Story** in `USER_STORIES.md`.
+2. **Contract**: Assign a new **AC ID** in `QA_CHECKLIST.md` (Status: `[PENDING]`).
+3. **Plan**: Antigravity creates an `implementation_plan.md`. Work starts after approval.
+4. **TDD**: A failing test is written *before* any implementation code, linking to the AC ID and Concept Atlas.
+5. **Complete**: Once tests pass and the Atlas is updated, the item is moved to the archive.
+
 
 #### Step 1: Write Test (RED)
 ```bash

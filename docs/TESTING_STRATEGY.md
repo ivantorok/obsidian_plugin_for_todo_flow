@@ -57,6 +57,11 @@ What do you do when test levels disagree?
 *   **Diagnosis**: Environment drift (OS differences, faster/slower CPU).
 *   **Action**: **Harden the Test**. Add explicit waits (`await tick()`, `waitForExist`). Do not decrease timeout; increase stability.
 
+### Scenario D: Axiom Conflict
+*   **Diagnosis**: The feature implementation requires breaking an established law in the [Concept Atlas](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/atlas/00_INDEX.md) or [UX Governance](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/UX_GOVERNANCE.md).
+*   **Action**: **Escalate Upstream**. Do NOT implement a hack or "bypass" in the code. Stop development and return to Step 1 of the Atomic Feedback Loop (Atlas Maintenance) to reconcile the conflict at a design level.
+
+
 ---
 
 ## 4. The "Green" Definition

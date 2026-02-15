@@ -5,12 +5,14 @@ This document codifies how we work together to ensure high-quality software thro
 ## 1. The Core Lifecycle
 Every significant change follows this "Strict TDD" loop:
 
-1.  **Backlog Item**: USER creates a spec in `docs/backlog/` using the [TEMPLATE](../backlog/TEMPLATE.md).
-2.  **Implementation Plan**: Antigravity creates an `implementation_plan.md` artifact. **Work stops** until USER approves (with a "yay" or similar).
-3.  **Red (Tests First)**: Antigravity writes a failing Unit or E2E test.
-4.  **Green (Implementation)**: Antigravity writes the code to pass the test.
-5.  **Blue (Verification)**: Antigravity runs the **full suite** (via the `pre-push` hook logic) to ensure no regressions.
-6.  **Archive**: The spec is moved to `docs/archive/backlog/`.
+1.  **Distill Feedback**: USER provides raw feedback. Antigravity distills it into a **Synthetic Story** in `USER_STORIES.md` to identify the Target Axiom and Mechanical Friction.
+2.  **Contract (AC ID)**: Map the story to a new Acceptance Criteria ID in `QA_CHECKLIST.md` (Status: `[PENDING]`). This is the primary "Truth Contract."
+3.  **Implementation Plan**: Antigravity creates an `implementation_plan.md` artifact. **Work stops** until USER approves (with a "yay" or similar).
+4.  **Red (Tests First)**: Antigravity writes a failing Unit or E2E test, referencing the AC ID and related `[[Concept Atlas]]` mechanics.
+5.  **Green (Implementation)**: Antigravity writes code to pass the test. Follow the **Atomic Feedback Loop** from the Atlas Skill if mechanics change.
+6.  **Blue (Verification)**: Antigravity runs the **full suite** to ensure no regressions.
+7.  **Archive**: The story/spec is moved to `docs/archive/backlog/`.
+
 
 ## 2. Shared Expectations
 
@@ -24,6 +26,14 @@ Every significant change follows this "Strict TDD" loop:
 - **Clear "Expected Behavior"**: The most important part of the backlog spec. It tells me exactly when I'm allowed to stop coding.
 - **The "Yay" Protocol**: Please provide explicit approval on implementation plans to avoid wasted work.
 - **Contextual Feedback**: Use the `notify_user` or artifact comments to provide feedback during planning.
+
+### Redline: Unfeasibility & Escalation
+- **The Stop-Work Rule**: If during **Execution** or **Verification** a requirement is discovered to be technically unfeasible or in direct conflict with core UX Governance/Atlas Laws, Antigravity MUST:
+    1.  **Pause** current Task.
+    2.  Update the `implementation_plan.md` with an **Impact Analysis** and alternative options.
+    3.  Call `notify_user` to initiate a **Decision Session**. 
+    - *Iteration is expected; "hacking around the truth" is forbidden.*
+
 
 ## 3. Communication Standards
 - **Task Boundaries**: I will use the Task View whenever I start a backlog item so you can track granularity.
