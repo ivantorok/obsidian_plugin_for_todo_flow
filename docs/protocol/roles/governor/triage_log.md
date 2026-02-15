@@ -26,3 +26,25 @@ The user reports a failure in the lifecycle transition from Triage to Stack. Sho
 - [x] All 7 core regression tests passing.
 - [x] behavioral drift (Story 11) archived.
 - **Verdict**: **READY TO SHIP**.
+
+## Session Entry: 2026-02-15 10:45 (Regression Audit)
+
+### Input Analysis
+- **Source**: Fresh User Feedback (Repeat of Story 11 symptoms)
+- **Verdict**: Regression. Story 11 resolution ("Direct Injection") is insufficient or compromised.
+
+### Routing
+- **Recipient**: Atlas Guardian (Protocol Audit), Diagnostic Engineer (Reproduction), Implementation Lead (Execution).
+- **Mission**: `docs/protocol/roles/common/MISSION_LOG.md`
+- **Priority**: Critical.
+
+### Resolution Summary: 2026-02-15 12:25
+- **Root Cause**: Watcher race condition confirmed by DE. The "Direct Injection" was being overwritten by a stale disk refresh due to Obsidian's file system event buffering.
+- **Action**: Implementation Lead (IL) added `setSilent()` to `StackPersistenceService` to block watcher triggers during the handoff. `main.ts` now wraps the handoff in a silence/unsilence block.
+- **Verification**: New unit test `WatcherSilence.test.ts` confirms the logic.
+
+### Current Status: 2026-02-15 12:28
+- **DE**: Task complete.
+- **AG**: Protocol updated (Watcher Silencing).
+- **IL**: Execution and verification complete.
+- **Next Role**: **Release Manager (RM)** for final audit and shipment.

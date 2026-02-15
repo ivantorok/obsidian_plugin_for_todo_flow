@@ -10,7 +10,8 @@ Analyze the `[[TRIAGE]]` -> `[[STACK]]` handoff within the current codebase. The
 ### Investigation Focus
 1.  **Transition Logic**: Verify the invocation of the `[[READ_MERGE_WRITE]]` protocol during handoff.
 2.  **State Persistence**: Check if `StackPersistenceService` is correctly receiving and writing the triaged items.
-3.  **Regression Check**: Investigate if recent changes to `StackController` (specifically the "freeze/unfreeze" mechanism or "Dump -> Triage" fixes) have impacted the "Triage -> Stack" flow.
+3.  **Regression Check**: Investigate why **Story 11 (Direct Injection)** failed to resolve this permanently. Is there a race condition between the in-memory handoff and the Obsidian file system watcher?
+4.  **UI Sync**: Ensure `StackView` is not rendering *before* the injected state is active.
 
 ## Expected Response
 - Update to the Concept Atlas if mechanics are flawed.

@@ -43,3 +43,21 @@ The project has transitioned from a Stabilization phase to a **TDD phase**.
 - **Pre-Push Guarantee**: The `husky` pre-push hook is active and passing, ensuring no future push breaks the core experience.
 
 **Release Link**: [v1.2.51 Release](https://github.com/ivantorok/obsidian_plugin_for_todo_flow/releases/tag/v1.2.51)
+
+---
+
+# Release 1.2.52: Watcher Silencing (Desktop Fix)
+
+## Goal
+Resolve the "Empty Stack" regression on Desktop where the file system watcher was overwriting the in-memory handoff from Triage.
+
+## Changes
+### 🤫 [Logic] Watcher Silencing
+- **Component**: `StackPersistenceService`, `main.ts`
+- **Change**: Implemented a `setSilent(true)` mode during the Triage-to-Stack handoff. This prevents the `NavigationManager` from reacting to the `CurrentStack.md` write event, allowing the "Direct Injection" memory state to take precedence without interference.
+- **Verification**: New unit test `WatcherSilence.test.ts` confirms the silencing logic.
+- **Result**: Reliable handoff on Desktop, eliminating the race condition.
+
+## Protocol Compliance
+- [x] **Mission Log**: [MISSION_LOG.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/protocol/roles/common/MISSION_LOG.md) audited and complete.
+- [x] **Regression Tests**: `npm run test` consistently passes.

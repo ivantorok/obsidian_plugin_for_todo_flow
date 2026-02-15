@@ -643,6 +643,10 @@ export default class TodoFlowPlugin extends Plugin {
             // AUTO-START STACK: Direct Injection (BUG-022 FIX)
             // Instead of triggering a general command that re-loads from disk,
             // we pass the known IDs directly to activateStack.
+
+            // Sovereignty Protection: Silence watchers during the handoff window (Desktop race condition)
+            this.stackPersistenceService.silence(1000);
+
             await this.activateStack(ids, persistencePath);
 
         }, async (title: string, options?: any) => {

@@ -4,8 +4,20 @@ import type { TaskNode } from '../scheduler.js';
 export class StackPersistenceService {
     private lastInternalWriteTime: number = 0;
     private fileWriteTimes: Map<string, number> = new Map();
+    private silencedUntil: number = 0;
 
     constructor(private app: App) { }
+
+    /**
+     * Silences external update detection for a set duration.
+     * Used to protect in-memory state sovereignty during high-frequency handoffs.
+     */
+    silence(ms: number = 1000): void {
+        this.silencedUntil = Date.now() + ms;
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(`[StackPersistenceService] Silencing for ${ms}ms (Until ${new Date(this.silencedUntil).toISOString()})`);
+        }
+    }
 
     async saveStack(tasks: TaskNode[], filePath: string): Promise<void> {
         const msg = `[StackPersistenceService] saveStack() path=${filePath}, count=${tasks.length}`;
@@ -63,6 +75,15 @@ export class StackPersistenceService {
         }
 
         const now = Date.now();
+
+        // 0. Sovereign Silence Check
+        if (now < this.silencedUntil) {
+            if (typeof window !== 'undefined') {
+                ((window as any)._logs = (window as any)._logs || []).push(`[StackPersistenceService] isExternalUpdate REJECTED (Sovereign Silence). Remaining: ${this.silencedUntil - now}ms`);
+            }
+            return false;
+        }
+
         const diff = now - lastWrite;
 
         const isExternal = diff > 2000;
