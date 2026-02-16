@@ -26,8 +26,8 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 2: Sovereign Navigation & Gestures (The Behavior)
 | ID | Title | Type | Spec | Date | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./archive/backlog/BUG-016_mobile_keyboard_collision.md) | 2026-02-11 | **[PLANNED]** |
-| BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./archive/backlog/BUG-011_mobile_card_body_drag.md) | 2026-02-11 | **[PLANNED]** |
+| BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./archive/backlog/BUG-016_mobile_keyboard_collision.md) | 2026-02-11 | v1.2.65 |
+| BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./archive/backlog/BUG-011_mobile_card_body_drag.md) | 2026-02-11 | v1.2.65 |
 | BUG-012 | Mobile: Existing Task Selection via FAB -> Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-11 | **[PLANNED]** |
 | BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-11 | **[PLANNED]** |
 | BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-11 | **[PLANNED]** |
