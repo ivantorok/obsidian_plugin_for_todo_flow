@@ -41,7 +41,8 @@ Closing the loop.
 3.  **Manual Check**: Perform the "Focus Regression" check defined in `UX_GOVERNANCE.md`.
 
 ### Phase 5: Shipping
-1.  **Action**: Run `./ship.sh "feat/fix: story description"`.
+1.  **Audit**: Review `MISSION_LOG.md` for technical justification.
+2.  **Action**: Run `./ship.sh "feat/fix: story description"`.
 2.  **Archive**: Move any related backlog items to the archive.
 
 ---

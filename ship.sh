@@ -22,6 +22,14 @@ fi
 echo "📈 Incrementing Version..."
 node scripts/version_bump.mjs
 
+# Safety Check: Did we generate a NaN?
+NEW_VERSION=$(grep '"version":' package.json | head -n 1 | cut -d '"' -f 4)
+if [[ "$NEW_VERSION" == *"NaN"* ]]; then
+    echo "❌ CRITICAL ERROR: Version bump resulted in NaN (v$NEW_VERSION). Aborting ship!"
+    # Revert package.json/manifest.json if possible, or just exit strictly
+    exit 1
+fi
+
 # 1. Build & Deploy (Internal)
 echo "🏗️ Building..."
 npm run build

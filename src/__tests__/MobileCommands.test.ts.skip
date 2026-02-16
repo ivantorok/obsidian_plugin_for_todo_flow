@@ -43,7 +43,11 @@ vi.mock('../ui/QuickAddModal.js', () => ({
 vi.mock('../history.js', () => ({ HistoryManager: class { } }));
 vi.mock('../logger.js', () => ({ FileLogger: class { info = vi.fn(); } }));
 vi.mock('../services/ViewManager.js', () => ({ ViewManager: class { } }));
-vi.mock('../services/StackPersistenceService.js', () => ({ StackPersistenceService: class { } }));
+vi.mock('../services/StackPersistenceService.js', () => ({
+    StackPersistenceService: class {
+        setLogger = vi.fn();
+    }
+}));
 
 describe('Add Task Command', () => {
     let plugin: TodoFlowPlugin;

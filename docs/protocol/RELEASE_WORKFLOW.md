@@ -14,6 +14,8 @@ We use the `ship.sh` script to automate the entire process. This script ensures 
 ### Prerequisites
 - **GitHub CLI (`gh`)**: Must be installed and authenticated (`gh auth login`).
 - **Clean Working Directory**: Commit any pending changes before running.
+- **Mission Log Audit**: The **Release Manager** (or you) MUST review `docs/protocol/roles/common/MISSION_LOG.md` to ensure the "Chain of Custody" is intact.
+
 
 ### Usage
 ```bash

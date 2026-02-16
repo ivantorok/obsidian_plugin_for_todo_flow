@@ -15,9 +15,24 @@ const currentVersion = pkg.version;
 console.log(`Current version: ${currentVersion}`);
 
 // 2. Increment patch version
+// 2. Increment patch version with validation
+if (!/^\d+\.\d+\.\d+$/.test(currentVersion)) {
+    throw new Error(`Invalid version format: ${currentVersion}. Expected x.y.z`);
+}
+
 const parts = currentVersion.split('.').map(Number);
+
+if (parts.some(isNaN)) {
+    throw new Error(`Invalid version number parts in: ${currentVersion}`);
+}
+
 parts[2] += 1;
 const newVersion = parts.join('.');
+
+if (newVersion.includes('NaN')) {
+    throw new Error(`Generated invalid version identifier: ${newVersion}`);
+}
+
 console.log(`New version: ${newVersion}`);
 
 // 3. Update package.json
