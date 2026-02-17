@@ -34,9 +34,17 @@ fi
 echo "🏗️ Building..."
 npm run build
 
-# 2. Run Tests (Full Suite)
-echo "🧪 Running Full Test Suite (Unit + Golden + E2E)..."
-npm run test:full || echo "⚠️  Some tests failed, but continuing with ship (pre-existing failures)"
+# 2. Run Tests (Intelligent Check)
+echo "🧪 Checking for technical changes..."
+# Check if any changes in src/ or tests/ are staged or modified
+TECHNICAL_CHANGES=$(git diff --name-only HEAD | grep -E "^(src/|tests/)" | wc -l || true)
+
+if [ "$TECHNICAL_CHANGES" -gt 0 ]; then
+    echo "⚡ Technical changes detected (src/ or tests/). Running Full Test Suite..."
+    npm run test:full || echo "⚠️  Some tests failed, but continuing with ship (pre-existing failures)"
+else
+    echo "📄 Only documentation or non-source changes detected. Skipping full test suite."
+fi
 
 # 3. Tagging (Fix for BRAT/Registry)
 VERSION=$(grep '"version":' manifest.json | head -n 1 | cut -d '"' -f 4)
