@@ -61,12 +61,14 @@ export class StackLoader {
                 const graphNodes = await builder.buildGraph(linkedFiles);
 
                 // Merge metadata from linkedNodes (the stack file) into graphNodes
-                // Priority: LinkParser (stack file line) > GraphBuilder (individual file)
+                // Priority: Line-local overrides (LinkParser) > File-level metadata (GraphBuilder)
                 return graphNodes.map(gNode => {
                     const lNode = linkedNodes.find(ln => ln.id === gNode.id);
                     if (lNode) {
                         return {
                             ...gNode,
+                            // Use line-local title if it's NOT just the linkPath (i.e. it was [[ID|Title]])
+                            title: (lNode.title !== lNode.id && lNode.title !== lNode.id.split('/').pop()?.replace('.md', '')) ? lNode.title : gNode.title,
                             isAnchored: lNode.isAnchored || gNode.isAnchored,
                             startTime: lNode.startTime || gNode.startTime,
                             duration: lNode.duration !== 30 ? lNode.duration : gNode.duration // 30 is default

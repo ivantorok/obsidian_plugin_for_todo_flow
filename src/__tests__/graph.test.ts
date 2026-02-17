@@ -164,4 +164,58 @@ describe('GraphBuilder', () => {
         // C has D
         expect(childC!.children[0]!.id).toBe('D.md');
     });
+
+    it('should resolve title from frontmatter "task" field preferentially', async () => {
+        const file = mockTFile('Task.md', 'Task');
+        const mockApp = {
+            metadataCache: {
+                getFileCache: () => ({ frontmatter: { task: 'Priority 1 Title' } }),
+                resolvedLinks: { 'Task.md': {} }
+            },
+            vault: {
+                getAbstractFileByPath: () => file,
+                read: async () => "# Priority 2 Title\nContent"
+            }
+        } as any;
+
+        const builder = new GraphBuilder(mockApp);
+        const [node] = await builder.buildGraph([file as any]);
+        expect(node!.title).toBe('Priority 1 Title');
+    });
+
+    it('should resolve title from first line if "task" field is missing', async () => {
+        const file = mockTFile('Task.md', 'Task');
+        const mockApp = {
+            metadataCache: {
+                getFileCache: () => ({ frontmatter: {} }),
+                resolvedLinks: { 'Task.md': {} }
+            },
+            vault: {
+                getAbstractFileByPath: () => file,
+                read: async () => "# Priority 2 Title\nContent"
+            }
+        } as any;
+
+        const builder = new GraphBuilder(mockApp);
+        const [node] = await builder.buildGraph([file as any]);
+        expect(node!.title).toBe('Priority 2 Title');
+    });
+
+    it('should fallback to filename if no metadata or content title found', async () => {
+        const file = mockTFile('Task.md', 'Task');
+        const mockApp = {
+            metadataCache: {
+                getFileCache: () => ({ frontmatter: {} }),
+                resolvedLinks: { 'Task.md': {} }
+            },
+            vault: {
+                getAbstractFileByPath: () => file,
+                read: async () => ""
+            }
+        } as any;
+
+        const builder = new GraphBuilder(mockApp);
+        const [node] = await builder.buildGraph([file as any]);
+        expect(node!.title).toBe('Task');
+    });
 });

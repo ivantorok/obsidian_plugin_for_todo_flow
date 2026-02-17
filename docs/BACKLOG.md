@@ -62,6 +62,11 @@ This document tracks bugs and feature requests. To request work, add an item her
 | BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-06 | **[MOVED]** |
 | FIX-01 | Smart Import Folder Bug | Bug | - | 2026-02-01 |
 | FIX-02 | Rename Test Stability | Bug | - | 2026-02-01 |
+
+### Phase 4: Strategic Performance
+| ID | Title | Type | Spec |
+| :--- | :--- | :--- | :--- |
+| STRAT-01 | Mobile Performance Optimization (Death by 1000 Cuts) | Ref | [Spec](./backlog/STRAT-01_mobile_performance_optimization.md) |
 | CHORE-01 | Pre-push Hook Stdin Conflict | Chore | - | 2026-02-01 |
 
 ---

@@ -11,6 +11,7 @@
 - [Mobile Technical Constraints & Contradictions](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_TECHNICAL_CONSTRAINTS.md)
 - [Mobile Interaction Specification](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_INTERACTION_SPEC.md)
 - [Strategy: Lean Mobile (The "Elias" Model)](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/STRATEGY_LEAN_MOBILE.md)
+- [Detailed User Journeys (Behavioral Spec)](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/reference/JOURNEYS.md)
 - [Feature Inventory](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/FEATURE_INVENTORY.md)
 - [Developer Guide](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/DEVELOPER_GUIDE.md)
 

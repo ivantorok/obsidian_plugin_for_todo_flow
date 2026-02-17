@@ -58,17 +58,18 @@ export class LinkParser implements TaskSource {
                     .replace(/[{}]/g, '') // Strip curly braces
                     .trim();
 
-                // Resolve metadata from the linked file
-                const metadata = await this.resolveTaskMetadata(resolvedPath, nlpInput);
+                // Extract line-local NLP (e.g. [[Task]] {18:00} in the stack file)
+                const { DateParser } = await import('../utils/DateParser.js');
+                const lineNlp = DateParser.parseTaskInput(nlpInput);
 
                 tasks.push({
                     id: resolvedPath,
                     // Use custom display text if provided, otherwise resolved title
-                    title: displayText || metadata.title,
-                    duration: metadata.duration ?? 30,
-                    status: (metadata.status as 'todo' | 'done') ?? (line.includes('[x]') ? 'done' : 'todo'),
-                    isAnchored: metadata.isAnchored ?? false,
-                    startTime: metadata.startTime,
+                    title: displayText || linkPath,
+                    duration: lineNlp.duration || 30,
+                    status: (line.includes('[x]') ? 'done' : 'todo'),
+                    isAnchored: lineNlp.isAnchored || false,
+                    startTime: lineNlp.startTime,
                     children: []
                 });
             }

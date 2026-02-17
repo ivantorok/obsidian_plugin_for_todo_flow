@@ -13,7 +13,6 @@ import { NavigationManager } from '../navigation/NavigationManager.js';
 import { type TodoFlowSettings } from '../main.js';
 import { QuickAddModal } from '../ui/QuickAddModal.js';
 import { InsertTaskCommand } from '../commands/stack-commands.js';
-import { ReprocessTaskCommand } from '../commands/ReprocessTaskCommand.js';
 import { StackPersistenceService } from '../services/StackPersistenceService.js';
 import { DurationPickerModal } from '../ui/DurationPickerModal.js';
 import { ExportService } from '../services/ExportService.js';
@@ -253,11 +252,6 @@ export class StackView extends ItemView {
 
     async reload(): Promise<void> {
         if (this.logger) await this.logger.info(`[StackView] Reload triggered. Calling flushPersistence and navManager.refresh(). NOW=${Date.now()}`);
-        const controller = this.getController();
-        if (controller) {
-            const reprocessCmd = new ReprocessTaskCommand(controller, this.onTaskUpdate);
-            await reprocessCmd.execute();
-        }
         await this.flushPersistence();
         await this.navManager.refresh();
     }

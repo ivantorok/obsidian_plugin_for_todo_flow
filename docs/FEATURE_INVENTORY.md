@@ -42,7 +42,7 @@ These actions are performed within the **Daily Stack** view.
 | **Duration -** | `d` / `←` | `-` Button | Decrease duration (usually -15m). |
 | **Toggle Done** | `x` / `X` | Strikethrough | Mark task as complete/incomplete. |
 | **Create Task** | `c` / `C` | - | Open Quick Add with new task. |
-| **Quick Add** | `o` | - | Open Quick Add (same as 'c' currently). |
+| **Quick Add** | - | - | Custom via settings. |
 | **Rename** | `e` | Click Title | Edit task title. |
 | **Edit Time** | `s` | Click Time | Edit start time explicitly. |
 | **Delete** | `Backspace` / `Delete` | - | Delete task (with confirmation). |
@@ -74,12 +74,14 @@ Configurable in `Settings > Todo Flow`.
 | `fixedStartTime` | Text | Start time for 'fixed' mode (e.g. 09:00). |
 | `enableShake` | Toggle | Enable Shake-to-Undo on mobile. |
 | `debug` | Toggle | Developer Mode. |
+| `traceVaultEvents` | Toggle | Enable high-frequency diagnostic logging (Disk I/O). |
+| `maxGraphDepth` | Number | Maximum recursion depth for sub-task discovery. |
 | **Mobile Actions** | Dropdowns | Configure Swipe Left/Right and Double Tap actions. |
 | **Keybindings** | Custom | Remap all keyboard shortcuts. |
 
 ## 4. Target User Journeys (E2E Roadmap)
 
-These flows represent the core value loops of the application and will be implemented as E2E tests.
+These flows represent the core value loops of the application. For a detailed, step-by-step behavioral walkthrough of these journeys with specific commands and mobile strategies, see the [User Journeys Reference](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/reference/JOURNEYS.md).
 
 ### Journey A: The Daily Setup (Dump -> Triage -> Stack) ✅
 1.  **Start Dump**: Open Prompt.

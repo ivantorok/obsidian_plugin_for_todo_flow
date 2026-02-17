@@ -12,7 +12,6 @@ import { NavigationManager } from './navigation/NavigationManager.js';
 import { SmartImportService } from './services/SmartImportService.js';
 import { ExportService } from './services/ExportService.js';
 import { SyncService } from './services/SyncService.js';
-import { ReprocessTaskCommand } from './commands/ReprocessTaskCommand.js';
 import { ShakeDetector } from './utils/ShakeDetector.js';
 import { StackPersistenceService } from './services/StackPersistenceService.js';
 
@@ -27,6 +26,8 @@ export interface TodoFlowSettings {
     keys: KeybindingSettings;
     debug: boolean;
     enableShake: boolean;
+    traceVaultEvents: boolean;
+    maxGraphDepth: number;
     lastTray?: string[] | null;
     swipeLeftAction: string;
     swipeRightAction: string;
@@ -43,6 +44,8 @@ const DEFAULT_SETTINGS: TodoFlowSettings = {
     keys: DEFAULT_KEYBINDINGS,
     debug: false,
     enableShake: false,
+    traceVaultEvents: false,
+    maxGraphDepth: 5,
     lastTray: null,
     swipeLeftAction: 'archive',
     swipeRightAction: 'complete',
@@ -88,17 +91,15 @@ export default class TodoFlowPlugin extends Plugin {
             this.app.metadataCache.on('changed', async (file) => {
                 if (!(file instanceof TFile)) return;
 
-                // Smoke signal for E2E (in gitignored logs/) (RESTORED FOR DIAGNOSTICS)
-                try {
-                    await this.logger.info(`[main] MetadataCache Changed: ${file.path}`);
-                    if (!(await this.app.vault.adapter.exists('logs'))) {
-                        await this.app.vault.adapter.mkdir('logs');
-                    }
-                    await this.app.vault.adapter.write('logs/modify-detected.txt', `Detected ${file.path} at ${new Date().toISOString()}`);
-                } catch (e) { }
-
-                // LOGIC LEAK REMOVED: StackView/NavigationManager now manage their own watchers.
-                // This prevents global event competition and ensures isolation.
+                if (this.settings.traceVaultEvents) {
+                    try {
+                        await this.logger.info(`[main] MetadataCache Changed: ${file.path}`);
+                        if (!(await this.app.vault.adapter.exists('logs'))) {
+                            await this.app.vault.adapter.mkdir('logs');
+                        }
+                        await this.app.vault.adapter.write('logs/modify-detected.txt', `Detected ${file.path} at ${new Date().toISOString()}`);
+                    } catch (e) { }
+                }
             })
         );
 
@@ -183,45 +184,6 @@ export default class TodoFlowPlugin extends Plugin {
             }
         });
 
-        console.log('[Todo Flow] Registering reprocess-nlp command');
-        this.addCommand({
-            id: 'reprocess-nlp',
-            name: 'Reprocess NLP Metadata (Smart Parse)',
-            callback: async () => {
-                this.logger.info('[Command] Executing reprocess-nlp');
-                try {
-                    const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
-                    if (leaf && leaf.view) {
-                        // Cast to any to bypass strict type check for now (StackView methods are public but TS might not see them via generic View)
-                        const stackView = leaf.view as any;
-
-                        if (stackView.getController && stackView.update) {
-                            const controller = stackView.getController();
-                            if (controller) {
-                                // Static import used here
-                                const cmd = new ReprocessTaskCommand(controller, async (task) => {
-                                    await this.syncTaskToNote(task);
-                                });
-
-                                await this.historyManager.executeCommand(cmd);
-                                stackView.update();
-                                this.logger.info('[Command] JSON Reprocessing successfully completed.');
-                                new (window as any).Notice('NLP Reprocessing Complete');
-                            }
-                        } else {
-                            this.logger.warn('[Command] StackView controller missing.');
-                            new (window as any).Notice('Open the Task Stack view first.');
-                        }
-                    } else {
-                        this.logger.warn('[Command] StackView leaf not found.');
-                        new (window as any).Notice('Open the Task Stack view first.');
-                    }
-                } catch (error) {
-                    this.logger.error(`[Command] Reprocess Failed: ${error}`);
-                    new (window as any).Notice('Reprocess Failed. Check logs.');
-                }
-            }
-        });
 
 
         this.addCommand({
@@ -998,6 +960,28 @@ class TodoFlowSettingTab extends PluginSettingTab {
                     this.plugin.settings.debug = value;
                     await this.plugin.saveSettings();
                     this.plugin.refreshStackView();
+                }));
+
+        new Setting(containerEl)
+            .setName('Trace Vault Events')
+            .setDesc('Enable high-frequency diagnostic logging to disk (logs/modify-detected.txt). Warning: Significant disk I/O.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.traceVaultEvents)
+                .onChange(async (value) => {
+                    this.plugin.settings.traceVaultEvents = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Max Graph Depth')
+            .setDesc('Maximum recursion depth for discovering sub-tasks. Lower values improve performance on mobile.')
+            .addSlider(slider => slider
+                .setLimits(1, 10, 1)
+                .setValue(this.plugin.settings.maxGraphDepth)
+                .setDynamicTooltip()
+                .onChange(async (value) => {
+                    this.plugin.settings.maxGraphDepth = value;
+                    await this.plugin.saveSettings();
                 }));
 
         if (Platform.isMobile) {

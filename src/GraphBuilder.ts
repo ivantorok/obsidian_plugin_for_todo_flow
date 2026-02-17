@@ -5,14 +5,22 @@ import { DateParser } from './utils/DateParser.js';
 import moment from 'moment';
 
 export class GraphBuilder {
-    constructor(private app: App, private logger?: any) { }
+    private maxDepth: number = 5;
+
+    constructor(private app: App, private logger?: any) {
+        // Access settings via plugin if possible, or use a default
+        // For now, let's assume we can pass it or get it from app
+        const settings = (app as any).plugins?.getPlugin('obsidian_plugin_for_todo_flow')?.settings;
+        if (settings) {
+            this.maxDepth = settings.maxGraphDepth || 5;
+        }
+    }
 
     async buildGraph(files: (TFile | string)[]): Promise<TaskNode[]> {
-        // if (this.logger) await this.logger.info(`[GraphBuilder] buildGraph() called with ${files.length} items.`); // Too noisy?
         return Promise.all(files.map(async f => {
             if (typeof f === 'string') {
                 const resolved = this.app.vault.getAbstractFileByPath(f);
-                if (resolved && (resolved instanceof TFile || (resolved as any).extension)) return this.buildNode(resolved as TFile, []);
+                if (resolved && (resolved instanceof TFile)) return this.buildNode(resolved, []);
                 return this.createMissingNode(f);
             }
             return this.buildNode(f, []);
@@ -34,10 +42,22 @@ export class GraphBuilder {
     }
 
     private async buildNode(file: TFile, visitedPath: string[]): Promise<TaskNode> {
-        // if (this.logger) this.logger.info(`[GraphBuilder] Processing ${file.path}`);
+        const depth = visitedPath.length;
         const cache = this.app.metadataCache.getFileCache(file);
         const frontmatter = cache?.frontmatter || {};
         const status = frontmatter.status || 'todo';
+
+        if (depth >= this.maxDepth) {
+            return {
+                id: file.path,
+                title: file.basename,
+                duration: frontmatter.duration || 30,
+                isAnchored: !!frontmatter.anchored,
+                status: status as 'todo' | 'done',
+                children: [],
+                isPartial: true
+            };
+        }
 
         if (this.logger) this.logger.info(`[GraphBuilder] Reading ${file.path}...`);
         let content = await this.app.vault.read(file);

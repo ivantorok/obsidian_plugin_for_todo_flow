@@ -68,7 +68,7 @@ export const DEFAULT_KEYBINDINGS: KeybindingSettings = {
     export: ['Shift+E', 'Cmd+s', 'Ctrl+s'],
     rename: ['e'],
     archive: ['z', 'Z'],
-    quickAdd: ['o'],
+    quickAdd: [],
     editStartTime: ['s'],
     toggleHelp: ['?']
 };
