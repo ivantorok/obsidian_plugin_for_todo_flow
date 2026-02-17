@@ -50,3 +50,28 @@ The user reports a failure in the lifecycle transition from Triage to Stack. Sho
 - **Next Role**: **Release Manager (RM)** for final audit and shipment.
 - **Final Status**: **SHIPPED v1.2.54**.
 
+## Session Entry: 2026-02-17 08:50 (BUG-012 Investigation)
+
+### Input Analysis
+- **Source**: Mission Log (Triage Feedback)
+- **Content**: "Selecting existing task via FAB during Triage fails to append to queue."
+- **Flavor**: [BUG/UX]
+- **Component**: `TriageView` / `QuickAddModal` integration.
+
+### Triage Verdict
+The report suggests a failure in the event chain when selecting an existing markdown file as a task during a triage session.
+
+### Routing
+- **Recipient**: Diagnostic Engineer (DE)
+- **Request**: Verify technical flow for `Existing Task` selection vs `New Task` creation.
+
+### Resolution Summary: 2026-02-17 17:44
+- **Root Cause**: **UNREPRODUCIBLE** on macOS.
+- **Action**: Diagnostic Engineer (DE) performed technical forensics using `BUG-012_macOS_Forensics.test.ts`. Verified that `TriageController.addTask()` correctly handles file-backed nodes even at the end of a session.
+- **Verdict**: **CLOSED (Cannot Reproduce on macOS)**.
+
+### Shipping Readiness
+- [x] Forensic tests passing and archived in `tests/forensics/`.
+- [x] Mission Log formally closed.
+- **Final Status**: **RESOLVED/CLOSED**.
+

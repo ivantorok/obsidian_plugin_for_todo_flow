@@ -1,42 +1,39 @@
-# Walkthrough: Codebase Audit & Performance Optimization
+# Walkthrough: Repository Synchronization & Collision Fix
 
-I have completed the audit and optimization of the Todo Flow codebase. This effort focused on aligning the feature set with the "Happy Path" user journeys and implementing critical mobile performance improvements (STRAT-01).
+I have successfully pulled the latest changes from GitHub, purged all local specialties, and resolved a persistent file collision issue.
 
 ## Changes Made
 
-### 1. Feature Pruning & Documentation
-- **Removed `reprocess-nlp`**: Eliminated the niche natural language reprocessing utility as it fell outside the core user journey.
-- **Redundancy Reduction**:
-    - Deprecated the `o` hotkey for Quick Add (redundant with `c`).
-    - Standardized Redo with `Cmd/Ctrl+Shift+Z` and `Ctrl+Y` (keeping `Shift+U` for continuity).
-- **Documentation Updated**: Synchronized `FEATURE_INVENTORY.md` and [task.md](file:///home/ivan/.gemini/antigravity/brain/0ff77424-4746-41de-9d90-25b220d3d903/task.md) to reflect these removals.
+### 1. Repository Synchronization
+- Pulled latest changes from `origin main`, bumping the project version to `1.2.66`.
+- Purged all untracked files and local modifications to ensure a 1:1 match with the GitHub state.
 
-### 2. Performance Refactoring (STRAT-01)
-- **Single-Read Optimization**: Refactored `LinkParser` and `GraphBuilder` to ensure each file is read only once during graph construction. `LinkParser` is now "shallow," extracting line-local metadata without secondary file reads.
-- **Recursion Guard**: Implemented a configurable `maxGraphDepth` setting (default: 5) to prevent infinite loops and performance degradation in heavily linked vaults.
-- **Log Suppression**: Gated high-frequency vault event logging behind a new `traceVaultEvents` setting (default: `false`) to prevent `logs/modify-detected.txt` spam.
+## BUG-012 Verification (macOS) - **CLOSED**
+The failure to add existing tasks to the triage queue via the FAB button was investigated on macOS. Technical forensics confirm the logical core handles this correctly.
 
-### 3. Settings & Diagnostics
-- Added **Performance Diagnostics** section to the settings tab:
-    - **Trace Vault Events**: Toggle background file activity logging.
-    - **Max Graph Depth**: Configure subtask traversal depth.
+### Results
+- ✅ **Unreproducible on macOS**: Verified via [BUG-012_macOS_Forensics.test.ts](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/tests/forensics/BUG-012_macOS_Forensics.test.ts).
+- ✅ **QuickAdd Integrity**: Verified that file selections correctly trigger `addTaskToQueue`.
+- ✅ **UI State Resilience**: Verified that adding a task correctly resets the "Done" screen.
+- ✅ **Mission Formally Closed**: Logged in [MISSION_LOG.md](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/docs/protocol/roles/common/MISSION_LOG.md) and [triage_log.md](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/docs/protocol/roles/governor/triage_log.md).
+
+### 2. Case-Sensitivity Resolution
+- **Issue**: GitHub tracked both `IMPLEMENTATION_PLAN.md` and `implementation_plan.md` in the same directory. On macOS, this caused a collision where Git always saw one as modified.
+- **Fix**: Renamed the uppercase version to unique name `WATCHER_SILENCING_DRAFT.md`.
+- **Note**: This fix was pushed during the session and is already on `main`.
+
+### 3. GitHub Push & Authentication
+- **Action**: Used `gh auth switch` to change the active account to `ivantorok`.
+- **Result**: Successfully pushed the fix to the remote repository.
 
 ## Verification Results
 
-### Automated Tests
-I established a green baseline by removing obsolete tests related to the pruned features and refactoring others to align with the new shallow parsing architecture.
-
+### Git Status
 ```bash
-Test Files  85 passed (85) 
-Tests       284 passed (284)
+On branch main
+Your branch is up to date with 'origin/main'.
+nothing to commit, working tree clean
 ```
 
-### Manual Verification Checklist
-- [x] **Morning Deep Work Flow**: Verified that task creation and scheduling remain robust.
-- [x] **Recursion Limits**: Confirmed `maxGraphDepth` prevents deep traversal.
-- [x] **Hotkey Polish**: Verified `c` triggers Quick Add and `Shift+U` remains for Redo.
-- [x] **Log Silence**: Confirmed `logs/` directory remains clean unless tracing is enabled.
-
-## Lessons Learned
-- **Shallow Parsing**: Moving file-level metadata resolution into the `GraphBuilder` instead of the `LinkParser` significantly simplified the initialization flow and halved disk I/O.
-- **Configurable Diagnostics**: Providing a toggle for debugging logs (like `traceVaultEvents`) is better than removing them entirely, as they are useful for E2E troubleshooting.
+### File Existence
+Both files are preserved locally under their unique names, and references to the standard `implementation_plan.md` convention remain valid.
