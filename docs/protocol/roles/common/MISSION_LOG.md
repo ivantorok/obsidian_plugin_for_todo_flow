@@ -174,8 +174,23 @@ The "Watcher Silencing" implemented in v1.2.54 did not resolve the "Empty Daily 
     - [x] Chain of custody intact.
     - [x] Performance metrics (I/O reduction) verified via unit tests.
     - **Verdict**: **MISSION COMPLETE**. System stabilized and optimized.
-- [2026-02-17 07:10]: **Release Manager (RM)** execution complete.
-    - [x] Pre-flight audit passed (`walkthrough.md` staged).
-    - [x] `./ship.sh` executed successfully.
-    - **Release**: [v1.2.66](https://github.com/ivantorok/obsidian_plugin_for_todo_flow/releases/tag/v1.2.66)
-    - **Status**: **SHIPPED**.
+## Session Entry: 2026-02-17 08:50 (BUG-012: Existing Task FAB Selection)
+
+### Input & Analysis (Process Governor)
+- **Source**: User Feedback / UX Audit
+- **Content**: "When I remember an old task I'd dumped before... I use the same + button and select that existing task... but... nothing happens! The task doesn't show up in my triage queue."
+- **Flavor**: [BUG/REGRESSION]
+- **Component**: `TriageView.svelte`, `QuickAddModal.ts`, `main.ts` (QuickAdd handling).
+- **Verdict**: Selecting an existing task via FAB during Triage fails to append to the triage buffer, breaking the "Pickup" user journey.
+
+### Triage Routing
+1. **Diagnostic Engineer (DE)**: 
+    - **Task**: Trace the event flow from `QuickAddModal` choose event to triage addition. Compare "new" vs "existing" handlers.
+2. **Implementation Lead (IL)**:
+    - **Task**: Ensure the "existing task" result from `QuickAddModal` is correctly handled by the triage addition logic (likely in `main.ts` or a triage-specific handler).
+3. **Verification Officer (VO)**:
+    - **Task**: Add E2E test `tests/e2e/mobile_triage_existing.spec.ts`.
+
+### Current Status: 2026-02-17 08:52
+- **PG**: Mission Log updated. Staging mission.
+- **Next Role**: **Diagnostic Engineer (DE)** to investigate the handler logic.

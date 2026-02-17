@@ -66,7 +66,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 4: Strategic Performance
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
-| STRAT-01 | Mobile Performance Optimization (Death by 1000 Cuts) | Ref | [Spec](./backlog/STRAT-01_mobile_performance_optimization.md) |
+| STRAT-01 | Mobile Performance Optimization (Death by 1000 Cuts) | Ref | [Spec](./backlog/STRAT-01_mobile_performance_optimization.md) | v1.2.66 |
 | CHORE-01 | Pre-push Hook Stdin Conflict | Chore | - | 2026-02-01 |
 
 ---
