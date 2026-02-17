@@ -174,4 +174,8 @@ The "Watcher Silencing" implemented in v1.2.54 did not resolve the "Empty Daily 
     - [x] Chain of custody intact.
     - [x] Performance metrics (I/O reduction) verified via unit tests.
     - **Verdict**: **MISSION COMPLETE**. System stabilized and optimized.
-- **Next Role**: **Release Manager (RM)** for deployment.
+- [2026-02-17 07:10]: **Release Manager (RM)** execution complete.
+    - [x] Pre-flight audit passed (`walkthrough.md` staged).
+    - [x] `./ship.sh` executed successfully.
+    - **Release**: [v1.2.66](https://github.com/ivantorok/obsidian_plugin_for_todo_flow/releases/tag/v1.2.66)
+    - **Status**: **SHIPPED**.
