@@ -5,6 +5,7 @@
     - [ ] Unify `LeanStackView` into `StackView` class 
     - [ ] Harmonize `StackController` usage for all views 
     - [ ] Purge `parked` status from Svelte code 
+    - [ ] Implement Intelligent Git Hooks (`pre-push`)
 - [/] FEAT-008: Implementation (Mobile Hybrid Build)
     - [ ] Implement Mode Toggle ($state) in StackView.svelte
     - [ ] Implement Sync Sentry (Internal Plugin Peek)

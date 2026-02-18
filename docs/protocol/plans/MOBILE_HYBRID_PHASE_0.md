@@ -19,6 +19,10 @@ Before the architectural pivot, we must stabilize the foundation to resolve exis
 - **Target**: All Svelte components.
 - **Action**: Delete all `parked` status UI elements, buttons, and CSS selectors to align with [TASK_STATUS_ENFORCEMENT.md](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/docs/atlas/MECHANICS/TASK_STATUS_ENFORCEMENT.md).
 
+### 5. Intelligent Git Hooks
+- **Target**: [.husky/pre-push](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/.husky/pre-push)
+- **Action**: Implement a "Technical Change Leak" detection. If the push only contains `.md` or asset files, skip the full Vitest/WDIO suite.
+
 ---
 
 ## Phase 1: Hybrid Build (Round 4)
@@ -43,7 +47,7 @@ This phase implements the architectural pivot from "Lean/Elias" to the **Hybrid 
 
 ### [Component] Navigation & State
 
-#### [MODIFY] [ViewManager.ts](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/src/ViewManager.ts)
+#### [MODIFY] [ViewManager.ts](file:///Users/i252577/github/obsidian_plugin_for_todo_flow/src/ViewManager.ts)
 *   **Breadcrumb Logic (Experimental)**: Implement hierarchical tracking for the focus stack as an optional UI element.
 *   **Native Handoff**: Register workspace history entries for each drill-down to support the native "Back" gesture.
 
