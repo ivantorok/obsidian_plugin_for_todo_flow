@@ -23,8 +23,8 @@ These stories translate the technical requirements in [UX_GOVERNANCE.md](file://
 **Target Axiom:** *Viewport Shifting*
 > **The User:** "I tapped a task at the very bottom of my screen to rename it. The phone's keyboard popped up, but it completely covered the task I was editing! I was typing 'blind' because I couldn't see what I was writing anymore. I had to stop and manually scroll the page up just to see the words I was typing."
 
-## 5. The "Forgotten Pickup" Story
-**Target Axiom:** *Input Consistency (TBD)*
+## 5. The "Forgotten Pickup" Story [RESOLVED v1.2.69]
+**Target Axiom:** *Input Consistency & Optimistic Sovereignty*
 > **The User:** "I'm doing my daily triage on my phone. I tap the `+` button to add something to my queue. When I create a *brand new* task, it gets added to the bottom of my triage list perfectly. But sometimes I remember an old task I'd dumped before that I want to tackle today. So I use the same `+` button and *select* that existing task instead of creating a new one. But... nothing happens! The task doesn't show up in my triage queue. It feels like the app heard me say 'add this' for new tasks, but ignores me when I point to an old one."
 
 ## 6. The "Sticky Button" Story
@@ -46,6 +46,10 @@ These stories translate the technical requirements in [UX_GOVERNANCE.md](file://
 ## 10. The "Competitive Swiper" Story
 **Target Axiom:** *Gesture Shadowing & Event Propagation*
 > **The User:** "I'm trying to use the swipes to organize my day. When I swipe a card to the right to mark it finished, it works, but at the exact same time, the phone's left-hand menu slides out! And if I try to drag a card down to reorder it, the phone thinks I'm trying to search for a command and brings up the 'Command Palette'. It's like I'm playing a game of Twister with my phone—it's trying to do two things at once for every single move I make."
+
+## 11. The "Half-Baked Button" Story
+**Target Axiom:** *Functional Parity & Mobile Refinement*
+> **The User:** "I'm using the 'Mobile Stack' to work through my tasks. It looks great, but some of the buttons don't seem to do what they say. I tap 'Done', and I move to the next task, but when I look at the 'Victory Lap' summary at the end, the task I marked 'Done' is still showing as incomplete! And I can't find the 'Anchor' button I use on my computer to fix a task to its time. It feels like a 'lite' version that's missing the brains of the desktop app."
 
 
 

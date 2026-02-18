@@ -114,6 +114,26 @@ Standard `console.log` is often invisible in Obsidian or lost on refresh.
 
 ---
 
+## 7. Agentic Multi-Role Protocol
+
+The Todo Flow project uses a multi-role agentic protocol to ensure high governance and architectural consistency.
+
+### The Role Registry
+- **Process Governor (PG)**: Triages feedback, pipelines missions, and performs closing rituals.
+- **Atlas Guardian (AG)**: Audits the `[[Concept Atlas]]` and `ARCHITECTURE.md`. Ensures new features follow established primitives.
+- **Diagnostic Engineer (DE)**: Reproduces bugs, creates forensics tests, and identifies root causes.
+- **Implementation Lead (IL)**: Executes approved plans and implements core logic.
+- **Verification Officer (VO)**: The "Sentry of the User Contract." Acts as the skeptic/adversary who ensures that implementations fulfill the promise to the user (E2E & QA Checklist).
+- **Release Manager (RM)**: Performs final audits and executes `ship.sh`.
+
+### The Mission Log Ritual
+Every major task MUST be traced in `docs/protocol/roles/common/MISSION_LOG.md`.
+1. **Entry**: PG defines the mission scope and routes to initial roles.
+2. **Execution**: Each role logs its progress and findings directly in the session entry.
+3. **Closing**: PG verifies the "Chain of Custody" and updates the Backlog status.
+
+---
+
 ## Detailed Workflow
 
 ### 1. Development Cycle

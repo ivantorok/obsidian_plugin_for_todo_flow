@@ -28,6 +28,7 @@ Unlike many plugins that maintain state in memory, Todo Flow treats the filesyst
 - **Reactive Projections**: The UI (Svelte components) is a reactive projection of the Markdown files.
 - **Immediate Persistence**: Any UI interaction (reordering, duration change) triggers an immediate disk write.
 - **External Sync**: The `NavigationManager` monitors for external file changes (e.g., from Obsidian Sync) and triggers a UI refresh to maintain consistency.
+- **Optimistic Sovereignty**: In high-latency environments (Mobile/8GB RAM Linux), the UI state is a "soft truth" updated immediately, while the disk sync is handled asynchronously via `vault.process`.
 - **Inline Metadata Sovereignty**: In Elias 1.1 (Momentum), the "Daily Stack" file can contain inline metadata (e.g., `- [ ] [[Task]] {18:00}`). The `LinkParser` and `StackLoader` prioritize this local context over individual task note frontmatter to enable dynamic daily planning.
 
 

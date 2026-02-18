@@ -95,3 +95,20 @@ The report suggests a failure in the event chain when selecting an existing mark
 - **Verification**: E2E Journey `mobile_triage_existing_task.spec.ts` passed on Linux.
 - **Final Status**: **RESOLVED/ARCHIVED**.
 - **Next Action**: Triage next roadmap item (BUG-021 or BUG-007).
+
+## Session Entry: 2026-02-18 08:33 (iOS Mobile Stack Feedback)
+
+### Input Analysis
+- **Source**: Fresh User Feedback (iOS Testing)
+- **Content**: Mobile Stack works partially. Buttons lack desktop logic parity, victory lap is out of sync with stack updates, missing anchoring and UI metadata (index, start time).
+- **Flavor**: [FEAT/UX-PARITY]
+- **Component**: `LeanStackView` / `StackController`.
+
+### Triage Verdict
+The mobile stack requires a structural refactor to share logic with the desktop stack and `TriageView`. The UX gap between platforms is creating friction during mobile sessions.
+
+### Routing
+- **Recipient**: Atlas Guardian (AG) for "Parity Protocol" audit.
+- **Mission**: FEAT-008 (Mobile Stack Parity).
+- **Priority**: High (Immediate user focus).
+- **Status**: **PIPELINED -> FEAT-008**.

@@ -10,7 +10,7 @@ Every significant change follows this "Strict TDD" loop:
 3.  **Implementation Plan**: Antigravity creates an `implementation_plan.md` artifact. **Work stops** until USER approves (with a "yay" or similar).
 4.  **Red (Tests First)**: Antigravity writes a failing Unit or E2E test, referencing the AC ID and related `[[Concept Atlas]]` mechanics.
 5.  **Green (Implementation)**: Antigravity writes code to pass the test. Follow the **Atomic Feedback Loop** from the Atlas Skill if mechanics change.
-6.  **Blue (Verification)**: Antigravity runs the **full suite** to ensure no regressions.
+6.  **Blue (Verification)**: The **Verification Officer (VO)** runs the **full suite** and performs a "Skeptical Audit" to ensure no regressions and UX coherence.
 7.  **Archive**: The story/spec is moved to `docs/archive/backlog/`.
 
 

@@ -13,3 +13,4 @@ Defines the constraints and interaction patterns for mobile devices.
 ## Mechanics Applied
 - `[[CIRCULAR_LOOP]]`: Prevents "dead ends" in the execution flow.
 - `[[VICTORY_LAP]]`: Finalizes a session summary.
+- `[[OPTIMISTIC_SOVEREIGNTY]]`: Decouples UI from disk latency (Critical for 8GB RAM / high-latency storage).

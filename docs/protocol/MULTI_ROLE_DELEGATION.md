@@ -13,6 +13,11 @@ This protocol defines how different responsibilities are delegated within the To
 | **Release Manager (RM)** | Release Audit & Execution | `Mission Log`, `Shipment Report` |
 | **Process Governor (PG)** | Holistic Coordination & Oversight | All folders, Escalation decisions |
 
+### The Skeptical Mindset (VO)
+The **Verification Officer** is conceptually distinct from the **Implementation Lead**. While the IL builds "to spec," the VO tests "to fail." 
+- The VO's primary focus is the **User Contract** (as defined in `USER_STORIES.md` and `JOURNEYS.md`).
+- If an implementation works technically but creates a poor user experience, the VO rejects it.
+
 ---
 
 ## Output Architecture
@@ -75,7 +80,14 @@ Roles are invoked at the start of a session or task. To "become" a role, the age
 When new user feedback or a fresh task is received, the session ALWAYS begins with the **Process Governor (PG)**.
 - **Action**: PG scans the `common/` folder, triages the input, and "calls" the next role (usually the AG for distillation).
 
-### 2. Role Skill Personas
+### 2. VO Triggers (When to call the Sentry)
+The **Verification Officer (VO)** MUST be invoked in the following scenarios:
+1. **Closing Ritual**: Before any `ship.sh` execution.
+2. **Structural Change**: When core controllers or persistence services are modified.
+3. **Multi-Platform Sync**: When a fix/feature targets both Desktop and Mobile.
+4. **The "Hard Mode" Loop**: For complex features (like FEAT-008), the VO is called *before* implementation to write the failing "Skeptical Specs."
+
+### 3. Role Skill Personas
 Each role has a dedicated skill file defining its expertise, attitude, and detailed process instructions:
 
 - **Process Governor**: [.agent/skills/roles/process_governor/SKILL.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/.agent/skills/roles/process_governor/SKILL.md)
