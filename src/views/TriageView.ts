@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, type Modifier } from 'obsidian';
+import { ItemView, WorkspaceLeaf, type Modifier, Notice } from 'obsidian';
 import { mount, unmount } from 'svelte';
 import TriageViewSvelte from './TriageView.svelte';
 import { type TaskNode } from '../scheduler.js';
@@ -142,7 +142,10 @@ export class TriageView extends ItemView {
                 };
 
                 if (this.component && typeof this.component.addTaskToQueue === 'function') {
+                    if (this.logger) this.logger.info(`[TriageView] Adding NEW task to queue: ${result.title}`);
                     this.component.addTaskToQueue(tempNode);
+                } else if (this.logger) {
+                    this.logger.error(`[TriageView] CRITICAL: addTaskToQueue MISSING on component!`);
                 }
 
                 // Background: Create actual file
@@ -158,19 +161,30 @@ export class TriageView extends ItemView {
             } else if (result.type === 'file' && result.file) {
                 // BUG-012: Handle existing file selection
                 const file = result.file;
+                const cleanTitle = parseTitleFromFilename(file.name).replace(/\.md$/, '');
                 const newNode: TaskNode = {
                     id: file.path,
-                    title: parseTitleFromFilename(file.name),
+                    title: cleanTitle,
                     duration: 30,
                     status: 'todo' as const,
                     isAnchored: false,
                     children: []
                 };
 
-                if (newNode && this.component) {
-                    if (typeof this.component.addTaskToQueue === 'function') {
-                        this.component.addTaskToQueue(newNode);
+                try {
+                    // 1. Optimistic UI + Async Disk Sync
+                    // The 'true' flag tells the component/controller to handle persistence
+                    if (this.component && typeof this.component.addTaskToQueue === 'function') {
+                        if (this.logger) this.logger.info(`[TriageView] Adding EXISTING task to queue: ${newNode.title}`);
+                        this.component.addTaskToQueue(newNode, true);
+                        new Notice(`Added to Triage: ${newNode.title}`);
+                    } else if (this.logger) {
+                        this.logger.error(`[TriageView] CRITICAL: addTaskToQueue MISSING on component!`);
                     }
+                } catch (err) {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    if (this.logger) this.logger.error(`[TriageView] Error during existing task selection: ${msg}`);
+                    new Notice("Failed to add existing task to triage.");
                 }
             }
         }, VIEW_TYPE_TRIAGE);

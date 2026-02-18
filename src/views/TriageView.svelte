@@ -120,10 +120,10 @@
         return `translateX(${deltaX}px) rotate(${rotation}deg)`;
     });
 
-    export function addTaskToQueue(task: TaskNode) {
-        if (logger) logger.info(`[TriageView.svelte] addTaskToQueue called with: ${task.title}`);
+    export function addTaskToQueue(task: TaskNode, persist: boolean = false) {
+        if (logger) logger.info(`[TriageView.svelte] addTaskToQueue called with: ${task.title}, persist: ${persist}`);
         if (controller) {
-            controller.addTask(task);
+            controller.addTask(task, persist);
             // If we were at the end (null task), refresh to show the new one
             if (!currentTask) {
                 if (logger) logger.info('[TriageView.svelte] End of queue reached, refreshing currentTask');

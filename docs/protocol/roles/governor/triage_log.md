@@ -75,3 +75,23 @@ The report suggests a failure in the event chain when selecting an existing mark
 - [x] Mission Log formally closed.
 - **Final Status**: **RESOLVED/CLOSED**.
 
+
+## Session Entry: 2026-02-17 23:25 (Governance Reconciliation)
+
+### Input Analysis
+- **Source**: Governance Audit
+- **Content**: Reconciling `v1.2.68` state and backlog discrepancy.
+- **Verdict**: Repository synced to `v1.2.68`. `BUG-012` status corrected.
+
+### Routing
+- **Recipient**: Diagnostic Engineer (DE)
+- **Request**: Perform final Linux-specific check for `BUG-012` before archiving.
+- **Status**: **COMPLETE**.
+
+### Results (2026-02-18 08:00)
+- **Finding**: Confirmed on Linux (8GB RAM). Root cause: Missing background disk persistence + UI thread blocking.
+- **Action**: Implemented "Optimistic UI" (Immediate View Refresh) and Async Disk Sync (Non-blocking `vault.process`).
+- **Audit**: Architecture Audit enforced performance constraints for 8GB hardware.
+- **Verification**: E2E Journey `mobile_triage_existing_task.spec.ts` passed on Linux.
+- **Final Status**: **RESOLVED/ARCHIVED**.
+- **Next Action**: Triage next roadmap item (BUG-021 or BUG-007).

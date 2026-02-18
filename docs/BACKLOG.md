@@ -8,7 +8,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 1: Interaction & Space Sovereignty (The Foundation)
 | ID | Title | Type | Spec |
 | :--- | :--- | :--- | :--- |
-| BUG-021 | Schedule Recalculation Jank during Gestures | Bug | [Spec](./backlog/BUG-021_freeze_on_interaction.md) |
+| BUG-021 | Schedule Recalculation Jank during Gestures | Bug | [Spec](./backlog/BUG-021_freeze_on_interaction.md) | **[DIAGNOSE]** |
 | FEAT-003 | Mobile Modal Capture Side-Channel | Feat | [Spec](./backlog/FEAT-003_modal_capture_mobile.md) |
 
 ### Elias 1.1 Features (Shipped)
@@ -28,7 +28,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | BUG-016 | Mobile: Keyboard and ghost space cover editor | Bug | [Spec](./archive/backlog/BUG-016_mobile_keyboard_collision.md) | 2026-02-11 | v1.2.65 |
 | BUG-011 | Mobile: Card body drag-and-drop not working | Bug | [Spec](./archive/backlog/BUG-011_mobile_card_body_drag.md) | 2026-02-11 | v1.2.65 |
-| BUG-012 | Mobile: Existing Task Selection via FAB -> Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-11 | **[PLANNED]** |
+| BUG-012 | Mobile: Existing Task Selection via FAB -> Triage Queue | Bug | [Spec](./archive/backlog/BUG-012_existing_task_fab_not_added_to_triage.md) | 2026-02-18 | v1.2.69 (Pending Ship) |
 | BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-11 | **[PLANNED]** |
 | BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-11 | **[PLANNED]** |
 | STAB-01 | E2E Stabilization (Rollup & Race Conditions) | Bug | - | 2026-02-12 | v1.2.42 |

@@ -26,10 +26,15 @@ export class TriageController {
         if (this.logger) this.logger.info(`[TriageController] Initialized with ${tasks.length} tasks.`);
     }
 
-    addTask(task: TaskNode) {
-        if (this.logger) this.logger.info(`[TriageController] addTask entry: ${task.title}, Index: ${this.index}, Total Tasks before: ${this.tasks.length}`);
+    addTask(task: TaskNode, persist: boolean = false) {
+        if (this.logger) this.logger.info(`[TriageController] addTask entry: ${task.title}, Persist: ${persist}`);
         this.tasks.push(task);
-        if (this.logger) this.logger.info(`[TriageController] Added task to queue: ${task.title}. Total tasks: ${this.tasks.length}`);
+        if (persist) {
+            this.updateFlowState(task.id, 'dump').catch(err => {
+                const msg = err instanceof Error ? err.message : String(err);
+                if (this.logger) this.logger.error(`[TriageController] Persistent update failed for ${task.id}: ${msg}`);
+            });
+        }
     }
 
     getCurrentTask(): TaskNode | null {
@@ -71,7 +76,7 @@ export class TriageController {
         this.index++;
     }
 
-    private async updateFlowState(path: string, state: string) {
+    public async updateFlowState(path: string, state: string) {
         if (this.logger) await this.logger.info(`[TriageController] updateFlowState: Setting ${path} to "${state}"`);
         const file = this.app.vault.getAbstractFileByPath(path);
         if (file && (file as any).extension === 'md') {

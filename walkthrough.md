@@ -1,39 +1,27 @@
-# Walkthrough: Repository Synchronization & Collision Fix
+# Walkthrough - BUG-012 Fix: Existing Task Addition
 
-I have successfully pulled the latest changes from GitHub, purged all local specialties, and resolved a persistent file collision issue.
+Resolved the race condition and missing persistence when adding existing files to the Triage queue.
 
 ## Changes Made
-
-### 1. Repository Synchronization
-- Pulled latest changes from `origin main`, bumping the project version to `1.2.66`.
-- Purged all untracked files and local modifications to ensure a 1:1 match with the GitHub state.
-
-## BUG-012 Verification (macOS) - **CLOSED**
-The failure to add existing tasks to the triage queue via the FAB button was investigated on macOS. Technical forensics confirm the logical core handles this correctly.
-
-### Results
-- ✅ **Unreproducible on macOS**: Verified via [BUG-012_macOS_Forensics.test.ts](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/tests/forensics/BUG-012_macOS_Forensics.test.ts).
-- ✅ **QuickAdd Integrity**: Verified that file selections correctly trigger `addTaskToQueue`.
-- ✅ **UI State Resilience**: Verified that adding a task correctly resets the "Done" screen.
-- ✅ **Mission Formally Closed**: Logged in [MISSION_LOG.md](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/docs/protocol/roles/common/MISSION_LOG.md) and [triage_log.md](file:///Users/i525277/github/obsidian_plugin_for_todo_flow/docs/protocol/roles/governor/triage_log.md).
-
-### 2. Case-Sensitivity Resolution
-- **Issue**: GitHub tracked both `IMPLEMENTATION_PLAN.md` and `implementation_plan.md` in the same directory. On macOS, this caused a collision where Git always saw one as modified.
-- **Fix**: Renamed the uppercase version to unique name `WATCHER_SILENCING_DRAFT.md`.
-- **Note**: This fix was pushed during the session and is already on `main`.
-
-### 3. GitHub Push & Authentication
-- **Action**: Used `gh auth switch` to change the active account to `ivantorok`.
-- **Result**: Successfully pushed the fix to the remote repository.
+- **[TriageController]**: Exposed `updateFlowState` as a public method to allow background disk synchronization.
+- **[TriageView.ts]**: 
+    - Implemented **Optimistic UI**: The task is added to the Svelte component immediately.
+    - Added **Async Disk Sync**: `flow_state: dump` is updated on disk in a non-blocking `vault.process` call.
+    - Added **UI Feedback**: `new Notice()` confirms the addition to the user.
+    - Sanitized titles by stripping the `.md` extension.
+- **[TriageView.svelte]**: Updated to pass the `persist` flag to the controller during task addition.
 
 ## Verification Results
 
-### Git Status
-```bash
-On branch main
-Your branch is up to date with 'origin/main'.
-nothing to commit, working tree clean
-```
+### Automated Tests
+- **Unit Repro**: `tests/repro/BUG-012_linux_repro.test.ts` passed (100%).
+- **E2E Journey**: `tests/e2e/journeys/mobile_triage_existing_task.spec.ts` verified on Linux.
 
-### File Existence
-Both files are preserved locally under their unique names, and references to the standard `implementation_plan.md` convention remain valid.
+### Manual Verification Path
+1. Open Triage.
+2. Click the FAB "+" button.
+3. Select an existing task from the file suggester.
+4. **Expected**: The task appears in the Triage stack immediately, a Notice confirms the action, and the file metadata is updated on disk.
+
+render_diffs(file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/views/TriageView.ts)
+render_diffs(file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/views/TriageController.ts)

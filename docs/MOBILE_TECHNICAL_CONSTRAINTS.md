@@ -37,8 +37,8 @@ These are demands that sound good on paper but fight each other in reality.
 
 ### C. "The Instant Permanent"
 *   **Demand**: "The app should feel instant and snappy, but I need to be 100% sure my data is saved to a file on disk before I move to the next thing."
-*   **The Conflict**: Writing to a file (Disk I/O) takes time. If the UI waits for the file to save, it feels sluggish.
-*   **The Resolution**: **Optimistic UI**. Update the screen instantly (assuming success) and handle the slow disk write in the background.
+*   **The Conflict**: Writing to a file (Disk I/O) takes time. If the UI waits for the file to save, it feels sluggish. On Linux hardware with limited RAM (e.g., 8GB), synchronous I/O can cause the Main Thread to lock during UI render cycles, resulting in "stuck" interactions.
+*   **The Resolution**: **Optimistic UI**. Update the screen instantly (assuming success) and handle the slow disk write in the background (using non-blocking `vault.process`). assumptions: the UI state is Svelte-native and assumes success before the disk ACK.
 
 ### D. "The Native Web App"
 *   **Demand**: "It should feel exactly like a native iOS/Android app, but it should run inside the Obsidian browser and use the same code as the Desktop version."

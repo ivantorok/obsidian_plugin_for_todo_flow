@@ -51,3 +51,12 @@ This document serves as the "Persistent Memory" for agents working on the Todo F
 - **Fix**: Wrap `mount()` in a try-catch block and log the error message + stack to a global array (e.g., `window._logs`). Use `browser.getLogs('browser')` in E2E failures to capture the exact exception.
 - **Pattern**: When using `$derived` values that depend on cross-platform props (like `isMobileProp`), ensure the prop is declared as `$state` before any function usage to avoid ReferenceErrors during initial reactive tracking.
 - **Reference**: v1.2.42 release (Rollup Spec Fix).
+
+### Async Disk Sync Latency (Verification)
+- **Issue**: When using "Optimistic UI" with background disk I/O (e.g., `vault.process`), E2E tests may read the file before the background write completes, leading to false negatives.
+- **Fix**: Implement a robust retry loop (5-10s window) in `browser.execute` blocks when verifying disk persistence.
+- **Pattern**: [Reference BUG-012 E2E Fix](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/tests/e2e/journeys/mobile_triage_existing_task.spec.ts).
+
+### Build Artifact Integrity (E2E)
+- **Issue**: E2E tests may run against stale `main.js` files if the build process is skipped after source code changes, making bugs appear unresolveable.
+- **Fix**: Always enforce `npm run build` before E2E verification cycles when `src/` has changed.

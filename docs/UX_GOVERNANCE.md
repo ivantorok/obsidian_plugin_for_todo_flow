@@ -48,7 +48,7 @@ To prevent "Obsidian Ghosting," Todo Flow uses deterministic intent locking.
 - **Immersion Capture Architecture**:
     - **Top-Docking**: Input fields MUST be docked to the top of the viewport to prevent occlusion by virtual keyboards.
     - **Direct-to-Stack**: New ideas captured during an active stack session are appended directly to the current stack file to maintain flow.
-- **Optimistic UI Pattern**: For high-latency operations like task creation, the UI MUST update immediately to reflect intent. The backing system performs disk I/O asynchronously. If the operation fails, the UI must self-correct (revert), but the happy path assumes success to maintain flow.
+- **Optimistic UI Pattern**: For high-latency operations like task creation or state-only metadata updates, the UI MUST update immediately to reflect intent. The backing system performs disk I/O asynchronously (using `vault.process` for non-blocking persistence). This decoupling ensures "Interaction Sovereignty" remains intact even on high-latency hardware (e.g., 8GB RAM Linux).
 - **Atomic Handoff Synchronization**: Any view transition (e.g., Dump -> Triage, Triage -> Stack) MUST be treated as an atomic operation. The departing view MUST await the successful initialization of the arriving view before closing to prevent "Host Leak" (flashing of the Obsidian background) and ensure focus sovereignty is maintained throughout the handover.
 
 ---

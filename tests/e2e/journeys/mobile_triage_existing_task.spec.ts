@@ -15,6 +15,8 @@ describe('Mobile Triage Existing Task Selection (BUG-012)', () => {
             const plugin = app.plugins.plugins['todo-flow'];
             if (plugin) {
                 plugin.settings.targetFolder = 'todo-flow';
+                plugin.settings.debug = true;
+                if (plugin.logger) plugin.logger.setEnabled(true);
                 await plugin.saveSettings();
             }
         });
@@ -24,9 +26,9 @@ describe('Mobile Triage Existing Task Selection (BUG-012)', () => {
         await cleanupVault();
     });
 
-    after(async function () {
-        await cleanupVault();
-    });
+    //    after(async function () {
+    //        await cleanupVault();
+    //    });
 
     it('should add existing task to triage queue when selected via FAB', async () => {
         // 1. Create a dump task that will be in triage initially
@@ -102,8 +104,32 @@ flow_state: backlog
         const updatedContainer = await $('.todo-flow-triage-container');
         await expect(updatedContainer).toBeDisplayed();
 
-        // And it should show the "BacklogTaskToAdd" title (derived from filename)
         // Hardened: using async matcher with built-in retries to avoid flakiness under load
         await expect(updatedContainer).toHaveText(expect.stringMatching(/BACKLOGTASKTOADD/i));
+
+        // 10. Verify disk persistence with retries (BUG-012)
+        const persistenceCheck = await browser.execute(async () => {
+            const path = 'todo-flow/BacklogTaskToAdd.md';
+            const maxRetries = 10;
+            const delay = 500;
+
+            for (let i = 0; i < maxRetries; i++) {
+                // @ts-ignore
+                const file = app.vault.getAbstractFileByPath(path);
+                if (file) {
+                    // @ts-ignore
+                    const content = await app.vault.read(file);
+                    if (content.includes('flow_state: dump')) return 'SUCCESS';
+                }
+                await new Promise(r => setTimeout(r, delay));
+            }
+
+            // Final check output for debugging if it failed
+            // @ts-ignore
+            const file = app.vault.getAbstractFileByPath(path);
+            const finalContent = file ? await app.vault.read(file) : 'FILE_NOT_FOUND';
+            return `FAILURE: ${finalContent}`;
+        });
+        await expect(persistenceCheck).toBe('SUCCESS');
     });
 });
