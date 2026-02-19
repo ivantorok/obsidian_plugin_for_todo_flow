@@ -1124,6 +1124,9 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
                     {/if}
                 </button>
+                <span class="header-index" title="Current Task Position">
+                    {focusedIndex + 1} <span class="index-separator">/</span> {tasks.length}
+                </span>
                 <span class="header-time">{internalNow.format('HH:mm')}</span>
             </div>
         </div>
@@ -1397,6 +1400,38 @@
 
     .todo-flow-stack-container.is-dragging {
         user-select: none !important;
+        cursor: grabbing !important;
+    }
+
+    /* Enhanced Drag Feedback */
+    :global(.todo-flow-task-card.dragging) {
+        box-shadow: 0 16px 32px rgba(0,0,0,0.2) !important;
+        transform: scale(1.05) !important;
+        z-index: 9999 !important;
+        opacity: 0.9 !important;
+        background: var(--interactive-accent) !important;
+        color: var(--text-on-accent) !important;
+    }
+
+    :global(.todo-flow-task-card.dragging .title) {
+        color: var(--text-on-accent) !important;
+    }
+
+    :global(.todo-flow-task-card.dragging .drag-handle) {
+        color: var(--text-on-accent) !important;
+        opacity: 1 !important;
+    }
+
+    /* Mobile Drag Handle Target (BUG-006) */
+    @media (max-width: 600px) {
+        :global(.todo-flow-task-card .drag-handle) {
+            padding: 0 1rem !important; /* Wider hit area */
+            min-width: 44px !important;    /* Apple HIG minimum */
+            font-size: 1.5rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     }
 
     .todo-flow-stack-container.is-dragging * {
@@ -1418,6 +1453,20 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+    }
+
+    .header-index {
+        font-family: var(--font-monospace);
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-right: 0.75rem;
+        font-weight: 600;
+        opacity: 0.8;
+    }
+
+    .index-separator {
+        opacity: 0.5;
+        margin: 0 2px;
     }
 
     .back-nav-btn {
