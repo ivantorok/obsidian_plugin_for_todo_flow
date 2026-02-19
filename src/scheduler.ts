@@ -12,7 +12,9 @@ export interface TaskNode {
     trace?: string[]; // Audit trail for duration roll-up
     isMissing?: boolean;
     isPartial?: boolean;
-    flow_state?: 'shortlist' | 'archived' | 'trash' | 'parked';
+    flow_state?: 'shortlist' | 'archived' | 'trash';
+    _loadedAt?: number; // Timestamp of last disk load for conflict resolution
+    rootPath?: string; // Original search path for cross-vault disambiguation
 }
 
 /**
@@ -60,9 +62,11 @@ function getMinDurationWithAudit(root: TaskNode, registry?: TaskRegistry): { tot
         }
 
         visited.add(current.id);
-        const contribution = current.originalDuration ?? current.duration;
+        // Use originalDuration as the "own" contribution of this node.
+        // If it's missing, we only trust duration if the node is a leaf (likely not a rollup).
+        const contribution = current.originalDuration ?? (current.children?.length === 0 ? current.duration : 0);
         total += contribution;
-        trace.push(`+${contribution}m from ${current.title}`);
+        if (contribution > 0) trace.push(`+${contribution}m from ${current.title}`);
 
         if (current.children) {
             for (const child of current.children) {
@@ -137,7 +141,9 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment): 
     }
 
     const result: TaskNode[] = tasks.map(t => {
-        const ownDuration = t.originalDuration ?? t.duration;
+        // Base case: If we have children, duration is SUSPECT unless originalDuration is present.
+        const isLeaf = !t.children || t.children.length === 0;
+        const ownDuration = t.originalDuration ?? (isLeaf ? t.duration : 0);
         const { total: totalDuration, trace } = getTotalGreedyDuration(t, registry);
 
         // Use resolved rock time if it exists, otherwise use original

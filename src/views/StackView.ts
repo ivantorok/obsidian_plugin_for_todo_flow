@@ -41,6 +41,21 @@ export class StackView extends ItemView {
     private lastSavedIds: string[] = [];
     private saveTimeout: number | null = null;
     private flushResolvers: (() => void)[] = [];
+    private persistenceLockCount: number = 0;
+    private isSyncing: boolean = false;
+    private syncCheckInterval: number | null = null;
+
+    setIsSyncing(val: boolean) {
+        this.isSyncing = val;
+        if (this.component) {
+            // @ts-ignore
+            this.component.setIsSyncing(val);
+        }
+    }
+
+    requestUpdate() {
+        this.reload();
+    }
 
     constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, viewManager: ViewManager, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined, parentPath?: string | undefined }) => Promise<TaskNode>) {
         super(leaf);
@@ -87,6 +102,51 @@ export class StackView extends ItemView {
                 }
             }
         });
+
+        // Sync Sentry: Monitor Obsidian Sync status
+        this.setupSyncSentry();
+
+        // Reactive Sync: Listen for external task file changes
+        this.registerEvent(this.app.metadataCache.on('changed', async (file) => {
+            if (!(file instanceof TFile)) return;
+
+            // If the changed file is in our current stack, re-parse it
+            const taskIndex = this.tasks.findIndex(t => t.id === file.path);
+            if (taskIndex !== -1) {
+                if (this.logger) this.logger.info(`[StackView] External change detected for ${file.path}. Re-parsing metadata.`);
+                const metadata = await this.loader.parser.resolveTaskMetadata(file.path);
+                if (metadata) {
+                    const task = this.tasks[taskIndex]!;
+                    // Update our in-memory task with new disk values
+                    Object.assign(task, metadata);
+                    (task as any)._loadedAt = Date.now(); // Update mtime guard anchor
+
+                    if (this.component && this.component.update) {
+                        this.component.update();
+                    }
+                }
+            }
+        }));
+    }
+
+    private setupSyncSentry() {
+        const checkSync = () => {
+            const syncPlugin = (this.app as any).internalPlugins?.getPluginById('sync');
+            const isActive = syncPlugin?.instance?.status === 'syncing' ||
+                syncPlugin?.instance?.status === 'downloading' ||
+                syncPlugin?.instance?.status === 'uploading';
+
+            if (isActive !== this.isSyncing) {
+                this.isSyncing = isActive;
+                if (this.component && this.component.setIsSyncing) {
+                    this.component.setIsSyncing(this.isSyncing);
+                }
+            }
+        };
+
+        // Poll every 2 seconds for sync status
+        this.syncCheckInterval = window.setInterval(checkSync, 2000);
+        checkSync();
     }
 
     getViewType() {
@@ -250,8 +310,8 @@ export class StackView extends ItemView {
         modal.open();
     }
 
-    async reload(): Promise<void> {
-        if (this.logger) await this.logger.info(`[StackView] Reload triggered. Calling flushPersistence and navManager.refresh(). NOW=${Date.now()}`);
+    async reload(force: boolean = false): Promise<void> {
+        if (this.logger) await this.logger.info(`[StackView] Reload triggered (force=${force}). Calling flushPersistence and navManager.refresh(). NOW=${Date.now()}`);
         await this.flushPersistence();
         await this.navManager.refresh();
     }
@@ -259,9 +319,78 @@ export class StackView extends ItemView {
     async flushPersistence(): Promise<void> {
         if (!this.saveTimeout) return;
         this.logger.info(`[StackView] Flush requested.`);
+
+        // If locked, we MUST clear the lock or wait. 
+        // For flush, we force immediate execution by clearing the timeout.
+        if (this.saveTimeout) {
+            window.clearTimeout(this.saveTimeout);
+            await this.performSave();
+        }
+
         return new Promise((resolve) => {
             this.flushResolvers.push(resolve);
+            // If nothing was pending after performSave, resolve now
+            if (!this.saveTimeout) {
+                const resolvers = [...this.flushResolvers];
+                this.flushResolvers = [];
+                resolvers.forEach(res => res());
+            }
         });
+    }
+
+    /**
+     * Lock persistence during active user interaction (swiping/dragging)
+     * to prevent UI jank from disk I/O.
+     */
+    public lockPersistence() {
+        this.persistenceLockCount++;
+        if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence LOCKED (count: ${this.persistenceLockCount})`);
+    }
+
+    /**
+     * Unlock persistence and trigger a save if one was pending.
+     */
+    public unlockPersistence() {
+        this.persistenceLockCount = Math.max(0, this.persistenceLockCount - 1);
+        if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence UNLOCKED (count: ${this.persistenceLockCount})`);
+
+        if (this.persistenceLockCount === 0 && this.saveTimeout) {
+            // Re-trigger the debounced save immediately now that interaction is done
+            if (this.logger && this.settings.debug) this.logger.info(`[StackView] interaction-idle: triggering pending save`);
+            this.triggerSave(0); // Immediate but still via triggerSave for consistency
+        }
+    }
+
+    private async performSave() {
+        if (!this.lastTasksForSave) return;
+        const tasks = this.lastTasksForSave;
+        const currentIds = tasks.map(t => `${t.id}:${t.status}`);
+        const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+        const savePath = (this.rootPath && this.rootPath.includes('CurrentStack.md')) ? this.rootPath : persistencePath;
+
+        try {
+            await this.persistenceService.saveStack(tasks, savePath);
+            this.lastSavedIds = currentIds;
+        } finally {
+            this.saveTimeout = null;
+            this.lastTasksForSave = null;
+            const resolvers = [...this.flushResolvers];
+            this.flushResolvers = [];
+            resolvers.forEach(resolve => resolve());
+        }
+    }
+
+    private lastTasksForSave: TaskNode[] | null = null;
+    private triggerSave(delay: number = 500) {
+        if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
+
+        this.saveTimeout = window.setTimeout(async () => {
+            if (this.persistenceLockCount > 0) {
+                if (this.logger && this.settings.debug) this.logger.info(`[StackView] Save deferred: active interaction lock`);
+                return; // Will be re-triggered by unlockPersistence
+            }
+            await this.performSave();
+        }, delay);
     }
 
     private isModalOpen: boolean = false;
@@ -356,19 +485,8 @@ export class StackView extends ItemView {
                             const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
 
                             if (idsChanged) {
-                                if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
-                                this.saveTimeout = window.setTimeout(async () => {
-                                    const savePath = (this.rootPath && this.rootPath.includes('CurrentStack.md')) ? this.rootPath : persistencePath;
-                                    try {
-                                        await this.persistenceService.saveStack(tasks, savePath);
-                                        this.lastSavedIds = currentIds;
-                                    } finally {
-                                        this.saveTimeout = null;
-                                        const resolvers = [...this.flushResolvers];
-                                        this.flushResolvers = [];
-                                        resolvers.forEach(resolve => resolve());
-                                    }
-                                }, 500);
+                                this.lastTasksForSave = tasks;
+                                this.triggerSave(500);
                             }
                         }
                     },
@@ -474,6 +592,17 @@ export class StackView extends ItemView {
                             }
                             await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true } as any);
                         }
+                    },
+                    lockPersistence: () => this.lockPersistence(),
+                    unlockPersistence: () => this.unlockPersistence(),
+                    isSyncing: this.isSyncing,
+                    onSyncStatusChange: (isSyncing: boolean) => {
+                        this.isSyncing = isSyncing;
+                        if (this.logger) this.logger.info(`[StackView] Sync status changed: ${isSyncing}`);
+                    },
+                    onMetadataCacheChange: async () => {
+                        if (this.logger) this.logger.info(`[StackView] Metadata cache changed. Reloading tasks.`);
+                        await this.reload(true); // Force reload from disk
                     }
                 }
             });
@@ -532,6 +661,7 @@ export class StackView extends ItemView {
 
     async onClose() {
         if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
+        if (this.syncCheckInterval) window.clearInterval(this.syncCheckInterval);
         if (this.navManager) this.navManager.destroy();
         if (this.component) unmount(this.component);
     }

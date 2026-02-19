@@ -41,6 +41,8 @@
         onGoBack,
         onExport,
         onFocusChange,
+        lockPersistence,
+        unlockPersistence,
         debug = true
     } = $props();
 
@@ -54,6 +56,11 @@
     });
     
     let isMobileProp = $state(initialNavState?.isMobile || false);
+    let viewMode = $state<'focus' | 'architect'>(initialNavState?.isMobile ? 'focus' : 'architect');
+    export function setViewMode(mode: 'focus' | 'architect') {
+        viewMode = mode;
+    }
+    let navigationHistory = $derived(navState?.history || []);
     
     export function setNavState(newState: StackUIState) {
         if (logger && internalSettings.debug) logger.info(`[StackView.svelte] setNavState received: tasks=${newState.tasks.length}, focus=${newState.focusedIndex}`);
@@ -258,6 +265,13 @@
             internalParentTaskName = currentNavState.parentTaskName;
             internalCanGoBack = currentNavState.canGoBack;
             isMobileProp = currentNavState.isMobile;
+
+            // SYNC MODE: If we just received a mobile state for the first time, 
+            // and we haven't manually changed the mode, default to 'focus'.
+            if (isMobileProp && viewMode === 'architect') {
+                if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Defaulting viewMode to 'focus' due to mobile detection`);
+                viewMode = 'focus';
+            }
         });
     });
 
@@ -459,6 +473,10 @@
 
     // Gesture Handlers
     function handlePointerStart(e: PointerEvent, taskId: string) {
+        if (isSyncing) {
+            // No notice for pointer start to avoid spamming on scrolls
+            return;
+        }
         if (editingIndex !== -1 || editingStartTimeIndex !== -1) return;
         if (!(window as any)._logs) (window as any)._logs = [];
         (window as any)._logs.push(`[GESTURE] pointerdown taskId=${taskId} isPrimary=${e.isPrimary} button=${e.button}`);
@@ -476,6 +494,7 @@
         touchCurrentY = touchStartY;
         swipingTaskId = taskId;
         
+        if (lockPersistence) lockPersistence();
         if (controller) controller.freeze();
         
         // Detect if we started on the handle for immediate reorder intent
@@ -625,6 +644,7 @@
             dragLogged = false;
             lastDragEndTime = Date.now();
             
+            if (unlockPersistence) unlockPersistence();
             if (controller) controller.unfreeze();
             
             // IMPORTANT: If we just finished a drag, we don't want to trigger a swipe
@@ -650,6 +670,7 @@
             }
         }
 
+        if (unlockPersistence) unlockPersistence();
         if (controller) controller.unfreeze();
 
         swipingTaskId = null;
@@ -658,6 +679,7 @@
     }
 
     function handlePointerCancel(e: PointerEvent) {
+        if (unlockPersistence) unlockPersistence();
         if (controller) controller.unfreeze();
         swipingTaskId = null;
         draggingTaskId = null;
@@ -733,6 +755,10 @@
     }
 
     async function handleTap(e: MouseEvent, task: TaskNode, index: number) {
+        if (isSyncing) {
+            new (window as any).Notice("Syncing in progress. Please wait...");
+            return;
+        }
         if (editingIndex !== -1 || editingStartTimeIndex !== -1) return;
         if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] handleTap: index=${index}, focused=${focusedIndex}, event=${e.type}, x=${e.clientX}, y=${e.clientY}, detail=${e.detail}, button=${e.button}, target=${(e.target as HTMLElement).tagName}`);
         // Prevent click events if we just finished a drag
@@ -772,13 +798,13 @@
                 if (navResult) {
                     if (navResult.action === 'DRILL_DOWN') {
                         if (task && onNavigate) {
-                            onNavigate(task.id, index);
+                            onNavigate(task.id, focusedIndex); 
                         }
                     } else if (navResult.action === 'OPEN_FILE' && navResult.path) {
                         if (onNavigate) {
-                            onNavigate(navResult.path, index);
+                            onNavigate(navResult.path, focusedIndex);
                         } else {
-                            onNavigate(navResult.path, index);
+                            onNavigate(navResult.path, focusedIndex);
                         }
                     }
                 }
@@ -810,6 +836,10 @@
     }
 
     export async function handleKeyDown(e: KeyboardEvent) {
+        if (isSyncing) {
+            new (window as any).Notice("Syncing in progress. Please wait...");
+            return;
+        }
         if (logger && internalSettings.debug) logger.info(`[TODO_FLOW_TRACE] handleKeyDown entry: key="${e.key}", shift=${e.shiftKey}, target=${(e.target as HTMLElement).tagName}, active=${document.activeElement?.tagName}`);
         
         // Robust Interference Check:
@@ -1032,6 +1062,12 @@
                 break;
         }
     }
+    let isSyncing = $state(false);
+
+    export function setIsSyncing(val: boolean) {
+        isSyncing = val;
+        if (debug) console.log(`[StackView] Sync status updated in UI: ${isSyncing}`);
+    }
 </script>
 
 
@@ -1040,11 +1076,14 @@
     bind:this={containerEl}
     class="todo-flow-stack-container" 
     class:is-mobile-layout={isMobileState}
+    class:is-syncing={isSyncing}
     data-is-mobile={isMobileState}
     data-testid="stack-container"
+    data-is-syncing={isSyncing}
     data-ui-ready={isReady}
     data-focused-index={focusedIndex}
     data-task-count={tasks.length}
+    data-view-mode={viewMode}
     class:is-dragging={draggingTaskId !== null}
     class:is-editing={editingIndex !== -1 || editingStartTimeIndex !== -1}
     tabindex="0"
@@ -1053,169 +1092,267 @@
 >
     {#if internalNow}
         <div class="todo-flow-stack-header">
-            {#if internalCanGoBack}
-                <button class="back-nav-btn" onclick={onGoBack} title="Go back to parent">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    <span>Back</span>
-                </button>
-            {/if}
-            {#if internalParentTaskName}
-                <span class="header-parent-name" data-testid="header-parent-name">{internalParentTaskName}</span>
-            {/if}
-            <span class="header-time">Starting at {internalNow.format('HH:mm')}</span>
-        </div>
-    {/if}
-    <div class="todo-flow-timeline">
-        {#each tasks as task, i (task.id)}
-            <div 
-                bind:this={taskElements[i]}
-                class="todo-flow-task-card" 
-                class:is-mobile={isMobileState}
-                data-testid="task-card-{i}"
-                class:is-focused={focusedIndex === i}
-                class:anchored={task.isAnchored}
-                class:is-done={task.status === 'done'}
-                class:is-missing={task.isMissing}
-                class:dragging={draggingTaskId === task.id}
-                class:drop-before={dragTargetIndex === i && i !== draggingStartIndex && i <= draggingStartIndex}
-                class:drop-after={dragTargetIndex === i && i !== draggingStartIndex && i > draggingStartIndex}
-                onclick={(e) => handleTap(e, task, i)}
-                onpointerdown={(e) => handlePointerStart(e, task.id)}
-                onpointermove={handlePointerMove}
-                onpointerup={(e) => handlePointerEnd(e, task)}
-                onpointercancel={handlePointerCancel}
+            <div class="header-left">
+                {#if internalCanGoBack}
+                    <button class="back-nav-btn" onclick={syncGuard(onGoBack)} title="Go back to parent">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </button>
+                {/if}
                 
-                use:touchBlocking={handleTouchBlocking}
-                style={isMobileState 
-                    ? `touch-action: none; transform: ${getCardTransform(task.id)}; flex-wrap: wrap !important; padding: 0.75rem !important; gap: 0.5rem !important;` 
-                    : `touch-action: none; transform: ${getCardTransform(task.id)};`}
-            >
-                <div 
-                    class="drag-handle" 
-                    title="Drag to reorder"
-                    style="touch-action: none;"
-                >⠿</div>
-                <div class="time-col" onpointerdown={(e) => e.stopPropagation()} onclick={(e) => { e.stopPropagation(); startEditStartTime(i); }}>
-                    {#if editingStartTimeIndex === i}
-                        <input 
-                            type="text" 
-                            class="todo-flow-time-input"
-                            value={task.startTime.format('HH:mm')}
-                            onkeydown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.stopPropagation();
-                                    finishEditStartTime(task.id, e.currentTarget.value);
-                                }
-                                if (e.key === 'Escape') {
-                                    e.stopPropagation();
-                                    editingStartTimeIndex = -1;
-                                }
-                            }}
-                            onblur={(e) => finishEditStartTime(task.id, e.currentTarget.value)}
-                             use:selectOnFocus
-                        />
-                    {:else}
-                        <span class="mobile-only-time">{formatDateRelative(task.startTime, internalNow, true)}</span>
-                        <span class="desktop-only-time">{formatDateRelative(task.startTime, internalNow)}</span>
-                        {#if task.isAnchored}
-                            <svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        {/if}
+                <div class="breadcrumb-trail">
+                    {#if navigationHistory.length > 0}
+                        <span class="breadcrumb-item root" onclick={onGoBack}>...</span>
+                        <span class="breadcrumb-separator">/</span>
+                    {/if}
+                    {#if internalParentTaskName}
+                        <span class="breadcrumb-item active" data-testid="header-parent-name">{internalParentTaskName}</span>
                     {/if}
                 </div>
-                <div class="content-col" class:mobile-layout={isMobileState}>
-                    {#if editingIndex === i}
-                        <input
-                            bind:this={renameInputs[i]}
-                            bind:value={renamingText}
-                            type="text"
-                            class="rename-input"
-                            data-testid="rename-input"
-                            onkeydown={(e) => { 
-                                if (e.key === 'Enter') {
-                                    e.stopPropagation();
-                                    finishRename(task.id, renamingText, 'submit');
-                                }
-                                if (e.key === 'Escape') {
-                                    e.stopPropagation();
-                                    cancelRename();
-                                }
-                            }}
-                            use:selectOnFocus
-                        />
+            </div>
+
+            <div class="header-right">
+                <span class="sync-sentry" class:is-active={isSyncing} data-testid="sync-sentry" data-is-active={isSyncing} title={isSyncing ? "Obsidian Sync Active" : "Obsidian Sync Idle"}>☁️</span>
+                <button 
+                    class="mode-toggle-btn" 
+                    class:is-active={viewMode === 'focus'}
+                    onclick={() => viewMode = viewMode === 'focus' ? 'architect' : 'focus'}
+                    title={viewMode === 'focus' ? 'Switch to Architect View' : 'Switch to Focus View'}
+                >
+                    {#if viewMode === 'focus'}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                     {:else}
-                        <button 
-                            class="title" 
-                            class:mobile-clamp={isMobileState}
-                            style={isMobileState ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal;" : ""}
-                            data-testid="task-card-title"
-                            onclick={() => startRename(i)} 
-                            title={task.isMissing ? "Note missing" : "Click to rename"} 
-                            role="button" 
-                            tabindex="0"
-                        >
-                            {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span> {/if}{task.title}
-                        </button>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
                     {/if}
-                    <div class="metadata" class:mobile-layout={isMobileState}>
-                        <div class="duration">
-                            <button 
-                                class="duration-btn minus" 
-                                onclick={(e) => { 
-                                    e.stopPropagation(); 
-                                    historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'down')); 
-                                    update(); 
-                                }}
-                                onpointerdown={(e) => e.stopPropagation()}
-                                title="Decrease Duration"
-                            >−</button>
-                            <span 
-                                class="duration-text clickable" 
-                                onclick={(e) => { e.stopPropagation(); openDurationPicker(i); }}
-                                onkeydown={(e) => { if (e.key === 'Enter') openDurationPicker(i); }}
-                                onpointerdown={(e) => e.stopPropagation()}
-                                tabindex="0"
-                                role="button"
-                            >
-                                {formatDuration(task.duration)}
-                            </span>
-                            <button 
-                                class="duration-btn plus" 
-                                onclick={(e) => {
-                                    e.stopPropagation();
-                                    historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up'));
-                                    update();
-                                }}
-                                onpointerdown={(e) => e.stopPropagation()}
-                                title="Increase Duration"
-                            >+</button>
-                            {#if getMinDuration(task) > 0}
-                                <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
-                            {/if}
+                </button>
+                <span class="header-time">{internalNow.format('HH:mm')}</span>
+            </div>
+        </div>
+    {/if}
+    <div class="todo-flow-timeline" class:mode-focus={viewMode === 'focus'}>
+        {#if viewMode === 'focus'}
+            {#if tasks.length > 0}
+                <!-- FOCUS MODE: Single Card Centerpiece -->
+                {@const task = tasks[focusedIndex]}
+                <div 
+                    bind:this={taskElements[focusedIndex]}
+                    class="todo-flow-task-card focus-card" 
+                    class:is-mobile={isMobileState}
+                    data-testid="focus-card"
+                    class:anchored={task.isAnchored}
+                    class:is-done={task.status === 'done'}
+                    onclick={(e) => handleTap(e, task, focusedIndex)}
+                    onpointerdown={(e) => handlePointerStart(e, task.id)}
+                    onpointermove={handlePointerMove}
+                    onpointerup={(e) => handlePointerEnd(e, task)}
+                    onpointercancel={handlePointerCancel}
+                    use:touchBlocking={handleTouchBlocking}
+                    style="touch-action: none; transform: {getCardTransform(task.id)};"
+                >
+                    <div class="focus-card-inner">
+                        <div class="focus-time-badge">
+                            {formatDateRelative(task.startTime, internalNow)}
+                        </div>
+                        
+                        <h1 class="focus-title">{task.title}</h1>
+                        
+                        <div class="focus-metadata">
+                            <span class="focus-duration-text">{formatDuration(task.duration)}</span>
                             {#if task.isAnchored}
-                                <div class="mobile-anchor-badge">⚓</div>
+                                <span class="focus-anchor-status">⚓ Anchored</span>
                             {/if}
+                        </div>
+
+                        <div class="focus-actions">
+                            <button class="focus-action-btn complete" data-testid="focus-complete-btn" onclick={syncGuard((e) => { e.stopPropagation(); executeGestureAction('complete', task, focusedIndex); })}>
+                                {task.status === 'done' ? 'Undo' : 'Complete'}
+                            </button>
+                            <button class="focus-action-btn" onclick={syncGuard((e) => { e.stopPropagation(); openDurationPicker(focusedIndex); })}>
+                                Adjust Time
+                            </button>
                         </div>
                     </div>
                 </div>
-                <!-- Desktop Anchor Badge -->
-                {#if task.isAnchored}
-                    <div class="anchor-badge desktop-only-anchor">⚓</div>
-                {/if}
-                {#if task.isMissing}
-                    <button 
-                        class="remove-orphan-btn" 
-                        onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new DeleteTaskCommand(controller, i)); update(); }}
-                        title="Remove missing task from stack"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                
+                <div class="focus-navigation-hints">
+                    <span class="hint">Swipe L/R to toggle status</span>
+                    <span class="hint">Tap to drill down</span>
+                </div>
+            {:else}
+                <!-- ZEN MODE: Focus Card -->
+                <div class="todo-flow-task-card focus-card zen-card" data-testid="zen-card">
+                    <div class="zen-icon">✨</div>
+                    <h1 class="zen-title">All Done</h1>
+                    <p class="zen-subtitle">Your stack is clear. Take a breath.</p>
+                    <button class="focus-action-btn complete" onclick={syncGuard(() => openQuickAddModal(-1))}>
+                        Add a Task
                     </button>
-                {/if}
-            </div>
-        {/each}
+                </div>
+            {/if}
+        {:else}
+            <!-- ARCHITECT MODE: Classic List -->
+            {#if tasks.length > 0}
+                {#each tasks as task, i (task.id)}
+                    <div 
+                        bind:this={taskElements[i]}
+                        class="todo-flow-task-card" 
+                        class:is-mobile={isMobileState}
+                        data-testid="task-card-{i}"
+                        class:is-focused={focusedIndex === i}
+                        class:anchored={task.isAnchored}
+                        class:is-done={task.status === 'done'}
+                        class:is-missing={task.isMissing}
+                        class:dragging={draggingTaskId === task.id}
+                        class:drop-before={dragTargetIndex === i && i !== draggingStartIndex && i <= draggingStartIndex}
+                        class:drop-after={dragTargetIndex === i && i !== draggingStartIndex && i > draggingStartIndex}
+                        onclick={(e) => handleTap(e, task, i)}
+                        onpointerdown={(e) => handlePointerStart(e, task.id)}
+                        onpointermove={handlePointerMove}
+                        onpointerup={(e) => handlePointerEnd(e, task)}
+                        onpointercancel={handlePointerCancel}
+                        
+                        use:touchBlocking={handleTouchBlocking}
+                        style={isMobileState 
+                            ? `touch-action: none; transform: ${getCardTransform(task.id)}; flex-wrap: wrap !important; padding: 0.75rem !important; gap: 0.5rem !important;` 
+                            : `touch-action: none; transform: ${getCardTransform(task.id)};`}
+                    >
+                        <div 
+                            class="drag-handle" 
+                            title="Drag to reorder"
+                            style="touch-action: none;"
+                        >⠿</div>
+                        <div class="time-col" onpointerdown={(e) => e.stopPropagation()} onclick={(e) => { e.stopPropagation(); startEditStartTime(i); }}>
+                            {#if editingStartTimeIndex === i}
+                                <input 
+                                    type="text" 
+                                    class="todo-flow-time-input"
+                                    value={task.startTime.format('HH:mm')}
+                                    onkeydown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.stopPropagation();
+                                            finishEditStartTime(task.id, e.currentTarget.value);
+                                        }
+                                        if (e.key === 'Escape') {
+                                            e.stopPropagation();
+                                            editingStartTimeIndex = -1;
+                                        }
+                                    }}
+                                    onblur={(e) => finishEditStartTime(task.id, e.currentTarget.value)}
+                                     use:selectOnFocus
+                                />
+                            {:else}
+                                <span class="mobile-only-time">{formatDateRelative(task.startTime, internalNow, true)}</span>
+                                <span class="desktop-only-time">{formatDateRelative(task.startTime, internalNow)}</span>
+                                {#if task.isAnchored}
+                                    <svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                {/if}
+                            {/if}
+                        </div>
+                        <div class="content-col" class:mobile-layout={isMobileState}>
+                            {#if editingIndex === i}
+                                <input
+                                    bind:this={renameInputs[i]}
+                                    bind:value={renamingText}
+                                    type="text"
+                                    class="rename-input"
+                                    data-testid="rename-input"
+                                    onkeydown={(e) => { 
+                                        if (e.key === 'Enter') {
+                                            e.stopPropagation();
+                                            finishRename(task.id, renamingText, 'submit');
+                                        }
+                                        if (e.key === 'Escape') {
+                                            e.stopPropagation();
+                                            cancelRename();
+                                        }
+                                    }}
+                                    use:selectOnFocus
+                                />
+                            {:else}
+                                <button 
+                                    class="title" 
+                                    class:mobile-clamp={isMobileState}
+                                    style={isMobileState ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal;" : ""}
+                                    data-testid="task-card-title"
+                                    onclick={syncGuard(() => startRename(i))} 
+                                    title={task.isMissing ? "Note missing" : "Click to rename"} 
+                                    role="button" 
+                                    tabindex="0"
+                                >
+                                    {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span> {/if}{task.title}
+                                </button>
+                            {/if}
+                            <div class="metadata" class:mobile-layout={isMobileState}>
+                                <div class="duration">
+                                    <button 
+                                        class="duration-btn minus" 
+                                        onclick={syncGuard((e) => { 
+                                            e.stopPropagation(); 
+                                            historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'down')); 
+                                            update(); 
+                                        })}
+                                        onpointerdown={(e) => e.stopPropagation()}
+                                        title="Decrease Duration"
+                                    >−</button>
+                                    <span 
+                                        class="duration-text clickable" 
+                                        onclick={(e) => { e.stopPropagation(); openDurationPicker(i); }}
+                                        onkeydown={(e) => { if (e.key === 'Enter') openDurationPicker(i); }}
+                                        onpointerdown={(e) => e.stopPropagation()}
+                                        tabindex="0"
+                                        role="button"
+                                    >
+                                        {formatDuration(task.duration)}
+                                    </span>
+                                    <button 
+                                        class="duration-btn plus" 
+                                        onclick={syncGuard((e) => {
+                                            e.stopPropagation();
+                                            historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up'));
+                                            update();
+                                        })}
+                                        onpointerdown={(e) => e.stopPropagation()}
+                                        title="Increase Duration"
+                                    >+</button>
+                                    {#if getMinDuration(task) > 0}
+                                        <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
+                                    {/if}
+                                    {#if task.isAnchored}
+                                        <div class="mobile-anchor-badge">⚓</div>
+                                    {/if}
+                                </div>
+                                <div class="anchor-col">
+                                    {#if !task.isMissing}
+                                        <button 
+                                            class="toggle-anchor-btn" 
+                                            class:is-active={task.isAnchored}
+                                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new ToggleAnchorCommand(controller, i)); update(); }}
+                                            onpointerdown={(e) => e.stopPropagation()}
+                                            title={task.isAnchored ? "Release Anchor" : "Pin to Start Time"}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        </button>
+                                    {/if}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {/each}
+            {:else}
+                <!-- ZEN MODE: Architect List -->
+                <div class="zen-list-empty" data-testid="zen-list-empty">
+                    <div class="zen-icon">🏔️</div>
+                    <h3>Your Architect's Desk is Clear</h3>
+                    <p>Add a new task to begin your next flow.</p>
+                    <button class="focus-action-btn" style="max-width: 200px;" onclick={syncGuard(() => openQuickAddModal(-1))}>
+                        Quick Add
+                    </button>
+                </div>
+            {/if}
+        {/if}
     </div>
     <!-- Help Overlay -->
     <div class="footer-controls">
-        <button class="icon-button plus-btn" onclick={() => openQuickAddModal(focusedIndex)} title="Add Task">
+        <button class="icon-button plus-btn" onclick={syncGuard(() => openQuickAddModal(focusedIndex))} title="Add Task">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
         <button class="icon-button export-btn" onclick={onExport} title="Export completed tasks">
@@ -1335,12 +1472,268 @@
         opacity: 0.8;
     }
 
+    .breadcrumb-trail {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-left: 2.5rem; /* Space for the back button */
+    }
+
+    .breadcrumb-item {
+        cursor: pointer;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-item:hover {
+        color: var(--text-accent);
+    }
+
+    .breadcrumb-item.active {
+        color: var(--text-normal);
+        font-weight: 600;
+        cursor: default;
+    }
+
+    .breadcrumb-separator {
+        opacity: 0.5;
+    }
+
+    .sync-sentry {
+        font-size: 1.1rem;
+        margin-right: 0.75rem;
+        opacity: 0.3;
+        filter: grayscale(1);
+        transition: all 0.3s ease;
+    }
+ 
+    .sync-sentry.is-active { 
+        filter: grayscale(0); 
+        opacity: 1; 
+        animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(1); opacity: 0.6; }
+    }
+
+    .todo-flow-stack-container.is-syncing {
+        cursor: wait !important;
+    }
+
+    .todo-flow-stack-container.is-syncing * {
+        pointer-events: none !important;
+        cursor: wait !important;
+        opacity: 0.8;
+    }
+
+    .todo-flow-stack-container.is-syncing .todo-flow-stack-header {
+        pointer-events: auto !important; /* Allow header interactions if needed, or keep it responsive */
+    }
+
+    .todo-flow-stack-container.is-syncing .header-right {
+        opacity: 1 !important;
+    }
+
+    .mode-toggle-btn {
+        background: var(--background-secondary);
+        border: 1px solid var(--background-modifier-border);
+        border-radius: 6px;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        margin-right: 0.75rem;
+    }
+
+    .mode-toggle-btn:hover {
+        background: var(--background-modifier-border-hover);
+        color: var(--text-normal);
+    }
+
+    .mode-toggle-btn.is-active {
+        background: var(--interactive-accent);
+        color: white;
+        border-color: var(--interactive-accent);
+    }
+
     .todo-flow-timeline {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         max-width: 600px;
         margin: 0 auto;
+        min-height: 300px; /* Ensure content area doesn't collapse */
+    }
+
+    .todo-flow-timeline.mode-focus {
+        justify-content: center;
+        align-items: center;
+        height: calc(100% - 60px); /* Fill space below header */
+    }
+
+    /* FOCUS MODE STYLES */
+    .focus-card {
+        width: 90%;
+        max-width: 400px;
+        background: var(--background-primary-alt);
+        border: 2px solid var(--background-modifier-border);
+        border-radius: 1.5rem;
+        padding: 2.5rem 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        text-align: center;
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        transition: transform 0.1s ease-out, border-color 0.3s;
+        min-height: 250px;
+    }
+
+    /* ZEN MODE STYLES */
+    .zen-card {
+        background: linear-gradient(135deg, var(--background-primary-alt), var(--background-secondary));
+        border: 2px dashed var(--background-modifier-border);
+        cursor: default;
+    }
+
+    .zen-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(to right, var(--text-normal), var(--text-accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .zen-subtitle {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+    }
+
+    .zen-list-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        text-align: center;
+        color: var(--text-muted);
+        gap: 1.5rem;
+    }
+
+    .zen-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
+    }
+
+    .focus-card.anchored {
+        border-color: var(--interactive-accent);
+        background: var(--background-secondary);
+    }
+
+    .focus-card-inner {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .focus-time-badge {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        background: var(--background-secondary);
+        padding: 4px 12px;
+        border-radius: 12px;
+        width: fit-content;
+        margin: 0 auto;
+    }
+
+    .focus-title {
+        font-size: 1.8rem;
+        margin: 0.5rem 0;
+        color: var(--text-normal);
+        line-height: 1.2;
+        word-break: break-word;
+    }
+
+    .focus-metadata {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        color: var(--text-muted);
+    }
+
+    .focus-duration-text {
+        font-size: 1.1rem;
+        font-family: var(--font-monospace);
+    }
+
+    .focus-anchor-status {
+        color: var(--interactive-accent);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .focus-actions {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .focus-action-btn {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 10px;
+        border: 1px solid var(--background-modifier-border);
+        background: var(--background-secondary);
+        color: var(--text-normal);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .focus-action-btn:hover {
+        background: var(--background-modifier-border-hover);
+        transform: translateY(-2px);
+    }
+
+    .focus-action-btn.complete {
+        background: var(--interactive-accent);
+        color: white;
+        border-color: var(--interactive-accent);
+    }
+
+    .focus-action-btn.complete:hover {
+        background: var(--interactive-accent-hover);
+    }
+
+    .focus-navigation-hints {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        opacity: 0.6;
     }
 
     .todo-flow-task-card {

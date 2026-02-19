@@ -5,6 +5,12 @@ This document codifies how we work together to ensure high-quality software thro
 ## 1. The Core Lifecycle
 Every significant change follows this "Strict TDD" loop:
 
+### The TDD Ritual
+Before a single line of production code is written, Antigravity MUST:
+1.  **Define the Failure**: Document a specific test case that fails in the current state in the `implementation_plan.md` under a `## TDD Proof` header.
+2.  **Verify the Red**: Run the test and confirm it fails for the *documented reason* (not just a syntax error).
+3.  **Proclaim Red Status**: State "Test is RED as expected" in the `task_boundary` summary before moving to the green phase.
+
 1.  **Distill Feedback**: USER provides raw feedback. Antigravity distills it into a **Synthetic Story** in `USER_STORIES.md` to identify the Target Axiom and Mechanical Friction.
 2.  **Contract (AC ID)**: Map the story to a new Acceptance Criteria ID in `QA_CHECKLIST.md` (Status: `[PENDING]`). This is the primary "Truth Contract."
 3.  **Implementation Plan**: Antigravity creates an `implementation_plan.md` artifact. **Work stops** until USER approves (with a "yay" or similar).

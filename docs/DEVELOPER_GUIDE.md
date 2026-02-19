@@ -143,9 +143,16 @@ For complex bugs or feature requests, use the protocol documented in [WORKING_AG
 1. **Report & Distill**: USER provides feedback; Antigravity creates a **Synthetic Story** in `USER_STORIES.md`.
 2. **Contract**: Assign a new **AC ID** in `QA_CHECKLIST.md` (Status: `[PENDING]`).
 3. **Plan**: Antigravity creates an `implementation_plan.md`. Work starts after approval.
-4. **TDD**: A failing test is written *before* any implementation code, linking to the AC ID and Concept Atlas.
+4. **TDD (The Ritual)**: A specific failing test case is documented and verified *before* any implementation code. See the ritual below.
 5. **Complete**: Once tests pass and the Atlas is updated, the item is moved to the archive.
 
+### The TDD Ritual
+To ensure every change is justified by a user contract, follow the **TDD Ritual** for every mission:
+1.  **Define Failure**: In `implementation_plan.md`, add a `## TDD Proof` section documenting at least one test case that is **RED** (fails) in the current state.
+2.  **Verify Red**: Run the test. Confirm it fails for the expected reason (e.g., "Zen Card not found" rather than a syntax error).
+3.  **Implement (Green)**: Write the minimum code required to pass the test.
+4.  **Verify Green**: Confirm the test is now **GREEN**.
+5.  **Refactor**: Clean up the code while keeping the test green.
 
 #### Step 1: Write Test (RED)
 ```bash

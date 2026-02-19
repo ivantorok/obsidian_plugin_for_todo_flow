@@ -3,7 +3,7 @@
 Rollup determines the "Effective Duration" of a task by aggregating the work requirements of its hierarchy.
 
 ## The Principle
-1. **Greedy Summation**: A task's `TotalDuration` is the sum of its **Base Duration** (own time) and the `TotalDuration` of all non-completed (`todo`, `parked`) children.
+1. **Greedy Summation**: A task's `TotalDuration` is the sum of its **Base Duration** (own time) and the `TotalDuration` of all non-completed (`todo`) children.
 2. **Exclusion Rule**: Tasks with status `done` or `archived` are excluded from the rollup.
 3. **Recursive Integrity**: The rollup is calculated bottom-up. A Change in a grandchild's duration immediately ripples up to the root parent.
 

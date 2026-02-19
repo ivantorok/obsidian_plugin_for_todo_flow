@@ -55,7 +55,8 @@ export class GraphBuilder {
                 isAnchored: !!frontmatter.anchored,
                 status: status as 'todo' | 'done',
                 children: [],
-                isPartial: true
+                isPartial: true,
+                _loadedAt: Date.now()
             };
         }
 
@@ -80,10 +81,12 @@ export class GraphBuilder {
             id: file.path,
             title: parsed.title, // Use cleaned title
             duration: frontmatter.duration || parsed.duration || 30,
+            originalDuration: frontmatter.originalDuration || (frontmatter.duration || parsed.duration || 30),
             isAnchored: frontmatter.anchored !== undefined ? frontmatter.anchored : parsed.isAnchored,
             status: status,
             children: [],
-            startTime: frontmatter.startTime ? moment(frontmatter.startTime) : (parsed.startTime ?? undefined)
+            startTime: frontmatter.startTime ? moment(frontmatter.startTime) : (parsed.startTime ?? undefined),
+            _loadedAt: Date.now()
         };
 
         // 1. Pruning: Removed. We MUST traverse children even if done, 

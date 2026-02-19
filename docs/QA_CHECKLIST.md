@@ -69,8 +69,11 @@
 | **MG-01** | **Swipe Right** (Done) | **[PASS]** | Logic verified (consistent with Triage). Automated simulation sensitive to thresholds. |
 | **MG-02** | **Swipe Left** (Archive) | **[PASS]** | Logic verified. |
 | **MG-03** | **Double Tap** (Anchor) | **[PASS]** | Verified PASS in automated E2E. |
-## 5. Phase 2: Behavioral Fixes
+## 6. Phase 0: Restoration & Unification
 | ID | Feature | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **BUG-016** | **Mobile: Keyboard Collision** | **[PASS]** | Refined viewport handling and `block: start` for rename inputs verified in E2E. |
-| **BUG-011** | **Mobile: Card Body Drag** | **[PASS]** | Relaxed intent threshold (1.0) and aligned touch blocking verified in E2E. |
+| **P0-01** | **Rollup: Double-Counting Fix** | **[PASS]** | Verified no double-counting in `rollup_fix.test.ts`. |
+| **P0-02** | **View: Universal `StackView`** | **[PASS]** | `LeanStackView` deleted. `StackView` verified on mobile via E2E. |
+| **P0-03** | **Logic: Hybrid Mode Handshake** | **[PENDING]** | Awaits Manual Persona Walkthrough. |
+| **P0-04** | **Cleanup: "Parked" Purge** | **[PASS]** | Audit script passed. No instances in `src/`. |
+| **P0-05** | **Ops: Intelligent Git Hooks** | **[PASS]** | Verified `.husky/pre-push` logic. |

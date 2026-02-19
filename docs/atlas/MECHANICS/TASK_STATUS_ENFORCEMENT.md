@@ -8,7 +8,7 @@ Tasks MUST only have one of two persistent statuses:
 *   **`done`**: The task is complete and has no further claim on focus.
 
 ## 2. Deprecated States (Forbidden)
-*   **`parked`**: Deprecated. Any task not being worked on remains `todo`. If a task is blocked, it should be moved out of the current stack via the **Archive** action, not marked with a new status.
+*   **`parked`**: [REMOVED]. Replaced by strictly binary `todo`/`done` model. If a task is blocked, move it out of the current stack via the **Archive** action.
 
 ## 3. View-Level Actions (Not Statuses)
 *   **Archiving**: This is a **Move** command. It removes the task from the current stack array but DOES NOT change the task's internal status. It remains `todo` in its original source file.

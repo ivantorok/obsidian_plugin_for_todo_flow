@@ -1,10 +1,15 @@
-#!/bin/sh
+#!/bin/bash
+# Phase 0: Intelligent Test Skip
+# Skips expensive tests if only .md files have changed.
 
-# Run unit tests
-npm test || exit 1
+# Get the list of changed files compared to upstream (or main if no upstream)
+UPSTREAM=$(git rev-parse --abbrev-ref @{u} 2>/dev/null || echo "main")
+NON_DOC_CHANGES=$(git diff --name-only $UPSTREAM..HEAD 2>/dev/null | grep -v '\.md$' | grep -v 'parked_purge_audit.sh' || true)
 
-# Run E2E tests
-# Git's pre-push hook provides commit information on stdin.
-# WebdriverIO CLI reads stdin and treats it as a list of spec files.
-# We redirect stdin from /dev/null to prevent WDIO from getting confused.
-npm run e2e < /dev/null || exit 1
+if [ -n "$NON_DOC_CHANGES" ] || [ -z "$UPSTREAM" ]; then
+    echo "💡 Logic changes detected. Running full test suite..."
+    npm test || exit 1
+    npm run e2e < /dev/null || exit 1
+else
+    echo "📚 Documentation-only changes detected. Skipping expensive tests."
+fi

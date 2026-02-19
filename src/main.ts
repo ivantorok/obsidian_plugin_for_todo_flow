@@ -2,7 +2,6 @@ import { Plugin, PluginSettingTab, App, Setting, WorkspaceLeaf, TFolder, TFile, 
 import { DumpView, VIEW_TYPE_DUMP } from './views/DumpView.js';
 import { TriageView, VIEW_TYPE_TRIAGE } from './views/TriageView.js';
 import { StackView, VIEW_TYPE_STACK } from './views/StackView.js';
-import { LeanStackView } from './views/LeanStackView.js';
 import { type TaskNode } from './scheduler.js';
 import { parseTitleFromFilename, updateMetadataField, generateFilename, serializeStackToMarkdown } from './persistence.js';
 import { GraphBuilder } from './GraphBuilder.js';
@@ -65,6 +64,7 @@ export default class TodoFlowPlugin extends Plugin {
     viewManager!: ViewManager;
     shakeDetector?: ShakeDetector;
     stackPersistenceService!: StackPersistenceService;
+    isSyncing: boolean = false;
 
     get isMobile() {
         // @ts-ignore
@@ -90,6 +90,13 @@ export default class TodoFlowPlugin extends Plugin {
         this.registerEvent(
             this.app.metadataCache.on('changed', async (file) => {
                 if (!(file instanceof TFile)) return;
+
+                // Reactive Update: Notify all Stack Views to refresh if their data might have changed
+                this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK).forEach(leaf => {
+                    if (leaf.view instanceof StackView) {
+                        leaf.view.requestUpdate();
+                    }
+                });
 
                 if (this.settings.traceVaultEvents) {
                     try {
@@ -134,11 +141,6 @@ export default class TodoFlowPlugin extends Plugin {
         this.registerView(
             VIEW_TYPE_STACK,
             (leaf) => {
-                if (this.isMobile) {
-                    return new LeanStackView(leaf, this.settings, this.logger, this.stackPersistenceService, (task: TaskNode) => {
-                        this.syncTaskToNote(task);
-                    });
-                }
                 return new StackView(leaf, this.settings, this.historyManager, this.logger, this.viewManager, this.stackPersistenceService, (task: TaskNode) => {
                     this.syncTaskToNote(task);
                 }, (title: string, options: any) => {
@@ -705,6 +707,19 @@ export default class TodoFlowPlugin extends Plugin {
         });
     }
 
+    setIsSyncing(val: boolean) {
+        this.isSyncing = val;
+        this.logger.info(`[main] Sync status updated: ${val}`);
+        if (this.settings.debug) new (window as any).Notice(`Sync Guard: ${val ? 'ACTIVATED' : 'DEACTIVATED'}`);
+
+        // Propagate to all active Stack Views
+        this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK).forEach(leaf => {
+            if (leaf.view.getViewType() === VIEW_TYPE_STACK && typeof (leaf.view as any).setIsSyncing === 'function') {
+                (leaf.view as any).setIsSyncing(val);
+            }
+        });
+    }
+
     async loadSettings() {
         const loadedData = await this.loadData();
         this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
@@ -764,11 +779,20 @@ export default class TodoFlowPlugin extends Plugin {
     async syncTaskToNote(task: TaskNode) {
         const ownDuration = task.originalDuration ?? task.duration;
         this.logger.info(`[DEBUG] Syncing Task Metadata to Disk: ID=${task.id} | Title="${task.title}" | Dur=${ownDuration} (Rollup: ${task.duration}) | Status=${task.status} | Anchored=${task.isAnchored}`);
-        const file = this.app.vault.getAbstractFileByPath(task.id);
+        const file = this.app.vault.getAbstractFileByPath(`${task.rootPath || this.settings.targetFolder}/${task.id}.md`);
         if (!(file instanceof TFile)) return;
 
         // BUG-007: Inform persistence service this is an internal write
         this.stackPersistenceService.recordInternalWrite(file.path);
+
+        // --- SOVEREIGN SILENCE: Conflict Resolution (TDD-03) ---
+        // Check if the file on disk is newer than when we loaded this task
+        const stats = await this.app.vault.adapter.stat(file.path);
+        if (stats && task._loadedAt && stats.mtime > task._loadedAt) {
+            this.logger.warn(`[Conflict Resolution] Rejecting sync for ${task.title}. Disk is newer (${stats.mtime}) than loaded task (${task._loadedAt})`);
+            if (this.settings.debug) new (window as any).Notice(`Conflict detected: "${task.title}" was modified externally. Skipping update.`);
+            return;
+        }
 
         await this.app.vault.process(file, (content) => {
             let updated = content;
@@ -785,30 +809,6 @@ export default class TodoFlowPlugin extends Plugin {
             return updated;
         });
     }
-
-    // Assuming StackView class exists elsewhere in the full document
-    // and has getDisplayText() and getState() methods.
-    // The following methods are inserted into the StackView class.
-    // This is a placeholder as StackView is not in the provided content.
-    // If StackView were present, the insertion would be:
-    /*
-    class StackView extends ItemView {
-        // ... existing properties and methods ...
-
-        getDisplayText() {
-            return "Daily Stack";
-        }
-
-        getTasks(): TaskNode[] {
-            return this.tasks; // Assuming 'this.tasks' holds the current tasks in StackView
-        }
-
-        getState(): Record<string, unknown> {
-            // ... existing getState implementation ...
-        }
-        // ... rest of StackView class ...
-    }
-    */
 
     async onCreateTask(title: string, options?: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined, parentPath?: string | undefined }): Promise<TaskNode> {
         const folderPath = this.settings.targetFolder;
@@ -837,7 +837,8 @@ export default class TodoFlowPlugin extends Plugin {
             status: 'todo',
             isAnchored: isAnchored,
             startTime: startTime,
-            children: []
+            children: [],
+            _loadedAt: Date.now() // Initialize loaded timestamp for conflict resolution
         };
 
         // Construct Frontmatter

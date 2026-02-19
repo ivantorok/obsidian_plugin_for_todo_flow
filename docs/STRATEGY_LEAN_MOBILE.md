@@ -34,7 +34,7 @@ Adds "Improvisation" capabilities without significantly increasing hardware load
 
 #### B. The Parking Lot (Blockers)
 *   **Feature**: "PARK" action next to "DONE."
-*   **Mechanism**: Changes `flow_state` to `parked`. 
+*   **Mechanism**: [REMOVED] - Use Archive for task deferral.
 *   **Benefit**: Allows the user to move on without lying to the system. The record of the blocker is saved for Desktop review.
 
 #### C. The Red Shadow (Awareness)
