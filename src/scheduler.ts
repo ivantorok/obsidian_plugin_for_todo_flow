@@ -142,8 +142,7 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment): 
 
     const result: TaskNode[] = tasks.map(t => {
         // Base case: If we have children, duration is SUSPECT unless originalDuration is present.
-        const isLeaf = !t.children || t.children.length === 0;
-        const ownDuration = t.originalDuration ?? (isLeaf ? t.duration : 0);
+        const ownDuration = t.originalDuration ?? (t.children?.length === 0 ? t.duration : 0);
         const { total: totalDuration, trace } = getTotalGreedyDuration(t, registry);
 
         // Use resolved rock time if it exists, otherwise use original

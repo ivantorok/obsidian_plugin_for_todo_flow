@@ -57,6 +57,7 @@ vi.mock('obsidian', () => {
             }
             addAction = vi.fn();
             getViewType = vi.fn();
+            registerEvent = vi.fn();
         },
         Modal: class { constructor(public app: any) { }; open() { }; close() { }; },
         PluginSettingTab: class { constructor(public app: any, public plugin: any) { } },

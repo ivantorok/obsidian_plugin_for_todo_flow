@@ -36,6 +36,7 @@ vi.mock('obsidian', () => ({
             this.containerEl = document.createElement('div');
         }
         registerDomEvent = vi.fn();
+        registerEvent = vi.fn();
         registerInterval = vi.fn();
     },
     WorkspaceLeaf: class {

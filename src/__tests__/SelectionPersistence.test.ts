@@ -36,6 +36,7 @@ vi.mock('obsidian', () => {
                 this.containerEl = document.createElement('div');
             }
             addAction() { }
+            registerEvent() { }
             setState() { return Promise.resolve(); }
         },
         TFile: class { },

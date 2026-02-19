@@ -1,4 +1,4 @@
-# Release Notes v1.2.71 - Phase 2: Behavioral Sovereignty
+# Release Notes v1.2.72 - Phase 2: Behavioral Sovereignty
 
 ## Summary
 This release completes Phase 2: Behavioral Sovereignty, introducing critical features to ensure data integrity during synchronization and enhance the user experience with celebratory states.

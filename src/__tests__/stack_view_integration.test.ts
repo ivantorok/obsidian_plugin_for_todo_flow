@@ -20,6 +20,7 @@ vi.mock('obsidian', () => {
             }
             getViewType() { return 'test'; }
             getDisplayText() { return 'test'; }
+            registerEvent() { }
             async setState(state: any, result: any) { }
         },
         WorkspaceLeaf: class { },

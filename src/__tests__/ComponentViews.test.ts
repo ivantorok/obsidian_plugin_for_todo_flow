@@ -33,8 +33,8 @@ describe('TriageView.svelte', () => {
 describe('StackView.svelte', () => {
     it('should render the timeline with formatted durations', () => {
         const mockTasks = [
-            { id: '1', title: 'Task 1', duration: 30, isAnchored: false, startTime: moment() },
-            { id: '2', title: 'Task 2', duration: 90, isAnchored: false, startTime: moment() }
+            { id: '1', title: 'Task 1', duration: 30, isAnchored: false, startTime: moment(), children: [] },
+            { id: '2', title: 'Task 2', duration: 90, isAnchored: false, startTime: moment(), children: [] }
         ] as any;
         const testLogger = new TestLogger();
         const logger = {

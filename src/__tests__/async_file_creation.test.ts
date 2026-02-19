@@ -66,6 +66,7 @@ vi.mock('obsidian', () => ({
             this.contentEl = document.createElement('div');
             this.containerEl = document.createElement('div');
         }
+        registerEvent() { }
     },
     WorkspaceLeaf: class { },
     Notice: class { },

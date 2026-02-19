@@ -8,6 +8,7 @@ vi.mock('obsidian', () => ({
             this.contentEl = document.createElement('div');
             this.containerEl = document.createElement('div');
         }
+        registerEvent() { }
     },
     Modal: class { constructor(public app: any) { }; open() { }; close() { }; },
     Plugin: class { },

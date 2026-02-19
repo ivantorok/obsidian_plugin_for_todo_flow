@@ -19,7 +19,7 @@ describe('Subtask Constraints', () => {
     it('should calculate minimum duration recursively', () => {
         const grandChild: TaskNode = { id: 'gc1', title: 'Grandchild', duration: 5, status: 'todo', isAnchored: false, children: [] };
         const childWithGrandchild: TaskNode = {
-            id: 'c1', title: 'Child 1', duration: 2, status: 'todo', isAnchored: false,
+            id: 'c1', title: 'Child 1', duration: 2, originalDuration: 2, status: 'todo', isAnchored: false,
             children: [grandChild]
         };
 
@@ -42,7 +42,7 @@ describe('Subtask Constraints', () => {
         ];
 
         const parent: TaskNode = {
-            id: 'p1', title: 'Parent', duration: 10, status: 'todo', isAnchored: false,
+            id: 'p1', title: 'Parent', duration: 10, originalDuration: 10, status: 'todo', isAnchored: false,
             children: children
         };
 

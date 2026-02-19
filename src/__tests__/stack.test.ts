@@ -51,7 +51,7 @@ describe('StackController', () => {
             { id: '2', title: 'Sub 1', duration: 10, isAnchored: false, status: 'todo', children: [] },
             { id: '3', title: 'Sub 2', duration: 5, isAnchored: false, status: 'todo', children: [] }
         ];
-        const task: TaskNode = { id: '1', title: 'Parent', duration: 20, isAnchored: false, status: 'todo', children: subtasks };
+        const task: TaskNode = { id: '1', title: 'Parent', duration: 20, originalDuration: 20, isAnchored: false, status: 'todo', children: subtasks };
         const controller = new StackController([task], moment('2026-01-25 08:00'));
 
         // Try to scale down to 15 (sum of children is 15)

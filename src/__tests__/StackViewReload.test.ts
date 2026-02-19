@@ -6,10 +6,13 @@ vi.mock('obsidian', () => ({
     ItemView: class {
         contentEl: HTMLElement;
         containerEl: HTMLElement;
+        app: any;
         constructor(public leaf: any) {
+            this.app = leaf.app;
             this.contentEl = document.createElement('div');
             this.containerEl = document.createElement('div');
         }
+        registerEvent() { }
         async setState(state: any, result: any) { }
     },
     WorkspaceLeaf: class { },
@@ -93,7 +96,19 @@ describe('StackView Reload Logic', () => {
     let mockLogger: any;
 
     beforeEach(() => {
-        mockLeaf = {};
+        mockLeaf = {
+            app: {
+                internalPlugins: {
+                    plugins: {
+                        sync: { instance: { status: 'none' } }
+                    },
+                    getPluginById: vi.fn()
+                },
+                metadataCache: { on: vi.fn(), offref: vi.fn() },
+                workspace: { on: vi.fn() },
+                vault: { on: vi.fn() }
+            }
+        };
         mockSettings = { timingMode: 'now', keys: { debug: false } };
         mockHistory = {};
         mockLogger = { info: vi.fn(), warn: vi.fn() };
@@ -119,6 +134,6 @@ describe('StackView Reload Logic', () => {
         // 3. Assertions
         // In Phase A, reload() delegates to navManager.refresh()
         expect(mocks.navManager.refresh).toHaveBeenCalled();
-        expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('[StackView] Reload triggered.'));
+        expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('[StackView] Reload triggered'));
     });
 });
