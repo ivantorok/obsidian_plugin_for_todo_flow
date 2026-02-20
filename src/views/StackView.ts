@@ -110,10 +110,26 @@ export class StackView extends ItemView {
         this.registerEvent(this.app.metadataCache.on('changed', async (file) => {
             if (!(file instanceof TFile)) return;
 
-            // If the changed file is in our current stack, re-parse it
+            // BUG-009 Fix: If the changed file is our backing stack file, we need a full reload
+            if (this.rootPath && file.path === this.rootPath) {
+                // To avoid reloading immediately on our own saves, check write times
+                const isExternal = this.persistenceService.isExternalUpdate(file.path);
+                if (isExternal) {
+                    if (this.logger) this.logger.info(`[StackView] External change detected on BACKING FILE ${file.path}. Triggering full reload.`);
+                    await this.reload(true);
+                } else {
+                    if (this.logger) this.logger.info(`[StackView] Ignored internal save on BACKING FILE ${file.path}.`);
+                }
+                return;
+            }
+
+            // Otherwise, check if it's an individual task file in the stack that needs re-parsing
             const taskIndex = this.tasks.findIndex(t => t.id === file.path);
             if (taskIndex !== -1) {
-                if (this.logger) this.logger.info(`[StackView] External change detected for ${file.path}. Re-parsing metadata.`);
+                const isExternal = this.persistenceService.isExternalUpdate(file.path);
+                if (!isExternal) return; // Ignore internal changes to avoid infinite loops
+
+                if (this.logger) this.logger.info(`[StackView] External change detected for task ${file.path}. Re-parsing metadata.`);
                 const metadata = await this.loader.parser.resolveTaskMetadata(file.path);
                 if (metadata) {
                     const task = this.tasks[taskIndex]!;

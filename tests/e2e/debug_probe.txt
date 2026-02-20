@@ -1,0 +1,7 @@
+Vault Files: [Task B.md, Task A.md, todo-flow/CurrentStack.md, j3_root.md, j3_p.md, j3_gp.md, j3_cb.md, j3_ca.md, Test.md, Task_B.md, Task_A.md, Task3.md, Task2.md, Task1.md, ParentTask.md, Child1.md]
+Target Class Content: # Current Stack
+
+- [ ] [[Task A]]
+- [ ] [[Task B]]
+
+Body Start: <div class="titlebar"><div class="titlebar-inner"><div class="titlebar-text">Daily Stack - .test-vault-oVUddR - Obsidian v1.11.7</div><div class="titlebar-button-container mod-left"><div class="titlebar-button mod-logo"><svg viewBox="0 0 512 512" width="18" height="18" class="logo-full"><radialGradient id="logo-bottom-left" cx="0" cy="0" gradientTransform="matrix(-59 -225 150 -39 161.4 470)" gradientUnits="userSpaceOnUse" r="1"><stop offset="0" stop-color="#fff" stop-opacity=".4"></stop><stop of

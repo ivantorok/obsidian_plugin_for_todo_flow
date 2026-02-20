@@ -98,6 +98,22 @@ The "Watcher Silencing" implemented in v1.2.54 did not resolve the "Empty Daily 
 - [2026-02-15 16:15]: **Diagnostic Engineer (DE)** status update.
     - [x] Instrumenting `StackLoader` and `GraphBuilder` with granular logging (v1.2.57-debug).
     - [x] Fixing secondary `r.match` error in `main.ts` backup logic.
+
+## Session Entry: 2026-02-19 23:00 (Resolution of BUG-009)
+
+### Input Analysis
+- **Source**: Verification Officer (VO) / Diagnostic Engineer (DE) finding.
+- **Content**: BUG-009 identified the root cause of the "Empty daily stack after triage" or missing external changes.
+- **Verdict**: The `StackView.ts` UI failed to reload when its backing file (`CurrentStack.md`) was updated by an external process like Obsidian Sync. The metadataCache changed listener was only watching individual task files.
+
+### Action Taken
+- [x] **Implementation Lead (IL)** updated `StackView.ts` to reload tasks when the backing file changes, using `StackPersistenceService.isExternalUpdate()` to avoid circular self-reloads.
+- [x] **Verification Officer (VO)** recorded the fix in `walkthrough.md` and confirmed all 284 unit tests pass cleanly.
+
+### Routing Update
+- **Recipient**: Release Manager (RM)
+- **Request**: The fix for BUG-009 is verified and stable. Stage the changes (`src/views/StackView.ts`, test config tweaks) and run `./ship.sh` to release v1.2.74.
+- **Status**: **ACTIVE -> RM**.
     - **Current State**: `v1.2.57-debug` deployed. Waiting for log analysis to determine why `StackLoader` returns 0 nodes.
     - **Next Step**: Analyze `todo-flow.log` from `v1.2.57-debug`.
 
