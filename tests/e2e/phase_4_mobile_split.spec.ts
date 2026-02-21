@@ -1,43 +1,43 @@
-import { browser, expect, $, $$ } from '@wdio/globals';
+import { browser, expect, $ } from '@wdio/globals';
 import { emulateMobile } from './mobile_utils.js';
+import { setupStackWithTasks, focusStack } from './e2e_utils.js';
 
 describe('Phase 4: Skeptical Specs - Mobile Structural Split', () => {
 
     before(async function () {
         // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
-
-        // Ensure a task exists
-        await browser.execute((content) => {
-            // @ts-ignore
-            app.vault.adapter.write('todo-flow/CurrentStack.md', content);
-        }, '- [ ] [[Root Task]]\n  - [ ] [[Child task]]');
-        await browser.execute('app.commands.executeCommandById("todo-flow:reload-stack")');
-        await browser.pause(2000);
-
+        // Emulate mobile first so plugin and views initialize with isMobile=true
         await emulateMobile();
+        // Create real file-backed tasks via Dump → Triage → Stack flow
+        await setupStackWithTasks(['Focus Task A']);
+        await focusStack();
     });
 
     it('should use the "FocusStack" component on mobile and exclude desktop logic', async () => {
-        await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
+        // Wait for the container to be ready and in focus mode (mobile default)
+        const container = await $('.todo-flow-stack-container');
+        await browser.waitUntil(async () => {
+            const ready = await container.getAttribute('data-ui-ready');
+            const mode = await container.getAttribute('data-view-mode');
+            return ready === 'true' && mode === 'focus';
+        }, { timeout: 10000, timeoutMsg: 'Stack container did not reach focus mode on mobile' });
 
-        // Force viewMode to focus for the test (simulating the Svelte effect that should happen on mobile)
-        await browser.execute(() => {
-            // @ts-ignore
-            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
-            view.component.setViewMode('focus');
-        });
-        await browser.pause(500);
+        // 1. Check for Focus component marker (data-view-type="focus" on FocusStack container)
+        const focusContainer = await $('[data-view-type="focus"]');
+        await focusContainer.waitForExist({ timeout: 5000 });
+        expect(await focusContainer.isExisting()).toBe(true);
 
-        // 1. Check for Focus component marker
-        const focusStack = await $('[data-view-type="focus"]');
-        expect(await focusStack.isExisting()).toBe(true); // SHOULD FAIL: Monolith doesn't have this marker yet
+        // 2. Focus card renders for tasks
+        const focusCard = await $('[data-testid="focus-card"]');
+        await focusCard.waitForDisplayed({ timeout: 5000 });
+        expect(await focusCard.isDisplayed()).toBe(true);
 
-        // 2. Assert NO drag handles (Architecture logic excluded from Focus view)
+        // 3. FocusStack does NOT render drag handles (architect/desktop-only feature)
         const dragHandle = await $('.drag-handle');
-        expect(await dragHandle.isExisting()).toBe(false); // SHOULD FAIL: Monolith has them everywhere
+        expect(await dragHandle.isExisting()).toBe(false);
 
-        // 3. Assert NO desktop-specific info (e.g., specific index display required in Focus mode)
+        // 4. FocusStack shows .index-display (e.g., "#1 of 1")
         const indexDisplay = await $('.index-display');
         await indexDisplay.waitForExist({ timeout: 5000 });
         expect(await indexDisplay.isExisting()).toBe(true);
