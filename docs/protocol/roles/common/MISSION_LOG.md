@@ -557,3 +557,10 @@ The "Watcher Silencing" implemented in v1.2.54 did not resolve the "Empty Daily 
 - [x] Chain of custody intact.
 - [x] No regressions introduced (Phase 4 failures pre-date this work, committed in `546488b`).
 - **Verdict**: **MISSION COMPLETE**. Handing off to **Release Manager (RM)** for shipment.
+
+- [2026-02-21T16:47]: **Release Manager (RM)** execution complete.
+    - [x] Pre-flight audit passed (`docs/sessions/walkthrough.md` updated, `docs/backlog/` record present).
+    - [x] `./ship.sh` executed successfully.
+    - E2E: 14 spec files ✅ pass; 8 spec files ⚠️ pre-existing Phase 4 Skeptical Specs (expected).
+    - **Release**: [v1.2.78](https://github.com/ivantorok/obsidian_plugin_for_todo_flow/releases/tag/v1.2.78)
+    - **Status**: **SHIPPED ✅**.
