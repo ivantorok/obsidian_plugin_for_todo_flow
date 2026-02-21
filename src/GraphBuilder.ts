@@ -2,6 +2,7 @@ import { App, TFile } from 'obsidian';
 import { type TaskNode } from './scheduler.js';
 import { resolveTaskTitle, getFirstNonMetadataLine } from './utils/title-resolver.js';
 import { DateParser } from './utils/DateParser.js';
+import { ProcessGovernor } from './services/ProcessGovernor.js';
 import moment from 'moment';
 
 export class GraphBuilder {
@@ -10,7 +11,8 @@ export class GraphBuilder {
     constructor(private app: App, private logger?: any) {
         // Access settings via plugin if possible, or use a default
         // For now, let's assume we can pass it or get it from app
-        const settings = (app as any).plugins?.getPlugin('obsidian_plugin_for_todo_flow')?.settings;
+        const plugin = (app as any).plugins?.getPlugin('obsidian_plugin_for_todo_flow');
+        const settings = plugin?.settings;
         if (settings) {
             this.maxDepth = settings.maxGraphDepth || 5;
         }
@@ -47,7 +49,18 @@ export class GraphBuilder {
         const frontmatter = cache?.frontmatter || {};
         const status = frontmatter.status || 'todo';
 
-        if (depth >= this.maxDepth) {
+        const governor = ProcessGovernor.getInstance(this.app);
+        let effectiveMaxDepth = this.maxDepth;
+
+        if (governor.isCriticalPressure()) {
+            effectiveMaxDepth = Math.max(1, Math.floor(this.maxDepth / 2));
+            if (this.logger) this.logger.warn(`[GraphBuilder] CRITICAL PRESSURE: Throttling maxDepth to ${effectiveMaxDepth}`);
+        } else if (governor.isHighPressure()) {
+            effectiveMaxDepth = Math.max(1, this.maxDepth - 1);
+            if (this.logger) this.logger.info(`[GraphBuilder] HIGH PRESSURE: Throttling maxDepth to ${effectiveMaxDepth}`);
+        }
+
+        if (depth >= effectiveMaxDepth) {
             return {
                 id: file.path,
                 title: file.basename,

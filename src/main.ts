@@ -13,6 +13,7 @@ import { ExportService } from './services/ExportService.js';
 import { SyncService } from './services/SyncService.js';
 import { ShakeDetector } from './utils/ShakeDetector.js';
 import { StackPersistenceService } from './services/StackPersistenceService.js';
+import { ProcessGovernor } from './services/ProcessGovernor.js';
 
 import { DEFAULT_KEYBINDINGS, type KeybindingSettings } from './keybindings.js';
 import { formatKeys, parseKeys } from './utils/settings-utils.js';
@@ -64,6 +65,7 @@ export default class TodoFlowPlugin extends Plugin {
     viewManager!: ViewManager;
     shakeDetector?: ShakeDetector;
     stackPersistenceService!: StackPersistenceService;
+    governor!: ProcessGovernor;
     isSyncing: boolean = false;
 
     get isMobile() {
@@ -81,6 +83,7 @@ export default class TodoFlowPlugin extends Plugin {
         this.viewManager = new ViewManager(this.app, this.logger);
         this.stackPersistenceService = new StackPersistenceService(this.app);
         this.stackPersistenceService.setLogger(this.logger);
+        this.governor = ProcessGovernor.getInstance(this.app, this.logger);
 
         const buildId = typeof process !== 'undefined' ? (process.env as any).BUILD_ID : 'unknown';
         await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build ${buildId})`);

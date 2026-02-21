@@ -49,6 +49,7 @@
         onFocusChange,
         lockPersistence,
         unlockPersistence,
+        app,
         debug = true,
     } = $props();
 
@@ -316,6 +317,7 @@
                     internalNow,
                     onTaskUpdate,
                     onTaskCreate,
+                    app,
                 );
             } else {
                 controller.setTasks(currentNavState.tasks);

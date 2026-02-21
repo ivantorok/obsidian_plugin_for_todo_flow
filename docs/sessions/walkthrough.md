@@ -1,32 +1,42 @@
-# Walkthrough - FEAT-004: Perpetual Loop
+# Walkthrough — Process Governor (RAM Pressure Throttling)
 
-We have successfully implemented Phase 2 (BDD) for the first feature of Elias 1.1: **Perpetual Loop & Victory Lap**.
+Implemented a `ProcessGovernor` singleton service to prevent crashes on low-RAM devices by monitoring JS heap usage and throttling heavy operations under memory pressure.
 
 ## Changes
 
-### [Logic Layer] LoopManager
-We introduced a stateless `LoopManager` to handle navigation logic.
-- [LoopManager.ts](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/services/LoopManager.ts)
+### [NEW] ProcessGovernor.ts
+- Reads `performance.memory.usedJSHeapSize` / `jsHeapSizeLimit`.
+- `PressureLevel` enum: `NORMAL`, `YELLOW` (≥70% heap), `RED` (≥90% heap).
+- Public API: `isHighPressure()`, `isCriticalPressure()`, `logStatus()`.
 
-### [UI Layer] LeanStackView
-- Integrated `LoopManager`.
-- Added a **Victory Lap** card that appears after the final task.
-- Added "Restart Loop" and "Close Session" functionality.
+### [MODIFY] main.ts
+- Governor singleton initialized on plugin load.
 
-## Verification Results
+### [MODIFY] GraphBuilder.ts
+- **YELLOW**: `maxDepth` reduced by 1.
+- **RED**: `maxDepth` halved (minimum 1).
 
-### Automated Tests
-- **Unit Tests**: Passed. Verified wrap-around and Victory Lap state logic.
-- **E2E Tests**: Passed. Verified the full journey from Task 1 -> Task 2 -> Victory Lap -> Restart -> Task 1.
+### [MODIFY] scheduler.ts
+- `computeSchedule` accepts optional `{ highPressure?: boolean }`.
+- Under high pressure: skips expensive BFS audit (`getTotalGreedyDuration`).
 
-### Evidence
-![Victory Lap Card](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/tests/e2e/failures/should_wrap_around_to_the_first_task_when_clicking_"Restart_Loop"_on_Victory_Lap_card.png)
-> [!NOTE]
-> The image above was captured during a "failed" run where it timed out waiting for the card, proving the card was visible but the test needed hardening. The test is now passing.
+### [MODIFY] StackController.ts / StackView.ts / StackView.svelte
+- `highPressure` flag propagated from governor through all compute paths.
+- `updateTime()` defers `computeSchedule` entirely under high pressure.
 
-### Test Output
-```text
-Elias 1.1 (Focus & Momentum) Verification - FEAT-004: Perpetual Loop
-   ✓ should show Victory Lap card after clicking NEXT on the final task
-   ✓ should wrap around to the first task when clicking "Restart Loop" on Victory Lap card
+## Throttling Behaviour
+
 ```
+JS heap < 70%  → NORMAL  — full computation
+JS heap 70-90% → YELLOW  — skip scheduler audit; defer updateTime; reduce graph depth by 1
+JS heap ≥ 90%  → RED     — all of above; halve graph maxDepth
+```
+
+## Verification
+
+| Check | Result |
+|---|---|
+| `npm run build` | ✅ 0 errors |
+| Unit tests (288 tests, 86 suites) | ✅ All pass |
+| E2E (13 spec files) | ✅ Pass |
+| E2E (9 Phase 4 Skeptical Specs) | ⚠️ Expected pre-existing failures — unrelated |

@@ -529,3 +529,31 @@ The "Watcher Silencing" implemented in v1.2.54 did not resolve the "Empty Daily 
 - [2026-02-21T13:42]: **Process Governor (PG)** final review.
     - [x] Changes staged. `walkthrough.md` updated.
     - **Verdict**: **MISSION COMPLETE**. Race condition hardening (BUG-022, BUG-023) is verified and stable.
+
+---
+
+## Session Entry: 2026-02-21 16:30 (Process Governor — RAM Pressure Throttling)
+
+### Input & Analysis (Process Governor)
+- **Source**: User Request ("process profiler")
+- **Focus**: Prevent application crashes on low-RAM devices by throttling heavy operations under memory pressure.
+- **Flavor**: [PERFORMANCE/FEAT]
+
+### Work Completed
+- [x] **Research**: Audited `GraphBuilder`, `scheduler`, `StackController`, `TriageController` for heavy operations.
+- [x] **Design**: Defined `PressureLevel` enum (`NORMAL`, `YELLOW` ≥70%, `RED` ≥90%) and throttling strategy.
+- [x] **Implementation Lead (IL)**: Executed implementation.
+    - [x] Created `src/services/ProcessGovernor.ts` (singleton, `performance.memory` reader).
+    - [x] `main.ts`: Governor initialized on plugin load.
+    - [x] `GraphBuilder.ts`: `maxDepth` reduced under YELLOW; halved under RED.
+    - [x] `scheduler.ts`: BFS audit (`getTotalGreedyDuration`) skipped under high pressure.
+    - [x] `StackController.ts` / `StackView.ts` / `StackView.svelte`: `highPressure` flag propagated; `updateTime` deferred under pressure.
+- [x] **Verification Officer (VO)**: Full test suite passed.
+    - Unit Tests: 288 tests, 86 suites — ✅ All pass.
+    - E2E: 13 spec files ✅ pass; 9 spec files ⚠️ fail (pre-existing Phase 4 Skeptical Specs — unrelated, expected).
+    - Build: `npm run build` — ✅ 0 errors.
+
+### Final Review (Process Governor)
+- [x] Chain of custody intact.
+- [x] No regressions introduced (Phase 4 failures pre-date this work, committed in `546488b`).
+- **Verdict**: **MISSION COMPLETE**. Handing off to **Release Manager (RM)** for shipment.

@@ -20,6 +20,7 @@ import { SetDurationCommand } from '../commands/stack-commands.js';
 import moment from 'moment';
 import { type ViewManager } from '../ViewManager.js';
 import { type StackUIState } from './ViewTypes.js';
+import { ProcessGovernor } from '../services/ProcessGovernor.js';
 
 export const VIEW_TYPE_STACK = "todo-flow-stack-view";
 
@@ -45,6 +46,7 @@ export class StackView extends ItemView {
     private isSyncing: boolean = false;
     private syncCheckInterval: number | null = null;
     private pendingSyncs: Set<Promise<void>> = new Set();
+    private governor: ProcessGovernor | undefined;
 
     setIsSyncing(val: boolean) {
         this.isSyncing = val;
@@ -86,11 +88,15 @@ export class StackView extends ItemView {
 
         // Initialize navigation services
         this.loader = new StackLoader(this.app, this.logger);
+        this.governor = ProcessGovernor.getInstance(this.app, this.logger);
         this.navManager = new NavigationManager(
             this.app,
             this.loader,
             this.persistenceService,
-            (tasks) => computeSchedule(tasks, moment())
+            (tasks) => {
+                const highPressure = this.governor?.isHighPressure() ?? false;
+                return computeSchedule(tasks, this.getNow(), { highPressure });
+            }
         );
 
         // Listen for centralized state changes
@@ -648,7 +654,8 @@ export class StackView extends ItemView {
                     },
                     onNavigate: this.onNavigate.bind(this),
                     lockPersistence: (path: string, token: string) => this.lockPersistence(path, token),
-                    unlockPersistence: (path: string, token: string) => this.unlockPersistence(path, token)
+                    unlockPersistence: (path: string, token: string) => this.unlockPersistence(path, token),
+                    app: this.app
                 }
             });
             if (this.settings.debug) console.log('[StackView] Svelte component mounted successfully');

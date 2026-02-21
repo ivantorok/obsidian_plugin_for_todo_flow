@@ -95,8 +95,8 @@ export function getTotalGreedyDuration(root: TaskNode, registry?: TaskRegistry):
     return { total, trace };
 }
 
-export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment): TaskNode[] {
-    if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[Scheduler] computeSchedule entry. Tasks: ${tasks.length}`);
+export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, options?: { highPressure?: boolean }): TaskNode[] {
+    if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[Scheduler] computeSchedule entry. Tasks: ${tasks.length}, HighPressure: ${!!options?.highPressure}`);
     // 1. Identify all anchored "Rocks" and resolve collisions between them (Pushing Rocks)
     // We want rocks to form a solid chain if they overlap.
     const rocks = tasks
@@ -143,7 +143,15 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment): 
     const result: TaskNode[] = tasks.map(t => {
         // Base case: If we have children, duration is SUSPECT unless originalDuration is present.
         const ownDuration = t.originalDuration ?? (t.children?.length === 0 ? t.duration : 0);
-        const { total: totalDuration, trace } = getTotalGreedyDuration(t, registry);
+
+        let totalDuration = t.duration;
+        let trace = t.trace || [];
+
+        if (!options?.highPressure) {
+            const audit = getTotalGreedyDuration(t, registry);
+            totalDuration = audit.total;
+            trace = audit.trace;
+        }
 
         // Use resolved rock time if it exists, otherwise use original
         const resolvedStart = resolvedRockTimes.get(t.id) || (t.startTime ? moment(t.startTime) : undefined);

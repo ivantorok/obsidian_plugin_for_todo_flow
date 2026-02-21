@@ -1,5 +1,7 @@
 import moment from 'moment';
 import { computeSchedule, getMinDuration, type TaskNode } from '../scheduler.js';
+import { ProcessGovernor } from '../services/ProcessGovernor.js';
+import { type App } from 'obsidian';
 
 const DURATION_SEQUENCE = [2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300, 360, 420, 480];
 
@@ -10,22 +12,32 @@ export class StackController {
     private onTaskCreate: ((title: string) => TaskNode) | undefined;
     private isFrozen: boolean = false;
     private pendingActions: Map<string, Array<() => void>> = new Map();
+    private governor: ProcessGovernor | undefined;
 
     constructor(
         initialTasks: TaskNode[],
         currentTime: moment.Moment,
         onTaskUpdate?: (task: TaskNode) => void,
-        onTaskCreate?: (title: string) => TaskNode
+        onTaskCreate?: (title: string) => TaskNode,
+        app?: App
     ) {
         this.currentTime = currentTime;
         this.onTaskUpdate = onTaskUpdate;
         this.onTaskCreate = onTaskCreate;
-        this.tasks = computeSchedule(initialTasks, currentTime);
+        if (app) {
+            this.governor = ProcessGovernor.getInstance(app);
+        }
+        const highPressureInit: boolean = this.governor?.isHighPressure() ?? false;
+        this.tasks = computeSchedule(initialTasks, currentTime, { highPressure: highPressureInit });
     }
 
     updateTime(newTime: moment.Moment) {
         this.currentTime = newTime;
         if (!this.isFrozen) {
+            if (this.governor?.isHighPressure()) {
+                console.warn('[StackController] HIGH PRESSURE: Deferring schedule re-computation during time update.');
+                return;
+            }
             this.tasks = computeSchedule(this.tasks, this.currentTime);
         }
     }
@@ -36,7 +48,8 @@ export class StackController {
 
     unfreeze() {
         this.isFrozen = false;
-        this.tasks = computeSchedule(this.tasks, this.currentTime);
+        const highPressure: boolean = this.governor?.isHighPressure() ?? false;
+        this.tasks = computeSchedule(this.tasks, this.currentTime, { highPressure });
     }
 
     get now(): moment.Moment {
@@ -58,7 +71,8 @@ export class StackController {
             }
         }
 
-        this.tasks = this.isFrozen ? resolvedTasks : computeSchedule(resolvedTasks, this.currentTime);
+        const highPressure: boolean = this.governor?.isHighPressure() ?? false;
+        this.tasks = this.isFrozen ? resolvedTasks : computeSchedule(resolvedTasks, this.currentTime, { highPressure });
     }
 
     /**
@@ -327,7 +341,7 @@ export class StackController {
         const newTasks = [...this.tasks];
         newTasks.splice(index + 1, 0, newTask);
 
-        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime, { highPressure: this.governor?.isHighPressure() ?? false });
 
         const newIndex = this.tasks.findIndex(t => t.id === newTask.id);
 
@@ -338,20 +352,20 @@ export class StackController {
         if (!this.tasks[index]) return;
         const newTasks = [...this.tasks];
         newTasks.splice(index, 1);
-        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime, { highPressure: this.governor?.isHighPressure() ?? false });
     }
 
     insertTask(index: number, task: TaskNode) {
         const newTasks = [...this.tasks];
         newTasks.splice(index, 0, task);
-        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime, { highPressure: this.governor?.isHighPressure() ?? false });
     }
 
     insertAfter(index: number, task: TaskNode): number {
         const newTasks = [...this.tasks];
         newTasks.splice(index + 1, 0, task);
 
-        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime, { highPressure: this.governor?.isHighPressure() ?? false });
 
         return this.tasks.findIndex(t => t.id === task.id);
     }
@@ -446,8 +460,7 @@ export class StackController {
         const newTasks = [...this.tasks];
         newTasks.splice(oldIndex, 1);
         newTasks.splice(newIndex, 0, taskToMove);
-
-        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
+        this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime, { highPressure: this.governor?.isHighPressure() ?? false });
         return this.tasks.findIndex(t => t.id === taskToMove.id);
     }
 
