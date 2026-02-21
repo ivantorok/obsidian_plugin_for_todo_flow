@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { onMount, createEventDispatcher, untrack } from 'svelte';
-    import { StackController } from './StackController';
-    import { type TaskNode, getMinDuration } from '../scheduler.js';
-    import { formatDuration, formatDateRelative } from '../utils.ts';
-    import moment from 'moment';
-    import { KeybindingManager, type KeybindingSettings } from '../keybindings';
-    import { type HistoryManager } from '../history.js';
+    import { onMount, createEventDispatcher, untrack } from "svelte";
+    import { StackController } from "./StackController";
+    import { type TaskNode, getMinDuration } from "../scheduler.js";
+    import { formatDuration, formatDateRelative } from "../utils.ts";
+    import moment from "moment";
+    import { KeybindingManager, type KeybindingSettings } from "../keybindings";
+    import { type HistoryManager } from "../history.js";
     import {
         MoveTaskCommand,
         ToggleAnchorCommand,
@@ -17,23 +17,27 @@
         SetStartTimeCommand,
         ArchiveCommand,
         ReorderToIndexCommand,
-        AdjustDurationCommand
-    } from '../commands/stack-commands.js';
-    import HelpModal from './HelpModal.svelte';
-    import FocusStack from './FocusStack.svelte';
-    import ArchitectStack from './ArchitectStack.svelte';
-    import { type TodoFlowSettings } from '../main';
-    import { resolveSwipe, isDoubleTap, DOUBLE_TAP_WINDOW } from '../gestures.js';
-    import { type StackUIState } from './ViewTypes.js';
-    let { 
+        AdjustDurationCommand,
+    } from "../commands/stack-commands.js";
+    import HelpModal from "./HelpModal.svelte";
+    import FocusStack from "./FocusStack.svelte";
+    import ArchitectStack from "./ArchitectStack.svelte";
+    import { type TodoFlowSettings } from "../main";
+    import {
+        resolveSwipe,
+        isDoubleTap,
+        DOUBLE_TAP_WINDOW,
+    } from "../gestures.js";
+    import { type StackUIState } from "./ViewTypes.js";
+    let {
         navState: initialNavState, // The unified Truth Funnel
-        initialTasks, 
-        settings, 
-        now = moment(), 
-        onOpenFile, 
-        historyManager, 
+        initialTasks,
+        settings,
+        now = moment(),
+        onOpenFile,
+        historyManager,
         logger,
-        onTaskUpdate, 
+        onTaskUpdate,
         onTaskCreate,
         onStackChange,
 
@@ -45,53 +49,68 @@
         onFocusChange,
         lockPersistence,
         unlockPersistence,
-        debug = true
+        debug = true,
     } = $props();
 
     let activeInteractionToken = $state<string | null>(null);
 
-    let navState = $state(initialNavState || {
-        tasks: initialTasks || [],
-        focusedIndex: 0,
-        parentTaskName: null,
-        canGoBack: false,
-        rootPath: null,
-        isMobile: false
-    });
-    
+    let navState = $state(
+        initialNavState || {
+            tasks: initialTasks || [],
+            focusedIndex: 0,
+            parentTaskName: null,
+            canGoBack: false,
+            rootPath: null,
+            isMobile: false,
+        },
+    );
+
     let isMobileProp = $state(initialNavState?.isMobile || false);
-    let viewMode = $state<'focus' | 'architect'>(initialNavState?.isMobile ? 'focus' : 'architect');
-    export function setViewMode(mode: 'focus' | 'architect') {
+    let viewMode = $state<"focus" | "architect">(
+        initialNavState?.isMobile ? "focus" : "architect",
+    );
+    export function setViewMode(mode: "focus" | "architect") {
         viewMode = mode;
     }
     let navigationHistory = $derived(navState?.history || []);
-    
+
     export function setNavState(newState: StackUIState) {
-        if (logger && internalSettings.debug) logger.info(`[StackView.svelte] setNavState received: tasks=${newState.tasks.length}, focus=${newState.focusedIndex}`);
+        if (logger && internalSettings.debug)
+            logger.info(
+                `[StackView.svelte] setNavState received: tasks=${newState.tasks.length}, focus=${newState.focusedIndex}`,
+            );
         navState = newState;
-        
+
         // CRITICAL: Ensure container remains focused after state updates (especially for empty stacks)
         // Use requestAnimationFrame for immediate next-frame restoration + setTimeout as fallback
-        if (typeof window !== 'undefined' && containerEl) {
+        if (typeof window !== "undefined" && containerEl) {
             const shouldFocus = () => {
                 const activeEl = document.activeElement;
                 // Focus if: not already focused, not in an input field, or if body/null (focus lost)
-                return activeEl !== containerEl && 
-                       !(activeEl instanceof HTMLInputElement) &&
-                       !(activeEl instanceof HTMLTextAreaElement);
+                return (
+                    activeEl !== containerEl &&
+                    !(activeEl instanceof HTMLInputElement) &&
+                    !(activeEl instanceof HTMLTextAreaElement)
+                );
             };
-            
+
             requestAnimationFrame(() => {
                 if (shouldFocus()) {
-                    if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Restoring focus to container (RAF)`);
+                    if (logger && internalSettings.debug)
+                        logger.info(
+                            `[StackView.svelte] Restoring focus to container (RAF)`,
+                        );
                     containerEl.focus();
                 }
             });
-            
+
             // Fallback for cases where RAF isn't sufficient
             setTimeout(() => {
                 if (shouldFocus()) {
-                    if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Restoring focus to container (timeout)`);
+                    if (logger && internalSettings.debug)
+                        logger.info(
+                            `[StackView.svelte] Restoring focus to container (timeout)`,
+                        );
                     containerEl.focus();
                 }
             }, 100);
@@ -106,12 +125,12 @@
         } else {
             tasks = newTasks;
         }
-        
+
         // Also update navState to keep them in sync if navState exists
         if (navState) {
             navState.tasks = newTasks;
             // Force navState to be "processed" to avoid redundant syncs
-            lastProcessedNavState = navState; 
+            lastProcessedNavState = navState;
         }
     }
 
@@ -124,7 +143,10 @@
     }
 
     export function setIsMobile(mobile: boolean) {
-        if (logger && debug) logger.info(`[StackView.svelte] setIsMobile manual trigger: ${mobile}`);
+        if (logger && debug)
+            logger.info(
+                `[StackView.svelte] setIsMobile manual trigger: ${mobile}`,
+            );
         isMobileProp = mobile;
         tick++; // Force re-evaluation of derived state
     }
@@ -147,14 +169,18 @@
     let internalSettings = $state(settings);
     let internalNow = $state(now);
     let tick = $state(0);
-    let appMobile = $derived((typeof window !== 'undefined') && (window as any).app?.isMobile === true);
-    
+    let appMobile = $derived(
+        typeof window !== "undefined" && (window as any).app?.isMobile === true,
+    );
+
     let isMobileState = $derived.by(() => {
-        const t = tick; 
+        const t = tick;
         const prop = isMobileProp;
-        const width = (typeof window !== 'undefined') ? window.innerWidth : 1000;
-        const bodyClass = (typeof window !== 'undefined') && document.body.classList.contains('is-mobile');
-        
+        const width = typeof window !== "undefined" ? window.innerWidth : 1000;
+        const bodyClass =
+            typeof window !== "undefined" &&
+            document.body.classList.contains("is-mobile");
+
         return prop || width <= 600 || bodyClass || appMobile;
     });
 
@@ -167,9 +193,9 @@
 
     onMount(async () => {
         mounted = true;
-        
+
         // if (debug) console.log('[TODO_FLOW_TRACE] onMount entry'); // Removed debug logging
-        
+
         // window.onclick = (e) => { // Removed debug logging
         //      console.log(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
         //      if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[SVELTE_DEBUG] GLOBAL CLICK: target=${(e.target as HTMLElement)?.tagName}.${(e.target as HTMLElement)?.className}`);
@@ -181,7 +207,10 @@
             if (controller) controller.updateNow(internalNow);
         }, 60000);
 
-        if (logger) logger.info(`[StackView.svelte] Mounted with ${tasks.length} tasks`);
+        if (logger)
+            logger.info(
+                `[StackView.svelte] Mounted with ${tasks.length} tasks`,
+            );
 
         const update = () => {
             tick++;
@@ -191,35 +220,35 @@
         const handleResize = () => {
             // Explicitly update isMobileProp by checking mobile conditions
             // This ensures reactivity when emulateMobile() adds 'is-mobile' class
-            const detectedMobile = window.innerWidth <= 600 || 
-                                 document.body.classList.contains('is-mobile') ||
-                                 // @ts-ignore
-                                 (typeof app !== 'undefined' && app?.isMobile === true);
-            
+            const detectedMobile =
+                window.innerWidth <= 600 ||
+                document.body.classList.contains("is-mobile") ||
+                // @ts-ignore
+                (typeof app !== "undefined" && app?.isMobile === true);
+
             if (isMobileProp !== detectedMobile) {
                 isMobileProp = detectedMobile;
             }
-            
+
             tick++; // Force isMobileState to re-evaluate
             update();
         };
-        
-        window.addEventListener('resize', handleResize);
+
+        window.addEventListener("resize", handleResize);
 
         keyManager = new KeybindingManager(keys);
-        
-        if (containerEl && !window.navigator.userAgent.includes('HappyDOM')) {
+
+        if (containerEl && !window.navigator.userAgent.includes("HappyDOM")) {
             containerEl.focus();
         }
 
         return () => {
             clearInterval(interval);
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener("resize", handleResize);
             if (focusTimer) clearTimeout(focusTimer);
             if (tapTimer) clearTimeout(tapTimer);
         };
     });
-
 
     const keys = $derived(internalSettings.keys);
 
@@ -232,16 +261,22 @@
     }
 
     let controller: StackController;
-    let tasks: TaskNode[] = $state([]); 
+    let tasks: TaskNode[] = $state([]);
     let focusedIndex = $state(navState?.focusedIndex || 0);
 
     // Ensure focusedIndex is always safe
     $effect(() => {
         if (tasks.length > 0) {
-            const clamped = Math.max(0, Math.min(tasks.length - 1, focusedIndex));
+            const clamped = Math.max(
+                0,
+                Math.min(tasks.length - 1, focusedIndex),
+            );
             if (clamped !== focusedIndex) {
-                 if (logger) logger.warn(`[StackView.svelte] Index Out of Bounds Fix: ${focusedIndex} -> ${clamped} (Tasks: ${tasks.length})`);
-                 focusedIndex = clamped;
+                if (logger)
+                    logger.warn(
+                        `[StackView.svelte] Index Out of Bounds Fix: ${focusedIndex} -> ${clamped} (Tasks: ${tasks.length})`,
+                    );
+                focusedIndex = clamped;
             }
         } else if (focusedIndex !== 0) {
             focusedIndex = 0;
@@ -251,37 +286,55 @@
     $effect(() => {
         // Only react to changes in navState object itself
         const currentNavState = navState;
-        if (!currentNavState || currentNavState === untrack(() => lastProcessedNavState)) return;
+        if (
+            !currentNavState ||
+            currentNavState === untrack(() => lastProcessedNavState)
+        )
+            return;
 
         untrack(() => {
             // Only sync if fundamentally different to avoid race conditions with local pessimistic updates
             // Also BLOCK synchronization while editing to prevent UI flicker/focus loss
             if (editingIndex !== -1 || editingStartTimeIndex !== -1) {
-                if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Truth Funnel Sync BLOCKED - Editing in progress`);
+                if (logger && internalSettings.debug)
+                    logger.info(
+                        `[StackView.svelte] Truth Funnel Sync BLOCKED - Editing in progress`,
+                    );
                 return;
             }
 
-            if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Truth Funnel Sync Triggered: tasks=${currentNavState.tasks.length}, focus=${currentNavState.focusedIndex}`);
+            if (logger && internalSettings.debug)
+                logger.info(
+                    `[StackView.svelte] Truth Funnel Sync Triggered: tasks=${currentNavState.tasks.length}, focus=${currentNavState.focusedIndex}`,
+                );
             navStateReceived = true;
             lastProcessedNavState = currentNavState;
-            
+
             if (!controller) {
-                controller = new StackController(currentNavState.tasks, internalNow, onTaskUpdate, onTaskCreate);
+                controller = new StackController(
+                    currentNavState.tasks,
+                    internalNow,
+                    onTaskUpdate,
+                    onTaskCreate,
+                );
             } else {
                 controller.setTasks(currentNavState.tasks);
             }
-            
+
             tasks = controller.getTasks();
             focusedIndex = currentNavState.focusedIndex;
             internalParentTaskName = currentNavState.parentTaskName;
             internalCanGoBack = currentNavState.canGoBack;
             isMobileProp = currentNavState.isMobile;
 
-            // SYNC MODE: If we just received a mobile state for the first time, 
+            // SYNC MODE: If we just received a mobile state for the first time,
             // and we haven't manually changed the mode, default to 'focus'.
-            if (isMobileProp && viewMode === 'architect') {
-                if (logger && internalSettings.debug) logger.info(`[StackView.svelte] Defaulting viewMode to 'focus' due to mobile detection`);
-                viewMode = 'focus';
+            if (isMobileProp && viewMode === "architect") {
+                if (logger && internalSettings.debug)
+                    logger.info(
+                        `[StackView.svelte] Defaulting viewMode to 'focus' due to mobile detection`,
+                    );
+                viewMode = "focus";
             }
         });
     });
@@ -300,7 +353,7 @@
     let editingIndex = $state(-1); // -1 means no task is being renamed
     let renamingText = $state("");
     let editingStartTimeIndex = $state(-1); // -1 means no task is being time-edited
-    
+
     // We need to instantiate the manager
     let keyManager: KeybindingManager;
 
@@ -325,14 +378,17 @@
     let focusTimer: any = null;
     let tapTimer: any = null;
 
-
-    import { ViewportService } from '../services/ViewportService.js';
+    import { ViewportService } from "../services/ViewportService.js";
 
     $effect(() => {
         if (taskElements[focusedIndex]) {
             // Use hardened ViewportService to ensure centered focus on mobile
             // For navigation, stick to center, but hardened
-            ViewportService.scrollIntoView(taskElements[focusedIndex], 'smooth', isMobileState ? 'center' : 'center');
+            ViewportService.scrollIntoView(
+                taskElements[focusedIndex],
+                "smooth",
+                isMobileState ? "center" : "center",
+            );
         }
     });
 
@@ -352,24 +408,32 @@
     }
 
     export function update() {
-        if (debug) console.debug('[TODO_FLOW_TRACE] update() entry. Current tasks:', tasks.length);
+        if (debug)
+            console.debug(
+                "[TODO_FLOW_TRACE] update() entry. Current tasks:",
+                tasks.length,
+            );
         tasks = controller.getTasks();
         if (onStackChange) onStackChange(tasks);
         if (onFocusChange) onFocusChange(focusedIndex);
-        if (debug) console.debug('[TODO_FLOW_TRACE] update() complete. New tasks:', tasks.length);
+        if (debug)
+            console.debug(
+                "[TODO_FLOW_TRACE] update() complete. New tasks:",
+                tasks.length,
+            );
     }
-    
+
     /**
      * Manually refresh mobile detection (useful for E2E tests)
      * @public
      */
     export function refreshMobileDetection() {
-        const detectedMobile = (typeof window !== 'undefined') && (
-            window.innerWidth <= 600 || 
-            document.body.classList.contains('is-mobile') ||
-            // @ts-ignore
-            (typeof app !== 'undefined' && app?.isMobile === true)
-        );
+        const detectedMobile =
+            typeof window !== "undefined" &&
+            (window.innerWidth <= 600 ||
+                document.body.classList.contains("is-mobile") ||
+                // @ts-ignore
+                (typeof app !== "undefined" && app?.isMobile === true));
         isMobileProp = detectedMobile;
         tick++;
     }
@@ -378,19 +442,22 @@
         return focusedIndex;
     }
 
-
-
-
     export function startRename(index: number) {
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] startRename(${index})`);
-        if (logger) logger.info(`[StackView.svelte] startRename called for index ${index}`);
-        
+        if (typeof window !== "undefined")
+            ((window as any)._logs = (window as any)._logs || []).push(
+                `[StackView] startRename(${index})`,
+            );
+        if (logger)
+            logger.info(
+                `[StackView.svelte] startRename called for index ${index}`,
+            );
+
         lastRenameStartTime = Date.now();
-        
+
         if (index >= 0 && index < tasks.length) {
             renamingText = tasks[index].title;
         }
-        
+
         editingIndex = index;
         // Focus the input on the next tick
         setTimeout(() => {
@@ -402,37 +469,65 @@
     }
 
     let activeRenameId: string | null = null;
-    async function finishRename(id: string, newTitle: string, source: 'blur' | 'submit' = 'submit') {
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] finishRename(${id}, "${newTitle}", source=${source})`);
-        
-        if (source === 'blur' && Date.now() - lastRenameStartTime < 500) {
-            if (logger) logger.info(`[StackView.svelte] finishRename BLOCKED - Premature blur from ${id}`);
+    async function finishRename(
+        id: string,
+        newTitle: string,
+        source: "blur" | "submit" = "submit",
+    ) {
+        if (typeof window !== "undefined")
+            ((window as any)._logs = (window as any)._logs || []).push(
+                `[StackView] finishRename(${id}, "${newTitle}", source=${source})`,
+            );
+
+        if (source === "blur" && Date.now() - lastRenameStartTime < 500) {
+            if (logger)
+                logger.info(
+                    `[StackView.svelte] finishRename BLOCKED - Premature blur from ${id}`,
+                );
             return;
         }
 
         if (activeRenameId === id) {
-            if (logger) logger.info(`[StackView.svelte] finishRename BLOCKED - ID ${id} already processing`);
+            if (logger)
+                logger.info(
+                    `[StackView.svelte] finishRename BLOCKED - ID ${id} already processing`,
+                );
             return;
         }
 
-        const task = tasks.find(t => t.id === id);
-        if (!task) return;
+        const task = tasks.find((t) => t.id === id);
+        if (!task || id.startsWith("temp-")) {
+            if (logger)
+                logger.info(
+                    `[StackView.svelte] finishRename BLOCKED - ID ${id} is temporary or missing`,
+                );
+            return;
+        }
 
-        if (logger) logger.info(`[StackView.svelte] finishRename entry - ID: ${id}, New Title: "${newTitle}"`);
-        
+        if (logger)
+            logger.info(
+                `[StackView.svelte] finishRename entry - ID: ${id}, New Title: "${newTitle}"`,
+            );
+
         try {
             if (newTitle.trim().length > 0 && newTitle !== task.title) {
                 activeRenameId = id;
-                if (logger) logger.info(`[StackView.svelte] Executing RenameTaskCommand for ID ${id}`);
-                
-                const index = tasks.findIndex(t => t.id === id);
+                if (logger)
+                    logger.info(
+                        `[StackView.svelte] Executing RenameTaskCommand for ID ${id}`,
+                    );
+
+                const index = tasks.findIndex((t) => t.id === id);
                 if (index === -1) return;
 
                 const cmd = new RenameTaskCommand(controller, index, newTitle);
                 await historyManager.executeCommand(cmd);
                 update();
             } else {
-                if (logger) logger.info(`[StackView.svelte] Rename skipped - Title unchanged or ID mismatch`);
+                if (logger)
+                    logger.info(
+                        `[StackView.svelte] Rename skipped - Title unchanged or ID mismatch`,
+                    );
             }
         } finally {
             editingIndex = -1;
@@ -445,9 +540,12 @@
             }, 50);
         }
     }
-    
+
     function cancelRename() {
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] cancelRename()`);
+        if (typeof window !== "undefined")
+            ((window as any)._logs = (window as any)._logs || []).push(
+                `[StackView] cancelRename()`,
+            );
         editingIndex = -1;
         if (focusTimer) clearTimeout(focusTimer);
         focusTimer = setTimeout(() => {
@@ -461,9 +559,16 @@
     }
 
     async function finishEditStartTime(id: string, newTime: string) {
-        const index = tasks.findIndex(t => t.id === id);
+        if (id.startsWith("temp-")) {
+            if (logger)
+                logger.info(
+                    `[StackView.svelte] finishEditStartTime BLOCKED - ID ${id} is temporary`,
+                );
+            return;
+        }
+        const index = tasks.findIndex((t) => t.id === id);
         if (index === -1) return;
-        
+
         try {
             if (newTime.trim().length > 0) {
                 const cmd = new SetStartTimeCommand(controller, index, newTime);
@@ -490,35 +595,40 @@
         }
         if (editingIndex !== -1 || editingStartTimeIndex !== -1) return;
         if (!(window as any)._logs) (window as any)._logs = [];
-        (window as any)._logs.push(`[GESTURE] pointerdown taskId=${taskId} isPrimary=${e.isPrimary} button=${e.button}`);
-        
+        (window as any)._logs.push(
+            `[GESTURE] pointerdown taskId=${taskId} isPrimary=${e.isPrimary} button=${e.button}`,
+        );
+
         if (logger && internalSettings.debug) {
-            logger.info(`[GESTURE] handlePointerStart taskId=${taskId}, target=${(e.target as HTMLElement).className}`);
+            logger.info(
+                `[GESTURE] handlePointerStart taskId=${taskId}, target=${(e.target as HTMLElement).className}`,
+            );
         }
 
         e.stopPropagation(); // Avoid Obsidian's default click-and-drag behaviors
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-        
+
         touchStartX = e.clientX;
         touchStartY = e.clientY;
         touchCurrentX = touchStartX;
         touchCurrentY = touchStartY;
         swipingTaskId = taskId;
 
-        const index = tasks.findIndex(t => t.id === taskId);
+        const index = tasks.findIndex((t) => t.id === taskId);
         if (index !== -1) {
             focusedIndex = index;
             if (onFocusChange) onFocusChange(index);
         }
-        
+
         // Implementation of Interaction Token: Claim lock on start
         activeInteractionToken = `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-        if (lockPersistence && navState.rootPath) lockPersistence(navState.rootPath, activeInteractionToken);
+        if (lockPersistence && navState.rootPath)
+            lockPersistence(navState.rootPath, activeInteractionToken);
         if (controller) controller.freeze();
-        
+
         // Detect if we started on the handle for immediate reorder intent
         const target = e.target as HTMLElement;
-        startedOnHandle = target.closest('.drag-handle') !== null;
+        startedOnHandle = target.closest(".drag-handle") !== null;
         // console.log(`[GESTURE] startedOnHandle=${startedOnHandle}`);
         dragLogged = false;
 
@@ -530,27 +640,47 @@
         // HOLD TO DRAG / LONG PRESS
         if (!startedOnHandle) {
             if (tapTimer) clearTimeout(tapTimer);
-            
-            const longPressDelay = (settings.longPressAction && settings.longPressAction !== 'none') ? 500 : 350;
+
+            const longPressDelay =
+                settings.longPressAction && settings.longPressAction !== "none"
+                    ? 500
+                    : 350;
 
             tapTimer = setTimeout(async () => {
                 if (swipingTaskId === taskId && !draggingTaskId) {
                     const dx = Math.abs(touchCurrentX - touchStartX);
                     const dy = Math.abs(touchCurrentY - touchStartY);
                     if (dx < 20 && dy < 20) {
-                        const index = tasks.findIndex(t => t.id === swipingTaskId);
-                        
+                        const index = tasks.findIndex(
+                            (t) => t.id === swipingTaskId,
+                        );
+
                         // 1. LONG PRESS ACTION (Overrides Drag)
-                        if (settings.longPressAction && settings.longPressAction !== 'none') {
+                        if (
+                            settings.longPressAction &&
+                            settings.longPressAction !== "none"
+                        ) {
                             if (index !== -1) {
-                                if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('heavy');
-                                (window as any)._logs.push(`[GESTURE] Long Press Triggered: ${settings.longPressAction}`);
-                                await executeGestureAction(settings.longPressAction, tasks[index]!, index);
+                                if (window.obsidian?.haptics)
+                                    (window as any).obsidian.haptics.impact(
+                                        "heavy",
+                                    );
+                                (window as any)._logs.push(
+                                    `[GESTURE] Long Press Triggered: ${settings.longPressAction}`,
+                                );
+                                await executeGestureAction(
+                                    settings.longPressAction,
+                                    tasks[index]!,
+                                    index,
+                                );
                                 swipingTaskId = null; // Consume gesture
                             }
                         } else {
                             // No long press action, but we trigger haptic to show drag mode is "primed"
-                            if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('light');
+                            if (window.obsidian?.haptics)
+                                (window as any).obsidian.haptics.impact(
+                                    "light",
+                                );
                         }
                     }
                 }
@@ -560,29 +690,33 @@
 
     function handlePointerMove(e: PointerEvent) {
         if (!(window as any)._logs) (window as any)._logs = [];
-        (window as any)._logs.push(`[GESTURE] pointermove clientX=${e.clientX.toFixed(1)} clientY=${e.clientY.toFixed(1)}`);
+        (window as any)._logs.push(
+            `[GESTURE] pointermove clientX=${e.clientX.toFixed(1)} clientY=${e.clientY.toFixed(1)}`,
+        );
         if (!swipingTaskId && !draggingTaskId) return;
 
         // Shadow Obsidian gestures immediately if we have a task intent
         e.stopPropagation();
         if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-        
+
         touchCurrentX = e.clientX;
         touchCurrentY = e.clientY;
-        
+
         const dx = Math.abs(touchCurrentX - touchStartX);
         const dy = Math.abs(touchCurrentY - touchStartY);
 
-        if (typeof window !== 'undefined' && !(draggingTaskId)) {
-            ((window as any)._logs = (window as any)._logs || []).push(`[GESTURE] move dx=${dx.toFixed(1)} dy=${dy.toFixed(1)} handle=${startedOnHandle}`);
+        if (typeof window !== "undefined" && !draggingTaskId) {
+            ((window as any)._logs = (window as any)._logs || []).push(
+                `[GESTURE] move dx=${dx.toFixed(1)} dy=${dy.toFixed(1)} handle=${startedOnHandle}`,
+            );
         }
-        
+
         // 1. INTENT LOCKING: Deciding between Swipe vs Drag
         if (!draggingTaskId && (dy > 2 || dx > 2 || startedOnHandle)) {
             // Immediate lock if on handle
             // OR if vertical movement is significantly greater than horizontal
-            if (startedOnHandle || dy > (dx * 1.2)) { 
-                const index = tasks.findIndex(t => t.id === swipingTaskId);
+            if (startedOnHandle || dy > dx * 1.2) {
+                const index = tasks.findIndex((t) => t.id === swipingTaskId);
                 if (index !== -1 && !tasks[index]!.isAnchored) {
                     // Start dragging immediately
                     draggingTaskId = swipingTaskId;
@@ -591,12 +725,18 @@
                     swipingTaskId = null;
                     if (tapTimer) clearTimeout(tapTimer); // Cancel long-press timer
 
-                    if (window.obsidian?.haptics) (window as any).obsidian.haptics.impact('medium');
+                    if (window.obsidian?.haptics)
+                        (window as any).obsidian.haptics.impact("medium");
                     if (logger && internalSettings.debug && !dragLogged) {
-                        logger.info(`[GESTURE] Intent locked: DRAG (taskId: ${draggingTaskId})`);
+                        logger.info(
+                            `[GESTURE] Intent locked: DRAG (taskId: ${draggingTaskId})`,
+                        );
                         dragLogged = true;
                     }
-                    if (typeof window !== 'undefined') (window as any)._logs.push(`[GESTURE] DRAG START (Immediate): ${draggingTaskId}`);
+                    if (typeof window !== "undefined")
+                        (window as any)._logs.push(
+                            `[GESTURE] DRAG START (Immediate): ${draggingTaskId}`,
+                        );
                 }
             } else if (dx > 20) {
                 // Stay in swipe mode
@@ -608,11 +748,11 @@
         if (draggingTaskId) {
             e.preventDefault(); // Stop scrolling while dragging
             e.stopPropagation();
-            
+
             const y = e.clientY;
             let bestTarget = -1;
             let minDistance = Infinity;
-            
+
             for (let i = 0; i < taskElements.length; i++) {
                 // Skip the card we are currently dragging to avoid distance-to-self issues
                 if (i === draggingStartIndex) continue;
@@ -622,20 +762,24 @@
                 const rect = el.getBoundingClientRect();
                 const centerY = rect.top + rect.height / 2;
                 const dist = Math.abs(y - centerY);
-                
+
                 if (dist < minDistance) {
                     minDistance = dist;
                     bestTarget = i;
                 }
             }
-            
+
             if (bestTarget !== -1 && bestTarget !== dragTargetIndex) {
                 if (!(window as any)._logs) (window as any)._logs = [];
-                (window as any)._logs.push(`[GESTURE] dragTargetIndex changed: ${dragTargetIndex} -> ${bestTarget}`);
+                (window as any)._logs.push(
+                    `[GESTURE] dragTargetIndex changed: ${dragTargetIndex} -> ${bestTarget}`,
+                );
                 dragTargetIndex = bestTarget;
                 // Add the new log for drag move
                 if (!dragLogged) {
-                    (window as any)._logs.push(`[GESTURE] DRAG MOVE index=${bestTarget}`);
+                    (window as any)._logs.push(
+                        `[GESTURE] DRAG MOVE index=${bestTarget}`,
+                    );
                     dragLogged = true;
                 }
             }
@@ -648,27 +792,43 @@
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
 
         if (draggingTaskId) {
-            if (dragTargetIndex !== -1 && dragTargetIndex !== draggingStartIndex && dragTargetIndex < tasks.length) {
-                (window as any)._logs.push(`[GESTURE] REORDER TRIGGERED: ${draggingStartIndex} -> ${dragTargetIndex}`);
-                const command = new ReorderToIndexCommand(controller, draggingStartIndex, dragTargetIndex);
+            if (
+                dragTargetIndex !== -1 &&
+                dragTargetIndex !== draggingStartIndex &&
+                dragTargetIndex < tasks.length
+            ) {
+                (window as any)._logs.push(
+                    `[GESTURE] REORDER TRIGGERED: ${draggingStartIndex} -> ${dragTargetIndex}`,
+                );
+                const command = new ReorderToIndexCommand(
+                    controller,
+                    draggingStartIndex,
+                    dragTargetIndex,
+                );
                 await historyManager.executeCommand(command);
                 focusedIndex = dragTargetIndex; // Selection follows task
                 update();
             } else {
-                (window as any)._logs.push(`[GESTURE] REORDER SKIPPED: target=${dragTargetIndex} start=${draggingStartIndex}`);
+                (window as any)._logs.push(
+                    `[GESTURE] REORDER SKIPPED: target=${dragTargetIndex} start=${draggingStartIndex}`,
+                );
             }
             draggingTaskId = null;
             draggingStartIndex = -1;
             dragTargetIndex = -1;
             dragLogged = false;
             lastDragEndTime = Date.now();
-            
-            if (unlockPersistence && navState.rootPath && activeInteractionToken) {
+
+            if (
+                unlockPersistence &&
+                navState.rootPath &&
+                activeInteractionToken
+            ) {
                 unlockPersistence(navState.rootPath, activeInteractionToken);
                 activeInteractionToken = null;
             }
             if (controller) controller.unfreeze();
-            
+
             // IMPORTANT: If we just finished a drag, we don't want to trigger a swipe
             swipingTaskId = null;
             touchStartX = 0;
@@ -679,16 +839,22 @@
         const deltaX = touchCurrentX - touchStartX;
         const deltaY = touchCurrentY - touchStartY;
         const swipe = resolveSwipe(deltaX, deltaY);
-        
-        const index = tasks.findIndex(t => t.id === task.id);
 
-
+        const index = tasks.findIndex((t) => t.id === task.id);
 
         if (index !== -1) {
-            if (swipe === 'right') {
-                await executeGestureAction(settings.swipeRightAction, task, index);
-            } else if (swipe === 'left') {
-                await executeGestureAction(settings.swipeLeftAction, task, index);
+            if (swipe === "right") {
+                await executeGestureAction(
+                    settings.swipeRightAction,
+                    task,
+                    index,
+                );
+            } else if (swipe === "left") {
+                await executeGestureAction(
+                    settings.swipeLeftAction,
+                    task,
+                    index,
+                );
             }
         }
 
@@ -713,31 +879,47 @@
         draggingTaskId = null;
     }
 
-    async function executeGestureAction(action: string, task: TaskNode, index: number) {
-        if (debug) console.log(`[StackView DEBUG] executeGestureAction action=${action}, task=${task.title}, index=${index}`);
-        if (!action || action === 'none') return;
+    async function executeGestureAction(
+        action: string,
+        task: TaskNode,
+        index: number,
+    ) {
+        if (debug)
+            console.log(
+                `[StackView DEBUG] executeGestureAction action=${action}, task=${task.title}, index=${index}`,
+            );
+        if (!action || action === "none") return;
 
         let cmd;
-        if (action === 'complete') {
+        if (action === "complete") {
             cmd = new ToggleStatusCommand(controller, index);
             await historyManager.executeCommand(cmd);
-            if ((window as any).Notice) new (window as any).Notice(`Task: ${task.title} toggled`);
-            update(); 
-        } else if (action === 'archive') {
+            if ((window as any).Notice)
+                new (window as any).Notice(`Task: ${task.title} toggled`);
+            update();
+        } else if (action === "archive") {
             cmd = new ArchiveCommand(controller, index, async (t) => {
                 await onTaskUpdate(t);
             });
             await historyManager.executeCommand(cmd);
-            if ((window as any).Notice) new (window as any).Notice(`Archived: ${task.title}`);
+            if ((window as any).Notice)
+                new (window as any).Notice(`Archived: ${task.title}`);
             update();
-        } else if (action === 'anchor') {
+        } else if (action === "anchor") {
             cmd = new ToggleAnchorCommand(controller, index);
             await historyManager.executeCommand(cmd);
-            if ((window as any).Notice) new (window as any).Notice(`${task.isAnchored ? 'Released' : 'Anchored'}: ${task.title}`);
+            if ((window as any).Notice)
+                new (window as any).Notice(
+                    `${task.isAnchored ? "Released" : "Anchored"}: ${task.title}`,
+                );
             update();
-        } else if (action === 'force-open') {
+        } else if (action === "force-open") {
             const navResult = controller.handleEnter(index, true); // forceOpen = true
-            if (navResult && navResult.action === 'OPEN_FILE' && navResult.path) {
+            if (
+                navResult &&
+                navResult.action === "OPEN_FILE" &&
+                navResult.path
+            ) {
                 if (onOpenFile) onOpenFile(navResult.path);
             }
         }
@@ -747,30 +929,42 @@
         // to reflect where the task landed (e.g., after an Anchor sort or Toggle jump).
         if (cmd && cmd.resultIndex !== undefined && cmd.resultIndex !== null) {
             focusedIndex = cmd.resultIndex;
-        } else if (action === 'archive') {
+        } else if (action === "archive") {
             // Archive removes the item, so we need to stay within bounds
-            focusedIndex = Math.max(0, Math.min(tasks.length - 1, focusedIndex));
+            focusedIndex = Math.max(
+                0,
+                Math.min(tasks.length - 1, focusedIndex),
+            );
         }
     }
 
-
-
-    function touchBlocking(node: HTMLElement, handler: (e: TouchEvent) => void) {
+    function touchBlocking(
+        node: HTMLElement,
+        handler: (e: TouchEvent) => void,
+    ) {
         const options = { passive: false, capture: true };
-        node.addEventListener('touchstart', handler as EventListener, options);
-        node.addEventListener('touchmove', handler as EventListener, options);
+        node.addEventListener("touchstart", handler as EventListener, options);
+        node.addEventListener("touchmove", handler as EventListener, options);
         return {
             destroy() {
-                node.removeEventListener('touchstart', handler as EventListener, options);
-                node.removeEventListener('touchmove', handler as EventListener, options);
-            }
+                node.removeEventListener(
+                    "touchstart",
+                    handler as EventListener,
+                    options,
+                );
+                node.removeEventListener(
+                    "touchmove",
+                    handler as EventListener,
+                    options,
+                );
+            },
         };
     }
 
     function handleTouchBlocking(e: TouchEvent) {
         // High-level blocking for Obsidian's gesture engine
         e.stopPropagation();
-        
+
         const dx = Math.abs(touchCurrentX - touchStartX);
         const dy = Math.abs(touchCurrentY - touchStartY);
 
@@ -788,21 +982,27 @@
             return;
         }
         if (editingIndex !== -1 || editingStartTimeIndex !== -1) return;
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] handleTap: index=${index}, focused=${focusedIndex}, event=${e.type}, x=${e.clientX}, y=${e.clientY}, detail=${e.detail}, button=${e.button}, target=${(e.target as HTMLElement).tagName}`);
+        if (typeof window !== "undefined")
+            ((window as any)._logs = (window as any)._logs || []).push(
+                `[StackView] handleTap: index=${index}, focused=${focusedIndex}, event=${e.type}, x=${e.clientX}, y=${e.clientY}, detail=${e.detail}, button=${e.button}, target=${(e.target as HTMLElement).tagName}`,
+            );
         // Prevent click events if we just finished a drag
         const now = Date.now();
         if (now - lastDragEndTime < 300) {
-            if (logger && internalSettings.debug) logger.info(`[GESTURE] handleTap BLOCKED by recent drag (${now - lastDragEndTime}ms)`);
+            if (logger && internalSettings.debug)
+                logger.info(
+                    `[GESTURE] handleTap BLOCKED by recent drag (${now - lastDragEndTime}ms)`,
+                );
             return;
         }
-        
+
         const delta = now - lastTapTime;
         lastTapTime = now; // Update lastTapTime for the next tap
 
-        if (delta < DOUBLE_TAP_WINDOW) { 
+        if (delta < DOUBLE_TAP_WINDOW) {
             // Double Tap
-            if (debug) console.log('[GESTURE] Double Tap Detected');
-            
+            if (debug) console.log("[GESTURE] Double Tap Detected");
+
             // Clear any pending single-tap navigate timer
             if (tapTimer) {
                 clearTimeout(tapTimer);
@@ -819,16 +1019,19 @@
             // If tapping on an already focused item, treat it as a 'CONFIRM' action
             // but DELAY it slightly to allow for a second tap to anchor.
             if (tapTimer) clearTimeout(tapTimer);
-            
+
             tapTimer = setTimeout(() => {
                 tapTimer = null;
                 const navResult = controller.handleEnter(index);
                 if (navResult) {
-                    if (navResult.action === 'DRILL_DOWN') {
+                    if (navResult.action === "DRILL_DOWN") {
                         if (task && onNavigate) {
-                            onNavigate(task.id, focusedIndex); 
+                            onNavigate(task.id, focusedIndex);
                         }
-                    } else if (navResult.action === 'OPEN_FILE' && navResult.path) {
+                    } else if (
+                        navResult.action === "OPEN_FILE" &&
+                        navResult.path
+                    ) {
                         if (onNavigate) {
                             onNavigate(navResult.path, focusedIndex);
                         } else {
@@ -853,14 +1056,18 @@
             const deltaY = touchCurrentY - touchStartY;
             return `translateY(${deltaY}px) scale(1.02) rotate(1deg)`;
         }
-        return '';
+        return "";
     }
 
     function selectOnFocus(node: HTMLInputElement) {
         node.focus();
         node.select();
         // On mobile, use 'start' to ensure it's above the keyboard
-        ViewportService.scrollIntoView(node, 'smooth', isMobileState ? 'start' : 'center');
+        ViewportService.scrollIntoView(
+            node,
+            "smooth",
+            isMobileState ? "start" : "center",
+        );
     }
 
     export async function handleKeyDown(e: KeyboardEvent) {
@@ -868,57 +1075,79 @@
             new (window as any).Notice("Syncing in progress. Please wait...");
             return;
         }
-        if (logger && internalSettings.debug) logger.info(`[TODO_FLOW_TRACE] handleKeyDown entry: key="${e.key}", shift=${e.shiftKey}, target=${(e.target as HTMLElement).tagName}, active=${document.activeElement?.tagName}`);
-        
+        if (logger && internalSettings.debug)
+            logger.info(
+                `[TODO_FLOW_TRACE] handleKeyDown entry: key="${e.key}", shift=${e.shiftKey}, target=${(e.target as HTMLElement).tagName}, active=${document.activeElement?.tagName}`,
+            );
+
         // Robust Interference Check:
         const target = e.target as HTMLElement;
         const active = document.activeElement as HTMLElement;
 
         // 1. If target is an input/textarea
-        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-            if (logger) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: IGNORED (target is input)`);
+        if (
+            target instanceof HTMLInputElement ||
+            target instanceof HTMLTextAreaElement
+        ) {
+            if (logger)
+                logger.info(
+                    `[TODO_FLOW_TRACE] handleKeyDown: IGNORED (target is input)`,
+                );
             return;
         }
-        
+
         // 2. If target is contenteditable (Obsidian Editor)
         if (target.isContentEditable) {
-            if (logger) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: IGNORED (target is contentEditable)`);
+            if (logger)
+                logger.info(
+                    `[TODO_FLOW_TRACE] handleKeyDown: IGNORED (target is contentEditable)`,
+                );
             return;
         }
 
         // 3. Fallback: If active element is contenteditable (sometimes target isn't reliable in bubble)
         if (active && active.isContentEditable) {
-            if (logger) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: IGNORED (active is contentEditable)`);
+            if (logger)
+                logger.info(
+                    `[TODO_FLOW_TRACE] handleKeyDown: IGNORED (active is contentEditable)`,
+                );
             return;
         }
 
-
         // DIAGNOSTIC: Log keyboard events for debugging
-        if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(`[StackView] handleKeyDown ENTRY: key="${e.key}", mounted=${mounted}, tasks=${tasks.length}`);
+        if (typeof window !== "undefined") {
+            ((window as any)._logs = (window as any)._logs || []).push(
+                `[StackView] handleKeyDown ENTRY: key="${e.key}", mounted=${mounted}, tasks=${tasks.length}`,
+            );
         }
-        
+
         // Early return only for non-mounted state
         // CRITICAL: We removed !tasks.length check because GO_BACK must work on empty stacks!
         if (!mounted) return;
-        
+
         const action = keyManager.resolveAction(e);
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] KeyDown: ${e.key} (Shift=${e.shiftKey}) -> Action: ${action} (Focused: ${focusedIndex})`);
-        
+        if (typeof window !== "undefined")
+            ((window as any)._logs = (window as any)._logs || []).push(
+                `[StackView] KeyDown: ${e.key} (Shift=${e.shiftKey}) -> Action: ${action} (Focused: ${focusedIndex})`,
+            );
+
         // CANCEL PENDING TAPS ON KEYBOARD INTERACTION (Fixes Ghost Click Race)
         if (tapTimer) {
             clearTimeout(tapTimer);
             tapTimer = null;
         }
 
-        if (logger && internalSettings.debug) logger.info(`[TODO_FLOW_TRACE] handleKeyDown: resolved action="${action}"`);
-        
+        if (logger && internalSettings.debug)
+            logger.info(
+                `[TODO_FLOW_TRACE] handleKeyDown: resolved action="${action}"`,
+            );
+
         if (!action) return;
 
         // --- HELP LAYER BLOCKING LOGIC ---
         if (showHelp) {
             // While help is open, ONLY listen for Toggle or Cancel
-            if (action === 'TOGGLE_HELP' || action === 'CANCEL') {
+            if (action === "TOGGLE_HELP" || action === "CANCEL") {
                 showHelp = false;
                 e.stopPropagation();
             }
@@ -927,7 +1156,7 @@
         }
 
         // Normal handling
-        if (action === 'TOGGLE_HELP') {
+        if (action === "TOGGLE_HELP") {
             showHelp = true;
             e.stopPropagation();
             return;
@@ -945,145 +1174,204 @@
         e.stopImmediatePropagation();
 
         // Handle global undo/redo separately
-        if (action === 'UNDO') {
+        if (action === "UNDO") {
             historyManager.undo();
             update();
             return;
         }
-        
-        if (action === 'REDO') {
+
+        if (action === "REDO") {
             historyManager.redo();
             update();
             return;
         }
 
         switch (action) {
-              case 'RENAME':
-                if (logger) logger.info(`[StackView.svelte] Shortcut: RENAME for index ${focusedIndex}`);
+            case "RENAME":
+                if (logger)
+                    logger.info(
+                        `[StackView.svelte] Shortcut: RENAME for index ${focusedIndex}`,
+                    );
                 startRename(focusedIndex);
                 break;
-                
-              case 'EDIT_START_TIME':
+
+            case "EDIT_START_TIME":
                 startEditStartTime(focusedIndex);
                 break;
-                
-             case 'FORCE_OPEN':
+
+            case "FORCE_OPEN":
                 const forceResult = controller.handleEnter(focusedIndex, true);
-                if (forceResult && forceResult.action === 'OPEN_FILE' && forceResult.path) {
+                if (
+                    forceResult &&
+                    forceResult.action === "OPEN_FILE" &&
+                    forceResult.path
+                ) {
                     onOpenFile(forceResult.path);
                 }
                 break;
-                
-             case 'GO_BACK':
-                if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackView] GO_BACK action triggered. onGoBack exists: ${!!onGoBack}`);
-                if (debug) console.log(`[TODO_FLOW_TRACE] Executing GO_BACK action. onGoBack callback exists: ${!!onGoBack}`);
+
+            case "GO_BACK":
+                if (typeof window !== "undefined")
+                    ((window as any)._logs = (window as any)._logs || []).push(
+                        `[StackView] GO_BACK action triggered. onGoBack exists: ${!!onGoBack}`,
+                    );
+                if (debug)
+                    console.log(
+                        `[TODO_FLOW_TRACE] Executing GO_BACK action. onGoBack callback exists: ${!!onGoBack}`,
+                    );
                 if (onGoBack) onGoBack();
                 break;
 
-              case 'CONFIRM':
+            case "CONFIRM":
                 const navResult = controller.handleEnter(focusedIndex);
-                if (navResult && navResult.action === 'DRILL_DOWN') {
+                if (navResult && navResult.action === "DRILL_DOWN") {
                     const task = tasks[focusedIndex];
                     if (task && onNavigate) {
-                        onNavigate(task.id, focusedIndex); 
+                        onNavigate(task.id, focusedIndex);
                     }
                 }
                 break;
-            case 'NAV_DOWN':
+            case "NAV_DOWN":
                 if (tasks.length > 0) {
                     focusedIndex = Math.min(tasks.length - 1, focusedIndex + 1);
                     if (onFocusChange) onFocusChange(focusedIndex);
                 }
                 break;
-            case 'NAV_UP':
+            case "NAV_UP":
                 if (tasks.length > 0) {
                     focusedIndex = Math.max(0, focusedIndex - 1);
                     if (onFocusChange) onFocusChange(focusedIndex);
                 }
                 break;
-            case 'MOVE_DOWN':
-                const cmdDown = new MoveTaskCommand(controller, focusedIndex, 'down');
+            case "MOVE_DOWN":
+                const cmdDown = new MoveTaskCommand(
+                    controller,
+                    focusedIndex,
+                    "down",
+                );
                 await historyManager.executeCommand(cmdDown);
                 if (cmdDown.resultIndex !== null) {
                     focusedIndex = cmdDown.resultIndex;
                 }
                 update();
                 break;
-            case 'MOVE_UP':
-                const cmdUp = new MoveTaskCommand(controller, focusedIndex, 'up');
+            case "MOVE_UP":
+                const cmdUp = new MoveTaskCommand(
+                    controller,
+                    focusedIndex,
+                    "up",
+                );
                 await historyManager.executeCommand(cmdUp);
                 if (cmdUp.resultIndex !== null) {
                     focusedIndex = cmdUp.resultIndex;
                 }
                 update();
                 break;
-            case 'ANCHOR':
-                const cmdAnchor = new ToggleAnchorCommand(controller, focusedIndex);
+            case "ANCHOR":
+                const cmdAnchor = new ToggleAnchorCommand(
+                    controller,
+                    focusedIndex,
+                );
                 await historyManager.executeCommand(cmdAnchor);
                 if (cmdAnchor.resultIndex !== null) {
                     focusedIndex = cmdAnchor.resultIndex;
                 }
                 update();
                 break;
-            case 'DURATION_UP':
-                const cmdDurUp = new ScaleDurationCommand(controller, focusedIndex, 'up');
+            case "DURATION_UP":
+                const cmdDurUp = new ScaleDurationCommand(
+                    controller,
+                    focusedIndex,
+                    "up",
+                );
                 await historyManager.executeCommand(cmdDurUp);
                 if (cmdDurUp.resultIndex !== null) {
                     focusedIndex = cmdDurUp.resultIndex;
                 }
                 update();
                 break;
-            case 'DURATION_DOWN':
-                const cmdDurDown = new ScaleDurationCommand(controller, focusedIndex, 'down');
+            case "DURATION_DOWN":
+                const cmdDurDown = new ScaleDurationCommand(
+                    controller,
+                    focusedIndex,
+                    "down",
+                );
                 await historyManager.executeCommand(cmdDurDown);
                 if (cmdDurDown.resultIndex !== null) {
                     focusedIndex = cmdDurDown.resultIndex;
                 }
                 update();
                 break;
-            case 'TOGGLE_DONE':
-                const cmdStatus = new ToggleStatusCommand(controller, focusedIndex);
+            case "TOGGLE_DONE":
+                const cmdStatus = new ToggleStatusCommand(
+                    controller,
+                    focusedIndex,
+                );
                 await historyManager.executeCommand(cmdStatus);
                 if (cmdStatus.resultIndex !== null) {
                     focusedIndex = cmdStatus.resultIndex;
                 }
                 update();
                 break;
-            case 'CREATE_TASK':
-                if (debug) console.debug('[TODO_FLOW_TRACE] Action CREATE_TASK triggered (redirecing to QuickAdd)');
+            case "CREATE_TASK":
+                if (debug)
+                    console.debug(
+                        "[TODO_FLOW_TRACE] Action CREATE_TASK triggered (redirecing to QuickAdd)",
+                    );
                 // UNIFIED WORKFLOW: Both 'c' and 'o' now trigger the NLP-enabled Quick Add
                 if (openQuickAddModal) {
                     openQuickAddModal(focusedIndex);
                 } else {
-                     if (debug) console.warn('[TODO_FLOW_TRACE] openQuickAddModal not available in props');
+                    if (debug)
+                        console.warn(
+                            "[TODO_FLOW_TRACE] openQuickAddModal not available in props",
+                        );
                 }
                 break;
-            case 'QUICK_ADD':
+            case "QUICK_ADD":
                 if (openQuickAddModal) {
                     openQuickAddModal(focusedIndex);
                 }
                 break;
-            case 'DELETE_TASK':
+            case "DELETE_TASK":
                 const taskToDelete = tasks[focusedIndex];
-                if (taskToDelete && confirm(`Delete task "${taskToDelete.title}"?`)) {
-                    await historyManager.executeCommand(new DeleteTaskCommand(controller, focusedIndex));
+                if (
+                    taskToDelete &&
+                    confirm(`Delete task "${taskToDelete.title}"?`)
+                ) {
+                    await historyManager.executeCommand(
+                        new DeleteTaskCommand(controller, focusedIndex),
+                    );
                     focusedIndex = Math.max(0, focusedIndex - 1);
-                    new (window as any).Notice(`Deleted: ${taskToDelete.title}`);
+                    new (window as any).Notice(
+                        `Deleted: ${taskToDelete.title}`,
+                    );
                     update();
                 }
                 break;
-            case 'ARCHIVE':
+            case "ARCHIVE":
                 const taskToArchive = tasks[focusedIndex];
                 if (taskToArchive) {
-                    await historyManager.executeCommand(new ArchiveCommand(controller, focusedIndex, async (t) => {
-                        await onTaskUpdate(t);
-                    }));
-                    focusedIndex = Math.max(0, Math.min(tasks.length - 1, focusedIndex));
-                    new (window as any).Notice(`Archived: ${taskToArchive.title}`);
+                    await historyManager.executeCommand(
+                        new ArchiveCommand(
+                            controller,
+                            focusedIndex,
+                            async (t) => {
+                                await onTaskUpdate(t);
+                            },
+                        ),
+                    );
+                    focusedIndex = Math.max(
+                        0,
+                        Math.min(tasks.length - 1, focusedIndex),
+                    );
+                    new (window as any).Notice(
+                        `Archived: ${taskToArchive.title}`,
+                    );
                     update();
                 }
                 break;
-            case 'EXPORT':
+            case "EXPORT":
                 if (onExport) {
                     onExport(tasks);
                 }
@@ -1094,13 +1382,16 @@
 
     export function setIsSyncing(val: boolean) {
         isSyncing = val;
-        if (debug) console.log(`[StackView] Sync status updated in UI: ${isSyncing}`);
+        if (debug)
+            console.log(`[StackView] Sync status updated in UI: ${isSyncing}`);
     }
 
     function syncGuard(fn: any) {
         return (...args: any[]) => {
             if (isSyncing) {
-                new (window as any).Notice("Syncing in progress. Please wait...");
+                new (window as any).Notice(
+                    "Syncing in progress. Please wait...",
+                );
                 return;
             }
             return fn?.(...args);
@@ -1108,11 +1399,10 @@
     }
 </script>
 
-
 <!-- Make container focusable and attach listener -->
-<div 
+<div
     bind:this={containerEl}
-    class="todo-flow-stack-container" 
+    class="todo-flow-stack-container"
     class:is-mobile-layout={isMobileState}
     class:is-syncing={isSyncing}
     data-is-mobile={isMobileState}
@@ -1132,46 +1422,122 @@
         <div class="todo-flow-stack-header">
             <div class="header-left">
                 {#if internalCanGoBack}
-                    <button class="back-nav-btn" onclick={syncGuard(onGoBack)} title="Go back to parent">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    <button
+                        class="back-nav-btn"
+                        onclick={syncGuard(onGoBack)}
+                        title="Go back to parent"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            ><line x1="19" y1="12" x2="5" y2="12"
+                            ></line><polyline points="12 19 5 12 12 5"
+                            ></polyline></svg
+                        >
                     </button>
                 {/if}
-                
+
                 <div class="breadcrumb-trail">
                     {#if navigationHistory.length > 0}
-                        <span class="breadcrumb-item root" onclick={onGoBack}>...</span>
+                        <span class="breadcrumb-item root" onclick={onGoBack}
+                            >...</span
+                        >
                         <span class="breadcrumb-separator">/</span>
                     {/if}
                     {#if internalParentTaskName}
-                        <span class="breadcrumb-item active" data-testid="header-parent-name">{internalParentTaskName}</span>
+                        <span
+                            class="breadcrumb-item active"
+                            data-testid="header-parent-name"
+                            >{internalParentTaskName}</span
+                        >
                     {/if}
                 </div>
             </div>
 
             <div class="header-right">
-                <span class="sync-sentry" class:is-active={isSyncing} data-testid="sync-sentry" data-is-active={isSyncing} title={isSyncing ? "Obsidian Sync Active" : "Obsidian Sync Idle"}>☁️</span>
-                <button 
-                    class="mode-toggle-btn" 
-                    class:is-active={viewMode === 'focus'}
-                    onclick={() => viewMode = viewMode === 'focus' ? 'architect' : 'focus'}
-                    title={viewMode === 'focus' ? 'Switch to Architect View' : 'Switch to Focus View'}
+                <span
+                    class="sync-sentry"
+                    class:is-active={isSyncing}
+                    data-testid="sync-sentry"
+                    data-is-active={isSyncing}
+                    title={isSyncing
+                        ? "Obsidian Sync Active"
+                        : "Obsidian Sync Idle"}>☁️</span
                 >
-                    {#if viewMode === 'focus'}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                <button
+                    class="mode-toggle-btn"
+                    class:is-active={viewMode === "focus"}
+                    onclick={() =>
+                        (viewMode =
+                            viewMode === "focus" ? "architect" : "focus")}
+                    title={viewMode === "focus"
+                        ? "Switch to Architect View"
+                        : "Switch to Focus View"}
+                >
+                    {#if viewMode === "focus"}
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            ><line x1="8" y1="6" x2="21" y2="6"></line><line
+                                x1="8"
+                                y1="12"
+                                x2="21"
+                                y2="12"
+                            ></line><line x1="8" y1="18" x2="21" y2="18"
+                            ></line><line x1="3" y1="6" x2="3.01" y2="6"
+                            ></line><line x1="3" y1="12" x2="3.01" y2="12"
+                            ></line><line x1="3" y1="18" x2="3.01" y2="18"
+                            ></line></svg
+                        >
                     {:else}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            ><rect
+                                x="3"
+                                y="3"
+                                width="18"
+                                height="18"
+                                rx="2"
+                                ry="2"
+                            ></rect><line x1="3" y1="9" x2="21" y2="9"
+                            ></line><line x1="9" y1="21" x2="9" y2="9"
+                            ></line></svg
+                        >
                     {/if}
                 </button>
                 <span class="header-index" title="Current Task Position">
-                    {focusedIndex + 1} <span class="index-separator">/</span> {tasks.length}
+                    {focusedIndex + 1} <span class="index-separator">/</span>
+                    {tasks.length}
                 </span>
-                <span class="header-time">{internalNow.format('HH:mm')}</span>
+                <span class="header-time">{internalNow.format("HH:mm")}</span>
             </div>
         </div>
     {/if}
-    <div class="todo-flow-timeline" class:mode-focus={viewMode === 'focus'}>
-        {#if viewMode === 'focus'}
-            <FocusStack 
+    <div class="todo-flow-timeline" class:mode-focus={viewMode === "focus"}>
+        {#if viewMode === "focus"}
+            <FocusStack
                 {tasks}
                 {focusedIndex}
                 now={internalNow}
@@ -1192,7 +1558,7 @@
                 {isMobileState}
             />
         {:else}
-            <ArchitectStack 
+            <ArchitectStack
                 {tasks}
                 {focusedIndex}
                 now={internalNow}
@@ -1230,11 +1596,48 @@
     </div>
     <!-- Help Overlay -->
     <div class="footer-controls">
-        <button class="icon-button plus-btn" onclick={syncGuard(() => openQuickAddModal(focusedIndex))} title="Add Task">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <button
+            class="icon-button plus-btn"
+            onclick={syncGuard(() => openQuickAddModal(focusedIndex))}
+            title="Add Task"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><line x1="12" y1="5" x2="12" y2="19"></line><line
+                    x1="5"
+                    y1="12"
+                    x2="19"
+                    y2="12"
+                ></line></svg
+            >
         </button>
-        <button class="icon-button export-btn" onclick={onExport} title="Export completed tasks">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <button
+            class="icon-button export-btn"
+            onclick={onExport}
+            title="Export completed tasks"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4" /><polyline
+                    points="7 10 12 15 17 10"
+                /><line x1="12" y1="15" x2="12" y2="3" /></svg
+            >
         </button>
         {#if showHelp}
             <HelpModal {keys} settings={internalSettings} />
@@ -1280,7 +1683,7 @@
 
     /* Enhanced Drag Feedback */
     :global(.todo-flow-task-card.dragging) {
-        box-shadow: 0 16px 32px rgba(0,0,0,0.2) !important;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2) !important;
         transform: scale(1.05) !important;
         z-index: 9999 !important;
         opacity: 0.9 !important;
@@ -1301,7 +1704,7 @@
     @media (max-width: 600px) {
         :global(.todo-flow-task-card .drag-handle) {
             padding: 0 1rem !important; /* Wider hit area */
-            min-width: 44px !important;    /* Apple HIG minimum */
+            min-width: 44px !important; /* Apple HIG minimum */
             font-size: 1.5rem !important;
             display: flex;
             align-items: center;
@@ -1325,7 +1728,7 @@
         background: var(--background-primary-alt);
         border-bottom: 1px solid var(--background-modifier-border);
         min-height: 48px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
     }
@@ -1359,7 +1762,7 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .back-nav-btn:hover {
@@ -1371,7 +1774,7 @@
     .back-nav-btn svg {
         color: var(--text-accent);
     }
-    
+
     .header-parent-name {
         font-weight: 700;
         color: var(--text-normal);
@@ -1435,17 +1838,26 @@
         filter: grayscale(1);
         transition: all 0.3s ease;
     }
- 
-    .sync-sentry.is-active { 
-        filter: grayscale(0); 
-        opacity: 1; 
+
+    .sync-sentry.is-active {
+        filter: grayscale(0);
+        opacity: 1;
         animation: pulse 2s infinite ease-in-out;
     }
 
     @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.6; }
-        50% { transform: scale(1.2); opacity: 1; }
-        100% { transform: scale(1); opacity: 0.6; }
+        0% {
+            transform: scale(1);
+            opacity: 0.6;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0.6;
+        }
     }
 
     .todo-flow-stack-container.is-syncing {
@@ -1514,20 +1926,26 @@
         border: 2px solid var(--background-modifier-border);
         border-radius: 1.5rem;
         padding: 2.5rem 1.5rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         text-align: center;
         display: flex !important;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 1.5rem;
-        transition: transform 0.1s ease-out, border-color 0.3s;
+        transition:
+            transform 0.1s ease-out,
+            border-color 0.3s;
         min-height: 250px;
     }
 
     /* ZEN MODE STYLES */
     .zen-card {
-        background: linear-gradient(135deg, var(--background-primary-alt), var(--background-secondary));
+        background: linear-gradient(
+            135deg,
+            var(--background-primary-alt),
+            var(--background-secondary)
+        );
         border: 2px dashed var(--background-modifier-border);
         cursor: default;
     }
@@ -1536,7 +1954,11 @@
         font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
-        background: linear-gradient(to right, var(--text-normal), var(--text-accent));
+        background: linear-gradient(
+            to right,
+            var(--text-normal),
+            var(--text-accent)
+        );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -1684,6 +2106,12 @@
         transform: scale(1.02);
     }
 
+    .todo-flow-task-card.is-temporary {
+        opacity: 0.5;
+        cursor: wait !important;
+        pointer-events: none !important;
+    }
+
     .todo-flow-task-card.anchored {
         background: var(--background-secondary-alt);
     }
@@ -1693,7 +2121,7 @@
         transform: scale(1.02);
         border: 2px solid var(--interactive-accent);
         background: var(--background-primary-alt);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         z-index: 1000;
         cursor: grabbing;
     }
@@ -1814,11 +2242,11 @@
         min-width: 20px;
         height: 20px;
         opacity: 0.7;
-    }    
+    }
     .duration-btn:hover {
         background: var(--background-modifier-border-hover);
     }
-    
+
     .duration-text {
         font-family: var(--font-monospace);
     }
@@ -1836,7 +2264,8 @@
     .is-done {
         opacity: 0.5;
     }
-    .is-done .title, .is-done .title-btn {
+    .is-done .title,
+    .is-done .title-btn {
         text-decoration: line-through;
     }
 
@@ -2073,10 +2502,12 @@
         justify-content: center;
         background: var(--interactive-accent);
         color: white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         border: none;
         cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
+        transition:
+            transform 0.2s,
+            background 0.2s;
     }
 
     .footer-controls .icon-button:hover {

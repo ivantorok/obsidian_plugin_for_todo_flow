@@ -135,7 +135,7 @@ export default class TodoFlowPlugin extends Plugin {
                 this.app.commands.executeCommandById('todo-flow:open-daily-stack');
             }, (title: string, options: any) => {
                 return this.onCreateTask(title, options);
-            })
+            }, this.stackPersistenceService, null)
         );
 
         this.registerView(
@@ -554,85 +554,114 @@ export default class TodoFlowPlugin extends Plugin {
 
         const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
 
-        const view = new TriageView(leaf, tasks, this.settings, this.historyManager, this.logger, this.viewManager, async (results: { shortlist: TaskNode[], notNow: TaskNode[], strategy?: 'merge' | 'overwrite' }) => {
-            let ids = results.shortlist.map((t: TaskNode) => t.id);
-            this.logger.info(`[main.ts] Triage callback: Received ${ids.length} shortlisted tasks. Strategy: ${results.strategy || 'default'}`);
+        const view = new TriageView(
+            leaf,
+            tasks,
+            this.settings,
+            this.historyManager,
+            this.logger,
+            this.viewManager,
+            async (results: { shortlist: TaskNode[], notNow: TaskNode[], strategy?: 'merge' | 'overwrite' }) => {
+                let ids = results.shortlist.map((t: TaskNode) => t.id);
+                this.logger.info(`[main.ts] Triage callback: Received ${ids.length} shortlisted tasks. Strategy: ${results.strategy || 'default'}`);
 
-            // 1. Conflict / Merge Handling
-            if (results.strategy === 'merge') {
-                const existingIds = await this.stackPersistenceService.loadStackIds(persistencePath);
-                // Deduplicate: Add new IDs only if they aren't already in existing
-                const mergedMap = new Set(existingIds);
-                ids.forEach(id => mergedMap.add(id));
-                ids = Array.from(mergedMap);
-                this.logger.info(`[main.ts] MERGE Strategy: existing=${existingIds.length} + new=${results.shortlist.length} -> result=${ids.length}`);
-            } else if (results.strategy === 'overwrite') {
-                this.logger.info(`[main.ts] OVERWRITE Strategy: Discarding previous stack.`);
-            }
+                // 1. Conflict / Merge Handling
+                if (results.strategy === 'merge') {
+                    const existingIds = await this.stackPersistenceService.loadStackIds(persistencePath);
+                    // Deduplicate: Add new IDs only if they aren't already in existing
+                    const mergedMap = new Set(existingIds);
+                    ids.forEach(id => mergedMap.add(id));
+                    ids = Array.from(mergedMap);
+                    this.logger.info(`[main.ts] MERGE Strategy: existing=${existingIds.length} + new=${results.shortlist.length} -> result=${ids.length}`);
+                } else if (results.strategy === 'overwrite') {
+                    this.logger.info(`[main.ts] OVERWRITE Strategy: Discarding previous stack.`);
+                }
 
-            // 2. Auto-Backup (Always before saving if stack existed)
-            if (await this.app.vault.adapter.exists(persistencePath)) {
-                try {
-                    // Quick load of CURRENT state on disk before we overwrite/update it
-                    // Note: If we just merged, 'ids' is the NEW state. We want to backup the OLD state.
-                    // But loading it again might be redundant if we just loaded it for merge. 
-                    // Let's rely on loading it fresh to be safe.
-                    const existingStackSrc = await this.stackPersistenceService.loadStackIds(persistencePath);
-                    if (existingStackSrc.length > 0) {
-                        const { StackLoader } = await import('./loaders/StackLoader.js');
-                        const loader = new StackLoader(this.app, this.logger);
-                        const oldTasks = await loader.loadSpecificFiles(existingStackSrc);
+                // 2. Auto-Backup (Always before saving if stack existed)
+                if (await this.app.vault.adapter.exists(persistencePath)) {
+                    try {
+                        const existingStackSrc = await this.stackPersistenceService.loadStackIds(persistencePath);
+                        if (existingStackSrc.length > 0) {
+                            const { StackLoader } = await import('./loaders/StackLoader.js');
+                            const loader = new StackLoader(this.app, this.logger);
+                            const oldTasks = await loader.loadSpecificFiles(existingStackSrc);
 
-                        const exportService = new ExportService();
-                        const backupContent = exportService.formatExport(oldTasks);
-                        const backupPath = `${this.settings.targetFolder}/Backups/Backup-${moment().format('YYYY-MM-DD-HHmmss')}.md`;
+                            const exportService = new ExportService();
+                            const backupContent = exportService.formatExport(oldTasks);
+                            const backupPath = `${this.settings.targetFolder}/Backups/Backup-${moment().format('YYYY-MM-DD-HHmmss')}.md`;
 
-                        // Ensure backup dir
-                        if (!(await this.app.vault.adapter.exists(`${this.settings.targetFolder}/Backups`))) {
-                            await this.app.vault.adapter.mkdir(`${this.settings.targetFolder}/Backups`);
+                            // Ensure backup dir
+                            if (!(await this.app.vault.adapter.exists(`${this.settings.targetFolder}/Backups`))) {
+                                await this.app.vault.adapter.mkdir(`${this.settings.targetFolder}/Backups`);
+                            }
+
+                            await this.app.vault.create(backupPath, backupContent);
+                            this.logger.info(`[main.ts] Auto-Backup created at ${backupPath}`);
                         }
-
-                        await this.app.vault.create(backupPath, backupContent);
-                        this.logger.info(`[main.ts] Auto-Backup created at ${backupPath}`);
+                    } catch (e) {
+                        this.logger.error(`[main.ts] Backup failed: ${e}`);
                     }
+                }
+
+                // 3. Save Final Stack
+                await this.stackPersistenceService.saveStack(ids.map(id => ({ id, title: 'Ref', status: 'todo', children: [] } as any)), persistencePath);
+
+                // 4. Update the active view if it's viewing the daily stack
+                // Note: We don't use 'rootPath' here because it might be null or different. 
+                // activateTriage is usually for the Daily Stack.
+                const activeView = workspace.getLeavesOfType(VIEW_TYPE_STACK)
+                    .map(l => l.view as StackView)
+                    .find(v => v.getState().path === persistencePath);
+
+                if (activeView) {
+                    this.logger.info(`[main.ts] Triage complete: Refreshing active StackView for ${persistencePath}`);
+                    activeView.reload();
+                }
+
+                new Notice(`Triage Complete: ${results.shortlist.length} tasks shortlisted.`);
+
+                // 5. AUTO-START STACK: Direct Injection (BUG-022 FIX)
+                // Sovereignty Protection: Silence watchers during the handoff window
+                this.stackPersistenceService.silence(persistencePath, 2000);
+
+                this.logger.info(`[main] Handoff Trace: Calling activateStack with ${ids.length} IDs. NOW=${Date.now()}`);
+                await this.activateStack(ids, persistencePath);
+            },
+            async (title: string, options?: any) => {
+                const { StackController } = await import('./views/StackController.js');
+                const controller = new StackController([], moment(), (t) => { }, (title) => {
+                    const id = `${this.settings.targetFolder}/${title}.md`;
+                    return { id, title, status: 'todo', duration: 30, isAnchored: false, children: [] };
+                });
+                const result = controller.addTaskAt(-1, title);
+                if (result && result.task) {
+                    if (options) {
+                        if (options.duration !== undefined) result.task.duration = options.duration;
+                        if (options.startTime !== undefined) result.task.startTime = options.startTime;
+                        if (options.isAnchored !== undefined) result.task.isAnchored = options.isAnchored;
+                    }
+                    await this.stackPersistenceService.saveTask(result.task);
+                    return result.task;
+                }
+                throw new Error("Failed to create task");
+            },
+            this.stackPersistenceService,
+            persistencePath,
+            async () => {
+                // checkForConflict impl
+                try {
+                    const exists = await this.app.vault.adapter.exists(persistencePath);
+                    let currentIds: string[] = [];
+                    if (exists) {
+                        currentIds = await this.stackPersistenceService.loadStackIds(persistencePath);
+                    }
+                    return exists && currentIds.length > 0;
                 } catch (e) {
-                    this.logger.error(`[main.ts] Backup failed: ${e}`);
+                    this.logger.error(`[main.ts] checkForConflict error: ${e}`);
+                    return false;
                 }
             }
-
-            // 3. Save & Activate
-            await this.stackPersistenceService.saveStack(
-                ids.map(id => ({ id, title: 'Ref', status: 'todo', children: [] } as any)),
-                persistencePath
-            );
-
-            // AUTO-START STACK: Direct Injection (BUG-022 FIX)
-            // Instead of triggering a general command that re-loads from disk,
-            // we pass the known IDs directly to activateStack.
-
-            // Sovereignty Protection: Silence watchers during the handoff window (Desktop race condition)
-            // Sovereignty Protection: Silence watchers during the handoff window (Desktop race condition)
-            this.stackPersistenceService.silence(persistencePath, 2000); // Increased to 2s for diagnostics
-
-            this.logger.info(`[main] Handoff Trace: Calling activateStack with ${ids.length} IDs. NOW=${Date.now()}`);
-            await this.activateStack(ids, persistencePath);
-
-        }, async (title: string, options?: any) => {
-            return this.onCreateTask(title, options);
-        }, async () => {
-            // checkForConflict impl
-            try {
-                const exists = await this.app.vault.adapter.exists(persistencePath);
-                let ids: string[] = [];
-                if (exists) {
-                    ids = await this.stackPersistenceService.loadStackIds(persistencePath);
-                }
-                return exists && ids.length > 0;
-            } catch (e) {
-                this.logger.error(`[main.ts] checkForConflict error: ${e}`);
-                return false;
-            }
-        });
+        );
         await leaf.open(view);
         workspace.revealLeaf(leaf);
     }

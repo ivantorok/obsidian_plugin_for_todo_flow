@@ -1,11 +1,14 @@
 <script lang="ts">
-    import { formatDuration, formatDateRelative } from '../utils.ts';
-    import { getMinDuration } from '../scheduler.js';
-    import { ScaleDurationCommand, ToggleAnchorCommand } from '../commands/stack-commands.js';
-    import HelpModal from './HelpModal.svelte';
-    import { type TaskNode } from '../scheduler.js';
+    import { formatDuration, formatDateRelative } from "../utils.ts";
+    import { getMinDuration } from "../scheduler.js";
+    import {
+        ScaleDurationCommand,
+        ToggleAnchorCommand,
+    } from "../commands/stack-commands.js";
+    import HelpModal from "./HelpModal.svelte";
+    import { type TaskNode } from "../scheduler.js";
 
-    let { 
+    let {
         tasks,
         focusedIndex,
         now,
@@ -18,7 +21,7 @@
         dragTargetIndex,
         draggingStartIndex,
         isMobileState,
-        
+
         onTap,
         onPointerStart,
         onPointerMove,
@@ -40,67 +43,119 @@
 
         // Bindables for inputs
         renameInputs = $bindable(),
-        taskElements = $bindable()
+        taskElements = $bindable(),
     } = $props();
-
 </script>
 
 <div class="todo-flow-timeline" data-view-type="architect">
     {#if tasks.length > 0}
         {#each tasks as task, i (task.id)}
-            <div 
+            <div
                 bind:this={taskElements[i]}
-                class="todo-flow-task-card" 
+                class="todo-flow-task-card"
                 class:is-mobile={isMobileState}
+                class:is-temporary={task.id.startsWith("temp-")}
                 data-testid="task-card-{i}"
                 class:is-focused={focusedIndex === i}
                 data-is-focused={focusedIndex === i}
                 class:anchored={task.isAnchored}
-                class:is-done={task.status === 'done'}
+                class:is-done={task.status === "done"}
                 class:is-missing={task.isMissing}
                 class:dragging={draggingTaskId === task.id}
-                class:drop-before={dragTargetIndex === i && i !== draggingStartIndex && i <= draggingStartIndex}
-                class:drop-after={dragTargetIndex === i && i !== draggingStartIndex && i > draggingStartIndex}
-                onclick={(e) => onTap(e, task, i)}
-                onpointerdown={(e) => onPointerStart(e, task.id)}
+                class:drop-before={dragTargetIndex === i &&
+                    i !== draggingStartIndex &&
+                    i <= draggingStartIndex}
+                class:drop-after={dragTargetIndex === i &&
+                    i !== draggingStartIndex &&
+                    i > draggingStartIndex}
+                onclick={(e) => {
+                    if (task.id.startsWith("temp-")) return;
+                    onTap(e, task, i);
+                }}
+                onpointerdown={(e) => {
+                    if (task.id.startsWith("temp-")) return;
+                    onPointerStart(e, task.id);
+                }}
                 onpointermove={onPointerMove}
-                onpointerup={(e) => onPointerEnd(e, task)}
+                onpointerup={(e) => {
+                    if (task.id.startsWith("temp-")) return;
+                    onPointerEnd(e, task);
+                }}
                 onpointercancel={onPointerCancel}
-                
                 use:touchBlocking={handleTouchBlocking}
-                style={isMobileState 
-                    ? `touch-action: none; transform: ${getCardTransform(task.id)}; flex-wrap: wrap !important; padding: 0.75rem !important; gap: 0.5rem !important;` 
-                    : `touch-action: none; transform: ${getCardTransform(task.id)};`}
+                style={isMobileState
+                    ? `touch-action: none; transform: ${getCardTransform(task.id)}; flex-wrap: wrap !important; padding: 0.75rem !important; gap: 0.5rem !important; pointer-events: ${task.id.startsWith("temp-") ? "none" : "auto"};`
+                    : `touch-action: none; transform: ${getCardTransform(task.id)}; pointer-events: ${task.id.startsWith("temp-") ? "none" : "auto"};`}
             >
-                <div 
-                    class="drag-handle" 
+                <div
+                    class="drag-handle"
                     title="Drag to reorder"
                     style="touch-action: none;"
-                >⠿</div>
-                <div class="time-col" onpointerdown={(e) => e.stopPropagation()} onclick={(e) => { e.stopPropagation(); startEditStartTime(i); }}>
+                >
+                    ⠿
+                </div>
+                <div
+                    class="time-col"
+                    onpointerdown={(e) => e.stopPropagation()}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        startEditStartTime(i);
+                    }}
+                >
                     {#if editingStartTimeIndex === i}
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             class="todo-flow-time-input"
-                            value={task.startTime.format('HH:mm')}
+                            value={task.startTime.format("HH:mm")}
                             onkeydown={(e) => {
-                                if (e.key === 'Enter') {
+                                if (e.key === "Enter") {
                                     e.stopPropagation();
-                                    finishEditStartTime(task.id, e.currentTarget.value);
+                                    finishEditStartTime(
+                                        task.id,
+                                        e.currentTarget.value,
+                                    );
                                 }
-                                if (e.key === 'Escape') {
+                                if (e.key === "Escape") {
                                     e.stopPropagation();
                                     editingStartTimeIndex = -1;
                                 }
                             }}
-                            onblur={(e) => finishEditStartTime(task.id, e.currentTarget.value)}
+                            onblur={(e) =>
+                                finishEditStartTime(
+                                    task.id,
+                                    e.currentTarget.value,
+                                )}
                             use:selectOnFocus
                         />
                     {:else}
-                        <span class="mobile-only-time">{formatDateRelative(task.startTime, now, true)}</span>
-                        <span class="desktop-only-time">{formatDateRelative(task.startTime, now)}</span>
+                        <span class="mobile-only-time"
+                            >{formatDateRelative(
+                                task.startTime,
+                                now,
+                                true,
+                            )}</span
+                        >
+                        <span class="desktop-only-time"
+                            >{formatDateRelative(task.startTime, now)}</span
+                        >
                         {#if task.isAnchored}
-                            <svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            <svg
+                                class="edit-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="10"
+                                height="10"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                ><path
+                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                                ></path><path
+                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                                ></path></svg
+                            >
                         {/if}
                     {/if}
                 </div>
@@ -112,12 +167,16 @@
                             type="text"
                             class="rename-input"
                             data-testid="rename-input"
-                            onkeydown={(e) => { 
-                                if (e.key === 'Enter') {
+                            onkeydown={(e) => {
+                                if (e.key === "Enter") {
                                     e.stopPropagation();
-                                    finishRename(task.id, renamingText, 'submit');
+                                    finishRename(
+                                        task.id,
+                                        renamingText,
+                                        "submit",
+                                    );
                                 }
-                                if (e.key === 'Escape') {
+                                if (e.key === "Escape") {
                                     e.stopPropagation();
                                     cancelRename();
                                 }
@@ -125,53 +184,84 @@
                             use:selectOnFocus
                         />
                     {:else}
-                        <button 
-                            class="title" 
+                        <button
+                            class="title"
                             class:mobile-clamp={isMobileState}
-                            style={isMobileState ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal;" : ""}
+                            style={isMobileState
+                                ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal;"
+                                : ""}
                             data-testid="task-card-title"
-                            onclick={syncGuard(() => startRename(i))} 
-                            title={task.isMissing ? "Note missing" : "Click to rename"} 
-                            role="button" 
+                            onclick={syncGuard(() => startRename(i))}
+                            title={task.isMissing
+                                ? "Note missing"
+                                : "Click to rename"}
+                            role="button"
                             tabindex="0"
                         >
-                            {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span> {/if}{task.title}
+                            {#if task.isMissing}<span
+                                    class="missing-icon"
+                                    title="Original note was deleted or moved"
+                                    >⚠️</span
+                                >
+                            {/if}{task.title}
                         </button>
                     {/if}
                     <div class="metadata" class:mobile-layout={isMobileState}>
                         <div class="duration">
-                            <button 
-                                class="duration-btn minus" 
-                                onclick={syncGuard((e) => { 
-                                    e.stopPropagation(); 
-                                    historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'down')); 
-                                    update(); 
+                            <button
+                                class="duration-btn minus"
+                                onclick={syncGuard((e) => {
+                                    e.stopPropagation();
+                                    historyManager.executeCommand(
+                                        new ScaleDurationCommand(
+                                            controller,
+                                            i,
+                                            "down",
+                                        ),
+                                    );
+                                    update();
                                 })}
                                 onpointerdown={(e) => e.stopPropagation()}
-                                title="Decrease Duration"
-                            >−</button>
-                            <span 
-                                class="duration-text clickable" 
-                                onclick={(e) => { e.stopPropagation(); openDurationPicker(i); }}
-                                onkeydown={(e) => { if (e.key === 'Enter') openDurationPicker(i); }}
+                                title="Decrease Duration">−</button
+                            >
+                            <span
+                                class="duration-text clickable"
+                                onclick={(e) => {
+                                    e.stopPropagation();
+                                    if (task.id.startsWith("temp-")) return;
+                                    openDurationPicker(i);
+                                }}
+                                onkeydown={(e) => {
+                                    if (e.key === "Enter")
+                                        openDurationPicker(i);
+                                }}
                                 onpointerdown={(e) => e.stopPropagation()}
                                 tabindex="0"
                                 role="button"
                             >
                                 {formatDuration(task.duration)}
                             </span>
-                            <button 
-                                class="duration-btn plus" 
+                            <button
+                                class="duration-btn plus"
                                 onclick={syncGuard((e) => {
                                     e.stopPropagation();
-                                    historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up'));
+                                    historyManager.executeCommand(
+                                        new ScaleDurationCommand(
+                                            controller,
+                                            i,
+                                            "up",
+                                        ),
+                                    );
                                     update();
                                 })}
                                 onpointerdown={(e) => e.stopPropagation()}
-                                title="Increase Duration"
-                            >+</button>
+                                title="Increase Duration">+</button
+                            >
                             {#if getMinDuration(task) > 0}
-                                <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
+                                <span
+                                    class="constraint-indicator"
+                                    title="Constrained by subtasks">⚖️</span
+                                >
                             {/if}
                             {#if task.isAnchored}
                                 <div class="mobile-anchor-badge">⚓</div>
@@ -179,14 +269,46 @@
                         </div>
                         <div class="anchor-col">
                             {#if !task.isMissing}
-                                <button 
-                                    class="toggle-anchor-btn" 
+                                <button
+                                    class="toggle-anchor-btn"
                                     class:is-active={task.isAnchored}
-                                    onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new ToggleAnchorCommand(controller, i)); update(); }}
+                                    onclick={(e) => {
+                                        e.stopPropagation();
+                                        if (task.id.startsWith("temp-")) return;
+                                        historyManager.executeCommand(
+                                            new ToggleAnchorCommand(
+                                                controller,
+                                                i,
+                                            ),
+                                        );
+                                        update();
+                                    }}
                                     onpointerdown={(e) => e.stopPropagation()}
-                                    title={task.isAnchored ? "Release Anchor" : "Pin to Start Time"}
+                                    title={task.isAnchored
+                                        ? "Release Anchor"
+                                        : "Pin to Start Time"}
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        ><path
+                                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"
+                                        /><polyline
+                                            points="7 10 12 15 17 10"
+                                        /><line
+                                            x1="12"
+                                            y1="15"
+                                            x2="12"
+                                            y2="3"
+                                        /></svg
+                                    >
                                 </button>
                             {/if}
                         </div>
@@ -200,7 +322,11 @@
             <div class="zen-icon">🏔️</div>
             <h3>Your Architect's Desk is Clear</h3>
             <p>Add a new task to begin your next flow.</p>
-            <button class="focus-action-btn" style="max-width: 200px;" onclick={syncGuard(() => openQuickAddModal(-1))}>
+            <button
+                class="focus-action-btn"
+                style="max-width: 200px;"
+                onclick={syncGuard(() => openQuickAddModal(-1))}
+            >
                 Quick Add
             </button>
         </div>
@@ -265,7 +391,7 @@
         transform: scale(1.02);
         border: 2px solid var(--interactive-accent);
         background: var(--background-primary-alt);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         z-index: 1000;
         cursor: grabbing;
     }
@@ -376,11 +502,11 @@
         min-width: 24px;
         height: 24px;
     }
-    
+
     .duration-btn:hover {
         background: var(--background-modifier-border-hover);
     }
-    
+
     .duration-text {
         font-family: var(--font-monospace);
     }

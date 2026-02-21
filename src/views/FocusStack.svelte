@@ -34,16 +34,17 @@
         <div 
             class="todo-flow-task-card focus-card is-focused" 
             class:is-mobile={isMobileState}
+            class:is-temporary={task.id.startsWith('temp-')}
             data-testid="focus-card"
             class:anchored={task.isAnchored}
             class:is-done={task.status === 'done'}
-            onclick={(e) => onTap(e, task, focusedIndex)}
-            onpointerdown={(e) => onPointerStart(e, task.id)}
+            onclick={(e) => { if (task.id.startsWith('temp-')) return; onTap(e, task, focusedIndex); }}
+            onpointerdown={(e) => { if (task.id.startsWith('temp-')) return; onPointerStart(e, task.id); }}
             onpointermove={onPointerMove}
-            onpointerup={(e) => onPointerEnd(e, task)}
+            onpointerup={(e) => { if (task.id.startsWith('temp-')) return; onPointerEnd(e, task); }}
             onpointercancel={onPointerCancel}
             use:touchBlocking={handleTouchBlocking}
-            style="touch-action: none; transform: {getCardTransform(task.id)};"
+            style="touch-action: none; transform: {getCardTransform(task.id)}; pointer-events: {task.id.startsWith('temp-') ? 'none' : 'auto'};"
         >
             <div class="index-display">#{focusedIndex + 1} of {tasks.length}</div>
             <div class="focus-card-inner">

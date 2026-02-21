@@ -44,7 +44,7 @@ export class TriageController {
 
     async openCurrentTask() {
         const task = this.getCurrentTask();
-        if (!task) return;
+        if (!task || task.id.startsWith('temp-')) return;
 
         // Open the file in a new leaf (true) or current? 
         // User workflow: "Enter to Edit". Usually implies "Go here".
@@ -59,6 +59,10 @@ export class TriageController {
     async swipeRight() {
         if (this.index >= this.tasks.length) return;
         const task = this.tasks[this.index]!;
+        if (task.id.startsWith('temp-')) {
+            if (this.logger) this.logger.warn(`[TriageController] swipeRight BLOCKED: ${task.id} is temporary`);
+            return;
+        }
         this.shortlistIndices.add(this.index);
 
         // Persist "shortlist" state
@@ -72,6 +76,11 @@ export class TriageController {
         // "Not Now" stays in dump or moves to backlog? 
         // For now, let's assume it keeps "dump" state or explicitly sets "dump" (no-op if already dump).
         if (this.index >= this.tasks.length) return;
+        const task = this.tasks[this.index]!;
+        if (task.id.startsWith('temp-')) {
+            if (this.logger) this.logger.warn(`[TriageController] swipeLeft BLOCKED: ${task.id} is temporary`);
+            return;
+        }
         this.notNowIndices.add(this.index);
         this.index++;
     }

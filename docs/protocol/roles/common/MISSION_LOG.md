@@ -492,6 +492,40 @@ The "Watcher Silencing" implemented in v1.2.54 did not resolve the "Empty Daily 
 - **Request**: Analyze why `.is-focused` selectors are failing in E2E tests despite being present in the Svelte components. Repair the tests to work with the new `ArchitectStack` / `FocusStack` split.
 - **Priority**: High.
 
-### Current Status: 2026-02-21 10:40
-- **PG**: Audited code and E2E results. Triage complete.
-- **Next Role**: **Diagnostic Engineer (DE)** for E2E forensics and repair.
+### Current Status: 2026-02-21 13:10
+- **PG**: Audited `v1.2.75` release. 
+- **Summary**: Phase 4 "Refactor Sovereignty" is complete. E2E selectors repaired. Test suite reorganized for platform-specific isolation.
+- **Verdict**: **MISSION COMPLETE**. System is baseline stable (86 unit tests green, E2E green).
+
+---
+
+## Session Entry: 2026-02-21 13:15 (BUG-022 & BUG-023: Race Condition Hardening)
+
+### Input & Analysis (Process Governor)
+- **Source**: Manual Audit (2026-02-20)
+- **Focus**: High-priority race conditions identified during structural split.
+- **Items**:
+    1.  **BUG-022**: Quick Add Optimistic ID Race Condition (breaking interactions on fresh tasks).
+    2.  **BUG-023**: Sync Window Race Condition (time-based desync in `StackPersistenceService`).
+- **Verdict**: The structural split is complete, but the "Speed of Thought" interactions are triggering race conditions. We need to move from time-based debouncing to deterministic "Interaction Tokens" and "Sovereign UI Locks".
+
+### Routing
+1. **Atlas Guardian (AG)**: 
+    - **Task**: Design the "Interaction Token" protocol for `StackPersistenceService.ts`. Define the "File-Specific Silence" Map.
+    - **Task**: Design the "UI Lock" state for `FocusStack.svelte` when handling `temp-` IDs.
+2. **Implementation Lead (IL)**:
+    - **Task**: Stand by for the Interaction Token / UI Lock implementation plan.
+
+### Current Status: 2026-02-21 13:20
+- **PG**: Mission Log updated. Session for Race Hardening initialized.
+- **Next Role**: **Atlas Guardian (AG)** for architectural design of Interaction Tokens.
+- [2026-02-21T13:34]: **Implementation Lead (IL)**: Quick Add Consistency Sweep execution complete.
+    - [x] Unified `temp-` ID guards implemented in `StackController`, `ArchitectStack`, `FocusStack`, and `TriageView`.
+    - [x] Hardened `TriageController` to block swiping/opening of temporary tasks.
+    - [x] Standardized `flushPersistence` for immediate ID resolution.
+- [2026-02-21T13:38]: **Verification Officer (VO)**: Verification complete.
+    - [x] 288 unit tests green.
+    - [x] Manual audit of interaction guards (Architect, Focus, Triage) passed.
+- [2026-02-21T13:42]: **Process Governor (PG)** final review.
+    - [x] Changes staged. `walkthrough.md` updated.
+    - **Verdict**: **MISSION COMPLETE**. Race condition hardening (BUG-022, BUG-023) is verified and stable.

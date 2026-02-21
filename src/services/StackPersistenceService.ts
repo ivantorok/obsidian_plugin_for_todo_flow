@@ -94,6 +94,21 @@ export class StackPersistenceService {
         }
     }
 
+    async saveTask(task: TaskNode): Promise<void> {
+        // Implement task metadata saving (e.g., frontmatter update)
+        // For now, we rely on the fact that any change to task metadata 
+        // should be reflected in its backing file.
+        const file = this.app.vault.getAbstractFileByPath(task.id);
+        if (file instanceof TFile) {
+            this.recordInternalWrite(task.id);
+            await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+                if (task.duration !== undefined) frontmatter.duration = task.duration;
+                if (task.startTime) frontmatter.startTime = task.startTime.format();
+                if (task.isAnchored !== undefined) frontmatter.isAnchored = task.isAnchored;
+            });
+        }
+    }
+
     recordInternalWrite(filePath: string): void {
         const now = Date.now();
         this.lastInternalWriteTime = now;
@@ -115,7 +130,8 @@ export class StackPersistenceService {
 
         // 0. Interaction Lock Check (Sovereign Interaction Token)
         if (this.activeLocks.has(filePath)) {
-            const msg = `[StackPersistenceService] isExternalUpdate REJECTED (Interaction Lock: ${this.activeLocks.get(filePath)})`;
+            const token = this.activeLocks.get(filePath);
+            const msg = `[StackPersistenceService] isExternalUpdate REJECTED (Interaction Lock: ${token})`;
             if (this.logger) this.logger.info(msg);
             if (typeof window !== 'undefined') {
                 ((window as any)._logs = (window as any)._logs || []).push(msg);
@@ -225,6 +241,13 @@ export class StackPersistenceService {
                 const parts = linkContent.split('|');
                 if (parts[0]) {
                     const linkText = parts[0];
+
+                    // BUG-022 Safety: Skip temporary IDs if they somehow ended up on disk
+                    if (linkText.startsWith('temp-')) {
+                        if (this.logger) this.logger.warn(`[StackPersistenceService] Skipping temporary ID found on disk: ${linkText}`);
+                        continue;
+                    }
+
                     let resolvedFile = this.app.metadataCache.getFirstLinkpathDest(linkText, filePath);
 
                     // Fallback: Try resolving relative to persistence file (for cold cache/tests)

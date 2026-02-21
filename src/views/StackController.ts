@@ -101,7 +101,13 @@ export class StackController {
     moveUp(index: number): number {
         if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] moveUp(${index}) called. Tasks: ${this.tasks.length}`);
         if (index <= 0) return index;
-        if (this.tasks[index]?.isAnchored) return index; // Anchors shouldn't move via list reordering
+        const taskToMove = this.tasks[index];
+        if (!taskToMove) return index;
+        if (taskToMove.id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] moveUp BLOCKED: ${taskToMove.id} is temporary`);
+            return index;
+        }
+        if (taskToMove.isAnchored) return index; // Anchors shouldn't move via list reordering
 
         // Find previous unanchored task
         let target = index - 1;
@@ -111,7 +117,6 @@ export class StackController {
 
         if (target < 0) return index; // No valid slot above
 
-        const taskToMove = this.tasks[index]!;
         const newTasks = [...this.tasks];
         // Swap selection with valid target
         [newTasks[index], newTasks[target]] = [newTasks[target]!, newTasks[index]!];
@@ -123,7 +128,13 @@ export class StackController {
 
     moveDown(index: number): number {
         if (index >= this.tasks.length - 1) return index;
-        if (this.tasks[index]?.isAnchored) return index; // Anchors shouldn't move
+        const taskToMove = this.tasks[index];
+        if (!taskToMove) return index;
+        if (taskToMove.id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] moveDown BLOCKED: ${taskToMove.id} is temporary`);
+            return index;
+        }
+        if (taskToMove.isAnchored) return index; // Anchors shouldn't move
 
         // Find next unanchored task
         let target = index + 1;
@@ -133,7 +144,6 @@ export class StackController {
 
         if (target >= this.tasks.length) return index; // No valid slot below
 
-        const taskToMove = this.tasks[index]!;
         const newTasks = [...this.tasks];
         // Swap selection with valid target
         [newTasks[index], newTasks[target]] = [newTasks[target]!, newTasks[index]!];
@@ -147,6 +157,12 @@ export class StackController {
         if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const id = taskToMove.id;
+
+        // BUG-022 Safety: Block actions on temporary IDs until they resolve
+        if (id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] toggleAnchor BLOCKED: ${id} is temporary`);
+            return index;
+        }
 
         const task = { ...taskToMove };
         task.isAnchored = !task.isAnchored;
@@ -173,6 +189,12 @@ export class StackController {
         const taskToMove = this.tasks[index]!;
         const id = taskToMove.id;
 
+        // BUG-022 Safety: Block actions on temporary IDs until they resolve
+        if (id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] toggleStatus BLOCKED: ${id} is temporary`);
+            return index;
+        }
+
         const task = { ...taskToMove };
         task.status = task.status === 'todo' ? 'done' : 'todo';
 
@@ -192,6 +214,12 @@ export class StackController {
         if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const id = taskToMove.id;
+
+        // BUG-022 Safety: Block actions on temporary IDs until they resolve
+        if (id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] updateTaskTitle BLOCKED: ${id} is temporary`);
+            return index;
+        }
         const oldTitle = taskToMove.title;
         const task = { ...taskToMove };
         task.title = newTitle;
@@ -213,6 +241,11 @@ export class StackController {
     updateTaskMetadata(index: number, updates: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined }): number {
         if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
+        const id = taskToMove.id;
+        if (id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] updateTaskMetadata BLOCKED: ${id} is temporary`);
+            return index;
+        }
         const task = { ...taskToMove };
 
         if (updates.startTime !== undefined) task.startTime = updates.startTime;
@@ -236,7 +269,11 @@ export class StackController {
         return index;
     }
 
-    updateTaskById(id: string, updates: { title?: string, startTime?: moment.Moment, duration?: number, isAnchored?: boolean }): number {
+    updateTaskById(id: string, updates: Partial<TaskNode>): number {
+        if (id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] updateTaskById BLOCKED: ${id} is temporary`);
+            return -1;
+        }
         const index = this.tasks.findIndex(t => t.id === id);
         if (index === -1) return -1;
 
@@ -324,6 +361,13 @@ export class StackController {
             return index;
         }
         const taskToMove = this.tasks[index]!;
+        const id = taskToMove.id;
+
+        // BUG-022 Safety: Block actions on temporary IDs until they resolve
+        if (id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] scaleDuration BLOCKED: ${id} is temporary`);
+            return index;
+        }
         const task = { ...taskToMove };
         const currentOwn = task.originalDuration ?? task.duration;
 
@@ -391,9 +435,13 @@ export class StackController {
         console.log(`[StackController] moveTaskToIndex(oldIndex: ${oldIndex}, newIndex: ${newIndex})`);
         if (oldIndex === newIndex) return oldIndex;
         if (!this.tasks[oldIndex]) return oldIndex;
-        if (this.tasks[oldIndex]?.isAnchored) return oldIndex;
-
         const taskToMove = this.tasks[oldIndex]!;
+        if (taskToMove.id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] moveTaskToIndex BLOCKED: ${taskToMove.id} is temporary`);
+            return oldIndex;
+        }
+        if (taskToMove.isAnchored) return oldIndex;
+
         const newTasks = [...this.tasks];
 
         // Remove from old
@@ -415,6 +463,10 @@ export class StackController {
         if (!this.tasks[index]) return null;
 
         const task = this.tasks[index]!;
+        if (task.id.startsWith('temp-')) {
+            if (typeof window !== 'undefined') console.warn(`[StackController] handleEnter BLOCKED: ${task.id} is temporary`);
+            return null;
+        }
         if (task.isMissing) return null;
 
         if (task.children && task.children.length > 0) {

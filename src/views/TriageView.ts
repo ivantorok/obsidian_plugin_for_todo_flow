@@ -7,6 +7,7 @@ import { parseTitleFromFilename } from '../persistence.js';
 import { type HistoryManager } from '../history.js';
 import { FileLogger } from '../logger.js';
 import { type TodoFlowSettings } from '../main.js';
+import { StackPersistenceService } from '../services/StackPersistenceService.js';
 import { QuickAddModal } from '../ui/QuickAddModal.js';
 import { type ViewManager } from '../ViewManager.js';
 
@@ -22,6 +23,8 @@ export class TriageView extends ItemView {
     logger: FileLogger | undefined;
     viewManager: ViewManager;
     onCreateTask: (title: string, options?: any) => Promise<TaskNode>;
+    persistenceService: StackPersistenceService;
+    rootPath: string | null;
 
     private isModalOpen: boolean = false;
     private lastModalCloseTime: number = 0;
@@ -36,6 +39,8 @@ export class TriageView extends ItemView {
 
         onComplete: (results: { shortlist: TaskNode[], notNow: TaskNode[], strategy?: 'merge' | 'overwrite' }) => void,
         onCreateTask: (title: string, options?: any) => Promise<TaskNode>,
+        persistenceService: StackPersistenceService,
+        rootPath: string | null,
         checkForConflict?: () => Promise<boolean> // New optional prop
     ) {
         super(leaf);
@@ -47,6 +52,8 @@ export class TriageView extends ItemView {
         this.viewManager = viewManager;
         this.onComplete = onComplete;
         this.onCreateTask = onCreateTask;
+        this.persistenceService = persistenceService;
+        this.rootPath = rootPath;
         this.checkForConflict = checkForConflict;
     }
 
@@ -141,6 +148,11 @@ export class TriageView extends ItemView {
                     children: []
                 };
 
+                // Implementation of Interaction Token: Claim lock for temp node creation
+                if (this.persistenceService && this.rootPath) {
+                    this.persistenceService.claimLock(this.rootPath, `triage-add-${tempId}`);
+                }
+
                 if (this.component && typeof this.component.addTaskToQueue === 'function') {
                     if (this.logger) this.logger.info(`[TriageView] Adding NEW task to queue: ${result.title}`);
                     this.component.addTaskToQueue(tempNode);
@@ -156,6 +168,11 @@ export class TriageView extends ItemView {
                     } else {
                         // Rollback or Error state?
                         if (this.logger) this.logger.error(`[TriageView] Failed to create task for ${result.title}`);
+                    }
+
+                    // Release lock after resolution
+                    if (this.persistenceService && this.rootPath) {
+                        this.persistenceService.releaseLock(this.rootPath, `triage-add-${tempId}`);
                     }
                 });
             } else if (result.type === 'file' && result.file) {

@@ -34,7 +34,8 @@ describe('GraphBuilder', () => {
                 resolvedLinks: {
                     'folder/Parent.md': { 'folder/Child.md': 1 },
                     'folder/Child.md': {}
-                }
+                },
+                getFirstLinkpathDest: (path: string) => files.find(f => f.path === path)
             },
             vault: {
                 getAbstractFileByPath: (path: string) => files.find(f => f.path === path),
@@ -71,7 +72,8 @@ describe('GraphBuilder', () => {
                 resolvedLinks: {
                     'A.md': { 'B.md': 1 },
                     'B.md': {}
-                }
+                },
+                getFirstLinkpathDest: (path: string) => files.find(f => f.path === path)
             },
             vault: {
                 getAbstractFileByPath: (path: string) => files.find(f => f.path === path),
@@ -102,7 +104,8 @@ describe('GraphBuilder', () => {
                 resolvedLinks: {
                     'A.md': { 'B.md': 1 },
                     'B.md': { 'A.md': 1 }
-                }
+                },
+                getFirstLinkpathDest: (path: string) => files.find(f => f.path === path)
             },
             vault: {
                 getAbstractFileByPath: (path: string) => files.find(f => f.path === path),
@@ -140,7 +143,8 @@ describe('GraphBuilder', () => {
                     'B.md': { 'D.md': 1 },
                     'C.md': { 'D.md': 1 },
                     'D.md': {}
-                }
+                },
+                getFirstLinkpathDest: (path: string) => files.find(f => f.path === path)
             },
             vault: {
                 getAbstractFileByPath: (path: string) => files.find(f => f.path === path),
@@ -170,7 +174,8 @@ describe('GraphBuilder', () => {
         const mockApp = {
             metadataCache: {
                 getFileCache: () => ({ frontmatter: { task: 'Priority 1 Title' } }),
-                resolvedLinks: { 'Task.md': {} }
+                resolvedLinks: { 'Task.md': {} },
+                getFirstLinkpathDest: () => file
             },
             vault: {
                 getAbstractFileByPath: () => file,
@@ -188,7 +193,8 @@ describe('GraphBuilder', () => {
         const mockApp = {
             metadataCache: {
                 getFileCache: () => ({ frontmatter: {} }),
-                resolvedLinks: { 'Task.md': {} }
+                resolvedLinks: { 'Task.md': {} },
+                getFirstLinkpathDest: () => file
             },
             vault: {
                 getAbstractFileByPath: () => file,
@@ -206,7 +212,8 @@ describe('GraphBuilder', () => {
         const mockApp = {
             metadataCache: {
                 getFileCache: () => ({ frontmatter: {} }),
-                resolvedLinks: { 'Task.md': {} }
+                resolvedLinks: { 'Task.md': {} },
+                getFirstLinkpathDest: () => file
             },
             vault: {
                 getAbstractFileByPath: () => file,

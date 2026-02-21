@@ -291,46 +291,80 @@ export class StackView extends ItemView {
         await super.setState(state, result);
     }
 
+    async handleQuickAddResult(result: any, currentIndex: number = 0) {
+        if (!this.component) return;
+        const controller = this.component.getController();
+        if (!controller) return;
+
+        // 1. OPTIMISTIC INSERTION
+        const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+        const tempNode: TaskNode = {
+            id: tempId,
+            title: result.title || "New Task",
+            duration: result.duration || 30,
+            status: 'todo' as const,
+            isAnchored: result.isAnchored || false,
+            startTime: result.startTime || moment(),
+            children: []
+        };
+
+        // Insert immediately into UI
+        const cmd = new InsertTaskCommand(controller, currentIndex, tempNode);
+        await this.historyManager.executeCommand(cmd);
+        if (this.component.update) {
+            this.component.update();
+            if (cmd.resultIndex !== null) this.component.setFocus(cmd.resultIndex);
+        }
+
+        // Trigger a save so flushPersistence has something to do
+        this.lastTasksForSave = controller.getTasks();
+        this.triggerSave(500);
+
+        // 2. BACKGROUND RESOLUTION
+        let resolveBg: (p: Promise<void>) => void;
+        const bgPromiseTracker = new Promise<void>((resolve) => {
+            resolveBg = resolve;
+        });
+
+        const createPromise = (async () => {
+            let nodeToInsert: TaskNode | null = null;
+            try {
+                if (result.type === 'new' && result.title) {
+                    const options: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean, parentPath?: string | undefined } = {};
+                    if (result.startTime) options.startTime = result.startTime;
+                    if (result.duration !== undefined) options.duration = result.duration;
+                    if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+
+                    if (this.logger) this.logger.info(`[StackView] (QuickAdd) Resolving temp task "${result.title}" with rootPath: ${this.rootPath}`);
+                    options.parentPath = this.rootPath?.endsWith('.md') ? this.rootPath : undefined;
+
+                    nodeToInsert = await this.onTaskCreate(result.title, options);
+                } else if (result.type === 'file' && result.file) {
+                    const nodes = await this.loader.loadSpecificFiles([result.file.path]);
+                    if (nodes.length > 0) nodeToInsert = nodes[0]!;
+                }
+
+                if (nodeToInsert && this.component) {
+                    if (this.logger) this.logger.info(`[StackView] Temp task ${tempId} resolved to ${nodeToInsert.id}`);
+                    this.component.resolveTempId(tempId, nodeToInsert.id);
+
+                    // BUG-022: Ensure the real ID is persisted to the stack file immediately
+                    this.flushPersistence();
+                }
+            } finally {
+                this.pendingSyncs.delete(bgPromiseTracker);
+            }
+        })();
+
+        // Track in pendingSyncs so flushPersistence drains it
+        this.pendingSyncs.add(bgPromiseTracker);
+        resolveBg!(createPromise);
+    }
+
     openAddModal() {
         this.isModalOpen = true;
         const modal = new QuickAddModal(this.app, async (result: any) => {
-            let newNode: TaskNode | null = null;
-
-            if (result.type === 'new') {
-                if (this.logger) this.logger.info(`[StackView] (openAddModal) Creating new task "${result.title}" with rootPath: ${this.rootPath}`);
-                newNode = await this.onTaskCreate(result.title, {
-                    duration: 30,
-                    parentPath: this.rootPath?.endsWith('.md') ? this.rootPath : undefined
-                });
-            } else if (result.type === 'file' && result.file) {
-                const file = result.file;
-                newNode = {
-                    id: file.path,
-                    title: parseTitleFromFilename(file.name),
-                    duration: 30,
-                    status: 'todo' as const,
-                    isAnchored: false,
-                    children: []
-                };
-                // ATOMIC FILE MODE: Allow drilling into empty files (creating a new stack)
-                // if (children.length === 0) {
-                //     return false;
-                // }
-                const metadata = await this.loader.parser.resolveTaskMetadata(file.path);
-                if (metadata) {
-                    newNode = { ...newNode, ...metadata } as TaskNode;
-                }
-            }
-
-            if (newNode) {
-                this.tasks.unshift(newNode);
-                this.navManager.setStack(this.tasks, this.rootPath!);
-                if (this.component && this.component.setTasks) {
-                    this.component.setTasks(this.tasks);
-                }
-                this.triggerSave(0);
-            }
-            this.app.workspace.requestSaveLayout();
+            await this.handleQuickAddResult(result, 0);
         }, VIEW_TYPE_STACK);
 
         const originalOnClose = modal.onClose.bind(modal);
@@ -505,9 +539,27 @@ export class StackView extends ItemView {
                     logger: this.logger,
                     onTaskUpdate: this.onTaskUpdate,
                     onTaskCreate: this.onTaskCreate,
-                    canGoBack: this.navManager.canGoBack(),
-                    parentTaskName: this.parentTaskName,
-                    isMobile: (this.app as any).isMobile,
+                    onGoBack: async () => {
+                        await this.flushPersistence();
+                        const result = await this.navManager.goBack();
+                        if (result.success) {
+                            this.tasks = this.navManager.getCurrentStack();
+                            this.rootPath = this.navManager.getState().currentSource;
+                            this.parentTaskName = this.resolveParentName(this.rootPath);
+                            if (this.component && this.component.setNavState) {
+                                const uiState: StackUIState = {
+                                    tasks: this.tasks,
+                                    focusedIndex: result.focusedIndex,
+                                    parentTaskName: this.parentTaskName,
+                                    canGoBack: this.navManager.canGoBack(),
+                                    rootPath: this.rootPath,
+                                    isMobile: (this.app as any).isMobile
+                                };
+                                this.component.setNavState(uiState);
+                            }
+                            await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true } as any);
+                        }
+                    },
                     debug: this.settings.debug,
                     navState: {
                         tasks: this.tasks,
@@ -541,57 +593,7 @@ export class StackView extends ItemView {
                     openQuickAddModal: (currentIndex: number) => {
                         this.isModalOpen = true;
                         const modal = new QuickAddModal(this.app, async (result) => {
-                            if (!this.component) return;
-                            const controller = this.component.getController();
-                            if (!controller) return;
-
-                            // 1. OPTIMISTIC INSERTION
-                            const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-                            const tempNode: TaskNode = {
-                                id: tempId,
-                                title: result.title || "New Task",
-                                duration: result.duration || 30,
-                                status: 'todo' as const,
-                                isAnchored: result.isAnchored || false,
-                                startTime: result.startTime || moment(),
-                                children: []
-                            };
-
-                            // Insert immediately into UI
-                            const cmd = new InsertTaskCommand(controller, currentIndex, tempNode);
-                            await this.historyManager.executeCommand(cmd);
-                            if (this.component.update) {
-                                this.component.update();
-                                if (cmd.resultIndex !== null) this.component.setFocus(cmd.resultIndex);
-                            }
-
-                            // 2. BACKGROUND RESOLUTION
-                            const createPromise = (async () => {
-                                let nodeToInsert: TaskNode | null = null;
-                                if (result.type === 'new' && result.title) {
-                                    const options: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean, parentPath?: string | undefined } = {};
-                                    if (result.startTime) options.startTime = result.startTime;
-                                    if (result.duration !== undefined) options.duration = result.duration;
-                                    if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
-
-                                    if (this.logger) this.logger.info(`[StackView] (openQuickAddModal prop) Resolving temp task "${result.title}" with rootPath: ${this.rootPath}`);
-                                    options.parentPath = this.rootPath?.endsWith('.md') ? this.rootPath : undefined;
-
-                                    nodeToInsert = await this.onTaskCreate(result.title, options);
-                                } else if (result.type === 'file' && result.file) {
-                                    const nodes = await this.loader.loadSpecificFiles([result.file.path]);
-                                    if (nodes.length > 0) nodeToInsert = nodes[0]!;
-                                }
-
-                                if (nodeToInsert && this.component) {
-                                    if (this.logger) this.logger.info(`[StackView] Temp task ${tempId} resolved to ${nodeToInsert.id}`);
-                                    this.component.resolveTempId(tempId, nodeToInsert.id);
-                                }
-                            })();
-
-                            // Track in pendingSyncs so flushPersistence drains it
-                            this.pendingSyncs.add(createPromise);
-                            createPromise.finally(() => this.pendingSyncs.delete(createPromise));
+                            await this.handleQuickAddResult(result, currentIndex);
                         }, VIEW_TYPE_STACK);
 
                         const originalOnClose = modal.onClose.bind(modal);
@@ -645,38 +647,8 @@ export class StackView extends ItemView {
                         this.app.workspace.openLinkText(path, '', true);
                     },
                     onNavigate: this.onNavigate.bind(this),
-                    onGoBack: async () => {
-                        await this.flushPersistence();
-                        const result = await this.navManager.goBack();
-                        if (result.success) {
-                            this.tasks = this.navManager.getCurrentStack();
-                            this.rootPath = this.navManager.getState().currentSource;
-                            this.parentTaskName = this.resolveParentName(this.rootPath);
-                            if (this.component && this.component.setNavState) {
-                                const uiState: StackUIState = {
-                                    tasks: this.tasks,
-                                    focusedIndex: result.focusedIndex,
-                                    parentTaskName: this.parentTaskName,
-                                    canGoBack: this.navManager.canGoBack(),
-                                    rootPath: this.rootPath,
-                                    isMobile: (this.app as any).isMobile
-                                };
-                                this.component.setNavState(uiState);
-                            }
-                            await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true } as any);
-                        }
-                    },
                     lockPersistence: (path: string, token: string) => this.lockPersistence(path, token),
-                    unlockPersistence: (path: string, token: string) => this.unlockPersistence(path, token),
-                    isSyncing: this.isSyncing,
-                    onSyncStatusChange: (isSyncing: boolean) => {
-                        this.isSyncing = isSyncing;
-                        if (this.logger) this.logger.info(`[StackView] Sync status changed: ${isSyncing}`);
-                    },
-                    onMetadataCacheChange: async () => {
-                        if (this.logger) this.logger.info(`[StackView] Metadata cache changed. Reloading tasks.`);
-                        await this.reload(true); // Force reload from disk
-                    }
+                    unlockPersistence: (path: string, token: string) => this.unlockPersistence(path, token)
                 }
             });
             if (this.settings.debug) console.log('[StackView] Svelte component mounted successfully');
