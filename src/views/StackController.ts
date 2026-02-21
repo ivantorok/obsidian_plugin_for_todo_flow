@@ -49,15 +49,12 @@ export class StackController {
 
     setTasks(tasks: TaskNode[]) {
         if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] setTasks called with ${tasks.length} tasks`);
-        // When setting tasks from external source (e.g. NavigationManager refresh),
-        // we must PRESERVE our local temp nodes if they haven't been resolved yet,
-        // otherwise they'll disappear from the UI during the sync.
         const tempNodes = this.tasks.filter(t => t.id.startsWith('temp-'));
         const resolvedTasks = [...tasks];
 
         for (const temp of tempNodes) {
             if (!resolvedTasks.find(t => t.id === temp.id)) {
-                resolvedTasks.unshift(temp); // Keep temp nodes at the top/original position
+                resolvedTasks.unshift(temp);
             }
         }
 
@@ -70,19 +67,27 @@ export class StackController {
      */
     resolveTempId(tempId: string, realId: string) {
         const index = this.tasks.findIndex(t => t.id === tempId);
-        if (index === -1) return;
+        if (index === -1) {
+            console.error(`[StackController] resolveTempId FAILED: ${tempId} not found in current tasks. Current tasks: ${this.tasks.map(t => t.id).join(', ')}`);
+            return;
+        }
 
-        console.log(`[StackController] Resolving temp ID ${tempId} -> ${realId}`);
+        console.log(`[StackController] Resolving ${tempId} -> ${realId}`);
+
+        // 1. Capture pending actions BEFORE we change the ID
+        const actions = this.pendingActions.get(tempId);
+
+        // 2. Update the ID in memory
         this.tasks[index]!.id = realId;
 
-        const actions = this.pendingActions.get(tempId);
+        // 3. Flush actions (which should now correctly find the task by realId if they retry)
         if (actions) {
             console.log(`[StackController] Flushing ${actions.length} pending actions for ${realId}`);
             actions.forEach(action => action());
             this.pendingActions.delete(tempId);
         }
 
-        // Trigger a final update for the real ID
+        // 4. Final update
         this.onTaskUpdate?.(this.tasks[index]!);
     }
 
@@ -92,37 +97,38 @@ export class StackController {
             return;
         }
 
-        console.log(`[StackController] Queuing action for temp ID ${id}`);
         const actions = this.pendingActions.get(id) || [];
         actions.push(action);
         this.pendingActions.set(id, actions);
+        console.log(`[StackController] Queued action for ${id}. Pending: ${actions.length}`);
     }
 
     moveUp(index: number): number {
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] moveUp(${index}) called. Tasks: ${this.tasks.length}`);
         if (index <= 0) return index;
         const taskToMove = this.tasks[index];
         if (!taskToMove) return index;
+
         if (taskToMove.id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] moveUp BLOCKED: ${taskToMove.id} is temporary`);
+            this.queueAction(taskToMove.id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+                if (refreshedIndex !== -1) this.moveUp(refreshedIndex);
+            });
             return index;
         }
-        if (taskToMove.isAnchored) return index; // Anchors shouldn't move via list reordering
 
-        // Find previous unanchored task
+        if (taskToMove.isAnchored) return index;
+
         let target = index - 1;
         while (target >= 0 && this.tasks[target]?.isAnchored) {
             target--;
         }
 
-        if (target < 0) return index; // No valid slot above
+        if (target < 0) return index;
 
         const newTasks = [...this.tasks];
-        // Swap selection with valid target
         [newTasks[index], newTasks[target]] = [newTasks[target]!, newTasks[index]!];
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
-        // Return the new index of the moved task (it might have been re-sorted)
         return this.tasks.findIndex(t => t.id === taskToMove.id);
     }
 
@@ -130,26 +136,28 @@ export class StackController {
         if (index >= this.tasks.length - 1) return index;
         const taskToMove = this.tasks[index];
         if (!taskToMove) return index;
+
         if (taskToMove.id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] moveDown BLOCKED: ${taskToMove.id} is temporary`);
+            this.queueAction(taskToMove.id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+                if (refreshedIndex !== -1) this.moveDown(refreshedIndex);
+            });
             return index;
         }
-        if (taskToMove.isAnchored) return index; // Anchors shouldn't move
 
-        // Find next unanchored task
+        if (taskToMove.isAnchored) return index;
+
         let target = index + 1;
         while (target < this.tasks.length && this.tasks[target]?.isAnchored) {
             target++;
         }
 
-        if (target >= this.tasks.length) return index; // No valid slot below
+        if (target >= this.tasks.length) return index;
 
         const newTasks = [...this.tasks];
-        // Swap selection with valid target
         [newTasks[index], newTasks[target]] = [newTasks[target]!, newTasks[index]!];
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
-        // Return the new index of the moved task
         return this.tasks.findIndex(t => t.id === taskToMove.id);
     }
 
@@ -158,9 +166,11 @@ export class StackController {
         const taskToMove = this.tasks[index]!;
         const id = taskToMove.id;
 
-        // BUG-022 Safety: Block actions on temporary IDs until they resolve
         if (id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] toggleAnchor BLOCKED: ${id} is temporary`);
+            this.queueAction(id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === id);
+                if (refreshedIndex !== -1) this.toggleAnchor(refreshedIndex, startTime);
+            });
             return index;
         }
 
@@ -178,7 +188,7 @@ export class StackController {
 
         const newIndex = this.tasks.findIndex(t => t.id === id);
         if (newIndex !== -1) {
-            this.queueAction(id, () => this.onTaskUpdate?.(this.tasks[newIndex]!));
+            this.onTaskUpdate?.(this.tasks[newIndex]!);
             return newIndex;
         }
         return index;
@@ -189,9 +199,11 @@ export class StackController {
         const taskToMove = this.tasks[index]!;
         const id = taskToMove.id;
 
-        // BUG-022 Safety: Block actions on temporary IDs until they resolve
         if (id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] toggleStatus BLOCKED: ${id} is temporary`);
+            this.queueAction(id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === id);
+                if (refreshedIndex !== -1) this.toggleStatus(refreshedIndex);
+            });
             return index;
         }
 
@@ -204,7 +216,7 @@ export class StackController {
 
         const newIndex = this.tasks.findIndex(t => t.id === id);
         if (newIndex !== -1) {
-            this.queueAction(id, () => this.onTaskUpdate?.(this.tasks[newIndex]!));
+            this.onTaskUpdate?.(this.tasks[newIndex]!);
             return newIndex;
         }
         return index;
@@ -215,12 +227,14 @@ export class StackController {
         const taskToMove = this.tasks[index]!;
         const id = taskToMove.id;
 
-        // BUG-022 Safety: Block actions on temporary IDs until they resolve
         if (id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] updateTaskTitle BLOCKED: ${id} is temporary`);
+            this.queueAction(id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === id);
+                if (refreshedIndex !== -1) this.updateTaskTitle(refreshedIndex, newTitle);
+            });
             return index;
         }
-        const oldTitle = taskToMove.title;
+
         const task = { ...taskToMove };
         task.title = newTitle;
 
@@ -229,10 +243,8 @@ export class StackController {
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
         const newIndex = this.tasks.findIndex(t => t.id === id);
-        console.log(`[StackController] updateTaskTitle index ${index} -> ${newIndex}. "${oldTitle}" -> "${newTitle}"`);
-
         if (newIndex !== -1) {
-            this.queueAction(id, () => this.onTaskUpdate?.(this.tasks[newIndex]!));
+            this.onTaskUpdate?.(this.tasks[newIndex]!);
             return newIndex;
         }
         return index;
@@ -242,16 +254,21 @@ export class StackController {
         if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const id = taskToMove.id;
+
         if (id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] updateTaskMetadata BLOCKED: ${id} is temporary`);
+            this.queueAction(id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === id);
+                if (refreshedIndex !== -1) this.updateTaskMetadata(refreshedIndex, updates);
+            });
             return index;
         }
+
         const task = { ...taskToMove };
 
         if (updates.startTime !== undefined) task.startTime = updates.startTime;
         if (updates.duration !== undefined) {
             task.duration = updates.duration;
-            task.originalDuration = updates.duration; // Assume scale reset
+            task.originalDuration = updates.duration;
         }
         if (updates.isAnchored !== undefined) task.isAnchored = updates.isAnchored;
 
@@ -259,9 +276,7 @@ export class StackController {
         newTasks[index] = task;
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
-        const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
-        console.log(`[StackController] updateTaskMetadata index ${index} -> ${newIndex}. Updates: ${JSON.stringify(updates)}`);
-
+        const newIndex = this.tasks.findIndex(t => t.id === id);
         if (newIndex !== -1) {
             this.onTaskUpdate?.(this.tasks[newIndex]!);
             return newIndex;
@@ -271,9 +286,13 @@ export class StackController {
 
     updateTaskById(id: string, updates: Partial<TaskNode>): number {
         if (id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] updateTaskById BLOCKED: ${id} is temporary`);
+            this.queueAction(id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === id);
+                if (refreshedIndex !== -1) this.updateTaskById(id, updates);
+            });
             return -1;
         }
+
         const index = this.tasks.findIndex(t => t.id === id);
         if (index === -1) return -1;
 
@@ -287,6 +306,7 @@ export class StackController {
             task.originalDuration = updates.duration;
         }
         if (updates.isAnchored !== undefined) task.isAnchored = updates.isAnchored;
+        if (updates.status !== undefined) task.status = updates.status;
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
@@ -305,12 +325,10 @@ export class StackController {
 
         const newTask = this.onTaskCreate(title);
         const newTasks = [...this.tasks];
-        // Insert AFTER current index
         newTasks.splice(index + 1, 0, newTask);
 
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
-        // Find the index of the newly added task (in case schedule reordered it, though unlikely for new floating task)
         const newIndex = this.tasks.findIndex(t => t.id === newTask.id);
 
         return { task: newTask, index: newIndex };
@@ -331,41 +349,23 @@ export class StackController {
 
     insertAfter(index: number, task: TaskNode): number {
         const newTasks = [...this.tasks];
-        // Insert AFTER current index
         newTasks.splice(index + 1, 0, task);
 
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
-        // Find the index of the newly added task
         return this.tasks.findIndex(t => t.id === task.id);
     }
 
-    // Removing renameTask as per remapping, but keeping it for now if needed. 
-    // Actually user said "c" is for adding, so rename might need another key if they want it.
-    // I'll keep the method but remove the binding.
-
     scaleDuration(index: number, direction: 'up' | 'down'): number {
-        const entryMsg = `[StackController DEBUG] scaleDuration entry index=${index} direction=${direction}`;
-        console.log(entryMsg);
-        if (typeof window !== 'undefined') {
-            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
-            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + entryMsg);
-        }
-        if (!this.tasks[index] || this.tasks[index].isMissing) {
-            const missingMsg = `[StackController DEBUG] scaleDuration early return: task[${index}] existing=${!!this.tasks[index]} isMissing=${this.tasks[index]?.isMissing}`;
-            console.log(missingMsg);
-            if (typeof window !== 'undefined') {
-                const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
-                localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + missingMsg);
-            }
-            return index;
-        }
+        if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
         const id = taskToMove.id;
 
-        // BUG-022 Safety: Block actions on temporary IDs until they resolve
         if (id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] scaleDuration BLOCKED: ${id} is temporary`);
+            this.queueAction(id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === id);
+                if (refreshedIndex !== -1) this.scaleDuration(refreshedIndex, direction);
+            });
             return index;
         }
         const task = { ...taskToMove };
@@ -386,21 +386,7 @@ export class StackController {
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
-        const logMsg1 = `[StackController DEBUG] Scaling task ${index} ${direction}. New duration: ${task.originalDuration}`;
-        if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(logMsg1);
-            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
-            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + logMsg1);
-        }
-        console.log(logMsg1);
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
-        const logMsg2 = `[StackController DEBUG] Post-schedule tasks: ${this.tasks.map(t => t.title).join(', ')}`;
-        if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(logMsg2);
-            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
-            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + logMsg2);
-        }
-        console.log(logMsg2);
 
         const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
         if (newIndex !== -1) {
@@ -413,11 +399,21 @@ export class StackController {
     adjustDuration(index: number, deltaMinutes: number): number {
         if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
+        const id = taskToMove.id;
+
+        if (id.startsWith('temp-')) {
+            this.queueAction(id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === id);
+                if (refreshedIndex !== -1) this.adjustDuration(refreshedIndex, deltaMinutes);
+            });
+            return index;
+        }
+
         const task = { ...taskToMove };
 
         const currentDuration = task.originalDuration ?? task.duration;
         task.originalDuration = Math.max(2, currentDuration + deltaMinutes);
-        task.duration = task.originalDuration; // Reset to original before schedule logic
+        task.duration = task.originalDuration;
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;
@@ -432,67 +428,46 @@ export class StackController {
     }
 
     moveTaskToIndex(oldIndex: number, newIndex: number): number {
-        console.log(`[StackController] moveTaskToIndex(oldIndex: ${oldIndex}, newIndex: ${newIndex})`);
         if (oldIndex === newIndex) return oldIndex;
         if (!this.tasks[oldIndex]) return oldIndex;
         const taskToMove = this.tasks[oldIndex]!;
+
         if (taskToMove.id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] moveTaskToIndex BLOCKED: ${taskToMove.id} is temporary`);
+            this.queueAction(taskToMove.id, () => {
+                const refreshedIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+                // Note: newIndex might have shifted, but for simple reorder it's okay for now.
+                if (refreshedIndex !== -1) this.moveTaskToIndex(refreshedIndex, newIndex);
+            });
             return oldIndex;
         }
+
         if (taskToMove.isAnchored) return oldIndex;
 
         const newTasks = [...this.tasks];
-
-        // Remove from old
         newTasks.splice(oldIndex, 1);
-        console.log(`[StackController] After splice-out: ${newTasks.map(t => t.title).join(', ')}`);
-
-        // Adjust newIndex if it was after oldIndex
-        let target = newIndex;
-        newTasks.splice(target, 0, taskToMove);
-        console.log(`[StackController] After splice-in: ${newTasks.map(t => t.title).join(', ')}`);
+        newTasks.splice(newIndex, 0, taskToMove);
 
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
-        const finalIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
-        console.log(`[StackController] Final order: ${this.tasks.map(t => t.title).join(', ')} (moved task now at ${finalIndex})`);
-        return finalIndex;
+        return this.tasks.findIndex(t => t.id === taskToMove.id);
     }
 
     handleEnter(index: number, forceOpen: boolean = false): { action: 'DRILL_DOWN' | 'OPEN_FILE' | 'GO_BACK'; path?: string; newStack?: TaskNode[] } | null {
         if (!this.tasks[index]) return null;
 
         const task = this.tasks[index]!;
-        if (task.id.startsWith('temp-')) {
-            if (typeof window !== 'undefined') console.warn(`[StackController] handleEnter BLOCKED: ${task.id} is temporary`);
-            return null;
-        }
+        if (task.id.startsWith('temp-')) return null;
         if (task.isMissing) return null;
 
         if (task.children && task.children.length > 0) {
             if (forceOpen) {
-                return {
-                    action: 'OPEN_FILE',
-                    path: task.id
-                };
+                return { action: 'OPEN_FILE', path: task.id };
             }
-            return {
-                action: 'DRILL_DOWN',
-                newStack: task.children
-            };
+            return { action: 'DRILL_DOWN', newStack: task.children };
         } else {
-            // It's a leaf.
             if (forceOpen) {
-                return {
-                    action: 'OPEN_FILE',
-                    path: task.id
-                };
+                return { action: 'OPEN_FILE', path: task.id };
             }
-            // By default, ALL files are stacks (even empty ones)
-            return {
-                action: 'DRILL_DOWN',
-                newStack: []
-            };
+            return { action: 'DRILL_DOWN', newStack: [] };
         }
     }
 }
