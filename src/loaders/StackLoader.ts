@@ -14,7 +14,7 @@ export class StackLoader {
     constructor(app: App, logger?: FileLogger) {
         this.app = app;
         this.logger = logger;
-        this.parser = new LinkParser(app);
+        this.parser = new LinkParser(app, logger);
     }
 
     /**
@@ -41,7 +41,7 @@ export class StackLoader {
             if (fileOrFolder instanceof TFolder) {
                 // It's a folder - use GraphBuilder
                 const { GraphBuilder } = await import('../GraphBuilder.js');
-                const builder = new GraphBuilder(this.app);
+                const builder = new GraphBuilder(this.app, this.logger);
                 const files = fileOrFolder.children.filter(f => f instanceof TFile && f.extension === 'md') as TFile[];
                 const result = await builder.buildGraph(files);
                 if (result.length === 0 && this.logger) await this.logger.warn(`[StackLoader] Folder "${path}" loaded 0 tasks.`);
@@ -55,26 +55,27 @@ export class StackLoader {
                     .map(node => this.app.vault.getAbstractFileByPath(node.id))
                     .filter(f => f instanceof TFile) as TFile[];
 
-                // Use GraphBuilder to build the deep graph
+                // Use GraphBuilder to build the deep graph for existing files
                 const { GraphBuilder } = await import('../GraphBuilder.js');
-                const builder = new GraphBuilder(this.app);
+                const builder = new GraphBuilder(this.app, this.logger);
                 const graphNodes = await builder.buildGraph(linkedFiles);
 
-                // Merge metadata from linkedNodes (the stack file) into graphNodes
-                // Priority: Line-local overrides (LinkParser) > File-level metadata (GraphBuilder)
-                return graphNodes.map(gNode => {
-                    const lNode = linkedNodes.find(ln => ln.id === gNode.id);
-                    if (lNode) {
+                // Merge metadata from linkedNodes (the stack file) with graphNodes
+                // We iterate over linkedNodes to preserve order and included nodes (even if file missing)
+                return linkedNodes.map(lNode => {
+                    const gNode = graphNodes.find(gn => gn.id === lNode.id);
+                    if (gNode) {
                         return {
                             ...gNode,
-                            // Use line-local title if it's NOT just the linkPath (i.e. it was [[ID|Title]])
+                            // Priority: Line-local overrides (LinkParser) > File-level metadata (GraphBuilder)
                             title: (lNode.title !== lNode.id && lNode.title !== lNode.id.split('/').pop()?.replace('.md', '')) ? lNode.title : gNode.title,
                             isAnchored: lNode.isAnchored || gNode.isAnchored,
                             startTime: lNode.startTime || gNode.startTime,
                             duration: lNode.duration !== 30 ? lNode.duration : gNode.duration // 30 is default
                         };
                     }
-                    return gNode;
+                    // Return the link node if no corresponding file graph node exists (orphan task)
+                    return lNode;
                 });
             }
         } catch (e) {

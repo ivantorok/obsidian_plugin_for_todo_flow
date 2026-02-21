@@ -131,12 +131,51 @@ async function setupVault() {
     const pluginSettingsPath = path.join(pluginDestPath, 'data.json');
     console.log(`[E2E Setup] Creating plugin data.json at: ${pluginSettingsPath}`);
     const pluginSettings = {
-        absoluteLogPath: path.join(pluginSourcePath, 'logs/e2e.log'),
+        absoluteLogPath: 'logs/e2e.log', // Changed to vault-relative path to avoid Obsidian fs prompts
         debug: true,
         targetFolder: 'todo-flow'
     };
     fs.writeFileSync(pluginSettingsPath, JSON.stringify(pluginSettings, null, 2));
     console.log(`[E2E Setup] Plugin settings initialized with absoluteLogPath.`);
+
+    // 9. Create todo-flow directory for stack storage
+    const todoFlowPath = path.join(vaultPath, 'todo-flow');
+    if (!fs.existsSync(todoFlowPath)) {
+        console.log(`[E2E Setup] Creating todo-flow directory: ${todoFlowPath}`);
+        fs.mkdirSync(todoFlowPath, { recursive: true });
+    }
+
+    // 10. Symlink logs and test-results directories to avoid Obsidian directory access prompts
+    const dirsToSymlink = ['logs', 'test-results'];
+    for (const dirName of dirsToSymlink) {
+        const targetPath = path.join(pluginSourcePath, dirName);
+        const linkPath = path.join(vaultPath, dirName);
+
+        if (!fs.existsSync(targetPath)) {
+            console.log(`[E2E Setup] Creating ${dirName} directory at: ${targetPath}`);
+            fs.mkdirSync(targetPath, { recursive: true });
+        }
+
+        if (!fs.existsSync(linkPath)) {
+            console.log(`[E2E Setup] Creating symlink for ${dirName} at: ${linkPath}`);
+            try {
+                fs.symlinkSync(targetPath, linkPath, 'dir');
+            } catch (e) {
+                console.warn(`[E2E Setup] Could not create symlink for ${dirName}:`, e);
+            }
+        }
+    }
+
+    // Symlink e2e_results.log as well
+    const logFilePath = path.join(pluginSourcePath, 'e2e_results.log');
+    const logFileLink = path.join(vaultPath, 'e2e_results.log');
+    if (fs.existsSync(logFilePath) && !fs.existsSync(logFileLink)) {
+        try {
+            fs.symlinkSync(logFilePath, logFileLink, 'file');
+        } catch (e) {
+            console.warn(`[E2E Setup] Could not create symlink for e2e_results.log:`, e);
+        }
+    }
 
     console.log('[E2E Setup] --- Vault initialization complete ---');
 }

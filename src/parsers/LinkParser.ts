@@ -2,6 +2,7 @@ import { type App } from 'obsidian';
 import { type TaskNode } from '../scheduler.js';
 import { resolveTaskTitle, getFirstNonMetadataLine } from '../utils/title-resolver.js';
 import moment from 'moment';
+import { FileLogger } from '../logger.js';
 
 
 /**
@@ -22,15 +23,30 @@ export interface TaskSource {
 }
 
 export class LinkParser implements TaskSource {
+    private logger: FileLogger | undefined;
     private app: App;
 
-    constructor(app: App) {
+    constructor(app: App, logger?: FileLogger) {
         this.app = app;
+        this.logger = logger;
     }
 
     async parse(filePath: string): Promise<TaskNode[]> {
         // Read file content
-        let content = await this.app.vault.adapter.read(filePath);
+        let content = '';
+        try {
+            content = await this.app.vault.adapter.read(filePath);
+        } catch (e) {
+            console.warn(`[LinkParser] Failed to read ${filePath}: ${e}`);
+            return [];
+        }
+
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(`[LinkParser] parse(${filePath}): contentLen=${content.length}, contentPrefix=${content.substring(0, 50).replace(/\n/g, '\\n')}`);
+        }
+        if (this.logger) {
+            this.logger.info(`[LinkParser] parse(${filePath}): contentLen=${content.length}, contentPrefix=${content.substring(0, 50).replace(/\n/g, '\\n')}`);
+        }
         if (typeof content !== 'string') content = String(content || '');
 
         // Extract all wikilinks with their surrounding context (the whole line)

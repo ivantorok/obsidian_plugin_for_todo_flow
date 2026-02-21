@@ -20,6 +20,8 @@ coverage/
 junit.xml
 
 logs/
+trusted_logs_link
+obsidian_logs_link
 
 # E2E failure screenshots (transient debugging artifacts)
 tests/e2e/failures/

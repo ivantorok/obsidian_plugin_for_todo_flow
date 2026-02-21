@@ -20,6 +20,8 @@
         AdjustDurationCommand
     } from '../commands/stack-commands.js';
     import HelpModal from './HelpModal.svelte';
+    import FocusStack from './FocusStack.svelte';
+    import ArchitectStack from './ArchitectStack.svelte';
     import { type TodoFlowSettings } from '../main';
     import { resolveSwipe, isDoubleTap, DOUBLE_TAP_WINDOW } from '../gestures.js';
     import { type StackUIState } from './ViewTypes.js';
@@ -45,6 +47,8 @@
         unlockPersistence,
         debug = true
     } = $props();
+
+    let activeInteractionToken = $state<string | null>(null);
 
     let navState = $state(initialNavState || {
         tasks: initialTasks || [],
@@ -127,6 +131,13 @@
 
     export function getController() {
         return controller;
+    }
+
+    export function resolveTempId(tempId: string, realId: string) {
+        if (controller) {
+            controller.resolveTempId(tempId, realId);
+            update();
+        }
     }
     // --------------------------------------------
 
@@ -493,8 +504,16 @@
         touchCurrentX = touchStartX;
         touchCurrentY = touchStartY;
         swipingTaskId = taskId;
+
+        const index = tasks.findIndex(t => t.id === taskId);
+        if (index !== -1) {
+            focusedIndex = index;
+            if (onFocusChange) onFocusChange(index);
+        }
         
-        if (lockPersistence) lockPersistence();
+        // Implementation of Interaction Token: Claim lock on start
+        activeInteractionToken = `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+        if (lockPersistence && navState.rootPath) lockPersistence(navState.rootPath, activeInteractionToken);
         if (controller) controller.freeze();
         
         // Detect if we started on the handle for immediate reorder intent
@@ -644,7 +663,10 @@
             dragLogged = false;
             lastDragEndTime = Date.now();
             
-            if (unlockPersistence) unlockPersistence();
+            if (unlockPersistence && navState.rootPath && activeInteractionToken) {
+                unlockPersistence(navState.rootPath, activeInteractionToken);
+                activeInteractionToken = null;
+            }
             if (controller) controller.unfreeze();
             
             // IMPORTANT: If we just finished a drag, we don't want to trigger a swipe
@@ -670,7 +692,10 @@
             }
         }
 
-        if (unlockPersistence) unlockPersistence();
+        if (unlockPersistence && navState.rootPath && activeInteractionToken) {
+            unlockPersistence(navState.rootPath, activeInteractionToken);
+            activeInteractionToken = null;
+        }
         if (controller) controller.unfreeze();
 
         swipingTaskId = null;
@@ -679,7 +704,10 @@
     }
 
     function handlePointerCancel(e: PointerEvent) {
-        if (unlockPersistence) unlockPersistence();
+        if (unlockPersistence && navState.rootPath && activeInteractionToken) {
+            unlockPersistence(navState.rootPath, activeInteractionToken);
+            activeInteractionToken = null;
+        }
         if (controller) controller.unfreeze();
         swipingTaskId = null;
         draggingTaskId = null;
@@ -1068,6 +1096,16 @@
         isSyncing = val;
         if (debug) console.log(`[StackView] Sync status updated in UI: ${isSyncing}`);
     }
+
+    function syncGuard(fn: any) {
+        return (...args: any[]) => {
+            if (isSyncing) {
+                new (window as any).Notice("Syncing in progress. Please wait...");
+                return;
+            }
+            return fn?.(...args);
+        };
+    }
 </script>
 
 
@@ -1133,224 +1171,61 @@
     {/if}
     <div class="todo-flow-timeline" class:mode-focus={viewMode === 'focus'}>
         {#if viewMode === 'focus'}
-            {#if tasks.length > 0}
-                <!-- FOCUS MODE: Single Card Centerpiece -->
-                {@const task = tasks[focusedIndex]}
-                <div 
-                    bind:this={taskElements[focusedIndex]}
-                    class="todo-flow-task-card focus-card" 
-                    class:is-mobile={isMobileState}
-                    data-testid="focus-card"
-                    class:anchored={task.isAnchored}
-                    class:is-done={task.status === 'done'}
-                    onclick={(e) => handleTap(e, task, focusedIndex)}
-                    onpointerdown={(e) => handlePointerStart(e, task.id)}
-                    onpointermove={handlePointerMove}
-                    onpointerup={(e) => handlePointerEnd(e, task)}
-                    onpointercancel={handlePointerCancel}
-                    use:touchBlocking={handleTouchBlocking}
-                    style="touch-action: none; transform: {getCardTransform(task.id)};"
-                >
-                    <div class="focus-card-inner">
-                        <div class="focus-time-badge">
-                            {formatDateRelative(task.startTime, internalNow)}
-                        </div>
-                        
-                        <h1 class="focus-title">{task.title}</h1>
-                        
-                        <div class="focus-metadata">
-                            <span class="focus-duration-text">{formatDuration(task.duration)}</span>
-                            {#if task.isAnchored}
-                                <span class="focus-anchor-status">⚓ Anchored</span>
-                            {/if}
-                        </div>
-
-                        <div class="focus-actions">
-                            <button class="focus-action-btn complete" data-testid="focus-complete-btn" onclick={syncGuard((e) => { e.stopPropagation(); executeGestureAction('complete', task, focusedIndex); })}>
-                                {task.status === 'done' ? 'Undo' : 'Complete'}
-                            </button>
-                            <button class="focus-action-btn" onclick={syncGuard((e) => { e.stopPropagation(); openDurationPicker(focusedIndex); })}>
-                                Adjust Time
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="focus-navigation-hints">
-                    <span class="hint">Swipe L/R to toggle status</span>
-                    <span class="hint">Tap to drill down</span>
-                </div>
-            {:else}
-                <!-- ZEN MODE: Focus Card -->
-                <div class="todo-flow-task-card focus-card zen-card" data-testid="zen-card">
-                    <div class="zen-icon">✨</div>
-                    <h1 class="zen-title">All Done</h1>
-                    <p class="zen-subtitle">Your stack is clear. Take a breath.</p>
-                    <button class="focus-action-btn complete" onclick={syncGuard(() => openQuickAddModal(-1))}>
-                        Add a Task
-                    </button>
-                </div>
-            {/if}
+            <FocusStack 
+                {tasks}
+                {focusedIndex}
+                now={internalNow}
+                {settings}
+                {logger}
+                onTap={handleTap}
+                onPointerStart={handlePointerStart}
+                onPointerMove={handlePointerMove}
+                onPointerEnd={handlePointerEnd}
+                onPointerCancel={handlePointerCancel}
+                {touchBlocking}
+                {handleTouchBlocking}
+                {getCardTransform}
+                {syncGuard}
+                {executeGestureAction}
+                {openDurationPicker}
+                {openQuickAddModal}
+                {isMobileState}
+            />
         {:else}
-            <!-- ARCHITECT MODE: Classic List -->
-            {#if tasks.length > 0}
-                {#each tasks as task, i (task.id)}
-                    <div 
-                        bind:this={taskElements[i]}
-                        class="todo-flow-task-card" 
-                        class:is-mobile={isMobileState}
-                        data-testid="task-card-{i}"
-                        class:is-focused={focusedIndex === i}
-                        class:anchored={task.isAnchored}
-                        class:is-done={task.status === 'done'}
-                        class:is-missing={task.isMissing}
-                        class:dragging={draggingTaskId === task.id}
-                        class:drop-before={dragTargetIndex === i && i !== draggingStartIndex && i <= draggingStartIndex}
-                        class:drop-after={dragTargetIndex === i && i !== draggingStartIndex && i > draggingStartIndex}
-                        onclick={(e) => handleTap(e, task, i)}
-                        onpointerdown={(e) => handlePointerStart(e, task.id)}
-                        onpointermove={handlePointerMove}
-                        onpointerup={(e) => handlePointerEnd(e, task)}
-                        onpointercancel={handlePointerCancel}
-                        
-                        use:touchBlocking={handleTouchBlocking}
-                        style={isMobileState 
-                            ? `touch-action: none; transform: ${getCardTransform(task.id)}; flex-wrap: wrap !important; padding: 0.75rem !important; gap: 0.5rem !important;` 
-                            : `touch-action: none; transform: ${getCardTransform(task.id)};`}
-                    >
-                        <div 
-                            class="drag-handle" 
-                            title="Drag to reorder"
-                            style="touch-action: none;"
-                        >⠿</div>
-                        <div class="time-col" onpointerdown={(e) => e.stopPropagation()} onclick={(e) => { e.stopPropagation(); startEditStartTime(i); }}>
-                            {#if editingStartTimeIndex === i}
-                                <input 
-                                    type="text" 
-                                    class="todo-flow-time-input"
-                                    value={task.startTime.format('HH:mm')}
-                                    onkeydown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.stopPropagation();
-                                            finishEditStartTime(task.id, e.currentTarget.value);
-                                        }
-                                        if (e.key === 'Escape') {
-                                            e.stopPropagation();
-                                            editingStartTimeIndex = -1;
-                                        }
-                                    }}
-                                    onblur={(e) => finishEditStartTime(task.id, e.currentTarget.value)}
-                                     use:selectOnFocus
-                                />
-                            {:else}
-                                <span class="mobile-only-time">{formatDateRelative(task.startTime, internalNow, true)}</span>
-                                <span class="desktop-only-time">{formatDateRelative(task.startTime, internalNow)}</span>
-                                {#if task.isAnchored}
-                                    <svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                {/if}
-                            {/if}
-                        </div>
-                        <div class="content-col" class:mobile-layout={isMobileState}>
-                            {#if editingIndex === i}
-                                <input
-                                    bind:this={renameInputs[i]}
-                                    bind:value={renamingText}
-                                    type="text"
-                                    class="rename-input"
-                                    data-testid="rename-input"
-                                    onkeydown={(e) => { 
-                                        if (e.key === 'Enter') {
-                                            e.stopPropagation();
-                                            finishRename(task.id, renamingText, 'submit');
-                                        }
-                                        if (e.key === 'Escape') {
-                                            e.stopPropagation();
-                                            cancelRename();
-                                        }
-                                    }}
-                                    use:selectOnFocus
-                                />
-                            {:else}
-                                <button 
-                                    class="title" 
-                                    class:mobile-clamp={isMobileState}
-                                    style={isMobileState ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal;" : ""}
-                                    data-testid="task-card-title"
-                                    onclick={syncGuard(() => startRename(i))} 
-                                    title={task.isMissing ? "Note missing" : "Click to rename"} 
-                                    role="button" 
-                                    tabindex="0"
-                                >
-                                    {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span> {/if}{task.title}
-                                </button>
-                            {/if}
-                            <div class="metadata" class:mobile-layout={isMobileState}>
-                                <div class="duration">
-                                    <button 
-                                        class="duration-btn minus" 
-                                        onclick={syncGuard((e) => { 
-                                            e.stopPropagation(); 
-                                            historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'down')); 
-                                            update(); 
-                                        })}
-                                        onpointerdown={(e) => e.stopPropagation()}
-                                        title="Decrease Duration"
-                                    >−</button>
-                                    <span 
-                                        class="duration-text clickable" 
-                                        onclick={(e) => { e.stopPropagation(); openDurationPicker(i); }}
-                                        onkeydown={(e) => { if (e.key === 'Enter') openDurationPicker(i); }}
-                                        onpointerdown={(e) => e.stopPropagation()}
-                                        tabindex="0"
-                                        role="button"
-                                    >
-                                        {formatDuration(task.duration)}
-                                    </span>
-                                    <button 
-                                        class="duration-btn plus" 
-                                        onclick={syncGuard((e) => {
-                                            e.stopPropagation();
-                                            historyManager.executeCommand(new ScaleDurationCommand(controller, i, 'up'));
-                                            update();
-                                        })}
-                                        onpointerdown={(e) => e.stopPropagation()}
-                                        title="Increase Duration"
-                                    >+</button>
-                                    {#if getMinDuration(task) > 0}
-                                        <span class="constraint-indicator" title="Constrained by subtasks">⚖️</span>
-                                    {/if}
-                                    {#if task.isAnchored}
-                                        <div class="mobile-anchor-badge">⚓</div>
-                                    {/if}
-                                </div>
-                                <div class="anchor-col">
-                                    {#if !task.isMissing}
-                                        <button 
-                                            class="toggle-anchor-btn" 
-                                            class:is-active={task.isAnchored}
-                                            onclick={(e) => { e.stopPropagation(); historyManager.executeCommand(new ToggleAnchorCommand(controller, i)); update(); }}
-                                            onpointerdown={(e) => e.stopPropagation()}
-                                            title={task.isAnchored ? "Release Anchor" : "Pin to Start Time"}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                        </button>
-                                    {/if}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {/each}
-            {:else}
-                <!-- ZEN MODE: Architect List -->
-                <div class="zen-list-empty" data-testid="zen-list-empty">
-                    <div class="zen-icon">🏔️</div>
-                    <h3>Your Architect's Desk is Clear</h3>
-                    <p>Add a new task to begin your next flow.</p>
-                    <button class="focus-action-btn" style="max-width: 200px;" onclick={syncGuard(() => openQuickAddModal(-1))}>
-                        Quick Add
-                    </button>
-                </div>
-            {/if}
+            <ArchitectStack 
+                {tasks}
+                {focusedIndex}
+                now={internalNow}
+                {historyManager}
+                {controller}
+                {editingIndex}
+                {editingStartTimeIndex}
+                bind:renamingText
+                {draggingTaskId}
+                {dragTargetIndex}
+                {draggingStartIndex}
+                {isMobileState}
+                onTap={handleTap}
+                onPointerStart={handlePointerStart}
+                onPointerMove={handlePointerMove}
+                onPointerEnd={handlePointerEnd}
+                onPointerCancel={handlePointerCancel}
+                {touchBlocking}
+                {handleTouchBlocking}
+                {getCardTransform}
+                {syncGuard}
+                {startRename}
+                {finishRename}
+                {cancelRename}
+                {startEditStartTime}
+                {finishEditStartTime}
+                {selectOnFocus}
+                {update}
+                {openQuickAddModal}
+                {openDurationPicker}
+                bind:renameInputs
+                bind:taskElements
+            />
         {/if}
     </div>
     <!-- Help Overlay -->

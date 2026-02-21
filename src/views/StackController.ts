@@ -9,6 +9,7 @@ export class StackController {
     private onTaskUpdate: ((task: TaskNode) => void) | undefined;
     private onTaskCreate: ((title: string) => TaskNode) | undefined;
     private isFrozen: boolean = false;
+    private pendingActions: Map<string, Array<() => void>> = new Map();
 
     constructor(
         initialTasks: TaskNode[],
@@ -48,7 +49,53 @@ export class StackController {
 
     setTasks(tasks: TaskNode[]) {
         if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] setTasks called with ${tasks.length} tasks`);
-        this.tasks = this.isFrozen ? tasks : computeSchedule(tasks, this.currentTime);
+        // When setting tasks from external source (e.g. NavigationManager refresh),
+        // we must PRESERVE our local temp nodes if they haven't been resolved yet,
+        // otherwise they'll disappear from the UI during the sync.
+        const tempNodes = this.tasks.filter(t => t.id.startsWith('temp-'));
+        const resolvedTasks = [...tasks];
+
+        for (const temp of tempNodes) {
+            if (!resolvedTasks.find(t => t.id === temp.id)) {
+                resolvedTasks.unshift(temp); // Keep temp nodes at the top/original position
+            }
+        }
+
+        this.tasks = this.isFrozen ? resolvedTasks : computeSchedule(resolvedTasks, this.currentTime);
+    }
+
+    /**
+     * Resolves a temporary ID to a real file path.
+     * Updates the task in memory and flushes any pending actions.
+     */
+    resolveTempId(tempId: string, realId: string) {
+        const index = this.tasks.findIndex(t => t.id === tempId);
+        if (index === -1) return;
+
+        console.log(`[StackController] Resolving temp ID ${tempId} -> ${realId}`);
+        this.tasks[index]!.id = realId;
+
+        const actions = this.pendingActions.get(tempId);
+        if (actions) {
+            console.log(`[StackController] Flushing ${actions.length} pending actions for ${realId}`);
+            actions.forEach(action => action());
+            this.pendingActions.delete(tempId);
+        }
+
+        // Trigger a final update for the real ID
+        this.onTaskUpdate?.(this.tasks[index]!);
+    }
+
+    private queueAction(id: string, action: () => void) {
+        if (!id.startsWith('temp-')) {
+            action();
+            return;
+        }
+
+        console.log(`[StackController] Queuing action for temp ID ${id}`);
+        const actions = this.pendingActions.get(id) || [];
+        actions.push(action);
+        this.pendingActions.set(id, actions);
     }
 
     moveUp(index: number): number {
@@ -99,12 +146,13 @@ export class StackController {
     toggleAnchor(index: number, startTime?: moment.Moment): number {
         if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
+        const id = taskToMove.id;
+
         const task = { ...taskToMove };
         task.isAnchored = !task.isAnchored;
         if (task.isAnchored && startTime) {
             task.startTime = moment(startTime);
         } else if (task.isAnchored) {
-            // Anchor at its current calculated start time
             task.startTime = moment(task.startTime);
         }
 
@@ -112,9 +160,9 @@ export class StackController {
         newTasks[index] = task;
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
-        const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+        const newIndex = this.tasks.findIndex(t => t.id === id);
         if (newIndex !== -1) {
-            this.onTaskUpdate?.(this.tasks[newIndex]!);
+            this.queueAction(id, () => this.onTaskUpdate?.(this.tasks[newIndex]!));
             return newIndex;
         }
         return index;
@@ -123,6 +171,8 @@ export class StackController {
     toggleStatus(index: number): number {
         if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
+        const id = taskToMove.id;
+
         const task = { ...taskToMove };
         task.status = task.status === 'todo' ? 'done' : 'todo';
 
@@ -130,9 +180,9 @@ export class StackController {
         newTasks[index] = task;
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
-        const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
+        const newIndex = this.tasks.findIndex(t => t.id === id);
         if (newIndex !== -1) {
-            this.onTaskUpdate?.(this.tasks[newIndex]!);
+            this.queueAction(id, () => this.onTaskUpdate?.(this.tasks[newIndex]!));
             return newIndex;
         }
         return index;
@@ -141,6 +191,7 @@ export class StackController {
     updateTaskTitle(index: number, newTitle: string): number {
         if (!this.tasks[index] || this.tasks[index].isMissing) return index;
         const taskToMove = this.tasks[index]!;
+        const id = taskToMove.id;
         const oldTitle = taskToMove.title;
         const task = { ...taskToMove };
         task.title = newTitle;
@@ -149,12 +200,11 @@ export class StackController {
         newTasks[index] = task;
         this.tasks = this.isFrozen ? newTasks : computeSchedule(newTasks, this.currentTime);
 
-        const newIndex = this.tasks.findIndex(t => t.id === taskToMove.id);
-        // We log here because this is where the title officially changes in state
+        const newIndex = this.tasks.findIndex(t => t.id === id);
         console.log(`[StackController] updateTaskTitle index ${index} -> ${newIndex}. "${oldTitle}" -> "${newTitle}"`);
 
         if (newIndex !== -1) {
-            this.onTaskUpdate?.(this.tasks[newIndex]!);
+            this.queueAction(id, () => this.onTaskUpdate?.(this.tasks[newIndex]!));
             return newIndex;
         }
         return index;

@@ -44,6 +44,7 @@ export class StackView extends ItemView {
     private persistenceLockCount: number = 0;
     private isSyncing: boolean = false;
     private syncCheckInterval: number | null = null;
+    private pendingSyncs: Set<Promise<void>> = new Set();
 
     setIsSyncing(val: boolean) {
         this.isSyncing = val;
@@ -53,8 +54,16 @@ export class StackView extends ItemView {
         }
     }
 
+    private _updateTimeout: ReturnType<typeof setTimeout> | null = null;
+
     requestUpdate() {
-        this.reload();
+        // Debounce: batch rapid changes (e.g. child creation + parent link injection)
+        // into a single reload to avoid reading stale intermediate state.
+        if (this._updateTimeout) clearTimeout(this._updateTimeout);
+        this._updateTimeout = setTimeout(() => {
+            this._updateTimeout = null;
+            this.reload();
+        }, 100);
     }
 
     constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, viewManager: ViewManager, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined, parentPath?: string | undefined }) => Promise<TaskNode>) {
@@ -64,7 +73,14 @@ export class StackView extends ItemView {
         this.logger = logger;
         this.viewManager = viewManager;
         this.persistenceService = persistenceService;
-        this.onTaskUpdate = onTaskUpdate;
+        // Wrap onTaskUpdate to track inflight sync promises
+        this.onTaskUpdate = (task: TaskNode) => {
+            const result = onTaskUpdate(task);
+            if (result instanceof Promise) {
+                this.pendingSyncs.add(result);
+                result.finally(() => this.pendingSyncs.delete(result));
+            }
+        };
         this.onTaskCreate = onTaskCreate;
         this.navigation = true; // Enable Obsidian native back/forward buttons
 
@@ -113,7 +129,7 @@ export class StackView extends ItemView {
             // BUG-009 Fix: If the changed file is our backing stack file, we need a full reload
             if (this.rootPath && file.path === this.rootPath) {
                 // To avoid reloading immediately on our own saves, check write times
-                const isExternal = this.persistenceService.isExternalUpdate(file.path);
+                const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.tasks);
                 if (isExternal) {
                     if (this.logger) this.logger.info(`[StackView] External change detected on BACKING FILE ${file.path}. Triggering full reload.`);
                     await this.reload(true);
@@ -126,7 +142,7 @@ export class StackView extends ItemView {
             // Otherwise, check if it's an individual task file in the stack that needs re-parsing
             const taskIndex = this.tasks.findIndex(t => t.id === file.path);
             if (taskIndex !== -1) {
-                const isExternal = this.persistenceService.isExternalUpdate(file.path);
+                const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.tasks);
                 if (!isExternal) return; // Ignore internal changes to avoid infinite loops
 
                 if (this.logger) this.logger.info(`[StackView] External change detected for task ${file.path}. Re-parsing metadata.`);
@@ -258,11 +274,15 @@ export class StackView extends ItemView {
             this.navManager.setStack(initialTasks, this.rootPath!);
 
             const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
+            const isCurrentlyViewingShortlist = this.rootPath === persistencePath || (this.rootPath && this.rootPath.includes('CurrentStack.md'));
+
             // 3. Save & Activate
             try {
-                await this.persistenceService.saveStack(
-                    this.navManager.getCurrentStack(), persistencePath);
-                this.lastSavedIds = this.navManager.getCurrentStack().map(t => `${t.id}:${t.status}`);
+                if (isCurrentlyViewingShortlist) {
+                    await this.persistenceService.saveStack(
+                        this.navManager.getCurrentStack(), persistencePath);
+                    this.lastSavedIds = this.navManager.getCurrentStack().map(t => `${t.id}:${t.status}`);
+                }
             } catch (e) {
                 if (this.logger) this.logger.error(`[StackView] Failed to save CurrentStack.md: ${e}`);
             }
@@ -308,11 +328,7 @@ export class StackView extends ItemView {
                 if (this.component && this.component.setTasks) {
                     this.component.setTasks(this.tasks);
                 }
-                const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
-                if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
-                    await this.persistenceService.saveStack(this.tasks, 'CurrentStack.md');
-                }
-                this.app.workspace.requestSaveLayout();
+                this.triggerSave(0);
             }
             this.app.workspace.requestSaveLayout();
         }, VIEW_TYPE_STACK);
@@ -333,6 +349,12 @@ export class StackView extends ItemView {
     }
 
     async flushPersistence(): Promise<void> {
+        // 1. Drain all inflight task syncs (syncTaskToNote calls)
+        if (this.pendingSyncs.size > 0) {
+            this.logger.info(`[StackView] Draining ${this.pendingSyncs.size} pending task syncs before flush.`);
+            await Promise.all(this.pendingSyncs);
+        }
+
         if (!this.saveTimeout) return;
         this.logger.info(`[StackView] Flush requested.`);
 
@@ -358,22 +380,24 @@ export class StackView extends ItemView {
      * Lock persistence during active user interaction (swiping/dragging)
      * to prevent UI jank from disk I/O.
      */
-    public lockPersistence() {
+    public lockPersistence(path: string, token: string) {
         this.persistenceLockCount++;
-        if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence LOCKED (count: ${this.persistenceLockCount})`);
+        this.persistenceService.claimLock(path, token);
+        if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence LOCKED for ${path} (token: ${token}, count: ${this.persistenceLockCount})`);
     }
 
     /**
      * Unlock persistence and trigger a save if one was pending.
      */
-    public unlockPersistence() {
+    public unlockPersistence(path: string, token: string) {
         this.persistenceLockCount = Math.max(0, this.persistenceLockCount - 1);
-        if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence UNLOCKED (count: ${this.persistenceLockCount})`);
+        this.persistenceService.releaseLock(path, token);
+        if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence UNLOCKED for ${path} (token: ${token}, count: ${this.persistenceLockCount})`);
 
         if (this.persistenceLockCount === 0 && this.saveTimeout) {
             // Re-trigger the debounced save immediately now that interaction is done
             if (this.logger && this.settings.debug) this.logger.info(`[StackView] interaction-idle: triggering pending save`);
-            this.triggerSave(0); // Immediate but still via triggerSave for consistency
+            this.triggerSave(0);
         }
     }
 
@@ -383,10 +407,18 @@ export class StackView extends ItemView {
         const currentIds = tasks.map(t => `${t.id}:${t.status}`);
         const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
         const savePath = (this.rootPath && this.rootPath.includes('CurrentStack.md')) ? this.rootPath : persistencePath;
+        const isCurrentlyViewingShortlist = this.rootPath === persistencePath || (this.rootPath && this.rootPath.includes('CurrentStack.md'));
 
         try {
-            await this.persistenceService.saveStack(tasks, savePath);
-            this.lastSavedIds = currentIds;
+            // BUG-025 Fix: ONLY save the task list (the shortlist) if we are actually 
+            // viewing the shortlist. If we are drilled into a task file, do NOT 
+            // overwrite the global CurrentStack.md with our current view's children.
+            if (isCurrentlyViewingShortlist) {
+                await this.persistenceService.saveStack(tasks, savePath);
+                this.lastSavedIds = currentIds;
+            } else {
+                if (this.logger) this.logger.info(`[StackView] Skipping shortlist save: current view is drilled into ${this.rootPath}`);
+            }
         } finally {
             this.saveTimeout = null;
             this.lastTasksForSave = null;
@@ -509,33 +541,57 @@ export class StackView extends ItemView {
                     openQuickAddModal: (currentIndex: number) => {
                         this.isModalOpen = true;
                         const modal = new QuickAddModal(this.app, async (result) => {
-                            let nodeToInsert: TaskNode | null = null;
-                            if (result.type === 'new' && result.title) {
-                                const options: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean, parentPath?: string | undefined } = {};
-                                if (result.startTime) options.startTime = result.startTime;
-                                if (result.duration !== undefined) options.duration = result.duration;
-                                if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+                            if (!this.component) return;
+                            const controller = this.component.getController();
+                            if (!controller) return;
 
-                                if (this.logger) this.logger.info(`[StackView] (openQuickAddModal prop) Creating new task "${result.title}" with rootPath: ${this.rootPath}`);
-                                options.parentPath = this.rootPath?.endsWith('.md') ? this.rootPath : undefined;
+                            // 1. OPTIMISTIC INSERTION
+                            const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+                            const tempNode: TaskNode = {
+                                id: tempId,
+                                title: result.title || "New Task",
+                                duration: result.duration || 30,
+                                status: 'todo' as const,
+                                isAnchored: result.isAnchored || false,
+                                startTime: result.startTime || moment(),
+                                children: []
+                            };
 
-                                nodeToInsert = await this.onTaskCreate(result.title, options);
-                            } else if (result.type === 'file' && result.file) {
-                                const nodes = await this.loader.loadSpecificFiles([result.file.path]);
-                                if (nodes.length > 0) nodeToInsert = nodes[0]!;
+                            // Insert immediately into UI
+                            const cmd = new InsertTaskCommand(controller, currentIndex, tempNode);
+                            await this.historyManager.executeCommand(cmd);
+                            if (this.component.update) {
+                                this.component.update();
+                                if (cmd.resultIndex !== null) this.component.setFocus(cmd.resultIndex);
                             }
 
-                            if (nodeToInsert && this.component) {
-                                const controller = this.component.getController();
-                                if (controller) {
-                                    const cmd = new InsertTaskCommand(controller, currentIndex, nodeToInsert);
-                                    await this.historyManager.executeCommand(cmd);
-                                    if (this.component.update) {
-                                        this.component.update();
-                                        if (cmd.resultIndex !== null) this.component.setFocus(cmd.resultIndex);
-                                    }
+                            // 2. BACKGROUND RESOLUTION
+                            const createPromise = (async () => {
+                                let nodeToInsert: TaskNode | null = null;
+                                if (result.type === 'new' && result.title) {
+                                    const options: { startTime?: moment.Moment, duration?: number, isAnchored?: boolean, parentPath?: string | undefined } = {};
+                                    if (result.startTime) options.startTime = result.startTime;
+                                    if (result.duration !== undefined) options.duration = result.duration;
+                                    if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+
+                                    if (this.logger) this.logger.info(`[StackView] (openQuickAddModal prop) Resolving temp task "${result.title}" with rootPath: ${this.rootPath}`);
+                                    options.parentPath = this.rootPath?.endsWith('.md') ? this.rootPath : undefined;
+
+                                    nodeToInsert = await this.onTaskCreate(result.title, options);
+                                } else if (result.type === 'file' && result.file) {
+                                    const nodes = await this.loader.loadSpecificFiles([result.file.path]);
+                                    if (nodes.length > 0) nodeToInsert = nodes[0]!;
                                 }
-                            }
+
+                                if (nodeToInsert && this.component) {
+                                    if (this.logger) this.logger.info(`[StackView] Temp task ${tempId} resolved to ${nodeToInsert.id}`);
+                                    this.component.resolveTempId(tempId, nodeToInsert.id);
+                                }
+                            })();
+
+                            // Track in pendingSyncs so flushPersistence drains it
+                            this.pendingSyncs.add(createPromise);
+                            createPromise.finally(() => this.pendingSyncs.delete(createPromise));
                         }, VIEW_TYPE_STACK);
 
                         const originalOnClose = modal.onClose.bind(modal);
@@ -590,6 +646,7 @@ export class StackView extends ItemView {
                     },
                     onNavigate: this.onNavigate.bind(this),
                     onGoBack: async () => {
+                        await this.flushPersistence();
                         const result = await this.navManager.goBack();
                         if (result.success) {
                             this.tasks = this.navManager.getCurrentStack();
@@ -609,8 +666,8 @@ export class StackView extends ItemView {
                             await this.leaf.setViewState({ type: VIEW_TYPE_STACK, state: this.getState() }, { history: true } as any);
                         }
                     },
-                    lockPersistence: () => this.lockPersistence(),
-                    unlockPersistence: () => this.unlockPersistence(),
+                    lockPersistence: (path: string, token: string) => this.lockPersistence(path, token),
+                    unlockPersistence: (path: string, token: string) => this.unlockPersistence(path, token),
                     isSyncing: this.isSyncing,
                     onSyncStatusChange: (isSyncing: boolean) => {
                         this.isSyncing = isSyncing;
