@@ -18,7 +18,7 @@ describe('Selective Flush Race Condition', () => {
             fs.writeFileSync(path.join(VAULT_PATH, `${t}.md`), `---\nflow_state: shortlist\n---\n# ${t}`);
         }
 
-        const stackContent = `# Current Stack\n\n- [ ] [[Task1.md]]\n- [ ] [[Task2.md]]\n- [ ] [[Task3.md]]`;
+        const stackContent = `# Current Stack\n\n- [ ] [[Task1.md|Task1]]\n- [ ] [[Task2.md|Task2]]\n- [ ] [[Task3.md|Task3]]`;
         fs.writeFileSync(STACK_FILE, stackContent);
     }
 

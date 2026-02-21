@@ -31,7 +31,7 @@ describe('NavigationManager - Basic Stack Management', () => {
             }
         };
         mockPersistence = {
-            isExternalUpdate: vi.fn().mockReturnValue(true)
+            isExternalUpdate: vi.fn().mockResolvedValue(true)
         };
         navManager = new NavigationManager(mockApp as any, mockLoader as any as StackLoader, mockPersistence as any as StackPersistenceService);
     });
@@ -131,7 +131,7 @@ describe('NavigationManager - Basic Stack Management', () => {
         await watcherCallback(mockFile);
 
         // Assert
-        expect(mockPersistence.isExternalUpdate).toHaveBeenCalledWith('source.md');
+        expect(mockPersistence.isExternalUpdate).toHaveBeenCalledWith('source.md', tasks);
         expect(mockLoader.load).toHaveBeenCalledWith('source.md');
         expect(navManager.getCurrentStack()[0]!.title).toBe('Task 1 Updated');
     });

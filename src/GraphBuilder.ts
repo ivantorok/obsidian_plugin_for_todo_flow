@@ -97,27 +97,73 @@ export class GraphBuilder {
 
         // 3. Link Resolution & Cycle Prevention
         const links = this.app.metadataCache.resolvedLinks[file.path] || {};
+        const extractedLinks = this.extractLinks(content);
+
+        // Merge the async cache results with our synchronous regex extraction
+        // to ensure we never miss a newly inserted subtask link.
+        const childPathsToVisit = new Set([...Object.keys(links), ...extractedLinks]);
+
         const childFiles: TFile[] = [];
 
         // Prepare the path for the next level
         const newVisited = [...visitedPath, file.path];
 
-        for (const childPath of Object.keys(links)) {
+        for (const childPath of childPathsToVisit) {
             // Cycle Check: If this child is already in our history, skip it entirely.
             // This prevents A -> B -> A. We want A -> B -> (nothing).
             if (newVisited.includes(childPath)) {
                 continue;
             }
 
-            const childFile = this.app.vault.getAbstractFileByPath(childPath);
+            // Fallback for extracted links: they might lack the .md extension or path
+            const resolvedFile = this.app.metadataCache.getFirstLinkpathDest(childPath, file.path);
+            const finalPath = resolvedFile ? resolvedFile.path : (childPath.endsWith('.md') ? childPath : `${childPath}.md`);
+
+            let childFile = this.app.vault.getAbstractFileByPath(finalPath);
+
+            // If getAbstractFileByPath fails but we extracted it from the file,
+            // Obsidian might not have indexed it yet. We'll let recursive buildHandle missing nodes.
             if (childFile && (childFile as any).extension === 'md') {
                 childFiles.push(childFile as TFile);
+            } else if (extractedLinks.includes(childPath)) {
+                // It's a newly extracted link that Obsidian doesn't know about yet.
+                // We add it as a string to let `buildGraph` handle it as a missing/pending node.
+                childFiles.push(finalPath as any);
             }
         }
 
         // 4. Recursive Build
-        node.children = await Promise.all(childFiles.map(cf => this.buildNode(cf, newVisited)));
+        node.children = await Promise.all(childFiles.map(cf => {
+            if (typeof cf === 'string') {
+                // If we forced an extracted string path in because the TFile isn't indexed yet,
+                // try to fetch it one last time, else build a missing node.
+                const fallbackFile = this.app.vault.getAbstractFileByPath(cf);
+                if (fallbackFile && fallbackFile instanceof TFile) {
+                    return this.buildNode(fallbackFile, newVisited);
+                }
+                return Promise.resolve(this.createMissingNode(cf));
+            }
+            return this.buildNode(cf, newVisited);
+        }));
 
         return node;
+    }
+
+    /**
+     * Synchronously extract outbound wikilinks from Markdown content.
+     * Use case: Bypassing the Obsidian async metadataCache when we need 
+     * guaranteed real-time state immediately after a file write.
+     */
+    private extractLinks(content: string): string[] {
+        const links: string[] = [];
+        const wikilinkRegex = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
+        let match;
+        while ((match = wikilinkRegex.exec(content)) !== null) {
+            const path = match[1]?.trim();
+            if (path) {
+                links.push(path);
+            }
+        }
+        return links;
     }
 }

@@ -77,3 +77,7 @@
 | **P0-03** | **Logic: Hybrid Mode Handshake** | **[PENDING]** | Awaits Manual Persona Walkthrough. |
 | **P0-04** | **Cleanup: "Parked" Purge** | **[PASS]** | Audit script passed. No instances in `src/`. |
 | **P0-05** | **Ops: Intelligent Git Hooks** | **[PASS]** | Verified `.husky/pre-push` logic. |
+| **P4-01** | **Split: FocusStack Component** | **[FAIL]** | Asserted presence of `data-view-type="focus"`. Monolith found. |
+| **P4-02** | **Split: Logic Gating (Drag)** | **[FAIL]** | Asserted NO `.drag-handle` on mobile. Monolith has them. |
+| **P4-03** | **Sync: Interaction Tokens** | **[FAIL]** | Asserted rejection of external update during touch. Monolith accepted/reloaded. |
+| **P4-04** | **Sync: Action Queue (temp-ID)** | **[FAIL]** | Asserted 'Done' status persistence on rapid add. Actions lost. |

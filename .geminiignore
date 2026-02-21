@@ -1,0 +1,11 @@
+.obsidian-cache/
+node_modules/
+sandbox/node_modules/
+.git/
+.test-vault/
+test-results/
+.wdio-log/
+*.log
+logs/
+tests/e2e/failures/
+.agent/

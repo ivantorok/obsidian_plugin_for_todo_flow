@@ -96,4 +96,58 @@ describe('StackPersistenceService', () => {
         expect(mockVault.modify).toHaveBeenCalledWith(mockFile, expect.any(String));
         expect(mockVault.create).not.toHaveBeenCalled();
     });
+
+    describe('isExternalUpdate (Metadata-based)', () => {
+        let mockFile: TFile;
+        const filePath = 'CurrentStack.md';
+
+        beforeEach(() => {
+            mockFile = { path: filePath, extension: 'md' } as TFile;
+            mockVault.getAbstractFileByPath.mockReturnValue(mockFile);
+        });
+
+        it('should return false if explicitly silenced', async () => {
+            service.silence(filePath, 5000);
+            const isExternal = await service.isExternalUpdate(filePath, mockTasks);
+            expect(isExternal).toBe(false);
+            expect(mockVault.read).not.toHaveBeenCalled();
+        });
+
+        it('should return false if disk content matches in-memory tasks (internal echo)', async () => {
+            // Mock file content matching `mockTasks`
+            const fileContent = `
+- [ ] [[task1.md]]
+- [x] [[task2.md]]
+            `;
+            mockVault.read.mockResolvedValue(fileContent);
+
+            const isExternal = await service.isExternalUpdate(filePath, mockTasks);
+            expect(mockVault.read).toHaveBeenCalledWith(mockFile);
+            expect(isExternal).toBe(false);
+        });
+
+        it('should return true if disk content differs (missing/added task)', async () => {
+            const fileContent = `
+- [ ] [[task1.md]]
+- [x] [[task2.md]]
+- [ ] [[sync_added_task.md]]
+            `;
+            mockVault.read.mockResolvedValue(fileContent);
+
+            const isExternal = await service.isExternalUpdate(filePath, mockTasks);
+            expect(isExternal).toBe(true);
+        });
+
+        it('should return true if disk content status differs (sync checkbox toggle)', async () => {
+            const fileContent = `
+- [x] [[task1.md]]
+- [x] [[task2.md]]
+            `;
+            // original mockTasks has task1.md as [ ] (status: 'todo')
+            mockVault.read.mockResolvedValue(fileContent);
+
+            const isExternal = await service.isExternalUpdate(filePath, mockTasks);
+            expect(isExternal).toBe(true);
+        });
+    });
 });

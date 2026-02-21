@@ -16,6 +16,7 @@ Focus is the primary indicator of intent. Todo Flow assumes "Greedy Focus" when 
 - **Auto-Refocus**: If a user clicks a task card, the `StackView` container must immediately regain focus so that subsequent keyboard commands work without an extra click.
 - **Selection Parity**: The `focusedIndex` MUST remain synchronized across all interaction layers (Keyboard, Gestures, Menu). If a command moves a task (e.g., via Double-Tap Anchor), the reactive selection must follow the task to its new index immediately. Stale selection is considered a Core Bug.
 - **Lean Single-Card Focus (Mobile)**: On mobile devices using `LeanStackView`, focus is limited to exactly ONE task card at a time. All navigation actions (`NEXT`, `BACK`) must transition the viewport to the next discrete state.
+- **Zero-Logic Rendering (Lean Mobile)**: Mobile-optimized views (FocusStack) MUST be extracted from desktop monoliths to eliminate unused reactive loops (keyboard handlers, reorder logic, complex physics). This is a "Battery Sovereignty" requirement to prevent thermal throttling on 8GB RAM devices.
 - **The Perpetual Loop (Momentum)**: Mobile navigation MUST conclude each stack session with a "Victory Lap" (Bird’s Eye View) before looping back to the first task.
 - **Contextual Capture (Immersion)**: The "Capture Overlay" MUST provide a read-only projection of the "Future Stack" to ensure the user can capture new ideas without losing context of their existing commitments.
 
@@ -49,6 +50,7 @@ To prevent "Obsidian Ghosting," Todo Flow uses deterministic intent locking.
     - **Top-Docking**: Input fields MUST be docked to the top of the viewport to prevent occlusion by virtual keyboards.
     - **Direct-to-Stack**: New ideas captured during an active stack session are appended directly to the current stack file to maintain flow.
 - **Optimistic UI Pattern**: For high-latency operations like task creation or state-only metadata updates, the UI MUST update immediately to reflect intent. The backing system performs disk I/O asynchronously (using `vault.process` for non-blocking persistence). This decoupling ensures "Interaction Sovereignty" remains intact even on high-latency hardware (e.g., 8GB RAM Linux).
+- **Sovereign Interaction Token**: Background watchers (Obsidian Sync, File Watchers) MUST be suppressed using a path-specific or interaction-specific token rather than a global timer. This "Sovereign Silence" ensures that a reload only occurs when the user is idle, and only for the specific file they are interacting with.
 - **Atomic Handoff Synchronization**: Any view transition (e.g., Dump -> Triage, Triage -> Stack) MUST be treated as an atomic operation. The departing view MUST await the successful initialization of the arriving view before closing to prevent "Host Leak" (flashing of the Obsidian background) and ensure focus sovereignty is maintained throughout the handover.
 
 ---

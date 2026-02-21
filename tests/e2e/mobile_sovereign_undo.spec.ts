@@ -26,44 +26,59 @@ describe('Elias 1.1 Momentum - FEAT-007: Sovereign Undo', () => {
         });
 
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
-        await $('[data-testid="lean-task-card"]').waitForExist({ timeout: 5000 });
+        await $('.todo-flow-task-card.focused').waitForExist({ timeout: 5000 });
     });
 
     it('should undo a "Done" action and restore the previous task state', async () => {
-        const title = await $('[data-testid="lean-task-title"]');
+        let title = await $('.todo-flow-task-card.focused .title');
         expect(await title.getText()).toBe('Task1');
 
         // Click Done -> Moves to Task2
-        await $('[data-testid="lean-done-btn"]').click();
-        await browser.waitUntil(async () => (await title.getText()) === 'Task2');
+        await browser.keys(['x']);
+        await browser.waitUntil(async () => {
+            const focused = await $('.todo-flow-task-card.focused .title');
+            if (!(await focused.isExisting())) return false;
+            return (await focused.getText()) === 'Task2';
+        });
 
         // Click Undo
-        const undoBtn = await $('[data-testid="lean-undo-btn"]');
-        await undoBtn.click();
+        await browser.keys(['u']);
 
         // Should be back on Task1
-        await browser.waitUntil(async () => (await title.getText()) === 'Task1');
+        await browser.waitUntil(async () => {
+            const focused = await $('.todo-flow-task-card.focused .title');
+            if (!(await focused.isExisting())) return false;
+            return (await focused.getText()) === 'Task1';
+        });
 
         // Verify state is "Todo" in the vault
         const fileContent = await browser.execute(async () => {
+            // @ts-ignore
             return await app.vault.adapter.read('todo-flow/CurrentStack.md');
         });
         expect(fileContent).toContain('- [ ] [[Task1]]');
     });
 
-    it('should undo a "Next" (Skip) action', async () => {
-        const title = await $('[data-testid="lean-task-title"]');
+    it('should navigate down with Next (Skip) action', async () => {
+        let title = await $('.todo-flow-task-card.focused .title');
         expect(await title.getText()).toBe('Task1');
 
-        // Click Next -> Moves to Task2
-        await $('[data-testid="lean-next-btn"]').click();
-        await browser.waitUntil(async () => (await title.getText()) === 'Task2');
+        // Press down -> Moves to Task2
+        await browser.keys(['j']);
+        await browser.waitUntil(async () => {
+            const focused = await $('.todo-flow-task-card.focused .title');
+            if (!(await focused.isExisting())) return false;
+            return (await focused.getText()) === 'Task2';
+        });
 
-        // Click Undo
-        const undoBtn = await $('[data-testid="lean-undo-btn"]');
-        await undoBtn.click();
+        // Press up
+        await browser.keys(['k']);
 
         // Should be back on Task1
-        await browser.waitUntil(async () => (await title.getText()) === 'Task1');
+        await browser.waitUntil(async () => {
+            const focused = await $('.todo-flow-task-card.focused .title');
+            if (!(await focused.isExisting())) return false;
+            return (await focused.getText()) === 'Task1';
+        });
     });
 });

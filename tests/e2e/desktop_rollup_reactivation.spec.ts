@@ -101,7 +101,7 @@ describe('BUG-00X: Rollup Reactivation', () => {
         }, { timeout: 5000, timeoutMsg: 'Sub-stack did not appear empty' });
 
         console.log('[Test] Creating Child...');
-        await browser.keys(['o']);
+        await browser.keys(['c']);
         const quickAddInput = await $('.prompt-input');
         await quickAddInput.waitForDisplayed({ timeout: 5000 });
         await quickAddInput.setValue('Child');
@@ -112,23 +112,40 @@ describe('BUG-00X: Rollup Reactivation', () => {
         await childCard.waitForExist({ timeout: 5000 });
 
         console.log('[Test] Increasing Child duration...');
-        // await childCard.click(); // REMOVED: Triggers accidental drill-down because it's already focused
         await browser.keys(['f']); // +15m
-        await browser.keys(['f']); // +15m (Total 30m)
-        await browser.pause(500);
+        await browser.pause(200);
+        await browser.keys(['f']); // +15m (Total 30m added?)
+        await browser.pause(1000);
 
         // --- 6. GO BACK & VERIFY ROLLUP ---
         console.log('[Test] Navigating back...');
         await browser.keys(['h']);
-        await browser.pause(1000);
 
-        await parentCard.waitForExist({ timeout: 5000 });
-        const durationEl = await parentCard.$('.duration-text');
-        const initialDurationText = await durationEl.getText();
-        console.log(`[Test] Initial Parent Duration: ${initialDurationText}`);
+        // RE-QUERY the parent card because Svelte destroys/recreates the DOM here!
+        const parentCardBack = await $('[data-testid="task-card-0"]');
+        await parentCardBack.waitForExist({ timeout: 5000 });
+        const durationEl = await parentCardBack.$('.duration-text');
+
+        // Wait for the duration string to update to something other than the default 30m
+        for (let i = 0; i < 8; i++) {
+            const tempText = await durationEl.getText();
+            console.log(`[Test Debug] Parent Duration tick ${i}: "${tempText}"`);
+            if (tempText === '1h 30m') break;
+            await browser.pause(1000);
+        }
+
+        // Dump internal plugin logs to understand GraphBuilder behavior
+        const internalLogs = await browser.execute(() => (window as any)._logs || []);
+        console.log('[Test] === Internal Plugin Logs ===');
+        for (const log of internalLogs) {
+            console.log(`[Plugin] ${log}`);
+        }
+        console.log('[Test] === End Internal Logs ===');
+
+        const initialDurationText = await durationEl.getText(); // Should be 1h 0m or 1h 30m depending on strategy
+        console.log(`[Test] Initial Parent Duration (Rolled up): ${initialDurationText}`);
 
         console.log('[Test] Marking Parent DONE...');
-        // await parentCard.click(); // REMOVED: Triggers accidental drill-down
         await browser.keys(['x']);
         await browser.pause(1000);
 

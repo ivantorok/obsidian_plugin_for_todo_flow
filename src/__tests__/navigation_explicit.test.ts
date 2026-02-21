@@ -25,7 +25,7 @@ describe('NavigationManager - Explicit Mode (TDD)', () => {
             }
         };
         mockPersistence = {
-            isExternalUpdate: vi.fn().mockReturnValue(true)
+            isExternalUpdate: vi.fn().mockResolvedValue(true)
         };
         manager = new NavigationManager(mockApp as any, mockLoader as unknown as StackLoader, mockPersistence as any as StackPersistenceService);
     });

@@ -27,7 +27,7 @@ const mockApp = {
 } as any;
 
 const mockPersistence = {
-    isExternalUpdate: vi.fn().mockReturnValue(true)
+    isExternalUpdate: vi.fn().mockResolvedValue(true)
 } as any;
 
 describe('Reproduction: Stack Persistence & Focus', () => {

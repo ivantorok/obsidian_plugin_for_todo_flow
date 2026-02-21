@@ -142,7 +142,7 @@ export default class TodoFlowPlugin extends Plugin {
             VIEW_TYPE_STACK,
             (leaf) => {
                 return new StackView(leaf, this.settings, this.historyManager, this.logger, this.viewManager, this.stackPersistenceService, (task: TaskNode) => {
-                    this.syncTaskToNote(task);
+                    return this.syncTaskToNote(task);
                 }, (title: string, options: any) => {
                     return this.onCreateTask(title, options);
                 });
@@ -612,7 +612,7 @@ export default class TodoFlowPlugin extends Plugin {
 
             // Sovereignty Protection: Silence watchers during the handoff window (Desktop race condition)
             // Sovereignty Protection: Silence watchers during the handoff window (Desktop race condition)
-            this.stackPersistenceService.silence(2000); // Increased to 2s for diagnostics
+            this.stackPersistenceService.silence(persistencePath, 2000); // Increased to 2s for diagnostics
 
             this.logger.info(`[main] Handoff Trace: Calling activateStack with ${ids.length} IDs. NOW=${Date.now()}`);
             await this.activateStack(ids, persistencePath);
@@ -779,7 +779,17 @@ export default class TodoFlowPlugin extends Plugin {
     async syncTaskToNote(task: TaskNode) {
         const ownDuration = task.originalDuration ?? task.duration;
         this.logger.info(`[DEBUG] Syncing Task Metadata to Disk: ID=${task.id} | Title="${task.title}" | Dur=${ownDuration} (Rollup: ${task.duration}) | Status=${task.status} | Anchored=${task.isAnchored}`);
-        const file = this.app.vault.getAbstractFileByPath(`${task.rootPath || this.settings.targetFolder}/${task.id}.md`);
+
+        let filePath = task.id;
+        if (!filePath.endsWith('.md')) filePath += '.md';
+
+        let file = this.app.vault.getAbstractFileByPath(filePath);
+        if (!(file instanceof TFile) && !filePath.includes('/')) {
+            // Only try prefixing if not found and no folder was specified
+            const prefixed = `${task.rootPath || this.settings.targetFolder}/${filePath}`.replace(/\/\//g, '/');
+            file = this.app.vault.getAbstractFileByPath(prefixed);
+        }
+
         if (!(file instanceof TFile)) return;
 
         // BUG-007: Inform persistence service this is an internal write
@@ -794,20 +804,24 @@ export default class TodoFlowPlugin extends Plugin {
             return;
         }
 
-        await this.app.vault.process(file, (content) => {
-            let updated = content;
-            updated = updateMetadataField(updated, 'task', task.title);
-            updated = updateMetadataField(updated, 'duration', ownDuration);
-            updated = updateMetadataField(updated, 'status', task.status);
-            updated = updateMetadataField(updated, 'anchored', task.isAnchored);
-            if (task.flow_state) {
-                updated = updateMetadataField(updated, 'flow_state', task.flow_state);
-            }
-            if (task.isAnchored && task.startTime) {
-                updated = updateMetadataField(updated, 'startTime', task.startTime.format('YYYY-MM-DD HH:mm'));
-            }
-            return updated;
-        });
+        try {
+            await this.app.vault.process(file as TFile, (content) => {
+                let updated = content;
+                updated = updateMetadataField(updated, 'task', task.title);
+                updated = updateMetadataField(updated, 'duration', ownDuration);
+                updated = updateMetadataField(updated, 'status', task.status);
+                updated = updateMetadataField(updated, 'anchored', task.isAnchored);
+                if (task.flow_state) {
+                    updated = updateMetadataField(updated, 'flow_state', task.flow_state);
+                }
+                if (task.isAnchored && task.startTime) {
+                    updated = updateMetadataField(updated, 'startTime', task.startTime.format('YYYY-MM-DD HH:mm'));
+                }
+                return updated;
+            });
+        } catch (e) {
+            this.logger.error(`[syncTaskToNote] vault.process FAILED for ID=${task.id}. Error: ${e}`);
+        }
     }
 
     async onCreateTask(title: string, options?: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined, parentPath?: string | undefined }): Promise<TaskNode> {
@@ -877,9 +891,9 @@ export default class TodoFlowPlugin extends Plugin {
 
         this.stackPersistenceService.recordInternalWrite(parentPath);
 
-        await this.app.vault.process(parentFile, (content) => {
-            return content.trimEnd() + linkLine;
-        });
+        const content = await this.app.vault.read(parentFile);
+        const result = content.trimEnd() + linkLine;
+        await this.app.vault.modify(parentFile, result);
     }
 
     async getTasksFromFolder(folderPath: string): Promise<TaskNode[]> {

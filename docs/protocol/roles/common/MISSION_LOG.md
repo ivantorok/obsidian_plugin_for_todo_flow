@@ -411,15 +411,87 @@ The "Watcher Silencing" implemented in v1.2.54 did not resolve the "Empty Daily 
 - **Verdict**: Phase 3 executed.
 
 ### Status Logs
-- [2026-02-19 17:15]: **Atlas Guardian (AG)** approved [Implementation Plan](file:///home/ivan/.gemini/antigravity/brain/f228bf01-9c89-4ae5-997d-880c48e95f44/implementation_plan.md).
 - [2026-02-19 17:20]: **Implementation Lead (IL)** execution complete.
     - [x] Implemented Index Counter in `StackView.svelte`.
     - [x] Enhanced `.drag-handle` hit targets for mobile.
     - [x] Verified via `StackViewMobileGestures` and full regression suite.
     - **Result**: Visual and ergonomic polish complete.
 
+## Session Entry: 2026-02-20 18:00 (BUG-025 Resolution & Regression Stabilization)
+
+### Input & Analysis (Process Governor)
+- **Source**: E2E Regressions (Post v1.2.74 stabilization try)
+- **Content**: Shortlist corrupted during drill-down (BUG-025). Rollup calculations failing (120 vs 150).
+- **Verdict**: High-severity data integrity flaw. `StackView` fails to distinguish between "Backing File" (Shortlist) and "Currently Viewed Task File" (Drill-down).
+
+### Status Logs
+- [2026-02-20 18:15]: **Atlas Guardian (AG)** identified root cause in `StackView.ts` persistence logic.
+- [2026-02-20 18:30]: **Implementation Lead (IL)** execution initiated.
+    - [x] Implemented `isCurrentlyViewingShortlist` safeguard in `StackView.ts`.
+    - [x] Fixed `main.ts` path resolution bug for files in vault root.
+    - [x] Debounced `requestUpdate` (100ms) for stability.
+- [2026-02-20 19:30]: **Verification Officer (VO)** verification complete.
+    - [x] `desktop_rollup.spec.ts` (150m check) PASSED.
+    - [x] `mobile_full_journey.spec.ts` PASSED.
+    - [x] Full suite verified (17/19 passed, remaining 2 are expected BUG-009).
+- **Verdict**: **MISSION COMPLETE**. System stabilized. Data integrity safeguards enforced.
+
+## Session Entry: 2026-02-20 20:40 (Manual Audit Triage)
+
+### Input & Analysis (Process Governor)
+- **Source**: `docs/audits/manual-testing-2026-02-20.md`
+- **Focus**: Friction points identified during Lillian/Elias journey review.
+- **Items**:
+    1.  **Fragile IDs**: Optimistic `temp-` ID mapping in Triage/QuickAdd.
+    2.  **Mobile Monolith**: `StackView.svelte` size/battery impact on mobile.
+    3.  **Persistence Silencing**: Transition to interaction-based or path-based tokens.
+
+### Routing
+- **Recipient**: Verification Officer (VO)
+- **Request**: Execute the "Hard Mode" loop for Phase 4. Draft skeptical E2E specs that enforce the structural split (Mobile vs Desktop) and the Interaction Token sovereignty. These specs MUST fail on the current monolith.
+- **Priority**: High (Guardrail Establishment).
+
+- [2026-02-20 21:05]: **Verification Officer (VO)** completed Skeptical Specs.
+    - [x] `phase_4_mobile_split.spec.ts`: **FAIL**. Confirming monolith logic and drag handles on mobile.
+    - [x] `phase_4_interaction_tokens.spec.ts`: **FAIL**. Confirming external update interruption during interaction.
+    - [x] `phase_4_rapid_actions.spec.ts`: **FAIL**. Confirming lost actions on `temp-` IDs.
+    - **Verdict**: **SKEPTICAL BASELINE ESTABLISHED**. The system is ready for Phase 4 "Restoration."
+
+### Current Status: 2026-02-20 21:06
+- **PG**: VO results audited. Hard Mode guardrails established.
+- **Next Role**: **Implementation Lead (IL)** for Phase 4 Execution.
+
 ### Final Review
 - **Process Governor (PG)**:
     - [x] Build integrity verified (`npm run build`).
     - [x] Phase 3 Logic Verified.
     - **Verdict**: **MISSION COMPLETE**. Ready for Handoff.
+- [2026-02-21 08:55]: **Process Governor (PG)** session initialized.
+    - [x] Audited Phase 4 implementation status.
+    - [x] Ran skeptical E2E specs for Phase 4.
+    - **Results**:
+        - `phase_4_rapid_actions.spec.ts`: **PASS** (ID Hardening verified).
+        - `phase_4_mobile_split.spec.ts`: **FAIL** (Selector timeout: `.todo-flow-task-card.is-focused`).
+        - `phase_4_interaction_tokens.spec.ts`: **FAIL** (Selector timeout: `.todo-flow-task-card.is-focused`).
+    - **Verdict**: Implementation Lead (IL) work on logic is likely correct, but the structural split has broken E2E selectors. 
+    - **Next Role**: **Diagnostic Engineer (DE)** to repair E2E selectors and verify the split architecture.
+
+## Session Entry: 2026-02-21 10:35 (E2E Repair & Phase 4 Finalization)
+
+### Input & Analysis (Process Governor)
+- **Source**: User Request ("process governor")
+- **Verdict**: Session resumed for Phase 4 stabilization.
+- **Audit**:
+    - `src/views/FocusStack.svelte` and `src/views/ArchitectStack.svelte` both implement `is-focused` classes.
+    - Many old E2E tests deleted; new Phase 4 E2E tests are untracked.
+    - Repository contains uncommitted Phase 4 changes.
+- **Goal**: Resolve E2E selector timeouts in `phase_4_mobile_split.spec.ts` and `phase_4_interaction_tokens.spec.ts`.
+
+### Routing
+- **Recipient**: Diagnostic Engineer (DE)
+- **Request**: Analyze why `.is-focused` selectors are failing in E2E tests despite being present in the Svelte components. Repair the tests to work with the new `ArchitectStack` / `FocusStack` split.
+- **Priority**: High.
+
+### Current Status: 2026-02-21 10:40
+- **PG**: Audited code and E2E results. Triage complete.
+- **Next Role**: **Diagnostic Engineer (DE)** for E2E forensics and repair.

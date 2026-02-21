@@ -67,7 +67,7 @@ export class NavigationManager {
             const isOurSource = file.path === this.state.currentSource;
             const isItemInStack = this.state.currentStack.some(t => t.id === file.path);
 
-            const isExternal = this.persistenceService.isExternalUpdate(file.path);
+            const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.state.currentStack);
             if ((isOurSource || isItemInStack) && isExternal) {
                 if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] External update detected for ${file.path}. Triggering refresh...`);
                 await this.refresh();

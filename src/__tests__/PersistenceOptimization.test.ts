@@ -86,7 +86,7 @@ describe('StackView Persistence Optimization', () => {
         };
         mockPersistence = {
             saveStack: vi.fn().mockResolvedValue(undefined),
-            isExternalUpdate: vi.fn().mockReturnValue(true)
+            isExternalUpdate: vi.fn().mockResolvedValue(true)
         };
 
         (mount as any).mockClear();

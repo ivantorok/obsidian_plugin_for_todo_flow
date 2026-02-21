@@ -23,7 +23,7 @@ describe('NavigationManager - Drill Down', () => {
             }
         };
         mockPersistence = {
-            isExternalUpdate: vi.fn().mockReturnValue(true)
+            isExternalUpdate: vi.fn().mockResolvedValue(true)
         };
         navManager = new NavigationManager(mockApp as any, mockLoader as any as StackLoader, mockPersistence as any as StackPersistenceService);
     });

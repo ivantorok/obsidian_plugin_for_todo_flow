@@ -20,7 +20,7 @@ describe('Handoff Regression', () => {
     } as unknown as StackLoader;
 
     const mockPersistence = {
-        isExternalUpdate: vi.fn().mockReturnValue(false)
+        isExternalUpdate: vi.fn().mockResolvedValue(false)
     } as unknown as StackPersistenceService;
 
     const task1: TaskNode = { id: 'file1.md', title: 'Task 1', status: 'todo', duration: 30, isAnchored: false, children: [] };
