@@ -1,69 +1,10 @@
-# Mission Log: Session v6 — Gesture Audit & Verification
+# Mission Log
 
-## Input & Analysis (Verification Officer)
-- **Source**: Methodology Dogfooding (Item 1)
-- **Objective**: Conduct "Blind Alley" audit of mobile gesture engine. Identify intent conflicts.
-- **Flavor**: [VERIFICATION + UX]
-
-## Active Objectives
-1. **[COMPLETED]** Audit `gestures.ts` for "U-turn" mechanics.
-2. **[COMPLETED]** Verify event propagation in `ArchitectStack.svelte`.
-3. **[COMPLETED]** Test FAB/QuickAdd flow simulated unguided.
-
-**SESSION STATUS: [CLOSED] — Shipped v1.2.84.**
-
-## Triage Routing
-1. **Verification Officer (VO)**: Lead unguided audit.
-2. **Implementation Lead (IL)**: standby for structural hardening.
+> **Convention**: Entries are appended chronologically (oldest first, newest last). This matches the triage log convention and produces cleaner git diffs.
 
 ---
 
-# Mission Log: Session v5 — Mobile Parity & Strategy
-
-## Input & Analysis (Process Governor)
-- **Source**: Internal Governance Audit & User Approval
-- **Objective**: Finalize FEAT-008 (FAB Parity), Draft UI/UX Strategy, and perform Hygiene.
-- **Flavor**: [FEAT + STRATEGY + HYGIENE]
-
-## Active Objectives
-1. **[IN_PROGRESS]** FEAT-008: Verify FAB/QuickAdd on mobile layout.
-2. **[IN_PROGRESS]** Item 16: Cheap UI/UX Testing Methodology (Atlas Guardian).
-3. **[IN_PROGRESS]** Hygiene: Archive `e2e_diag.png` and cleanup root.
-
-## Triage Routing
-1. **Atlas Guardian (AG)**: Propose methodology for cheap UI/UX testing.
-2. **Implementation Lead (IL)**: Maintenance and hygiene.
-
----
-
-# Mission Log: Session v4 — Stack List UX Refinement
-
-## Input & Analysis (Process Governor)
-- **Source**: Raw User Feedback (2026-02-22 13:10)
-- **Objective**: Refine Stack List View UX (FEAT-008). 
-- **Flavor**: [FEAT + UX]
-
-## Active Objectives
-1. **[COMPLETED]** Thin cards (title + start time only).
-2. **[COMPLETED]** Anchored state: Darker background.
-3. **[COMPLETED]** Double-tap: Anchor/Unanchor.
-4. **[COMPLETED]** Left Swipe: Archive.
-5. **[COMPLETED]** Right Swipe: Complete.
-6. **[COMPLETED]** Single Tap (Intent): Open Task View.
-7. **[COMPLETED]** Sticky Footer: Export, Add, Back, Forward.
-8. **[COMPLETED]** Log access standardization (Option 3 symlinks).
-
-## Triage Routing
-1. **Atlas Guardian (AG)**: Update `MOBILE_INTERACTION_SPEC.md` with new gesture mappings.
-2. **Implementation Lead (IL)**: Update `ArchitectStack.svelte` and `StackController.ts` for new gestures and footer.
-
-## Status Logs
-- [2026-02-22 13:12]: **Process Governor (PG)** session v4 initialized. New UX feedback triaged and pipelined.
-- [2026-02-22 14:35]: **Process Governor (PG)** session v4 RESOLVED. FEAT-008 refinements (Thin Cards, Sovereignty Gestures) verified and documented.
-
----
-
-# Mission Log: Session v3 — Post v1.2.79
+# Session v3 — Post v1.2.79
 
 ## Input & Analysis (Process Governor)
 - **Source**: Raw User Feedback (Hungarian live testing notes, 2026-02-22 08:49)
@@ -100,7 +41,7 @@
 
 ---
 
-# Mission Log: FEAT-009 Lean Mobile Split [STABILIZED]
+# FEAT-009 Lean Mobile Split [STABILIZED]
 
 ## Active Objectives
 1. **FEAT-009**: [COMPLETED] Structurally decouple `StackView.svelte` into `ArchitectStack` and `FocusStack` components to eliminate background physics loops on mobile.
@@ -109,3 +50,67 @@
 1. **Verification Officer (VO)**: [RESOLVED] Confirmed 3/3 "Skeptical Specs" pass with centralized state management.
 2. **Implementation Lead (IL)**: [RESOLVED] Controller ownership moved to Orchestrator; shadow state eliminated.
 
+---
+
+# Session v4 — Stack List UX Refinement
+
+## Input & Analysis (Process Governor)
+- **Source**: Raw User Feedback (2026-02-22 13:10)
+- **Objective**: Refine Stack List View UX (FEAT-008). 
+- **Flavor**: [FEAT + UX]
+
+## Active Objectives
+1. **[COMPLETED]** Thin cards (title + start time only).
+2. **[COMPLETED]** Anchored state: Darker background.
+3. **[COMPLETED]** Double-tap: Anchor/Unanchor.
+4. **[COMPLETED]** Left Swipe: Archive.
+5. **[COMPLETED]** Right Swipe: Complete.
+6. **[COMPLETED]** Single Tap (Intent): Open Task View.
+7. **[COMPLETED]** Sticky Footer: Export, Add, Back, Forward.
+8. **[COMPLETED]** Log access standardization (Option 3 symlinks).
+
+## Triage Routing
+1. **Atlas Guardian (AG)**: Update `MOBILE_INTERACTION_SPEC.md` with new gesture mappings.
+2. **Implementation Lead (IL)**: Update `ArchitectStack.svelte` and `StackController.ts` for new gestures and footer.
+
+## Status Logs
+- [2026-02-22 13:12]: **Process Governor (PG)** session v4 initialized. New UX feedback triaged and pipelined.
+- [2026-02-22 14:35]: **Process Governor (PG)** session v4 RESOLVED. FEAT-008 refinements (Thin Cards, Sovereignty Gestures) verified and documented.
+
+---
+
+# Session v5 — Mobile Parity & Strategy
+
+## Input & Analysis (Process Governor)
+- **Source**: Internal Governance Audit & User Approval
+- **Objective**: Finalize FEAT-008 (FAB Parity), Draft UI/UX Strategy, and perform Hygiene.
+- **Flavor**: [FEAT + STRATEGY + HYGIENE]
+
+## Active Objectives
+1. **[IN_PROGRESS]** FEAT-008: Verify FAB/QuickAdd on mobile layout.
+2. **[IN_PROGRESS]** Item 16: Cheap UI/UX Testing Methodology (Atlas Guardian).
+3. **[IN_PROGRESS]** Hygiene: Archive `e2e_diag.png` and cleanup root.
+
+## Triage Routing
+1. **Atlas Guardian (AG)**: Propose methodology for cheap UI/UX testing.
+2. **Implementation Lead (IL)**: Maintenance and hygiene.
+
+---
+
+# Session v6 — Gesture Audit & Verification
+
+## Input & Analysis (Verification Officer)
+- **Source**: Methodology Dogfooding (Item 1)
+- **Objective**: Conduct "Blind Alley" audit of mobile gesture engine. Identify intent conflicts.
+- **Flavor**: [VERIFICATION + UX]
+
+## Active Objectives
+1. **[COMPLETED]** Audit `gestures.ts` for "U-turn" mechanics.
+2. **[COMPLETED]** Verify event propagation in `ArchitectStack.svelte`.
+3. **[COMPLETED]** Test FAB/QuickAdd flow simulated unguided.
+
+**SESSION STATUS: [CLOSED] — Shipped v1.2.84.**
+
+## Triage Routing
+1. **Verification Officer (VO)**: Lead unguided audit.
+2. **Implementation Lead (IL)**: standby for structural hardening.

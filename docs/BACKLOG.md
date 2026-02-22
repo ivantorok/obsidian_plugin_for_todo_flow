@@ -51,6 +51,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 | FEAT-009 | Lean Mobile Split (Elias 2.0 Refactor) | Epic | [Spec](./backlog/FEAT-009_lean_mobile_split.md) | 2026-02-20 |
 | CHORE-01 | Pre-push Hook Stdin Conflict | Chore | - | 2026-02-01 |
 | CHORE-03 | Permanent Test Run Logging | Chore | [Spec](./backlog/CHORE-03_test_telemetry.md) | 2026-02-19 |
+| CHORE-04 | Decompose `main.ts` God File | Chore | [Spec](./backlog/CHORE-04_main_ts_decomposition.md) | 2026-02-22 |
 
 ### Phase 5: Mobile UX Polish (2026-02-22 Live Session Feedback)
 | ID | Title | Type | Spec | Priority |
