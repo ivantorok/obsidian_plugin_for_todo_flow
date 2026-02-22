@@ -1,3 +1,21 @@
+# Mission Log: Session v5 — Mobile Parity & Strategy
+
+## Input & Analysis (Process Governor)
+- **Source**: Internal Governance Audit & User Approval
+- **Objective**: Finalize FEAT-008 (FAB Parity), Draft UI/UX Strategy, and perform Hygiene.
+- **Flavor**: [FEAT + STRATEGY + HYGIENE]
+
+## Active Objectives
+1. **[IN_PROGRESS]** FEAT-008: Verify FAB/QuickAdd on mobile layout.
+2. **[IN_PROGRESS]** Item 16: Cheap UI/UX Testing Methodology (Atlas Guardian).
+3. **[IN_PROGRESS]** Hygiene: Archive `e2e_diag.png` and cleanup root.
+
+## Triage Routing
+1. **Atlas Guardian (AG)**: Propose methodology for cheap UI/UX testing.
+2. **Implementation Lead (IL)**: Maintenance and hygiene.
+
+---
+
 # Mission Log: Session v4 — Stack List UX Refinement
 
 ## Input & Analysis (Process Governor)
@@ -13,6 +31,7 @@
 5. **[COMPLETED]** Right Swipe: Complete.
 6. **[COMPLETED]** Single Tap (Intent): Open Task View.
 7. **[COMPLETED]** Sticky Footer: Export, Add, Back, Forward.
+8. **[COMPLETED]** Log access standardization (Option 3 symlinks).
 
 ## Triage Routing
 1. **Atlas Guardian (AG)**: Update `MOBILE_INTERACTION_SPEC.md` with new gesture mappings.

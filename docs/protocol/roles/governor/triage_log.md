@@ -265,15 +265,9 @@ Detailed UX specifications for the Stack List view provided. These items refine 
 - **Source**: Raw User Feedback (Direct Chat)
 - **Content**: Agent prompts for access to `logs/vitest-results.json` outside of default project scope.
 - **Verdict**: Friction identified. Sandbox security-first policy requires explicit project-relative paths for logs.
-- **Action**: Formalize "Project Law" for log locations.
+- **Action**: Formalize "Project Law" for log locations. **Applied Option 3 (Symlinks)**: Created/Verified permanent symlinks to `.test-vault/.obsidian`.
 - **Convention**: All ephemeral logs must be symlinked to `[project]/logs/` to avoid permission prompts.
-
-### Routing
-- **Recipient**: Atlas Guardian (AG)
-- **Request**: Create KI for "Log Access Conventions". 
-- **Recipient**: Implementation Lead (IL)
-- **Request**: Symlink `.test-vault/.obsidian` (or specific log paths) to project-root `logs`.
-- **Status**: **RESOLVED / ARCHIVED**.
+- **Status**: **RESOLVED (Permanent Symlink Fix Applied)**.
 
 ## Session Entry: 2026-02-22 14:35 (Session v4 Final Audit)
 
