@@ -54,6 +54,23 @@ This document tracks bugs and feature requests. To request work, add an item her
 | CHORE-01 | Pre-push Hook Stdin Conflict | Chore | - | 2026-02-01 |
 | CHORE-03 | Permanent Test Run Logging | Chore | [Spec](./backlog/CHORE-03_test_telemetry.md) | 2026-02-19 |
 
+### Phase 5: Mobile UX Polish (2026-02-22 Live Session Feedback)
+| ID | Title | Type | Spec | Priority |
+| :--- | :--- | :--- | :--- | :--- |
+| BUG-024 | ✅ Dump — Missing "Finish" Button | Bug | [Spec](./backlog/BUG-024_dump_missing_finish_button.md) | High |
+| BUG-025 | Triage — "Shortlist All" Bulk Action | Feat | [Spec](./backlog/BUG-025_triage_select_all_shortlist.md) | Medium |
+| BUG-026 | ✅ Stack View — Pink Background Present | Bug | [Spec](./backlog/BUG-026_stack_pink_background.md) | High |
+| BUG-027 | ✅ Daily Stack — Opens in Card Mode (Should Be List) | Bug | [Spec](./backlog/BUG-027_stack_opens_in_card_mode.md) | **Critical** |
+| BUG-028 | ✅ Header Bar — Excessive Height | Bug | [Spec](./backlog/BUG-028_header_bar_too_thick.md) | High |
+| BUG-029 | Touch — Any Touch Opens Task Unintentionally | Bug | [Spec](./backlog/BUG-029_tap_opens_task_unintentionally.md) | **Critical** |
+| BUG-030 | Editing Element Scrolls Behind Header | Bug | [Spec](./backlog/BUG-030_edit_scrolls_behind_header.md) | High |
+| BUG-031 | ✅ Text Clipping on Two-Line Card Titles | Bug | [Spec](./backlog/BUG-031_text_clipping_two_lines.md) | Medium |
+| BUG-032 | ✅ Start Time Edit Does Not Anchor Task | Bug | [Spec](./backlog/BUG-032_start_time_edit_no_anchor.md) | High |
+| *(overlap)* | Drag-then-open intent bleed | — | → Extends BUG-029 | — |
+| *(overlap)* | Reorder auto-scroll conflict | — | → Extends BUG-006 | — |
+| *(overlap)* | Default mode ambiguity (Triage/Stack) | — | → Addressed by BUG-027 + FEAT-010 | — |
+| *(question)* | Cheap UI/UX testing methodology | — | → See AG routing below | — |
+
 ---
 **Protocol**: When reporting a bug, create a file in `docs/backlog/` using the template.
 **Work**: I (the AI) will move items to "Planned" when I start my `implementation_plan.md`.
