@@ -62,8 +62,8 @@ This document tracks bugs and feature requests. To request work, add an item her
 | BUG-026 | ✅ Stack View — Pink Background Present | Bug | [Spec](./backlog/BUG-026_stack_pink_background.md) | High |
 | BUG-027 | ✅ Daily Stack — Opens in Card Mode (Should Be List) | Bug | [Spec](./backlog/BUG-027_stack_opens_in_card_mode.md) | **Critical** |
 | BUG-028 | ✅ Header Bar — Excessive Height | Bug | [Spec](./backlog/BUG-028_header_bar_too_thick.md) | High |
-| BUG-029 | Touch — Any Touch Opens Task Unintentionally | Bug | [Spec](./backlog/BUG-029_tap_opens_task_unintentionally.md) | **Critical** |
-| BUG-030 | Editing Element Scrolls Behind Header | Bug | [Spec](./backlog/BUG-030_edit_scrolls_behind_header.md) | High |
+| BUG-029 | ✅ Touch — Any Touch Opens Task Unintentionally | Bug | [Spec](./backlog/BUG-029_tap_opens_task_unintentionally.md) | **Critical** |
+| BUG-030 | ✅ Editing Element Scrolls Behind Header | Bug | [Spec](./backlog/BUG-030_edit_scrolls_behind_header.md) | High |
 | BUG-031 | ✅ Text Clipping on Two-Line Card Titles | Bug | [Spec](./backlog/BUG-031_text_clipping_two_lines.md) | Medium |
 | BUG-032 | ✅ Start Time Edit Does Not Anchor Task | Bug | [Spec](./backlog/BUG-032_start_time_edit_no_anchor.md) | High |
 | *(overlap)* | Drag-then-open intent bleed | — | → Extends BUG-029 | — |

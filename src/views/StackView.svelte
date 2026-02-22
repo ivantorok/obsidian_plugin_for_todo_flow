@@ -1107,12 +1107,8 @@
         // BUG-021: Defer scrolling if we are in the middle of a gesture to prevent layout thrashing
         if (draggingTaskId || swipingTaskId) return;
 
-        // On mobile, use 'start' to ensure it's above the keyboard
-        ViewportService.scrollIntoView(
-            node,
-            "smooth",
-            isMobileState ? "start" : "center",
-        );
+        // On mobile, use 'center' to ensure it clears the top sticky header and the keyboard (BUG-030)
+        ViewportService.scrollIntoView(node, "smooth", "center");
     }
 
     export async function handleKeyDown(e: KeyboardEvent) {
