@@ -34,6 +34,12 @@ npx vitest src/__tests__/lean_mobile_split.test.ts --run
 
 **Status: 3/3 Passed (Green Baseline)**
 
+## Shipment Status
+- **Version**: `v1.2.81`
+- **Tag**: `v1.2.81` (GitHub Release created)
+- **Protocol**: Mandated by **Process Governor** under "Continuous Ship-on-Green".
+
+
 ## Known Remaining Issues
 - Some Svelte 5 "unused CSS selector" warnings remain in the build output, which are safe to ignore for functionality.
 - A11y warnings for non-interactive elements with click handlers in templates (legacy template structure).
