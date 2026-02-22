@@ -142,6 +142,27 @@ The parity gap between Desktop and Mobile (`LeanStackView`) is the next priority
 - **Request**: Audit `src/views/LeanStackView.svelte` and `src/views/StackView.svelte`. Identify shared controller targets in `src/controllers/StackController.ts` or `src/services/` to eliminate logic duplication.
 - **Priority**: High.
 
+## Session Entry: 2026-02-22 08:47 (New Session — Post v1.2.79 Intake)
+
+### Input Analysis
+- **Source**: User Request ("process governor")
+- **Content**: New session invocation. No raw feedback items in `common/`. Repo state: `v1.2.79` (HEAD `40b2384`), clean and tagged.
+- **Flavor**: [GOVERNANCE / SESSION-START]
+
+### Triage Verdict
+v1.2.79 is fully shipped. The previous MISSION_LOG (v2) is formally closed. Two pipelined backlog items are the active candidates for the next mission:
+1. **FEAT-008** (Mobile Stack Parity): Functional/UX parity for `LeanStackView.svelte` — anchor, done state, FAB/QuickAdd integration, index/start-time display.
+2. **FEAT-009** (Lean Mobile Split / Elias 2.0): Structural decoupling of `StackView.svelte` into `ArchitectStack` + `FocusStack` components to eliminate background physics loops on mobile.
+
+**Recommendation**: FEAT-009 is an architectural prerequisite that would make FEAT-008 far cleaner to deliver. However, FEAT-009 is marked as an "Epic" (high risk, high reward). FEAT-008 can be scoped and shipped immediately with lower risk.
+
+### Routing
+- **Recipient**: User (decision required)
+- **Request**: Confirm which mission to activate: FEAT-008 (incremental parity) or FEAT-009 (structural refactor / Elias 2.0)?
+- **Status**: **BLOCKED — Awaiting User Decision**.
+
+---
+
 ## Session Entry: 2026-02-18 18:40 (FEAT-008 Blueprint Approval)
 
 ### Input Analysis
@@ -157,3 +178,44 @@ The spec is ready for the "Hard Mode" loop. We need the Verification Officer to 
 - **Request**: Create the "Skeptical Specs" for the Focus/Architect hybrid model. Focus on navigation symmetry, state persistence during sync, and 44x44px touch ergonomics.
 - **Priority**: High.
 - **Status**: **ACTIVE -> VO**.
+## Session Entry: 2026-02-22 08:49 (Live Mobile UX Feedback Batch)
+
+### Input Analysis
+- **Source**: Raw User Feedback (Hungarian live testing notes, 08:00–08:21)
+- **Flavor**: [BUG + FEAT + CONCEPTUAL]
+- **Volume**: 13 distinct observations across 3 categories
+
+### Translated & Classified Items
+| # | Original (HU) | Classification | ID |
+|---|---|---|---|
+| 1 | Dump: "finish" gomb szükséges | BUG — missing CTA | BUG-024 |
+| 2 | Triage: mindent shortlist-re tesz | FEAT — bulk action | BUG-025 (FEAT-010) |
+| 3 | Hosszú várakozás Triage→Stack között | PERF — transition latency | → BUG-021 (existing) |
+| 4 | Stack: rózsaszín háttér | BUG — CSS regression | BUG-026 |
+| 5 | Daily Stack: kártyával indul, listával kellene | BUG — wrong default mode | BUG-027 (**Critical**) |
+| 6 | Felső sáv túl vastag | BUG — header height | BUG-028 |
+| 7 | Export és + gombok működnek | ✅ POSITIVE — no action | — |
+| 8 | Alapértelmezett működés nem világos | BUG — default state | → BUG-027 covers this |
+| 9 | Kártyanyitás nem szándékos érintésre | BUG — intent disambiguation | BUG-029 (**Critical**) |
+| 10 | Elengedés után kártyanyitás reorder-nél | BUG — drag intent bleed | → BUG-029 extension |
+| 11 | Szöveglekerekítés két sornál | BUG — text clipping | BUG-031 |
+| 12 | Scroll helyett kártyanyitás / reorder auto-scroll | BUG — gesture conflict | BUG-029 + BUG-006 |
+| 13 | Szerkesztés: elem csúszik a header alá | BUG — viewport offset | BUG-030 |
+| 14 | Kezdő idő szerkesztés → nem horgonyzott | BUG — missing side-effect | BUG-032 |
+| 15 | Drill down: legnagyobb probléma | CONCEPTUAL → BUG-029 | BUG-029 |
+| 16 | Olcsó UI/UX tesztelési módszer | CONCEPTUAL → Route to AG | Route: AG |
+
+### Triage Verdict
+- **9 new backlog items** created: BUG-024 through BUG-032.
+- **Critical items**: BUG-027 (wrong default mode) and BUG-029 (unintentional drill-down) — these are the top-priority UX blockers and must be resolved before any other polish work.
+- **Performance item** (item 3 — long Triage→Stack wait): maps to BUG-021 (Intent Locking, shipped in v1.2.79). If still reproduced after v1.2.79, open a new investigation.
+- **Conceptual question** (item 16 — cheap UI/UX testing): routed to Atlas Guardian for methodology proposal.
+
+### Routing
+| Recipient | Task |
+|---|---|
+| **Atlas Guardian (AG)** | (1) Audit BUG-027 default mode against Atlas axioms. (2) Propose cheap UI/UX iteration methodology (item 16). |
+| **Implementation Lead (IL)** | Fix BUG-029 (touch intent), BUG-027 (default mode), BUG-028 (header height) as Phase 5 priority group. |
+| **Verification Officer (VO)** | Write skeptical specs for BUG-029 and BUG-027 before IL begins work. |
+
+- **Status**: **ACTIVE → AG + IL**
