@@ -19,6 +19,7 @@ The PG is the **first listener** invoked at the start of every session or when r
 3. **Routing**: Delegate task facets to the appropriate roles (AG for mechanics, IL for logic, etc.).
 4. **Resolution**: Ensure the "Chain of Custody" is complete.
 5. **Continuous Ship-on-Green**: Every time the test suite returns to a green (passing) state after a fix or feature is implemented, the PG MUST mandate an immediate `git commit`, `git push`, and execution of `./ship.sh` by invoking the Release Manager.
+6. **Stop and Hypothesize (TDD)**: If tests fail during a sweeping architectural change or release phase, the PG FORBIDS immediate code patching (whack-a-mole). The PG forces a pause to write an explicit hypothesis mapping the failing test to the architectural blueprints in `implementation_plan.md`.
 
 ---
 

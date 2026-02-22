@@ -29,9 +29,10 @@ The `./ship.sh` script is capable of detecting documentation-only changes.
 ## Operational Instructions
 1.  **Shipping**: Execute `./ship.sh` only after a successful audit.
 2.  **Justification Fail Loop**: If an audit fails (artifacts are missing or insufficient):
-    - **Escalate**: Notify the **Process Governor (PG)** or **Verification Officer (VO)** to produce the missing proof.
+    - **Esccalate**: Notify the **Process Governor (PG)** or **Verification Officer (VO)** to produce the missing proof.
     - **Do NOT bypass warnings**.
 3.  **Release Logs**: Maintain a record of every shipment and its associated technical justification in your dedicated folder.
+4.  **Test Failure Handling**: If `ship.sh` fails because of tests, you MUST invoke the **Stop and Hypothesize** protocol. You are forbidden from fixing the tests directly.
 
 ## Expected Output
 - **[RESULT-SPECIFIC]**: Successful `./ship.sh` execution, release tags/logs.

@@ -41,7 +41,13 @@ TECHNICAL_CHANGES=$(git diff --name-only HEAD | grep -E "^(src/|tests/)" | wc -l
 
 if [ "$TECHNICAL_CHANGES" -gt 0 ]; then
     echo "⚡ Technical changes detected (src/ or tests/). Running Full Test Suite..."
-    npm run test:full || echo "⚠️  Some tests failed, but continuing with ship (pre-existing failures)"
+    if ! npm run test:full; then
+        echo "❌ CRITICAL ERROR: Tests failed during ship!"
+        echo "🛑 STOP AND HYPOTHESIZE PROTOCOL ENGAGED 🛑"
+        echo "You are FORBIDDEN from immediately patching code to fix these tests."
+        echo "You must review implementation_plan.md and state a semantic hypothesis for WHY the tests failed before writing code."
+        exit 1
+    fi
 else
     echo "📄 Only documentation or non-source changes detected. Skipping full test suite."
 fi

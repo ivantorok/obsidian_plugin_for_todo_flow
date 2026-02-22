@@ -28,3 +28,19 @@
 ## Status Logs
 - [2026-02-22 08:47]: **Process Governor (PG)** session v3 initialized. Repo confirmed at `v1.2.79` (clean).
 - [2026-02-22 08:49]: **Live UX Feedback Batch** triaged. 9 new backlog items registered (BUG-024–BUG-032). Routed to AG, VO, IL.
+- [2026-02-22 09:30]: **Release Manager (RM)** shipped `v1.2.80` via Continuous Ship-on-Green. All Phase 5 Polish feedback (BUG-024 to BUG-032) is successfully resolved and merged.
+- [2026-02-22 09:35]: **Process Governor (PG)** activates Epic **FEAT-009 (Lean Mobile Split / Elias 2.0)**. 
+- [2026-02-22 11:04]: **Verification Officer (VO)** confirms **GREEN BASELINE** for FEAT-009 (3/3 passing).
+- [2026-02-22 11:05]: **Process Governor (PG)** mandates immediate shipment per Continuous Ship-on-Green. Invoking RM.
+
+---
+
+# Mission Log: FEAT-009 Lean Mobile Split [STABILIZED]
+
+## Active Objectives
+1. **FEAT-009**: [COMPLETED] Structurally decouple `StackView.svelte` into `ArchitectStack` and `FocusStack` components to eliminate background physics loops on mobile.
+
+## Triage Routing
+1. **Verification Officer (VO)**: [RESOLVED] Confirmed 3/3 "Skeptical Specs" pass with centralized state management.
+2. **Implementation Lead (IL)**: [RESOLVED] Controller ownership moved to Orchestrator; shadow state eliminated.
+

@@ -32,6 +32,8 @@ Before running `./ship.sh`, the RM MUST confirm **all** of the following:
 
 **If any check fails**: Stop, identify the missing link, escalate to PG or VO. Do NOT run `./ship.sh`.
 
+**If `ship.sh` fails due to tests**: You MUST invoke the **Stop and Hypothesize Protocol**. Do not attempt to fix the tests yourself. Hand control back to the PG/IL with a mandate to form a hypothesis before writing code.
+
 ---
 
 ## Intelligent Shipment Mode
