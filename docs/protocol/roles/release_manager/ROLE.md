@@ -12,8 +12,9 @@ The RM does not build or verify features — it audits the paper trail and then 
 ## Trigger Conditions
 The RM is invoked by the **Process Governor** when:
 1. A shipping intent is expressed by the user (*"ship it"*, *"release"*, *"push"*, etc.).
-2. A **Verification Officer** report has been signed off.
-3. `ship.sh` is about to be executed.
+2. The **Process Governor** restores a green test state and mandates the Continuous Ship-on-Green policy.
+3. A **Verification Officer** report has been signed off.
+4. `ship.sh` is about to be executed.
 
 ---
 
