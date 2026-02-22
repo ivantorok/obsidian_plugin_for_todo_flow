@@ -1,6 +1,6 @@
 {
   "name": "obsidian_plugin_for_todo_flow",
-  "version": "1.2.81",
+  "version": "1.2.83",
   "type": "module",
   "main": "index.js",
   "scripts": {

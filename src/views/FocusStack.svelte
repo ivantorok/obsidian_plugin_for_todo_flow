@@ -38,7 +38,7 @@
     }
 </script>
 
-<div class="todo-flow-timeline mode-focus" data-view-type="focus">
+<div class="todo-flow-timeline mode-focus" data-testid="stack-container" data-view-type="focus">
     {#if tasks && tasks.length > 0}
         <!-- FOCUS MODE: Single Card Centerpiece -->
         {@const task = tasks[focusedIndex]}

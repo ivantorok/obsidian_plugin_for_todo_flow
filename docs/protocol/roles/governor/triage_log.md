@@ -239,3 +239,45 @@ The structural refactor of `StackView.svelte` into a decoupled orchestrator mode
 - **Recipient**: Release Manager (RM)
 - **Request**: Execute `./ship.sh` for version `v1.2.81`. Perform final audit of the centralized view architecture.
 - **Status**: **MANDATED**.
+
+## Session Entry: 2026-02-22 13:10 (Stack List UX Refinement)
+
+### Input Analysis
+- **Source**: Raw User Feedback (Direct Chat)
+- **Content**: "A task should be very thin. start time and title. the anchored fact should be visually communicated via the darker background of the card. ... scroll, drag & drop, tap for task view, swipes for complete/archive, double tap for anchoring."
+- **Flavor**: [FEAT/UX-POLISH]
+- **Component**: `ArchitectStack.svelte` (ListView)
+
+### Triage Verdict
+Detailed UX specifications for the Stack List view provided. These items refine FEAT-008 (Mobile Stack Parity) and introduce specific gesture mappings.
+
+### Routing
+- **Recipient**: Atlas Guardian (AG) for visual spec update.
+- **Recipient**: Implementation Lead (IL) for gesture engine refinement.
+- **Priority**: High (Pipelined).
+### Results (2026-02-22 13:30)
+- **Status**: **RESOLVED**.
+- **Action**: Implementing "Thin Card" design, gesture engine refinement (double-tap to anchor, swiping), and sticky navigation footer. Verified via `StackViewMobileGestures.test.ts`.
+
+## Session Entry: 2026-02-22 13:35 (Log Access & Sandbox Friction)
+
+### Input Analysis
+- **Source**: Raw User Feedback (Direct Chat)
+- **Content**: Agent prompts for access to `logs/vitest-results.json` outside of default project scope.
+- **Verdict**: Friction identified. Sandbox security-first policy requires explicit project-relative paths for logs.
+- **Action**: Formalize "Project Law" for log locations.
+- **Convention**: All ephemeral logs must be symlinked to `[project]/logs/` to avoid permission prompts.
+
+### Routing
+- **Recipient**: Atlas Guardian (AG)
+- **Request**: Create KI for "Log Access Conventions". 
+- **Recipient**: Implementation Lead (IL)
+- **Request**: Symlink `.test-vault/.obsidian` (or specific log paths) to project-root `logs`.
+- **Status**: **RESOLVED / ARCHIVED**.
+
+## Session Entry: 2026-02-22 14:35 (Session v4 Final Audit)
+
+### Input Analysis
+- **Source**: Internal Governance Cycle
+- **Verdict**: Documentation Harvest mandated.
+- **Status**: **COMPLETE**.

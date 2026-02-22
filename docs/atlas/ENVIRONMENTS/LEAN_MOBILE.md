@@ -3,7 +3,7 @@
 Defines the constraints and interaction patterns for mobile devices.
 
 ## Core Constraint: Low-End Hardware
-- **Standard Interaction Patterns**: Favor buttons over fluid, resource-intensive gestures (reordering, swipe-to-archive).
+- **Standard Interaction Patterns**: Favor hardcoded, reliable gestures (Double Tap to Anchor, Swipes) over configurable behavior.
 - **Static Over Fluid**: Use static visual states for buttons. Rely on reactive projections (UI feedback) for cues.
 
 ## High-Stress Responsiveness

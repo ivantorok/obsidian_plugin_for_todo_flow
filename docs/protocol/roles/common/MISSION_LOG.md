@@ -1,3 +1,29 @@
+# Mission Log: Session v4 — Stack List UX Refinement
+
+## Input & Analysis (Process Governor)
+- **Source**: Raw User Feedback (2026-02-22 13:10)
+- **Objective**: Refine Stack List View UX (FEAT-008). 
+- **Flavor**: [FEAT + UX]
+
+## Active Objectives
+1. **[COMPLETED]** Thin cards (title + start time only).
+2. **[COMPLETED]** Anchored state: Darker background.
+3. **[COMPLETED]** Double-tap: Anchor/Unanchor.
+4. **[COMPLETED]** Left Swipe: Archive.
+5. **[COMPLETED]** Right Swipe: Complete.
+6. **[COMPLETED]** Single Tap (Intent): Open Task View.
+7. **[COMPLETED]** Sticky Footer: Export, Add, Back, Forward.
+
+## Triage Routing
+1. **Atlas Guardian (AG)**: Update `MOBILE_INTERACTION_SPEC.md` with new gesture mappings.
+2. **Implementation Lead (IL)**: Update `ArchitectStack.svelte` and `StackController.ts` for new gestures and footer.
+
+## Status Logs
+- [2026-02-22 13:12]: **Process Governor (PG)** session v4 initialized. New UX feedback triaged and pipelined.
+- [2026-02-22 14:35]: **Process Governor (PG)** session v4 RESOLVED. FEAT-008 refinements (Thin Cards, Sovereignty Gestures) verified and documented.
+
+---
+
 # Mission Log: Session v3 — Post v1.2.79
 
 ## Input & Analysis (Process Governor)

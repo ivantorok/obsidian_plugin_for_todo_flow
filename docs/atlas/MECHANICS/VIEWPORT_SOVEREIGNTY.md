@@ -12,3 +12,5 @@ Defines how the UI behaves when the viewport shift occurs, typically triggered b
 ## Virtual Keyboard Layout Shift (VKLS)
 - All interactive inputs MUST use a central `ViewportService` (if implemented) or follow the CSS `safe-area-inset` rules to handle shift.
 - Standard `focus()` is forbidden in high-stress mobile views without an accompanying scroll action.
+- **Session v4 Focus Preservation**: Container sovereignty is maintained post-edit via `requestAnimationFrame` focus restoration to prevent Obsidian from swallowing focus after input blur.
+- **Adaptive Padding**: Containers must shrink bottom padding (e.g. `40vh`) during editing to prevent ghost scroll space while still clearing the keyboard.

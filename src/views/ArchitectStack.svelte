@@ -803,13 +803,13 @@
         if (index !== -1) {
             if (swipe === "right") {
                 await executeGestureAction(
-                    settings.swipeRightAction,
+                    isMobileState ? "complete" : settings.swipeRightAction,
                     task,
                     index,
                 );
             } else if (swipe === "left") {
                 await executeGestureAction(
-                    settings.swipeLeftAction,
+                    isMobileState ? "archive" : settings.swipeLeftAction,
                     task,
                     index,
                 );
@@ -915,7 +915,11 @@
                 tapTimer = null;
             }
 
-            await executeGestureAction(settings.doubleTapAction, task, index);
+            await executeGestureAction(
+                isMobileState ? "anchor" : settings.doubleTapAction,
+                task,
+                index,
+            );
             lastTapTime = 0; // Reset lastTapTime after a double tap
             return;
         }
@@ -1477,6 +1481,28 @@
     <!-- Help Overlay -->
     <div class="footer-controls">
         <button
+            class="icon-button undo-btn"
+            onclick={() => {
+                historyManager.undo();
+                update();
+            }}
+            title="Undo (Ctrl+Z)"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v.5" /></svg
+            >
+        </button>
+
+        <button
             class="icon-button plus-btn"
             onclick={syncGuard(() => openQuickAddModal(navState.focusedIndex))}
             title="Add Task"
@@ -1499,6 +1525,7 @@
                 ></line></svg
             >
         </button>
+
         <button
             class="icon-button export-btn"
             onclick={onExport}
@@ -1519,6 +1546,29 @@
                 /><line x1="12" y1="15" x2="12" y2="3" /></svg
             >
         </button>
+
+        <button
+            class="icon-button redo-btn"
+            onclick={() => {
+                historyManager.redo();
+                update();
+            }}
+            title="Redo (Ctrl+Y)"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="m15 14 5-5-5-5" /><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v.5" /></svg
+            >
+        </button>
+
         {#if showHelp}
             <HelpModal {keys} settings={internalSettings} />
         {/if}
@@ -2400,13 +2450,20 @@
         background: var(--interactive-accent-hover);
     }
 
-    .footer-controls .icon-button.export-btn {
-        background: var(--background-modifier-border);
+    .footer-controls .icon-button.export-btn,
+    .footer-controls .icon-button.undo-btn,
+    .footer-controls .icon-button.redo-btn {
+        background: var(--background-secondary);
+        border: 1px solid var(--background-modifier-border);
         color: var(--text-muted);
     }
 
-    .footer-controls .icon-button.export-btn:hover {
+    .footer-controls .icon-button.export-btn:hover,
+    .footer-controls .icon-button.undo-btn:hover,
+    .footer-controls .icon-button.redo-btn:hover {
         background: var(--background-modifier-border-hover);
         color: var(--text-normal);
+        border-color: var(--interactive-accent);
     }
+
 </style>

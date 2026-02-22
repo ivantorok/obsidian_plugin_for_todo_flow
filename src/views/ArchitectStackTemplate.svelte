@@ -47,7 +47,7 @@
     } = $props();
 </script>
 
-<div class="todo-flow-timeline" data-view-type="architect">
+<div class="todo-flow-timeline" data-testid="stack-container" data-view-type="architect">
     {#if tasks.length > 0}
         {#each tasks as task, i (task.id)}
             <div
@@ -138,25 +138,6 @@
                         <span class="desktop-only-time"
                             >{formatDateRelative(task.startTime, now)}</span
                         >
-                        {#if task.isAnchored}
-                            <svg
-                                class="edit-icon"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="10"
-                                height="10"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                ><path
-                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                                ></path><path
-                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                                ></path></svg
-                            >
-                        {/if}
                     {/if}
                 </div>
                 <div class="content-col" class:mobile-layout={isMobileState}>
@@ -192,7 +173,14 @@
                                 : ""}
                             data-testid="task-card-title"
                             data-index={i}
-                            onclick={syncGuard(() => startRename(i))}
+                            onclick={syncGuard((e) => {
+                                // Single tap is handled by the parent container's handleTap
+                                // but if we are editing text, we might want to start rename
+                                if (!isMobileState) {
+                                  e.stopPropagation();
+                                  startRename(i);
+                                }
+                            })}
                             title={task.isMissing
                                 ? "Note missing"
                                 : "Click to rename"}
@@ -207,113 +195,112 @@
                             {/if}{task.title}
                         </button>
                     {/if}
-                    <div class="metadata" class:mobile-layout={isMobileState}>
-                        <div class="duration">
-                            <button
-                                class="duration-btn minus"
-                                onclick={syncGuard((e) => {
-                                    e.stopPropagation();
-                                    historyManager.executeCommand(
-                                        new ScaleDurationCommand(
-                                            controller,
-                                            i,
-                                            "down",
-                                        ),
-                                    );
-                                    update();
-                                })}
-                                onpointerdown={(e) => e.stopPropagation()}
-                                title="Decrease Duration">−</button
-                            >
-                            <span
-                                class="duration-text clickable"
-                                onclick={(e) => {
-                                    e.stopPropagation();
-                                    if (task.id.startsWith("temp-")) return;
-                                    openDurationPicker(i);
-                                }}
-                                onkeydown={(e) => {
-                                    if (e.key === "Enter")
-                                        openDurationPicker(i);
-                                }}
-                                onpointerdown={(e) => e.stopPropagation()}
-                                tabindex="0"
-                                role="button"
-                            >
-                                {formatDuration(task.duration)}
-                            </span>
-                            <button
-                                class="duration-btn plus"
-                                onclick={syncGuard((e) => {
-                                    e.stopPropagation();
-                                    historyManager.executeCommand(
-                                        new ScaleDurationCommand(
-                                            controller,
-                                            i,
-                                            "up",
-                                        ),
-                                    );
-                                    update();
-                                })}
-                                onpointerdown={(e) => e.stopPropagation()}
-                                title="Increase Duration">+</button
-                            >
-                            {#if getMinDuration(task) > 0}
-                                <span
-                                    class="constraint-indicator"
-                                    title="Constrained by subtasks">⚖️</span
-                                >
-                            {/if}
-                            {#if task.isAnchored}
-                                <div class="mobile-anchor-badge">⚓</div>
-                            {/if}
-                        </div>
-                        <div class="anchor-col">
-                            {#if !task.isMissing}
+                    {#if !isMobileState}
+                        <div class="metadata">
+                            <div class="duration">
                                 <button
-                                    class="toggle-anchor-btn"
-                                    class:is-active={task.isAnchored}
-                                    onclick={(e) => {
+                                    class="duration-btn minus"
+                                    onclick={syncGuard((e) => {
                                         e.stopPropagation();
-                                        if (task.id.startsWith("temp-")) return;
                                         historyManager.executeCommand(
-                                            new ToggleAnchorCommand(
+                                            new ScaleDurationCommand(
                                                 controller,
                                                 i,
+                                                "down",
                                             ),
                                         );
                                         update();
+                                    })}
+                                    onpointerdown={(e) => e.stopPropagation()}
+                                    title="Decrease Duration">−</button
+                                >
+                                <span
+                                    class="duration-text clickable"
+                                    onclick={(e) => {
+                                        e.stopPropagation();
+                                        if (task.id.startsWith("temp-")) return;
+                                        openDurationPicker(i);
+                                    }}
+                                    onkeydown={(e) => {
+                                        if (e.key === "Enter")
+                                            openDurationPicker(i);
                                     }}
                                     onpointerdown={(e) => e.stopPropagation()}
-                                    title={task.isAnchored
-                                        ? "Release Anchor"
-                                        : "Pin to Start Time"}
+                                    tabindex="0"
+                                    role="button"
                                 >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="14"
-                                        height="14"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        ><path
-                                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"
-                                        /><polyline
-                                            points="7 10 12 15 17 10"
-                                        /><line
-                                            x1="12"
-                                            y1="15"
-                                            x2="12"
-                                            y2="3"
-                                        /></svg
+                                    {formatDuration(task.duration)}
+                                </span>
+                                <button
+                                    class="duration-btn plus"
+                                    onclick={syncGuard((e) => {
+                                        e.stopPropagation();
+                                        historyManager.executeCommand(
+                                            new ScaleDurationCommand(
+                                                controller,
+                                                i,
+                                                "up",
+                                            ),
+                                        );
+                                        update();
+                                    })}
+                                    onpointerdown={(e) => e.stopPropagation()}
+                                    title="Increase Duration">+</button
+                                >
+                                {#if getMinDuration(task) > 0}
+                                    <span
+                                        class="constraint-indicator"
+                                        title="Constrained by subtasks">⚖️</span
                                     >
-                                </button>
-                            {/if}
+                                {/if}
+                            </div>
+                            <div class="anchor-col">
+                                {#if !task.isMissing}
+                                    <button
+                                        class="toggle-anchor-btn"
+                                        class:is-active={task.isAnchored}
+                                        onclick={(e) => {
+                                            e.stopPropagation();
+                                            if (task.id.startsWith("temp-")) return;
+                                            historyManager.executeCommand(
+                                                new ToggleAnchorCommand(
+                                                    controller,
+                                                    i,
+                                                ),
+                                            );
+                                            update();
+                                        }}
+                                        onpointerdown={(e) => e.stopPropagation()}
+                                        title={task.isAnchored
+                                            ? "Release Anchor"
+                                            : "Pin to Start Time"}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="14"
+                                            height="14"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            ><path
+                                                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"
+                                            /><polyline
+                                                points="7 10 12 15 17 10"
+                                            /><line
+                                                x1="12"
+                                                y1="15"
+                                                x2="12"
+                                                y2="3"
+                                            /></svg
+                                        >
+                                    </button>
+                                {/if}
+                            </div>
                         </div>
-                    </div>
+                    {/if}
                 </div>
             </div>
         {/each}
@@ -385,6 +372,12 @@
 
     .todo-flow-task-card.anchored {
         background: var(--background-secondary-alt);
+        border-left: 4px solid var(--interactive-accent);
+    }
+
+    /* Darker background for anchored tasks in stack list view */
+    .todo-flow-task-card.anchored {
+        background: var(--background-modifier-hover);
     }
 
     .todo-flow-task-card.dragging {
@@ -473,10 +466,6 @@
     }
     .title:hover {
         color: var(--text-accent);
-    }
-
-    .mobile-anchor-badge {
-        display: none;
     }
 
     .duration {
@@ -576,14 +565,17 @@
     /* Mobile overrides */
     @media (max-width: 600px) {
         .todo-flow-task-card {
-            flex-wrap: wrap;
-            padding: 0.75rem;
-            gap: 0.5rem;
+            padding: 0.5rem 0.75rem !important;
+            gap: 0.5rem !important;
+            min-height: 44px;
+        }
+        .drag-handle {
+          padding: 0 0.25rem !important;
         }
         .time-col {
-            flex: 1;
+            flex: 0 0 auto !important;
+            min-width: 50px !important;
             justify-content: flex-start;
-            min-width: unset;
         }
         .desktop-only-time {
             display: none;
@@ -594,22 +586,17 @@
             font-weight: 600;
         }
         .content-col {
-            order: 2;
-            width: 100%;
-            flex: none;
+            order: unset !important;
+            width: unset !important;
+            flex: 1 !important;
         }
         .title {
-            white-space: normal;
-            display: -webkit-box !important;
-            -webkit-line-clamp: 2 !important;
-            -webkit-box-orient: vertical !important;
-            /* BUG-031: small padding prevents edge character clipping on 2-line wrap */
-            padding: 0 2px;
-        }
-        .mobile-anchor-badge {
-            display: block;
-            font-size: 1rem;
-            margin-left: auto;
+            font-size: 1rem !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            -webkit-line-clamp: 1 !important;
+            padding: 0;
         }
     }
 </style>

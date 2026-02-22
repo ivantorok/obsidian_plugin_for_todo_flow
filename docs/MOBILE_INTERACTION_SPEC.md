@@ -57,3 +57,13 @@ This document translates the user-facing features and "civilian" stories into te
 ### BUG-020: "The Selection Jump"
 *   **Technical Reality**: **Focused Index** desynchronization after an **Optimistic Update** triggers a sort.
 *   **Requirement**: Ensure **Focus Sovereignty** is maintained by recalculating the index of the operating task *after* the command completes.
+
+## 3. Project Law: Mobile Intent Sovereignty
+
+To ensure a consistent and predictable specialized UX on mobile, the following mappings are **hardcoded** and cannot be overridden by user settings while in `ArchitectStack` mode:
+
+1. **Right Swipe** -> `complete`
+2. **Left Swipe** -> `archive`
+3. **Double Tap** -> `anchor`
+
+**Rationale**: Mobile users rely on muscle memory and high-frequency gestures. Buffering these behind configurable settings introduces testing complexity and "UX Drift." By hardcoding these at the component level, we guarantee the "Static Interaction Pattern" mandated for mobile reliability.
