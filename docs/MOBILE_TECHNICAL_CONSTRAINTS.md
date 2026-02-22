@@ -19,6 +19,15 @@ Modern mobile browsers have improved, but there is still a mechanical delay betw
 *   **The Problem**: The system has to wait to see if you are going to tap again (Double Tap) or start moving (Swipe).
 *   **The Handoff**: We use **Passive Event Listeners** and **Immediate Feedback Patterns** (changing an active state instantly before the logic even executes).
 
+### D. Resolving Gestural Conflicts (Scroll vs. Drag)
+When a single DOM surface accepts both vertical scrolling and vertical dragging, the physics engines collide.
+*   **The Problem**: Touch events fired on a card might be intended to scroll the viewport or to pick up the card for reordering.
+*   **The Handoff**: We enforce strict **Pointer Capture** rules via either a **Long-Press Trigger** (hijacking the Y-axis after a 300ms hold into a **Lifted State**) or a dedicated **Drag Handle** (limiting draggable hit-areas to the **Leading Edge**).
+
+### E. The Horizontal Axis (Swiping)
+*   **The Problem**: Because the vertical axis is overloaded with Scrolling and Reordering, horizontal events must be managed carefully to avoid triggering browser-level "Back/Forward" gestures.
+*   **The Handoff**: We reserve the X-axis purely for **Directional Swiping** (Swipe-Start for Complete, Swipe-End for Archive). We use strict **Swipe Thresholds** and trigger a **Haptic Pulse** to provide tactile feedback once the technical threshold is breached.
+
 ---
 
 ## 2. UX Contradictions (The Oxymorons)

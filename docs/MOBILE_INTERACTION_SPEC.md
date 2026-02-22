@@ -2,6 +2,29 @@
 
 This document translates the user-facing features and "civilian" stories into technical interaction patterns using the vocabulary defined in the [Mobile UX Glossary](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_UX_GLOSSARY.md).
 
+## 0. Core UI Architecture & Terminology
+
+### 0.1 "Time-First" Card Architecture
+*   **Primary Content Row**: Each **Card Component** uses a **Horizontal Inline Layout** featuring a **Leading Time-Stamp** (High-Emphasis Typography) followed immediately by the **Task Label** (Body-Large). Secondary metadata is removed for **Minimalist Information Density**.
+*   **Visual Padding**: Uniform **Internal Cell Padding** creates a clear **Content Box**, separating the Time-Stamp and Task Label with a fixed **Horizontal Spacer**.
+
+### 0.2 The "Anchored" State
+*   **Surface Logic**: When a card enters the **Anchored State** (pinned to the top/active), the **Container Surface Color** shifts to a **Darker Shade Token** (e.g., Neutral-200).
+*   **Elevation & Contrast**: The **Stroke (Border)** weight increments, or a subtle **Inner Shadow** is applied to indicate the card is 'seated' or locked into focus.
+
+### 0.3 Resolving Gestural Conflicts (Scroll vs. Drag)
+To prevent conflicts between **Vertical Scrolling** and **Vertical Drag-and-Drop**, one of two patterns is enforced:
+*   **Option A (Long-Press to Reorder)**: Separates **Scroll Physics** from **Drag Logic** via a **Long-Press Gesture** (e.g., 300ms hold). The card enters a **Lifted State** (increased Z-index/scale), hijacking the vertical axis for **Manual Reordering**.
+*   **Option B (Drag Handle / Grabber)**: Reserves the **Leading Edge** for a dedicated **6-dot Drag Handle icon**. Vertical touches on the handle trigger **Reorder Logic**; all other touches on the **Card Surface** default to **List Scrolling**.
+
+### 0.4 Defining the Horizontal Axis (Swiping)
+The horizontal axis is reserved for **Contextual Swipe Actions**:
+*   **Swipe-Start (Left-to-Right)**: Reveals a 'Complete' action with a **Success-Color Background**.
+*   **Swipe-End (Right-to-Left)**: Reveals 'Delete' or 'Archive' with an **Error-Color Background**.
+*   **Haptic Trigger**: Crossing the **Swipe Threshold** triggers a **Haptic Pulse** to confirm the action is 'primed'.
+
+---
+
 ## 1. Feature-to-Interaction Mapping
 
 | Feature | Interaction | Glossary Terminology |
