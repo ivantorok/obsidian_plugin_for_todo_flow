@@ -14,12 +14,12 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Elias 1.1 Features (Shipped)
 | ID | Title | Type | Spec | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| FEAT-001 | Mobile: Chore Addition in Triage | Feat | [Spec](./backlog/FEAT-001_mobile_triage_addition.md) | v1.2.36 |
-| FEAT-004 | Perpetual Loop | Feat | [Spec](./backlog/FEAT-004_perpetual_loop.md) | v1.2.45 |
-| FEAT-005 | Immersion Capture (Triage) | Feat | [Spec](./backlog/FEAT-005_immersion_capture.md) | v1.2.47 |
-| FEAT-006 | Horizon Guardian | Feat | [Spec](./backlog/FEAT-006_horizon_guardian.md) | v1.2.48 |
-| FEAT-007 | Sovereign Undo | Feat | [Spec](./backlog/FEAT-007_sovereign_undo.md) | v1.2.48 |
-| - | Elias 1.1 Onboarding | Ref | [Spec](./backlog/ELIAS-1.1_onboarding.md) | - |
+| FEAT-001 | Mobile: Chore Addition in Triage | Feat | [Spec](./archive/backlog/FEAT-001_mobile_triage_addition.md) | v1.2.36 |
+| FEAT-004 | Perpetual Loop | Feat | [Spec](./archive/backlog/FEAT-004_perpetual_loop.md) | v1.2.45 |
+| FEAT-005 | Immersion Capture (Triage) | Feat | [Spec](./archive/backlog/FEAT-005_immersion_capture.md) | v1.2.47 |
+| FEAT-006 | Horizon Guardian | Feat | [Spec](./archive/backlog/FEAT-006_horizon_guardian.md) | v1.2.48 |
+| FEAT-007 | Sovereign Undo | Feat | [Spec](./archive/backlog/FEAT-007_sovereign_undo.md) | v1.2.48 |
+| - | Elias 1.1 Onboarding | Ref | [Spec](./archive/backlog/ELIAS-1.1_onboarding.md) | - |
 | - | Release Notes v1.2.39 | Ref | [Notes](./backlog/RELEASE_NOTES_v1.2.39.md) | - |
 
 
@@ -51,7 +51,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 | FEAT-009 | Lean Mobile Split (Elias 2.0 Refactor) | Epic | [Spec](./backlog/FEAT-009_lean_mobile_split.md) | 2026-02-20 |
 | CHORE-01 | Pre-push Hook Stdin Conflict | Chore | - | 2026-02-01 |
 | CHORE-03 | Permanent Test Run Logging | Chore | [Spec](./backlog/CHORE-03_test_telemetry.md) | 2026-02-19 |
-| CHORE-04 | Decompose `main.ts` God File | Chore | [Spec](./backlog/CHORE-04_main_ts_decomposition.md) | 2026-02-22 |
+| CHORE-04 | Decompose `main.ts` God File | Chore | [Spec](./archive/backlog/CHORE-04_main_ts_decomposition.md) | 2026-02-22 | v1.2.84 |
 
 ### Phase 5: Mobile UX Polish (2026-02-22 Live Session Feedback)
 | ID | Title | Type | Spec | Priority |

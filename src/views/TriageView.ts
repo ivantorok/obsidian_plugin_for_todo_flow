@@ -6,7 +6,7 @@ import { type KeybindingSettings, DEFAULT_KEYBINDINGS } from '../keybindings.js'
 import { parseTitleFromFilename } from '../persistence.js';
 import { type HistoryManager } from '../history.js';
 import { FileLogger } from '../logger.js';
-import { type TodoFlowSettings } from '../main.js';
+import { type TodoFlowSettings } from '../settings.js';
 import { StackPersistenceService } from '../services/StackPersistenceService.js';
 import { QuickAddModal } from '../ui/QuickAddModal.js';
 import { type ViewManager } from '../ViewManager.js';

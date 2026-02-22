@@ -10,7 +10,7 @@ import { serializeStackToMarkdown, parseTitleFromFilename } from '../persistence
 import { FileLogger } from '../logger.js';
 import { StackLoader } from '../loaders/StackLoader.js';
 import { NavigationManager } from '../navigation/NavigationManager.js';
-import { type TodoFlowSettings } from '../main.js';
+import { type TodoFlowSettings } from '../settings.js';
 import { QuickAddModal } from '../ui/QuickAddModal.js';
 import { InsertTaskCommand } from '../commands/stack-commands.js';
 import { StackPersistenceService } from '../services/StackPersistenceService.js';

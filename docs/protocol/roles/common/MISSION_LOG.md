@@ -114,3 +114,23 @@
 ## Triage Routing
 1. **Verification Officer (VO)**: Lead unguided audit.
 2. **Implementation Lead (IL)**: standby for structural hardening.
+
+---
+
+# Session v7 — Structural Hygiene (CHORE-04)
+
+## Input & Analysis (Process Governor)
+- **Source**: Governor's Recommendation (Optimal Decision)
+- **Objective**: Decompose `main.ts` god-file starting with `TodoFlowSettingTab`.
+- **Flavor**: [CHORE/HYGIENE]
+
+## Active Objectives
+1. **[DONE]** Phase 1: Extract `TodoFlowSettingTab` and `settings.ts`.
+2. **[DONE]** Phase 2: Extract `CommandRegistry`.
+3. **[DONE]** Phase 3: Extract `HandoffOrchestrator`.
+
+## Status Logs
+- [2026-02-22 16:20]: **Process Governor (PG)** session v7 initialized. CHORE-04 activated.
+- [2026-02-22 16:22]: Verifying green baseline before refactor.
+- [2026-02-22 16:30]: Completed Phase 1 & 2. Phase 3 (Handoff Orchestrator) in planning.
+- [2026-02-22 16:45]: **CHORE-04 DONE**. main.ts reduced from ~1200 to ~250 lines. Build green.
