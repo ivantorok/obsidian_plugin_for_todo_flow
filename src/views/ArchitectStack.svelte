@@ -603,6 +603,8 @@
             display: -webkit-box !important;
             -webkit-line-clamp: 2 !important;
             -webkit-box-orient: vertical !important;
+            /* BUG-031: small padding prevents edge character clipping on 2-line wrap */
+            padding: 0 2px;
         }
         .mobile-anchor-badge {
             display: block;

@@ -68,7 +68,7 @@
 
     let isMobileProp = $state(initialNavState?.isMobile || false);
     let viewMode = $state<"focus" | "architect">(
-        initialNavState?.isMobile ? "focus" : "architect",
+        "architect", // BUG-027: always start in list mode; focus requires explicit user action
     );
     export function setViewMode(mode: "focus" | "architect") {
         viewMode = mode;
@@ -335,15 +335,8 @@
             internalCanGoBack = currentNavState.canGoBack;
             isMobileProp = currentNavState.isMobile;
 
-            // SYNC MODE: If we just received a mobile state for the first time,
-            // and we haven't manually changed the mode, default to 'focus'.
-            if (isMobileProp && viewMode === "architect") {
-                if (logger && internalSettings.debug)
-                    logger.info(
-                        `[StackView.svelte] Defaulting viewMode to 'focus' due to mobile detection`,
-                    );
-                viewMode = "focus";
-            }
+            // BUG-027: Do NOT auto-switch to focus mode on mobile.
+            // Focus mode requires explicit user action (tapping a task card).
         });
     });
 
@@ -1782,6 +1775,14 @@
         -webkit-backdrop-filter: blur(10px);
     }
 
+    /* BUG-028: slim header on mobile */
+    @media (max-width: 600px) {
+        .todo-flow-stack-header {
+            padding: 0.4rem 0.75rem;
+            min-height: 44px;
+        }
+    }
+
     .header-index {
         font-family: var(--font-monospace);
         font-size: 0.85rem;
@@ -2441,10 +2442,7 @@
         margin-left: auto;
     }
 
-    /* Mobile Layout Refinements */
-    .is-mobile-layout {
-        background-color: rgba(255, 0, 0, 0.2) !important;
-    }
+    /* Mobile Layout Refinements — BUG-026: debug background removed */
 
     @media (max-width: 600px) {
         .todo-flow-task-card {

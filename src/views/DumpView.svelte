@@ -52,8 +52,17 @@
                 class="todo-flow-dump-input"
             ></textarea>
             <p class="todo-flow-dump-hint">
-                Type <strong>done</strong> and press Enter to start triage.
+                Press <strong>Enter</strong> after each thought. Type
+                <strong>done</strong> + Enter or tap the button to finish.
             </p>
+            <button
+                class="todo-flow-dump-finish-btn"
+                onclick={() => {
+                    if (onComplete) onComplete(sessionTasks);
+                }}
+            >
+                Finish Dump →
+            </button>
         </Card>
     </div>
 </div>
@@ -107,5 +116,28 @@
         font-style: italic;
         text-align: center; /* Placeholder can be centered */
         opacity: 0.5;
+    }
+
+    /* BUG-024: Finish button */
+    .todo-flow-dump-finish-btn {
+        display: block;
+        width: 100%;
+        max-width: 320px;
+        margin: 1.5rem auto 0;
+        padding: 0.85rem 1.5rem;
+        background: var(--interactive-accent);
+        color: var(--text-on-accent);
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 0.02em;
+        -webkit-tap-highlight-color: transparent;
+        transition: opacity 0.15s;
+    }
+    .todo-flow-dump-finish-btn:hover,
+    .todo-flow-dump-finish-btn:active {
+        opacity: 0.85;
     }
 </style>

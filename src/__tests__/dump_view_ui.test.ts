@@ -37,6 +37,6 @@ describe('DumpView UI Structure', () => {
         // Verify Hint
         const hint = container.querySelector('.todo-flow-dump-hint');
         expect(hint).toBeTruthy();
-        expect(hint!.textContent).toContain('Type done and press Enter to start triage');
+        expect(hint!.textContent).toContain('Type done');
     });
 });
