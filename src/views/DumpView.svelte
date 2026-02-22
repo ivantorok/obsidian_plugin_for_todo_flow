@@ -1,17 +1,17 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { DumpController } from './DumpController';
-    import Card from '../components/Card.svelte';
-    import type { App } from 'obsidian';
-    import { type TaskNode } from '../scheduler.js';
-    import { FileLogger } from '../logger.js';
+    import { onMount } from "svelte";
+    import { DumpController } from "./DumpController";
+    import Card from "../components/Card.svelte";
+    import type { App } from "obsidian";
+    import { type TaskNode } from "../scheduler.js";
+    import { FileLogger } from "../logger.js";
 
     export let app: App;
     export let folder: string;
     export let logger: FileLogger;
     export let onComplete: (tasks: TaskNode[]) => void;
 
-    let thought = '';
+    let thought = "";
     let controller: DumpController;
     let inputEl: HTMLTextAreaElement;
     let sessionTasks: TaskNode[] = [];
@@ -22,18 +22,18 @@
     });
 
     async function handleKeyDown(e: KeyboardEvent) {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             const currentThought = thought.trim();
-            
-            if (currentThought.toLowerCase() === 'done') {
-                thought = '';
+
+            if (currentThought.toLowerCase() === "done") {
+                thought = "";
                 if (onComplete) onComplete(sessionTasks);
                 return;
             }
 
             if (currentThought) {
-                thought = '';
+                thought = "";
                 const task = await controller.submitThought(currentThought);
                 if (task) sessionTasks = [...sessionTasks, task];
             }
@@ -47,11 +47,13 @@
             <textarea
                 bind:this={inputEl}
                 bind:value={thought}
-                on:keydown={handleKeyDown}
+                onkeydown={handleKeyDown}
                 placeholder="Type and press Enter..."
                 class="todo-flow-dump-input"
             ></textarea>
-            <p class="todo-flow-dump-hint">Type <strong>done</strong> and press Enter to start triage.</p>
+            <p class="todo-flow-dump-hint">
+                Type <strong>done</strong> and press Enter to start triage.
+            </p>
         </Card>
     </div>
 </div>
@@ -88,7 +90,7 @@
 
     .todo-flow-dump-input {
         width: 100%;
-        min-height: 200px; 
+        min-height: 200px;
         font-size: 1.5rem;
         border: none;
         outline: none;
@@ -97,7 +99,7 @@
         color: var(--text-normal);
         line-height: 1.6;
         font-family: inherit;
-        text-align: left; 
+        text-align: left;
     }
 
     .todo-flow-dump-input::placeholder {

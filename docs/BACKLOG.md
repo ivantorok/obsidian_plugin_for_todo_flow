@@ -32,8 +32,8 @@ This document tracks bugs and feature requests. To request work, add an item her
 | FEAT-008 | Mobile Stack Parity & Refinements | Feat | [Spec](./backlog/FEAT-008_mobile_stack_parity.md) | v1.2.73 |
 | BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-11 | **[PLANNED]** |
 | BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-11 | **[PLANNED]** |
-| BUG-022 | Quick Add Optimistic ID Race Condition | Bug | [Spec](./backlog/BUG-022_optimistic_id_race_condition.md) | 2026-02-20 | **[PLANNED]** |
-| BUG-023 | Sync Window Race Condition | Bug | [Spec](./backlog/BUG-023_sync_window_race_condition.md) | 2026-02-20 | **[PLANNED]** |
+| BUG-022 | Quick Add Optimistic ID Race Condition | Bug | [Spec](./backlog/BUG-022_optimistic_id_race_condition.md) | 2026-02-20 | v1.2.78 |
+| BUG-023 | Sync Window Race Condition | Bug | [Spec](./backlog/BUG-023_sync_window_race_condition.md) | 2026-02-20 | v1.2.78 |
 | STAB-01 | E2E Stabilization (Rollup & Race Conditions) | Bug | - | 2026-02-12 | v1.2.42 |
 
 ### Phase 3: Component Polishing (The Presentation)

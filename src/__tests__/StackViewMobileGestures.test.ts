@@ -26,7 +26,7 @@ describe('StackView Mobile Gestures Integration', () => {
     let historyManager: any;
 
     beforeEach(() => {
-        (window as any).Notice = vi.fn();
+        (window as any).Notice = class { constructor() { } };
         // Shim for happy-dom missing Pointer Capture
         if (!HTMLElement.prototype.setPointerCapture) {
             HTMLElement.prototype.setPointerCapture = vi.fn();
@@ -36,7 +36,10 @@ describe('StackView Mobile Gestures Integration', () => {
         }
 
         historyManager = {
-            executeCommand: vi.fn().mockResolvedValue(undefined),
+            executeCommand: vi.fn().mockImplementation(async (cmd: any) => {
+                console.log(`[TEST DEBUG] executeCommand called: ${cmd.description}`);
+                return Promise.resolve();
+            }),
             undo: vi.fn(),
             redo: vi.fn()
         };

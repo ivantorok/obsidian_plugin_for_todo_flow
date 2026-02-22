@@ -1,4 +1,5 @@
 # FEAT-007: Sovereign Undo (Back Icon)
+**Capture Date**: `2026-02-13 15:06:54`
 
 ## Problem / Goal
 Mobile buttons are large and prone to accidental clicks ("Fat Finger"). Users need a simple way to revert an accidental DONE or PARK action.

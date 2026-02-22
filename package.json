@@ -1,6 +1,6 @@
 {
   "name": "obsidian_plugin_for_todo_flow",
-  "version": "1.2.78",
+  "version": "1.2.79",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && mv main.css styles.css && npm run copy",
     "copy": "./sync_all.sh",
     "copy-to": "mkdir -p \"$VAULT/.obsidian/plugins/todo-flow\" && cp main.js styles.css manifest.json \"$VAULT/.obsidian/plugins/todo-flow/\"",
-    "test": "vitest run",
+    "test": "vitest run; node scripts/log_test_run.mjs unit",
     "test:watch": "vitest",
     "test:quick": "vitest run src/__tests__/golden_scheduler.test.ts && npm run e2e -- --spec tests/e2e/journeys/*.spec.ts",
     "test:full": "npm run test && npm run e2e",
@@ -16,7 +16,7 @@
     "refresh": "./refresh.sh",
     "prepare": "husky",
     "e2e:setup": "npx tsx tests/e2e/setup-vault.ts",
-    "e2e": "npm run e2e:setup && wdio run wdio.conf.mts",
+    "e2e": "npm run e2e:setup && (wdio run wdio.conf.mts; node scripts/log_test_run.mjs e2e)",
     "test:flaky": "npm run e2e:setup && wdio run wdio.conf.mts --spec tests/e2e/drill-down.spec.ts tests/e2e/bug_007_verify.spec.ts tests/e2e/selective_flush.spec.ts",
     "e2e:watch": "wdio run wdio.conf.mts --watch",
     "e2e:open": "npm run e2e:setup && wdio run wdio.conf.mts --spec tests/e2e/manual-open.spec.ts"

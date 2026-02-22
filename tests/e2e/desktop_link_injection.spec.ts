@@ -7,20 +7,32 @@ describe('Link Injection in Child Stacks', () => {
     const TARGET_FOLDER = 'todo-flow';
 
     async function prePopulateVault() {
-        const folderPath = path.join(VAULT_PATH, TARGET_FOLDER);
-        if (!fs.existsSync(folderPath)) {
-            fs.mkdirSync(folderPath, { recursive: true });
-        }
+        await browser.execute(async () => {
+            // @ts-ignore
+            const vault = app.vault;
 
-        // Create Parent.md in the root
-        fs.writeFileSync(path.join(VAULT_PATH, `ParentTask.md`), `---\nflow_state: shortlist\n---\n# Parent Task\n\n- [ ] [[Child1]]`);
-        // Create Child1.md
-        fs.writeFileSync(path.join(VAULT_PATH, `Child1.md`), `---\nflow_state: shortlist\n---\n# Child 1`);
+            // Clean up to ensure fresh index
+            for (const f of ['ParentTask.md', 'Child1.md']) {
+                const existing = vault.getAbstractFileByPath(f);
+                if (existing) await vault.delete(existing);
+            }
+
+            if (!vault.getAbstractFileByPath('todo-flow')) {
+                await vault.createFolder('todo-flow');
+            }
+
+            await vault.create('ParentTask.md', '---\nflow_state: shortlist\n---\n# Parent Task\n\n- [ ] [[Child1]]');
+            await vault.create('Child1.md', '---\nflow_state: shortlist\n---\n# Child 1');
+        });
     }
 
     beforeEach(async () => {
         await prePopulateVault();
-        await browser.pause(2000);
+
+        // Wait for Obsidian to index the files
+        await browser.waitUntil(async () => {
+            return await browser.execute(() => !!app.vault.getAbstractFileByPath("ParentTask.md"));
+        }, { timeout: 15000, msg: 'ParentTask.md never appeared in vault' });
 
         // Enable debug logging
         await browser.execute(() => {
@@ -33,7 +45,14 @@ describe('Link Injection in Child Stacks', () => {
         });
 
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
-        await browser.pause(2000);
+
+        // Wait for view to be ready
+        await browser.waitUntil(async () => {
+            return await browser.execute(() => {
+                // @ts-ignore
+                return app.workspace.getLeavesOfType("todo-flow-stack-view").length > 0;
+            });
+        }, { timeout: 10000, msg: 'Stack view never opened' });
     });
 
     it('RED: Should inject a link in ParentTask.md when a new task is added inside its stack', async () => {
@@ -41,10 +60,22 @@ describe('Link Injection in Child Stacks', () => {
             // 1. Programmatically navigate into ParentTask.md
             await browser.execute(() => {
                 // @ts-ignore
-                const view = app.workspace.getLeavesOfType("todo-flow-stack-view")[0].view;
-                view.setState({ rootPath: "ParentTask.md" }, {});
+                const leaves = app.workspace.getLeavesOfType("todo-flow-stack-view");
+                if (leaves.length > 0) {
+                    leaves[0].view.setState({ rootPath: "ParentTask.md" }, {});
+                }
             });
-            await browser.pause(3000);
+
+            await browser.waitUntil(async () => {
+                return await browser.execute(() => {
+                    // @ts-ignore
+                    const leaves = app.workspace.getLeavesOfType("todo-flow-stack-view");
+                    if (leaves.length === 0) return false;
+                    const view = leaves[0].view;
+                    // Probe class properties directly for reliability
+                    return view.rootPath === "ParentTask.md" && view.tasks && view.tasks.length > 0;
+                });
+            }, { timeout: 15000, msg: 'Navigation to ParentTask.md failed or tasks not loaded' });
 
             // 2. Add a new task "NewSubTask"
             await browser.execute('app.commands.executeCommandById("todo-flow:add-task-to-stack")');

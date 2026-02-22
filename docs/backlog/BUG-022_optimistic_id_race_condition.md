@@ -1,4 +1,5 @@
 # BUG-022: Quick Add Optimistic ID Race Condition
+**Capture Date**: `2026-02-20 10:35:23`
 
 ## Overview
 When the user rapidly inputs a new task via the Quick Add modal (e.g., in Triage or Stack), the UI optimistically injects the task into the Svelte component using a generated ID (`temp-${Date.now()}`). Over the next few hundred milliseconds, the `onCreateTask` handler creates the `.md` file on disk and *should* swap the ID.

@@ -54,8 +54,11 @@ describe('Selective Flush Race Condition', () => {
         // 1. Archive Task1 (Starts 500ms debounce)
         await browser.keys(['z']);
 
-        // Wait for UI to show 2 tasks OR for the debounce to at least be in flight
-        await browser.pause(200);
+        // Wait for the UI to at least start the process (e.g., class change or task count change)
+        await browser.waitUntil(async () => {
+            const cards = await $$('.todo-flow-task-card');
+            return cards.length < 3;
+        }, { timeout: 3000, timeoutMsg: 'Task1 did not disappear from UI after Archive' });
 
         // 2. IMMEDIATELY reload while debounce is likely pending
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');

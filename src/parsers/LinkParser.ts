@@ -3,6 +3,7 @@ import { type TaskNode } from '../scheduler.js';
 import { resolveTaskTitle, getFirstNonMetadataLine } from '../utils/title-resolver.js';
 import moment from 'moment';
 import { FileLogger } from '../logger.js';
+import { ProcessGovernor } from '../services/ProcessGovernor.js';
 
 
 /**
@@ -25,10 +26,12 @@ export interface TaskSource {
 export class LinkParser implements TaskSource {
     private logger: FileLogger | undefined;
     private app: App;
+    private governor: ProcessGovernor;
 
     constructor(app: App, logger?: FileLogger) {
         this.app = app;
         this.logger = logger;
+        this.governor = ProcessGovernor.getInstance(app, logger);
     }
 
     async parse(filePath: string): Promise<TaskNode[]> {
@@ -48,6 +51,12 @@ export class LinkParser implements TaskSource {
             this.logger.info(`[LinkParser] parse(${filePath}): contentLen=${content.length}, contentPrefix=${content.substring(0, 50).replace(/\n/g, '\\n')}`);
         }
         if (typeof content !== 'string') content = String(content || '');
+
+        // RAM Guard: Skip deep line parsing if memory pressure is critical
+        if (this.governor.isCriticalPressure() && content.length > 5000) {
+            if (this.logger) this.logger.info(`[LinkParser] CRITICAL PRESSURE: Skipping deep parsing for ${filePath} (${content.length} chars)`);
+            return [];
+        }
 
         // Extract all wikilinks with their surrounding context (the whole line)
         const lines = content.split('\n');

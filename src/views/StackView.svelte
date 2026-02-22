@@ -277,10 +277,16 @@
                     logger.warn(
                         `[StackView.svelte] Index Out of Bounds Fix: ${focusedIndex} -> ${clamped} (Tasks: ${tasks.length})`,
                     );
-                focusedIndex = clamped;
+                untrack(() => {
+                    focusedIndex = clamped;
+                    if (onFocusChange) onFocusChange(clamped);
+                });
             }
         } else if (focusedIndex !== 0) {
-            focusedIndex = 0;
+            untrack(() => {
+                focusedIndex = 0;
+                if (onFocusChange) onFocusChange(0);
+            });
         }
     });
 
@@ -410,14 +416,23 @@
     }
 
     export function update() {
+        if (typeof window !== "undefined" && (window as any)._logs)
+            (window as any)._logs.push(
+                `[StackView] update() entry. Current tasks: ${tasks.length}`,
+            );
         if (debug)
             console.debug(
                 "[TODO_FLOW_TRACE] update() entry. Current tasks:",
                 tasks.length,
             );
         tasks = controller.getTasks();
+        if (onTaskUpdate) onTaskUpdate(tasks);
         if (onStackChange) onStackChange(tasks);
         if (onFocusChange) onFocusChange(focusedIndex);
+        if (typeof window !== "undefined" && (window as any)._logs)
+            (window as any)._logs.push(
+                `[StackView] update() complete. New tasks: ${tasks.length}`,
+            );
         if (debug)
             console.debug(
                 "[TODO_FLOW_TRACE] update() complete. New tasks:",
@@ -789,11 +804,16 @@
     }
 
     async function handlePointerEnd(e: PointerEvent, task: TaskNode) {
+        if (typeof window !== "undefined" && (window as any)._logs)
+            (window as any)._logs.push(
+                `[GESTURE] handlePointerEnd START: task=${task.title}, swiping=${swipingTaskId}`,
+            );
         // console.log(`[GESTURE] handlePointerEnd task=${task.title}, draggingTaskId=${draggingTaskId}`);
         if (!swipingTaskId && !draggingTaskId) return;
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
 
         if (draggingTaskId) {
+            if (controller) controller.unfreeze();
             if (
                 dragTargetIndex !== -1 &&
                 dragTargetIndex !== draggingStartIndex &&
@@ -810,10 +830,6 @@
                 await historyManager.executeCommand(command);
                 focusedIndex = dragTargetIndex; // Selection follows task
                 update();
-            } else {
-                (window as any)._logs.push(
-                    `[GESTURE] REORDER SKIPPED: target=${dragTargetIndex} start=${draggingStartIndex}`,
-                );
             }
             draggingTaskId = null;
             draggingStartIndex = -1;
@@ -829,18 +845,31 @@
                 unlockPersistence(navState.rootPath, activeInteractionToken);
                 activeInteractionToken = null;
             }
-            if (controller) controller.unfreeze();
 
             // IMPORTANT: If we just finished a drag, we don't want to trigger a swipe
             swipingTaskId = null;
             touchStartX = 0;
             touchCurrentX = 0;
+            if (typeof window !== "undefined" && (window as any)._logs)
+                (window as any)._logs.push(
+                    `[GESTURE] handlePointerEnd DRAG END`,
+                );
             return;
         }
+
+        if (unlockPersistence && navState.rootPath && activeInteractionToken) {
+            unlockPersistence(navState.rootPath, activeInteractionToken);
+            activeInteractionToken = null;
+        }
+        if (controller) controller.unfreeze();
 
         const deltaX = touchCurrentX - touchStartX;
         const deltaY = touchCurrentY - touchStartY;
         const swipe = resolveSwipe(deltaX, deltaY);
+        if (typeof window !== "undefined" && (window as any)._logs)
+            (window as any)._logs.push(
+                `[GESTURE] handlePointerEnd SWIPE: ${swipe}, deltaX=${deltaX}`,
+            );
 
         const index = tasks.findIndex((t) => t.id === task.id);
 
@@ -860,15 +889,11 @@
             }
         }
 
-        if (unlockPersistence && navState.rootPath && activeInteractionToken) {
-            unlockPersistence(navState.rootPath, activeInteractionToken);
-            activeInteractionToken = null;
-        }
-        if (controller) controller.unfreeze();
-
         swipingTaskId = null;
         touchStartX = 0;
         touchCurrentX = 0;
+        if (typeof window !== "undefined" && (window as any)._logs)
+            (window as any)._logs.push(`[GESTURE] handlePointerEnd SWIPE END`);
     }
 
     function handlePointerCancel(e: PointerEvent) {
@@ -1045,6 +1070,7 @@
         } else {
             // If tapping on a new item, just focus it
             focusedIndex = index;
+            if (onFocusChange) onFocusChange(index);
         }
     }
 
@@ -1064,6 +1090,9 @@
     function selectOnFocus(node: HTMLInputElement) {
         node.focus();
         node.select();
+        // BUG-021: Defer scrolling if we are in the middle of a gesture to prevent layout thrashing
+        if (draggingTaskId || swipingTaskId) return;
+
         // On mobile, use 'start' to ensure it's above the keyboard
         ViewportService.scrollIntoView(
             node,
@@ -1073,7 +1102,16 @@
     }
 
     export async function handleKeyDown(e: KeyboardEvent) {
+        if (typeof window !== "undefined") {
+            ((window as any)._logs = (window as any)._logs || []).push(
+                `[StackView] handleKeyDown ENTRY: key="${e.key}", target=${(e.target as HTMLElement).tagName}.${(e.target as HTMLElement).className}`,
+            );
+        }
         if (isSyncing) {
+            if (typeof window !== "undefined")
+                ((window as any)._logs = (window as any)._logs || []).push(
+                    `[StackView] handleKeyDown BLOCKED: Syncing`,
+                );
             new (window as any).Notice("Syncing in progress. Please wait...");
             return;
         }
@@ -1125,13 +1163,22 @@
 
         // Early return only for non-mounted state
         // CRITICAL: We removed !tasks.length check because GO_BACK must work on empty stacks!
-        if (!mounted) return;
+        if (!mounted) {
+            if (typeof window !== "undefined")
+                ((window as any)._logs = (window as any)._logs || []).push(
+                    `[StackView] handleKeyDown BLOCKED: !mounted`,
+                );
+            return;
+        }
 
         const action = keyManager.resolveAction(e);
-        if (typeof window !== "undefined")
+        if (typeof window !== "undefined") {
             ((window as any)._logs = (window as any)._logs || []).push(
                 `[StackView] KeyDown: ${e.key} (Shift=${e.shiftKey}) -> Action: ${action} (Focused: ${focusedIndex})`,
             );
+            (window as any)._lastAction = action;
+            (window as any)._keybindings = internalSettings.keybindings;
+        }
 
         // CANCEL PENDING TAPS ON KEYBOARD INTERACTION (Fixes Ghost Click Race)
         if (tapTimer) {

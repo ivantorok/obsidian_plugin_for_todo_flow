@@ -57,7 +57,7 @@
                 class:is-temporary={task.id.startsWith("temp-")}
                 data-testid="task-card-{i}"
                 class:is-focused={focusedIndex === i}
-                data-is-focused={focusedIndex === i}
+                data-index={i}
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === "done"}
                 class:is-missing={task.isMissing}
@@ -191,6 +191,7 @@
                                 ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal;"
                                 : ""}
                             data-testid="task-card-title"
+                            data-index={i}
                             onclick={syncGuard(() => startRename(i))}
                             title={task.isMissing
                                 ? "Note missing"

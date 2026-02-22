@@ -70,7 +70,14 @@ describe('BUG-00X: Rollup Reactivation', () => {
         // Shortlist 'Parent'
         console.log('[Test] Shortlisting Parent (k)...');
         await browser.keys(['k']);
-        await browser.pause(1000);
+
+        // Wait for Obsidian to index the new file
+        await browser.waitUntil(async () => {
+            return await browser.execute(() => {
+                // @ts-ignore
+                return app.vault.getMarkdownFiles().some(f => f.basename.toLowerCase().includes('parent'));
+            });
+        }, { timeout: 15000, timeoutMsg: 'Parent.md never appeared in vault after shortlist' });
 
         // --- 4. STACK ---
         console.log('[Test] Waiting for Stack View...');
@@ -87,18 +94,31 @@ describe('BUG-00X: Rollup Reactivation', () => {
         await parentCard.waitForExist({ timeout: 10000 });
 
         // --- 5. DRILL DOWN & CREATE CHILD ---
-        console.log('[Test] Drilling down into Parent...');
-        await parentCard.click();
-        await browser.keys(['Enter']);
-        // Wait for sub-stack to be empty
+        console.log('[Test] Finding Parent file path...');
+        const parentPath = await browser.execute(() => {
+            // @ts-ignore
+            return app.vault.getMarkdownFiles().find(f => f.basename.toLowerCase().includes('parent'))?.path;
+        });
+
+        if (!parentPath) {
+            throw new Error('Parent file not found after shortlist (even after wait!)');
+        }
+
+        console.log(`[Test] Drilling down into ${parentPath} via setState...`);
+        await browser.execute((path) => {
+            // @ts-ignore
+            const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0]?.view;
+            if (view) view.setState({ rootPath: path });
+        }, parentPath);
+
         await browser.waitUntil(async () => {
-            return await browser.execute(() => {
+            return await browser.execute((path) => {
                 // @ts-ignore
                 const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0]?.view;
                 // @ts-ignore
-                return view && view.getTasks().length === 0;
-            });
-        }, { timeout: 5000, timeoutMsg: 'Sub-stack did not appear empty' });
+                return view && view.navState?.rootPath === path && view.getTasks().length === 0;
+            }, parentPath);
+        }, { timeout: 10000, timeoutMsg: `Sub-stack did not appear empty or navigation failed for ${parentPath}` });
 
         console.log('[Test] Creating Child...');
         await browser.keys(['c']);

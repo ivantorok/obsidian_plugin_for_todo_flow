@@ -44,6 +44,19 @@ export class ProcessGovernor {
         return PressureLevel.NORMAL;
     }
 
+    /**
+     * Returns a multiplier for debounce timers or scan depths.
+     * NORMAL: 1.0x, YELLOW: 2.0x, RED: 5.0x
+     */
+    public getThrottleMultiplier(): number {
+        const level = this.getPressureLevel();
+        switch (level) {
+            case PressureLevel.YELLOW: return 2.0;
+            case PressureLevel.RED: return 5.0;
+            default: return 1.0;
+        }
+    }
+
     public isHighPressure(): boolean {
         const level = this.getPressureLevel();
         return level === PressureLevel.YELLOW || level === PressureLevel.RED;
@@ -64,7 +77,8 @@ export class ProcessGovernor {
         const usedMB = Math.round(memory.usedJSHeapSize / 1024 / 1024);
         const limitMB = Math.round(memory.jsHeapSizeLimit / 1024 / 1024);
         const level = this.getPressureLevel();
+        const multiplier = this.getThrottleMultiplier();
 
-        this.logger.info(`[ProcessGovernor] Heap: ${usedMB}MB / ${limitMB}MB (${level})`);
+        this.logger.info(`[ProcessGovernor] Heap: ${usedMB}MB / ${limitMB}MB (${level}, Mutliplier: ${multiplier}x)`);
     }
 }

@@ -13,6 +13,8 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: ['./src/__tests__/setup.ts'],
+    reporters: ['default', 'json'],
+    outputFile: 'logs/vitest-results.json',
     exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**'],
   },
 });

@@ -1,4 +1,5 @@
 # FEAT-009: Lean Mobile Split (The "Elias 2.0" Structural Refactor)
+**Capture Date**: `2026-02-20 10:35:23`
 
 ## Context
 Our `STRATEGY_LEAN_MOBILE.md` calls for an "Essentialist" approach to mobile interaction: Zero-logic HTML rendering, static over fluid, and bypassing the physics engine for performance on low-end hardware.

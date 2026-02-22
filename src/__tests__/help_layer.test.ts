@@ -44,7 +44,7 @@ describe('Feature: Help Layer', () => {
         const eventH1 = new KeyboardEvent('keydown', { key: '?', code: 'Slash', shiftKey: true });
         Object.defineProperty(eventH1, 'target', { value: stackContainer });
         // @ts-ignore
-        component.handleKeyDown(eventH1);
+        await component.handleKeyDown(eventH1);
         await tick();
 
         // ASSERT: Modal is visible
@@ -58,7 +58,7 @@ describe('Feature: Help Layer', () => {
         const eventJ = new KeyboardEvent('keydown', { key: 'j', code: 'KeyJ' });
         Object.defineProperty(eventJ, 'target', { value: stackContainer });
         // @ts-ignore
-        component.handleKeyDown(eventJ);
+        await component.handleKeyDown(eventJ);
         await tick();
         await new Promise(resolve => setTimeout(resolve, 50)); // scroll delay
 
@@ -76,7 +76,7 @@ describe('Feature: Help Layer', () => {
         const eventH2 = new KeyboardEvent('keydown', { key: '?', code: 'Slash', shiftKey: true });
         Object.defineProperty(eventH2, 'target', { value: stackContainer });
         // @ts-ignore
-        component.handleKeyDown(eventH2);
+        await component.handleKeyDown(eventH2);
         await tick();
 
         // ASSERT: Modal is gone
@@ -87,7 +87,7 @@ describe('Feature: Help Layer', () => {
         const eventJ2 = new KeyboardEvent('keydown', { key: 'j', code: 'KeyJ' });
         Object.defineProperty(eventJ2, 'target', { value: stackContainer });
         // @ts-ignore
-        component.handleKeyDown(eventJ2);
+        await component.handleKeyDown(eventJ2);
         await tick();
 
         const newFocused = container.querySelector('.todo-flow-task-card.is-focused');
@@ -121,7 +121,7 @@ describe('Feature: Help Layer', () => {
         const eventH3 = new KeyboardEvent('keydown', { key: '?', code: 'Slash', shiftKey: true });
         Object.defineProperty(eventH3, 'target', { value: stackContainer });
         // @ts-ignore
-        component.handleKeyDown(eventH3);
+        await component.handleKeyDown(eventH3);
         await tick();
         expect(container.querySelector('.todo-flow-help-modal')).not.toBeNull();
 
@@ -130,7 +130,7 @@ describe('Feature: Help Layer', () => {
         const eventEsc = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape' });
         Object.defineProperty(eventEsc, 'target', { value: stackContainer });
         // @ts-ignore
-        component.handleKeyDown(eventEsc);
+        await component.handleKeyDown(eventEsc);
         await tick();
 
         // Closed

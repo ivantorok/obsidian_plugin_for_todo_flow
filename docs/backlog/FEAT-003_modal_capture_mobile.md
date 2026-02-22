@@ -1,4 +1,5 @@
-# FEAT-003: Mobile Modal Capture Side-Channel
+# FEAT-003: Modal Capture (Mobile)
+**Capture Date**: `2026-02-13 11:38:02`
 
 ## Problem / Goal
 Inline renaming on mobile causes Viewport Layout Shift (VKLS) issues. If a task is renamed to include a time, the "Optimistic Sort" can cause the focused task to jump out of view while the user is still typing.

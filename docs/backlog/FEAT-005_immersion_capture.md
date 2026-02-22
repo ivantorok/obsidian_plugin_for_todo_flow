@@ -1,4 +1,5 @@
 # FEAT-005: Immersion Capture (Triage-Style)
+**Capture Date**: `2026-02-13 15:06:54`
 
 ## Problem / Goal
 Mobile capture currently appends to a side-file (`Mobile_Inbox.md`), which requires a separate Triage step later. Users want to add ideas directly to their current stack with full context.

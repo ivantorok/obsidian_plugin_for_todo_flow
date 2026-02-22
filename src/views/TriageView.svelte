@@ -23,7 +23,9 @@
         contentEl,
         checkForConflict,
     } = $props();
-    const controller = new TriageController(app, initialTasks, logger);
+    const controller = $derived.by(
+        () => new TriageController(app, initialTasks, logger),
+    );
     let currentTask = $state(controller.getCurrentTask());
     let swipeDirection = $state<"left" | "right" | null>(null);
     let showHelp = $state(false);

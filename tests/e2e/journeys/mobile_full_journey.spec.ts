@@ -35,38 +35,41 @@ describe('Mobile Full Journey: The Day of a User', () => {
         await setupStackWithTasks(['Task A']);
         await focusStack();
 
-        const taskACard = await $('[data-testid="lean-task-card"]');
+        const taskACard = await $('.focus-card.is-focused');
         await taskACard.waitForDisplayed({ timeout: 10000 });
 
-        const taskTitle = await $('[data-testid="lean-task-title"]');
+        const taskTitle = await taskACard.$('.focus-title');
         expect(await taskTitle.getText()).toBe('Task A');
 
         // --- STEP 2: Verify Duration (30m default) ---
         console.log('[Journey] Step 2: Verifying Duration');
-        const durationText = await taskACard.$('.duration');
+        const durationText = await taskACard.$('.focus-duration-text');
         expect(await durationText.getText()).toBe('30m');
-
-        // Note: Lean Mobile doesn't have +/- buttons on the card yet, 
-        // as Elias 1.1 focuses on "Momentum" and "Single Task Focus".
-        // Scaling is deferred to Triage or Desktop for now per specification.
 
         // --- STEP 3: Archive Task A ---
         console.log('[Journey] Step 3: Archiving Task A');
-        const archiveBtn = await $('[data-testid="lean-archive-btn"]');
-        if (!(await archiveBtn.isDisplayed())) {
-            await browser.saveScreenshot('./tests/e2e/failures/mobile_journey_debug.png');
-            console.log('[Journey] DEBUG: Screenshot saved to ./tests/e2e/failures/mobile_journey_debug.png');
-        }
-        await archiveBtn.waitForDisplayed({ timeout: 5000 });
-        await archiveBtn.click();
-        await browser.pause(2000);
+        const archiveBtn = await $('.focus-action-btn.complete');
+        await archiveBtn.waitForExist({ timeout: 5000 });
+
+        await browser.execute((btn: any) => btn.click(), archiveBtn);
+
+        // Wait for the card to actually disappear or victory lap to appear
+        await browser.waitUntil(async () => {
+            const cards = await $$('.focus-card');
+            const isGone = !(await taskACard.isExisting());
+            return cards.length === 0 || isGone;
+        }, {
+            timeout: 5000,
+            timeoutMsg: 'Expected Task A card to disappear after archiving'
+        });
+        await browser.pause(1000); // Small buffer for any final animation/state update
 
         // --- STEP 4: Final Verification ---
         console.log('[Journey] Step 4: Final Verification');
 
         await browser.waitUntil(async () => {
-            const finalCards = await $$('[data-testid="lean-task-card"]');
-            const victoryCard = await $('[data-testid="victory-lap-card"]');
+            const finalCards = await $$('.focus-card');
+            const victoryCard = await $('.todo-flow-victory-lap-card');
             const emptyState = await $('.empty-state');
 
             const isVictoryExisting = await victoryCard.isExisting();
@@ -76,7 +79,7 @@ describe('Mobile Full Journey: The Day of a User', () => {
             console.log(`[Journey] State Check: Cards=${cardsCount}, Victory=${isVictoryExisting}, Empty=${isEmptyExisting}`);
 
             if (cardsCount > 0) {
-                const title = await finalCards[0].$('[data-testid="lean-task-title"]');
+                const title = await finalCards[0].$('.focus-title');
                 if (await title.isExisting()) {
                     console.log(`[Journey] First Card Title: ${await title.getText()}`);
                 }

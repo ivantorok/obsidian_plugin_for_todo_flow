@@ -1,8 +1,12 @@
 <script>
-    import Card from '../../components/Card.svelte';
+    import Card from "../../components/Card.svelte";
 </script>
 
 <Card title="Wrapper Title" variant="dump">
-    <div data-testid="default-slot">Body Content</div>
-    <div slot="actions" data-testid="actions-slot">Action Buttons</div>
+    {#snippet children()}
+        <div data-testid="default-slot">Body Content</div>
+    {/snippet}
+    {#snippet actions()}
+        <div data-testid="actions-slot">Action Buttons</div>
+    {/snippet}
 </Card>

@@ -21,22 +21,22 @@ describe('Elias 1.1 Momentum - FEAT-007: Sovereign Undo', () => {
 
             await adapter.write(persistencePath, '# Current Stack\n\n- [ ] [[Task1]]\n- [ ] [[Task2]]');
 
-            if (!(await adapter.exists('Task1.md'))) await app.vault.create('Task1.md', '# Task 1');
-            if (!(await adapter.exists('Task2.md'))) await app.vault.create('Task2.md', '# Task 2');
+            if (!(await adapter.exists('Task1.md'))) await app.vault.create('Task1.md', '# Task1');
+            if (!(await adapter.exists('Task2.md'))) await app.vault.create('Task2.md', '# Task2');
         });
 
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
-        await $('.todo-flow-task-card.focused').waitForExist({ timeout: 5000 });
+        await $('.focus-card.is-focused').waitForExist({ timeout: 5000 });
     });
 
     it('should undo a "Done" action and restore the previous task state', async () => {
-        let title = await $('.todo-flow-task-card.focused .title');
+        let title = await $('.todo-flow-task-card.is-focused .focus-title');
         expect(await title.getText()).toBe('Task1');
 
         // Click Done -> Moves to Task2
         await browser.keys(['x']);
         await browser.waitUntil(async () => {
-            const focused = await $('.todo-flow-task-card.focused .title');
+            const focused = await $('.todo-flow-task-card.is-focused .focus-title');
             if (!(await focused.isExisting())) return false;
             return (await focused.getText()) === 'Task2';
         });
@@ -46,7 +46,7 @@ describe('Elias 1.1 Momentum - FEAT-007: Sovereign Undo', () => {
 
         // Should be back on Task1
         await browser.waitUntil(async () => {
-            const focused = await $('.todo-flow-task-card.focused .title');
+            const focused = await $('.todo-flow-task-card.is-focused .focus-title');
             if (!(await focused.isExisting())) return false;
             return (await focused.getText()) === 'Task1';
         });
@@ -60,13 +60,13 @@ describe('Elias 1.1 Momentum - FEAT-007: Sovereign Undo', () => {
     });
 
     it('should navigate down with Next (Skip) action', async () => {
-        let title = await $('.todo-flow-task-card.focused .title');
+        let title = await $('.todo-flow-task-card.is-focused .focus-title');
         expect(await title.getText()).toBe('Task1');
 
         // Press down -> Moves to Task2
         await browser.keys(['j']);
         await browser.waitUntil(async () => {
-            const focused = await $('.todo-flow-task-card.focused .title');
+            const focused = await $('.todo-flow-task-card.is-focused .focus-title');
             if (!(await focused.isExisting())) return false;
             return (await focused.getText()) === 'Task2';
         });
@@ -76,7 +76,7 @@ describe('Elias 1.1 Momentum - FEAT-007: Sovereign Undo', () => {
 
         // Should be back on Task1
         await browser.waitUntil(async () => {
-            const focused = await $('.todo-flow-task-card.focused .title');
+            const focused = await $('.todo-flow-task-card.is-focused .focus-title');
             if (!(await focused.isExisting())) return false;
             return (await focused.getText()) === 'Task1';
         });

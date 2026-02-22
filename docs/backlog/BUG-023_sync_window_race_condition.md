@@ -1,4 +1,5 @@
 # BUG-023: Sync Window Race Condition (`StackPersistenceService`)
+**Capture Date**: `2026-02-20 10:35:23`
 
 ## Overview
 The plugin relies on `StackPersistenceService.ts` to differentiate between edits made by *our* plugin and external edits (like Obsidian Sync pulling a change from another device). Currently, this is handled by `isExternalUpdate(filePath)`, which checks if a file changed more than 2000ms after our last known internal write `lastInternalWriteTime`. It also utilizes a global `silencedUntil` flag.

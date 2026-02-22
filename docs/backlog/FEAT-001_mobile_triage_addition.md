@@ -1,4 +1,5 @@
 # FEAT-001: Mobile: Chore Addition in Triage
+**Capture Date**: `2026-02-07 15:24:26`
 
 ## Problem / Goal
 While performing triage on mobile, there is no direct way to add a new chore or pull an existing one into the triage pool without leaving the Triage view.

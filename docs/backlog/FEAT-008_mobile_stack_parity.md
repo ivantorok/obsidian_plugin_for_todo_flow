@@ -1,4 +1,5 @@
 # FEAT-008: Mobile Stack Parity & Refinements
+**Capture Date**: `2026-02-18 13:23:19`
 
 ## Problem / Goal
 The current mobile stack view (`LeanStackView.svelte`) lacks functional parity with the Desktop version and contains redundant UI elements. It needs to align with the core stack interactions while maintaining mobile ergonomics.

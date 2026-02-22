@@ -2,6 +2,8 @@ import * as path from "path";
 import * as fs from "fs";
 import type { Options } from '@wdio/types';
 
+const results = { passed: 0, failed: 0, skipped: 0, duration: 0, start: Date.now() };
+
 export const config: Options.Testrunner = {
     //
     // ====================
@@ -90,9 +92,16 @@ export const config: Options.Testrunner = {
 
     after: function () {
         console.log('[WDIO] E2E test session complete');
+        results.duration = Date.now() - results.start;
+        fs.writeFileSync(
+            path.resolve('./logs/wdio-results.json'),
+            JSON.stringify(results, null, 2)
+        );
     },
 
     afterTest: async function (test, context, { error, result, duration, passed, retries }) {
+        if (passed) results.passed++;
+        else results.failed++;
         if (!passed) {
             const screenshotPath = path.resolve(`./tests/e2e/failures/${test.title.replace(/\s+/g, '_')}.png`);
             const screenshotDir = path.dirname(screenshotPath);

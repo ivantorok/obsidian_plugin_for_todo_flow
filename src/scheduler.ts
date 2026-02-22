@@ -142,15 +142,21 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, o
 
     const result: TaskNode[] = tasks.map(t => {
         // Base case: If we have children, duration is SUSPECT unless originalDuration is present.
-        const ownDuration = t.originalDuration ?? (t.children?.length === 0 ? t.duration : 0);
+        const ownDuration = t.originalDuration ?? ((!t.children || t.children.length === 0) ? t.duration : 0);
 
         let totalDuration = t.duration;
         let trace = t.trace || [];
 
+        // OPTIMIZATION: In high-pressure mode (e.g. during a gesture), skip expensive BFS duration audits
         if (!options?.highPressure) {
             const audit = getTotalGreedyDuration(t, registry);
             totalDuration = audit.total;
             trace = audit.trace;
+        } else {
+            // Force a minimal duration if it's missing but has children (placeholder)
+            if (t.children && t.children.length > 0 && t.duration === 0) {
+                totalDuration = 5; // Minimal sensible default during jank-prevention
+            }
         }
 
         // Use resolved rock time if it exists, otherwise use original
@@ -209,9 +215,14 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, o
         }
     }
 
-    return result.sort((a, b) => {
-        const timeA = a.startTime ? a.startTime.valueOf() : Number.MAX_SAFE_INTEGER;
-        const timeB = b.startTime ? b.startTime.valueOf() : Number.MAX_SAFE_INTEGER;
-        return timeA - timeB;
+    // Use original array index as a tie-breaker for stable sort
+    const withIndex = result.map((t, i) => ({ t, i }));
+    withIndex.sort((a, b) => {
+        const timeA = a.t.startTime ? a.t.startTime.valueOf() : Number.MAX_SAFE_INTEGER;
+        const timeB = b.t.startTime ? b.t.startTime.valueOf() : Number.MAX_SAFE_INTEGER;
+        if (timeA !== timeB) return timeA - timeB;
+        return a.i - b.i;
     });
+
+    return withIndex.map(x => x.t);
 }

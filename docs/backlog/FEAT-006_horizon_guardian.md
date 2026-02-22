@@ -1,4 +1,5 @@
-# FEAT-006: The "Horizon" Guardian
+# FEAT-006: Horizon Guardian
+**Capture Date**: `2026-02-13 15:06:54`
 
 ## Problem / Goal
 On mobile, it's easy to lose track of upcoming hard deadlines (anchored tasks). Users need a persistent "Psychological Anchor" to pace their current work.

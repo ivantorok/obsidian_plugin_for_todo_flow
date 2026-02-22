@@ -1,4 +1,5 @@
 # FEAT-004: Perpetual Loop & Victory Lap
+**Capture Date**: `2026-02-13 15:06:54`
 
 ## Problem / Goal
 Currently, the mobile "Lean Stack" stops at the final task, which can break the user's flow and momentum. We need a way to maintain focus without the "hard stop."
