@@ -375,6 +375,7 @@
     let startedOnHandle = false;
     let dragLogged = false;
     let lastDragEndTime = 0;
+    let touchMovedSignificant = false; // BUG-029: Disambiguation flag
     let lastRenameStartTime = 0;
     let focusTimer: any = null;
     let tapTimer: any = null;
@@ -623,6 +624,7 @@
         touchCurrentX = touchStartX;
         touchCurrentY = touchStartY;
         swipingTaskId = taskId;
+        touchMovedSignificant = false; // BUG-029: Reset on new touch
 
         const index = tasks.findIndex((t) => t.id === taskId);
         if (index !== -1) {
@@ -714,6 +716,10 @@
 
         const dx = Math.abs(touchCurrentX - touchStartX);
         const dy = Math.abs(touchCurrentY - touchStartY);
+
+        if (dx > 10 || dy > 10) {
+            touchMovedSignificant = true; // BUG-029: Lock out synthetic clicks
+        }
 
         if (typeof window !== "undefined" && !draggingTaskId) {
             ((window as any)._logs = (window as any)._logs || []).push(
@@ -988,6 +994,10 @@
         const dx = Math.abs(touchCurrentX - touchStartX);
         const dy = Math.abs(touchCurrentY - touchStartY);
 
+        if (dx > 10 || dy > 10) {
+            touchMovedSignificant = true; // BUG-029: track here too, in case pointer events are squelched
+        }
+
         if (draggingTaskId) {
             if (e.cancelable) e.preventDefault();
         } else if (swipingTaskId && (dx > 10 || dy > 10)) {
@@ -1002,6 +1012,17 @@
             return;
         }
         if (editingIndex !== -1 || editingStartTimeIndex !== -1) return;
+
+        // BUG-029: Disambiguate scroll/drag vs tap
+        if (touchMovedSignificant) {
+            if (logger && internalSettings.debug)
+                logger.info(
+                    `[GESTURE] handleTap BLOCKED by significant touch movement`,
+                );
+            touchMovedSignificant = false; // Reset after consuming synthetic click
+            return;
+        }
+
         if (typeof window !== "undefined")
             ((window as any)._logs = (window as any)._logs || []).push(
                 `[StackView] handleTap: index=${index}, focused=${focusedIndex}, event=${e.type}, x=${e.clientX}, y=${e.clientY}, detail=${e.detail}, button=${e.button}, target=${(e.target as HTMLElement).tagName}`,
