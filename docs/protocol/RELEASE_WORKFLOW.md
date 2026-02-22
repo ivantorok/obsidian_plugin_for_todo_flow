@@ -17,6 +17,9 @@ We use the `ship.sh` script to automate the entire process. This script ensures 
 - **Mission Log Audit**: The **Release Manager** (or you) MUST review `docs/protocol/roles/common/MISSION_LOG.md` to ensure the "Chain of Custody" is intact.
 
 
+### Doc-Only Exemption
+Commits that **only** modify files in `docs/`, `*.md` at the root level, or other non-source artifacts are **exempt** from the Continuous Ship-on-Green policy. These commits do not require a version bump or `./ship.sh` invocation. The `ship.sh` script already skips the test suite for non-source changes.
+
 ### Usage
 ```bash
 ./ship.sh "optional commit message"

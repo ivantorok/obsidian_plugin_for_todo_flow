@@ -32,19 +32,17 @@ This document tracks bugs and feature requests. To request work, add an item her
 | FEAT-008 | Mobile Stack Parity & Refinements | Feat | [Spec](./backlog/FEAT-008_mobile_stack_parity.md) | v1.2.73 |
 | BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-11 | **[PLANNED]** |
 | BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-11 | **[PLANNED]** |
-| BUG-022 | Quick Add Optimistic ID Race Condition | Bug | [Spec](./backlog/BUG-022_optimistic_id_race_condition.md) | 2026-02-20 | v1.2.78 |
-| BUG-023 | Sync Window Race Condition | Bug | [Spec](./backlog/BUG-023_sync_window_race_condition.md) | 2026-02-20 | v1.2.78 |
+| BUG-022 | Quick Add Optimistic ID Race Condition | Bug | [Spec](./archive/backlog/BUG-022_optimistic_id_race_condition.md) | 2026-02-20 | v1.2.78 |
+| BUG-023 | Sync Window Race Condition | Bug | [Spec](./archive/backlog/BUG-023_sync_window_race_condition.md) | 2026-02-20 | v1.2.78 |
 | STAB-01 | E2E Stabilization (Rollup & Race Conditions) | Bug | - | 2026-02-12 | v1.2.42 |
 
 ### Phase 3: Component Polishing (The Presentation)
-| ID | Title | Type | Spec |
-| :--- | :--- | :--- | :--- |
-| BUG-006 | Mobile: Drag & Drop Precision & Selection | Bug | [Spec](./archive/backlog/BUG-006_mobile_drag_precision_selection.md) | v1.2.73 |
-| BUG-007 | Sync: External file edits refresh failure | Bug | [Spec](./archive/backlog/BUG-007_external_edit_refresh_failure.md) | 2026-02-06 | **[MOVED]** |
+| ID | Title | Type | Spec | Date | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| BUG-006 | Mobile: Drag & Drop Precision & Selection | Bug | [Spec](./archive/backlog/BUG-006_mobile_drag_precision_selection.md) | 2026-02-11 | v1.2.73 |
 | BUG-008 | Desktop: Duration buttons broken | Bug | [Spec](./archive/backlog/BUG-008_desktop_duration_buttons_broken.md) | 2026-02-06 | v1.2.37 |
-| BUG-009 | Sync: CurrentStack.md discrepancy & overwrite | Bug | [Spec](./archive/backlog/BUG-009_sync_discrepancy_overwrite.md) | 2026-02-06 | **[MOVED]** |
-| FIX-01 | Smart Import Folder Bug | Bug | - | 2026-02-01 |
-| FIX-02 | Rename Test Stability | Bug | - | 2026-02-01 |
+| FIX-01 | Smart Import Folder Bug | Bug | - | 2026-02-01 | |
+| FIX-02 | Rename Test Stability | Bug | - | 2026-02-01 | |
 
 ### Phase 4: Strategic Performance
 | ID | Title | Type | Spec |
@@ -57,15 +55,15 @@ This document tracks bugs and feature requests. To request work, add an item her
 ### Phase 5: Mobile UX Polish (2026-02-22 Live Session Feedback)
 | ID | Title | Type | Spec | Priority |
 | :--- | :--- | :--- | :--- | :--- |
-| BUG-024 | ✅ Dump — Missing "Finish" Button | Bug | [Spec](./backlog/BUG-024_dump_missing_finish_button.md) | High |
-| BUG-025 | Triage — "Shortlist All" Bulk Action | Feat | [Spec](./backlog/BUG-025_triage_select_all_shortlist.md) | Medium |
-| BUG-026 | ✅ Stack View — Pink Background Present | Bug | [Spec](./backlog/BUG-026_stack_pink_background.md) | High |
-| BUG-027 | ✅ Daily Stack — Opens in Card Mode (Should Be List) | Bug | [Spec](./backlog/BUG-027_stack_opens_in_card_mode.md) | **Critical** |
-| BUG-028 | ✅ Header Bar — Excessive Height | Bug | [Spec](./backlog/BUG-028_header_bar_too_thick.md) | High |
-| BUG-029 | ✅ Touch — Any Touch Opens Task Unintentionally | Bug | [Spec](./backlog/BUG-029_tap_opens_task_unintentionally.md) | **Critical** |
-| BUG-030 | ✅ Editing Element Scrolls Behind Header | Bug | [Spec](./backlog/BUG-030_edit_scrolls_behind_header.md) | High |
-| BUG-031 | ✅ Text Clipping on Two-Line Card Titles | Bug | [Spec](./backlog/BUG-031_text_clipping_two_lines.md) | Medium |
-| BUG-032 | ✅ Start Time Edit Does Not Anchor Task | Bug | [Spec](./backlog/BUG-032_start_time_edit_no_anchor.md) | High |
+| BUG-024 | ✅ Dump — Missing "Finish" Button | Bug | [Spec](./archive/backlog/BUG-024_dump_missing_finish_button.md) | High | v1.2.80 |
+| BUG-025 | Triage — "Shortlist All" Bulk Action | Feat | [Spec](./backlog/BUG-025_triage_select_all_shortlist.md) | Medium | **[PLANNED]** |
+| BUG-026 | ✅ Stack View — Pink Background Present | Bug | [Spec](./archive/backlog/BUG-026_stack_pink_background.md) | High | v1.2.80 |
+| BUG-027 | ✅ Daily Stack — Opens in Card Mode (Should Be List) | Bug | [Spec](./archive/backlog/BUG-027_stack_opens_in_card_mode.md) | **Critical** | v1.2.80 |
+| BUG-028 | ✅ Header Bar — Excessive Height | Bug | [Spec](./archive/backlog/BUG-028_header_bar_too_thick.md) | High | v1.2.80 |
+| BUG-029 | ✅ Touch — Any Touch Opens Task Unintentionally | Bug | [Spec](./archive/backlog/BUG-029_tap_opens_task_unintentionally.md) | **Critical** | v1.2.80 |
+| BUG-030 | ✅ Editing Element Scrolls Behind Header | Bug | [Spec](./archive/backlog/BUG-030_edit_scrolls_behind_header.md) | High | v1.2.80 |
+| BUG-031 | ✅ Text Clipping on Two-Line Card Titles | Bug | [Spec](./archive/backlog/BUG-031_text_clipping_two_lines.md) | Medium | v1.2.80 |
+| BUG-032 | ✅ Start Time Edit Does Not Anchor Task | Bug | [Spec](./archive/backlog/BUG-032_start_time_edit_no_anchor.md) | High | v1.2.80 |
 | *(overlap)* | Drag-then-open intent bleed | — | → Extends BUG-029 | — |
 | *(overlap)* | Reorder auto-scroll conflict | — | → Extends BUG-006 | — |
 | *(overlap)* | Default mode ambiguity (Triage/Stack) | — | → Addressed by BUG-027 + FEAT-010 | — |
