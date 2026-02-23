@@ -24,56 +24,59 @@ type TaskRegistry = Map<string, TaskNode>;
 
 
 /**
- * getMinDurationWithAudit: BFS traversal to sum reachable TODO subtasks and track reasons.
- * Uses a registry if provided to ensure it uses the most up-to-date version of a node (e.g. from the active stack).
+ * getMinDurationWithAudit: Flat sum of all unique reachable TODO nodes' own durations.
+ * 
+ * DESIGN DECISION:
+ * We use the 'duration' field of leaf nodes because it is the active operational value
+ * (updated by 'f'/'s' keys and UI edits). For intermediate nodes with children, 
+ * we use 'originalDuration' (the overhead defined in the file) if present.
  */
 function getMinDurationWithAudit(root: TaskNode, registry?: TaskRegistry): { total: number, trace: string[] } {
-    // Note: We still prune DONE children during traversal, but we allow the root to traverse 
-    // its children even if the root itself is DONE (for historical roll-up display).
-
     let total = 0;
     const trace: string[] = [];
-    const visited = new Set<string>([root.id]);
-    const queue: TaskNode[] = [];
-
-    if (root.children) {
-        for (const child of root.children) {
-            queue.push(child);
-        }
-    }
+    const visited = new Set<string>();
+    const queue: TaskNode[] = [root];
 
     while (queue.length > 0) {
         let current = queue.shift()!;
 
-        // Use the registry version if available (ensures we see scaled/updated values from the same list)
+        // Resolve latest version from registry if available
         if (registry?.has(current.id)) {
             current = registry.get(current.id)!;
         }
 
-        if (visited.has(current.id)) {
-            trace.push(`Skipped ${current.title}: already visited`);
-            continue;
-        }
+        // Skip if already counted
+        if (visited.has(current.id)) continue;
+        visited.add(current.id);
 
         if (current.status === 'done') {
             trace.push(`Pruned ${current.title}: status is done`);
-            visited.add(current.id); // Also mark as visited to prevent re-entry from other paths
             continue;
         }
 
-        visited.add(current.id);
-        // Use originalDuration as the "own" contribution of this node.
-        // If it's missing, we only trust duration if the node is a leaf (likely not a rollup).
-        const contribution = current.originalDuration ?? (current.children?.length === 0 ? current.duration : 0);
-        total += contribution;
-        if (contribution > 0) trace.push(`+${contribution}m from ${current.title}`);
+        // AUDIT RULE:
+        // 1. If leaf node: use its 'duration' (active source of truth for leaf).
+        // 2. If non-leaf: use 'originalDuration' if present (additional overhead).
+        // This prevents double-counting because 'duration' of a parent contains its children.
+        const isLeaf = !current.children || current.children.length === 0;
+        const ownContribution = isLeaf ? current.duration : (current.originalDuration ?? 0);
 
+        total += ownContribution;
+        if (ownContribution > 0) {
+            trace.push(`+${ownContribution}m from ${current.title}`);
+        }
+
+        // Queue children for traversal
         if (current.children) {
             for (const child of current.children) {
                 queue.push(child);
             }
         }
     }
+
+    const logMsg = `[RollupTrace] getMinDurationWithAudit for ${root.id} (${root.title}). final: ${total}`;
+    if (typeof window !== 'undefined' && (window as any)._logs) (window as any)._logs.push(logMsg);
+    console.log(logMsg);
 
     return { total, trace };
 }
@@ -83,146 +86,99 @@ export function getMinDuration(root: TaskNode): number {
 }
 
 export function getTotalGreedyDuration(root: TaskNode, registry?: TaskRegistry): { total: number, trace: string[] } {
-    const ownDuration = root.originalDuration ?? root.duration;
-    const subtaskResult = getMinDurationWithAudit(root, registry);
-    const total = ownDuration + subtaskResult.total;
-
-    const trace = [`Base: ${ownDuration}m`, ...subtaskResult.trace];
+    const result = getMinDurationWithAudit(root, registry);
     if (root.status === 'done') {
-        trace.push(`Note: Status is DONE - This ${total}m is for display only and consumes 0m in schedule.`);
+        result.trace.push(`Note: Status is DONE - This ${result.total}m is for display only and consumes 0m in schedule.`);
     }
-
-    return { total, trace };
+    return result;
 }
 
 export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, options?: { highPressure?: boolean }): TaskNode[] {
-    if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[Scheduler] computeSchedule entry. Tasks: ${tasks.length}, HighPressure: ${!!options?.highPressure}`);
-    // 1. Identify all anchored "Rocks" and resolve collisions between them (Pushing Rocks)
-    // We want rocks to form a solid chain if they overlap.
-    const rocks = tasks
-        .filter(t => t.isAnchored && t.startTime);
-
-    // Sort rocks effectively by their start time to process them in order
+    const rocks = tasks.filter(t => t.isAnchored && t.startTime);
     rocks.sort((a, b) => a.startTime!.valueOf() - b.startTime!.valueOf());
 
     const resolvedRockTimes = new Map<string, moment.Moment>();
-    let shiftBase = moment(currentTime).subtract(10, 'years'); // effectively -infinity relative to schedule
+    let shiftBase = moment(currentTime).subtract(10, 'years');
 
-    // Pass 1: Resolve overlaps among rocks
     for (const rock of rocks) {
         let start = moment(rock.startTime!);
-
-        // If this rock starts before the previous rock ends, push it
         if (start.isBefore(shiftBase)) {
             start = moment(shiftBase);
         }
-
         resolvedRockTimes.set(rock.id, start);
         const duration = rock.originalDuration ?? rock.duration;
         shiftBase = moment(start).add(duration, 'minutes');
     }
 
-    // Rocks are now non-overlapping.
-    // Re-map rocks for the collision detector
-    const rockBlocks = rocks.map(t => {
-        const resolvedStart = resolvedRockTimes.get(t.id) || moment(t.startTime!);
-        return {
-            start: moment(resolvedStart),
-            end: moment(resolvedStart).add(t.originalDuration ?? t.duration, 'minutes')
-        };
+    let playhead = moment(currentTime);
+    const scheduled: TaskNode[] = [];
+    const sortedTasks = [...tasks].sort((a, b) => {
+        if (a.isAnchored && !b.isAnchored) return -1;
+        if (!a.isAnchored && b.isAnchored) return 1;
+        if (a.isAnchored && b.isAnchored) {
+            return (a.startTime?.valueOf() ?? 0) - (b.startTime?.valueOf() ?? 0);
+        }
+        return 0;
     });
 
-    let playhead = moment(currentTime);
+    const registry: TaskRegistry = new Map(tasks.map(t => [t.id, t]));
 
-    // Create registry for cross-node lookups during rollup
-    const registry: TaskRegistry = new Map();
-    for (const t of tasks) {
-        registry.set(t.id, t);
-    }
+    for (const t of sortedTasks) {
+        let totalDuration = 0;
+        let trace: string[] = [];
+        const isLeaf = !t.children || t.children.length === 0;
+        const hasChildren = t.children && t.children.length > 0;
+        const shouldAudit = !options?.highPressure || isLeaf || t.originalDuration !== undefined || hasChildren;
 
-    const result: TaskNode[] = tasks.map(t => {
-        // Base case: If we have children, duration is SUSPECT unless originalDuration is present.
-        const ownDuration = t.originalDuration ?? ((!t.children || t.children.length === 0) ? t.duration : 0);
-
-        let totalDuration = t.duration;
-        let trace = t.trace || [];
-
-        // OPTIMIZATION: In high-pressure mode (e.g. during a gesture), skip expensive BFS duration audits
-        if (!options?.highPressure) {
+        if (shouldAudit) {
             const audit = getTotalGreedyDuration(t, registry);
             totalDuration = audit.total;
             trace = audit.trace;
         } else {
-            // Force a minimal duration if it's missing but has children (placeholder)
             if (t.children && t.children.length > 0 && t.duration === 0) {
-                totalDuration = 5; // Minimal sensible default during jank-prevention
+                totalDuration = 5;
+            } else {
+                totalDuration = t.duration;
             }
         }
 
-        // Use resolved rock time if it exists, otherwise use original
-        const resolvedStart = resolvedRockTimes.get(t.id) || (t.startTime ? moment(t.startTime) : undefined);
-
-        return {
-            ...t,
-            originalDuration: ownDuration,
-            duration: totalDuration,
-            trace: trace,
-            startTime: resolvedStart
-        };
-    });
-
-    // 2. Iterate through all tasks in their stream order
-    for (let i = 0; i < result.length; i++) {
-        const task = result[i]!;
-
-        if (task.isAnchored) {
-            // Rock: stays where it is. We don't move the playhead here 
-            // unless we want floating tasks to always follow the last Rock they pass.
-            // Actually, if a Rock exists, the playhead should probably be at least at its end
-            // for any SUBSEQUENT tasks in the list.
-            if (task.startTime) {
-                const rockEnd = moment(task.startTime).add(task.duration, 'minutes');
-                if (rockEnd.isAfter(playhead)) {
-                    // playhead = rockEnd; // Optional: should water ALWAYS follow rocks in the list?
-                    // User says: "fill the time before in between and after the anchored tasks according to their original order."
-                    // This implies the playhead keeps moving forward, but can fill earlier gaps.
+        if (t.isAnchored && t.startTime) {
+            const rockStart = resolvedRockTimes.get(t.id)!;
+            scheduled.push({
+                ...t,
+                startTime: rockStart,
+                duration: totalDuration,
+                trace
+            });
+            const rockEnd = moment(rockStart).add(totalDuration, 'minutes');
+            if (rockEnd.isAfter(playhead)) {
+                playhead = moment(rockEnd);
+            }
+        } else {
+            let foundSlot = false;
+            while (!foundSlot) {
+                foundSlot = true;
+                for (const rock of rocks) {
+                    const rStart = resolvedRockTimes.get(rock.id)!;
+                    const rockDuration = rock.originalDuration ?? rock.duration;
+                    const rEnd = moment(rStart).add(rockDuration, 'minutes');
+                    const potentialEnd = moment(playhead).add(totalDuration, 'minutes');
+                    if (playhead.isBefore(rEnd) && potentialEnd.isAfter(rStart)) {
+                        playhead = moment(rEnd);
+                        foundSlot = false;
+                        break;
+                    }
                 }
             }
-            continue;
-        }
-
-        // 3. Floating task: Find the first available gap that fits its duration
-        let foundSlot = false;
-        while (!foundSlot) {
-            const start = moment(playhead);
-            const effectiveDuration = task.status === 'done' ? 0 : task.duration;
-            const end = moment(playhead).add(effectiveDuration, 'minutes');
-
-            // Find any rock that overlaps with this proposed slot
-            const collision = rockBlocks.find(rock =>
-                (start.isBefore(rock.end) && end.isAfter(rock.start))
-            );
-
-            if (collision) {
-                // If collision, jump playhead to the end of the rock and check again
-                playhead = moment(collision.end);
-            } else {
-                // No collision! This is our slot.
-                task.startTime = start;
-                playhead = end;
-                foundSlot = true;
-            }
+            scheduled.push({
+                ...t,
+                startTime: moment(playhead),
+                duration: totalDuration,
+                trace
+            });
+            playhead.add(totalDuration, 'minutes');
         }
     }
 
-    // Use original array index as a tie-breaker for stable sort
-    const withIndex = result.map((t, i) => ({ t, i }));
-    withIndex.sort((a, b) => {
-        const timeA = a.t.startTime ? a.t.startTime.valueOf() : Number.MAX_SAFE_INTEGER;
-        const timeB = b.t.startTime ? b.t.startTime.valueOf() : Number.MAX_SAFE_INTEGER;
-        if (timeA !== timeB) return timeA - timeB;
-        return a.i - b.i;
-    });
-
-    return withIndex.map(x => x.t);
+    return scheduled;
 }

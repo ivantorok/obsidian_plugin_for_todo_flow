@@ -8,13 +8,18 @@ describe('Phase 4: Skeptical Specs - Rapid QuickAdd Action Queue', () => {
     });
 
     it('should queue and replay actions taken on a temporary ID during task creation', async () => {
+        // 0. Open Stack and Wait for UI
         // @ts-ignore
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
+
+        const mainView = await $('[data-ui-ready="true"]');
+        await mainView.waitForExist();
+        await mainView.click();
 
         // 1. Trigger QuickAdd
         // @ts-ignore
         await browser.keys(['c']);
-        const input = await $('input[type="text"]');
+        const input = await $('.prompt-input');
         await input.waitForExist();
         await input.setValue('RapidTask');
 
@@ -24,7 +29,7 @@ describe('Phase 4: Skeptical Specs - Rapid QuickAdd Action Queue', () => {
         await browser.keys(['Enter']);
 
         // Small pause to allow the Submit to trigger the UI update but BEFORE it resolves
-        await browser.pause(200);
+        await browser.pause(500);
 
         // Mark as done immediately
         // @ts-ignore

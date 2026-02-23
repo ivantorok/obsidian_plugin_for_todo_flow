@@ -38,11 +38,23 @@ export class HandoffOrchestrator {
         }
 
         workspace.revealLeaf(leaf);
+        workspace.setActiveLeaf(leaf, { focus: true });
     }
 
     async activateTriage(tasks: TaskNode[]) {
         const { workspace } = this.app;
-        let leaf = workspace.getLeaf(true);
+
+        let leaf: WorkspaceLeaf;
+        const leaves = workspace.getLeavesOfType(VIEW_TYPE_TRIAGE);
+
+        if (leaves.length > 0) {
+            leaf = leaves[0]!;
+            this.logger.info(`[HandoffOrchestrator] Reusing existing TriageView leaf.`);
+        } else {
+            this.logger.info(`[HandoffOrchestrator] Creating new TriageView leaf.`);
+            leaf = workspace.getLeaf('tab');
+        }
+
         this.logger.info(`[HandoffOrchestrator] activateTriage: Initializing session with ${tasks.length} tasks.`);
 
         const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
@@ -131,6 +143,7 @@ export class HandoffOrchestrator {
         );
         await leaf.open(view);
         workspace.revealLeaf(leaf);
+        workspace.setActiveLeaf(leaf, { focus: true });
     }
 
     async activateStack(input: string | string[], backingFile?: string) {
@@ -142,8 +155,10 @@ export class HandoffOrchestrator {
         const leaves = workspace.getLeavesOfType(VIEW_TYPE_STACK);
         if (leaves.length > 0) {
             leaf = leaves[0]!;
+            this.logger.info(`[HandoffOrchestrator] Reusing existing StackView leaf.`);
         } else {
-            leaf = workspace.getLeaf(true);
+            this.logger.info(`[HandoffOrchestrator] Creating new StackView leaf.`);
+            leaf = workspace.getLeaf('tab');
         }
 
         let state: any = { active: true };
@@ -180,6 +195,7 @@ export class HandoffOrchestrator {
         });
 
         workspace.revealLeaf(leaf);
+        workspace.setActiveLeaf(leaf, { focus: true });
     }
 
     async syncTaskToNote(task: TaskNode) {

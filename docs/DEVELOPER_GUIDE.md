@@ -435,6 +435,19 @@ For features that are hard to verify via UI (like shortcut interception), expose
 - **Lesson**: Commands often change the data structure, which causes the controller to re-schedule/re-sort tasks.
 - **Rule**: Handlers (Keyboard or Gesture) MUST query the command's `resultIndex` after execution and update the reactive `focusedIndex`. Relying on the "previous index" after a sort leads to phantom selections.
 
-**Last Updated:** 2026-02-10
+### 9. View Lifecycle & Singletons
+To prevent DOM duplication and state conflicts (especially during external sync events), the plugin enforces a **Singleton View** pattern for its primary interfaces (`StackView`, `TriageView`).
 
-**Maintained By:** Development Team
+- **Rule**: `HandoffOrchestrator` must check `workspace.getLeavesOfType(TYPE)` before creating a new leaf.
+- **Implementation**:
+  ```typescript
+  const leaves = workspace.getLeavesOfType(VIEW_TYPE_STACK);
+  if (leaves.length > 0) {
+      leaf = leaves[0];
+  } else {
+      leaf = workspace.getLeaf('tab');
+  }
+  ```
+- **Sync Guard**: Views that handle persistence must use an `isReloading` flag to block local saves while an external disk refresh is in progress. This prevents "Save Loops" where the plugin overwrites incoming sync changes with stale in-memory data.
+
+**Last Updated:** 2026-02-23

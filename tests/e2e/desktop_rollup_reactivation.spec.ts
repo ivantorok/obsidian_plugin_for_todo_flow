@@ -6,6 +6,7 @@ describe('BUG-00X: Rollup Reactivation', () => {
     before(async () => {
         // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
+        await browser.pause(2000);
 
         // Ensure Plugin Settings are configured
         await browser.execute(async () => {
@@ -17,6 +18,18 @@ describe('BUG-00X: Rollup Reactivation', () => {
                 await plugin.saveSettings();
             }
         });
+    });
+
+    beforeEach(async () => {
+        // Soft reload to ensure clean UI state
+        await browser.executeAsync(async (done: any) => {
+            // @ts-ignore
+            const plugins = (app as any).plugins;
+            await plugins.disablePlugin('todo-flow');
+            await plugins.enablePlugin('todo-flow');
+            done();
+        });
+        await browser.pause(1000);
     });
 
     it('should maintain child duration when parent is marked done and then undone', async () => {

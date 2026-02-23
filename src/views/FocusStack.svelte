@@ -40,6 +40,10 @@
     export function getFocusedIndex() {
         return focusedIndex;
     }
+
+    export function getController() {
+        return controller;
+    }
 </script>
 
 <div class="todo-flow-timeline mode-focus" data-testid="stack-container" data-view-type="focus" data-task-count={tasks.length}>
@@ -58,6 +62,12 @@
             onclick={(e) => {
                 if (task.id.startsWith("temp-")) return;
                 onTap(e, task, focusedIndex);
+            }}
+            onkeydown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    if (task.id.startsWith("temp-")) return;
+                    onTap(e as any, task, focusedIndex);
+                }
             }}
             style="touch-action: pan-y; pointer-events: {task.id.startsWith(
                 'temp-',
@@ -162,7 +172,7 @@
     {:else}
         <!-- ZEN MODE: Focus Card -->
         <div
-            class="todo-flow-task-card focus-card zen-card"
+            class="todo-flow-task-card focus-card zen-card empty-state"
             data-testid="zen-card"
         >
             <div class="zen-icon">✨</div>

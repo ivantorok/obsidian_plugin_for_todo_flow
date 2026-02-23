@@ -28,7 +28,7 @@
         DOUBLE_TAP_WINDOW,
     } from "../gestures.js";
     import { type StackUIState } from "./ViewTypes.js";
-    let {
+const {
         navState = $bindable(),
         settings,
         executeGestureAction,
@@ -51,6 +51,7 @@
         app,
         debug = true,
         controller,
+        persistenceService,
         ...restProps
     } = $props();
 
@@ -86,8 +87,14 @@
             const shouldFocus = () => {
                 const activeEl = document.activeElement;
                 // Focus if: not already focused, not in an input field, or if body/null (focus lost)
+                // Hardened check: Ensure we don't steal focus from OUR OWN internal inputs
+                // (rename-input or todo-flow-time-input)
+                const isInternalInput = activeEl?.classList.contains('rename-input') || 
+                                      activeEl?.classList.contains('todo-flow-time-input');
+
                 return (
                     activeEl !== containerEl &&
+                    !isInternalInput &&
                     !(activeEl instanceof HTMLInputElement) &&
                     !(activeEl instanceof HTMLTextAreaElement)
                 );
@@ -378,7 +385,7 @@
             );
         navState.tasks = controller.getTasks();
         if (onTaskUpdate) onTaskUpdate(navState.tasks);
-        if (onStackChange) onStackChange(navState.tasks);
+        if (onStackChange) onStackChange(navState.tasks, navState.focusedIndex);
         if (onFocusChange) onFocusChange(navState.focusedIndex);
         if (typeof window !== "undefined" && (window as any)._logs)
             (window as any)._logs.push(
@@ -458,7 +465,7 @@
             return;
         }
 
-        const task = tasks.find((t) => t.id === id);
+        const task = navState.tasks.find((t) => t.id === id);
         if (!task || id.startsWith("temp-")) {
             if (logger)
                 logger.info(
@@ -480,7 +487,7 @@
                         `[StackView.svelte] Executing RenameTaskCommand for ID ${id}`,
                     );
 
-                const index = tasks.findIndex((t) => t.id === id);
+                const index = navState.tasks.findIndex((t) => t.id === id);
                 if (index === -1) return;
 
                 const cmd = new RenameTaskCommand(controller, index, newTitle);
@@ -529,7 +536,7 @@
                 );
             return;
         }
-        const index = tasks.findIndex((t) => t.id === id);
+        const index = navState.tasks.findIndex((t) => t.id === id);
         if (index === -1) return;
 
         try {
@@ -615,7 +622,7 @@
                     const dx = Math.abs(touchCurrentX - touchStartX);
                     const dy = Math.abs(touchCurrentY - touchStartY);
                     if (dx < 20 && dy < 20) {
-                        const index = tasks.findIndex(
+                        const index = navState.tasks.findIndex(
                             (t) => t.id === swipingTaskId,
                         );
 
@@ -684,7 +691,7 @@
             // Immediate lock if on handle
             // OR if vertical movement is significantly greater than horizontal
             if (startedOnHandle || dy > dx * 1.2) {
-                const index = tasks.findIndex((t) => t.id === swipingTaskId);
+                const index = navState.tasks.findIndex((t) => t.id === swipingTaskId);
                 if (index !== -1 && !tasks[index]!.isAnchored) {
                     // Start dragging immediately
                     draggingTaskId = swipingTaskId;
@@ -1021,6 +1028,9 @@
             new (window as any).Notice("Syncing in progress. Please wait...");
             return;
         }
+
+        let initialFocus = navState.focusedIndex;
+
         if (logger && internalSettings.debug)
             logger.info(
                 `[TODO_FLOW_TRACE] handleKeyDown entry: key="${e.key}", shift=${e.shiftKey}, target=${(e.target as HTMLElement).tagName}, active=${document.activeElement?.tagName}`,
@@ -1171,6 +1181,12 @@
 
             case "CONFIRM":
                 const navResult = controller.handleEnter(navState.focusedIndex);
+                if (typeof window !== "undefined") {
+                    const task = navState.tasks[navState.focusedIndex];
+                    ((window as any)._logs = (window as any)._logs || []).push(
+                        `[ArchitectStack] CONFIRM for ${task?.id}. action=${navResult?.action}, children=${task?.children?.length}`,
+                    );
+                }
                 if (navResult && navResult.action === "DRILL_DOWN") {
                     const task = navState.tasks[navState.focusedIndex];
                     if (task && onNavigate) {
@@ -1179,13 +1195,13 @@
                 }
                 break;
             case "NAV_DOWN":
-                if (navState.tasks.length > 0) {
-                    navState.focusedIndex = Math.min(navState.tasks.length - 1, navState.focusedIndex + 1);
+                if (controller.getTasks().length > 0) {
+                    navState.focusedIndex = Math.min(controller.getTasks().length - 1, navState.focusedIndex + 1);
                     if (onFocusChange) onFocusChange(navState.focusedIndex);
                 }
                 break;
             case "NAV_UP":
-                if (navState.tasks.length > 0) {
+                if (controller.getTasks().length > 0) {
                     navState.focusedIndex = Math.max(0, navState.focusedIndex - 1);
                     if (onFocusChange) onFocusChange(navState.focusedIndex);
                 }
@@ -1197,6 +1213,7 @@
                     "down",
                 );
                 await historyManager.executeCommand(cmdDown);
+                if (typeof window !== "undefined") ((window as any)._logs = (window as any)._logs || []).push(`[DEBUG] moveDown resultIndex: ${cmdDown.resultIndex}, pre-focus: ${navState.focusedIndex}`);
                 if (cmdDown.resultIndex !== null) {
                     navState.focusedIndex = cmdDown.resultIndex;
                 }
@@ -1296,6 +1313,7 @@
                             async (t) => {
                                 await onTaskUpdate(t);
                             },
+                            persistenceService,
                         ),
                     );
                     navState.focusedIndex = Math.max(
@@ -1313,6 +1331,10 @@
                     onExport(navState.tasks);
                 }
                 break;
+        }
+
+        if (initialFocus !== navState.focusedIndex && onFocusChange) {
+            onFocusChange(navState.focusedIndex);
         }
     }
 
@@ -1349,123 +1371,6 @@
     role="application"
     onkeydown={handleKeyDown}
 >
-    {#if internalNow}
-        <div class="todo-flow-stack-header">
-            <div class="header-left">
-                {#if internalCanGoBack}
-                    <button
-                        class="back-nav-btn"
-                        onclick={syncGuard(onGoBack)}
-                        title="Go back to parent"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            ><line x1="19" y1="12" x2="5" y2="12"
-                            ></line><polyline points="12 19 5 12 12 5"
-                            ></polyline></svg
-                        >
-                    </button>
-                {/if}
-
-                <div class="breadcrumb-trail">
-                    {#if navigationHistory.length > 0}
-                        <span class="breadcrumb-item root" onclick={onGoBack}
-                            >...</span
-                        >
-                        <span class="breadcrumb-separator">/</span>
-                    {/if}
-                    {#if internalParentTaskName}
-                        <span
-                            class="breadcrumb-item active"
-                            data-testid="header-parent-name"
-                            >{internalParentTaskName}</span
-                        >
-                    {/if}
-                </div>
-            </div>
-
-            <div class="header-right">
-                <span
-                    class="sync-sentry"
-                    class:is-active={isSyncing}
-                    data-testid="sync-sentry"
-                    data-is-active={isSyncing}
-                    title={isSyncing
-                        ? "Obsidian Sync Active"
-                        : "Obsidian Sync Idle"}>☁️</span
-                >
-                <button
-                    class="mode-toggle-btn"
-                    class:is-active={navState.viewMode === "focus"}
-                    onclick={() =>
-                        (navState.viewMode =
-                            navState.viewMode === "focus" ? "architect" : "focus")}
-                    title={navState.viewMode === "focus"
-                        ? "Switch to Architect View"
-                        : "Switch to Focus View"}
-                >
-                    {#if navState.viewMode === "focus"}
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            ><line x1="8" y1="6" x2="21" y2="6"></line><line
-                                x1="8"
-                                y1="12"
-                                x2="21"
-                                y2="12"
-                            ></line><line x1="8" y1="18" x2="21" y2="18"
-                            ></line><line x1="3" y1="6" x2="3.01" y2="6"
-                            ></line><line x1="3" y1="12" x2="3.01" y2="12"
-                            ></line><line x1="3" y1="18" x2="3.01" y2="18"
-                            ></line></svg
-                        >
-                    {:else}
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            ><rect
-                                x="3"
-                                y="3"
-                                width="18"
-                                height="18"
-                                rx="2"
-                                ry="2"
-                            ></rect><line x1="3" y1="9" x2="21" y2="9"
-                            ></line><line x1="9" y1="21" x2="9" y2="9"
-                            ></line></svg
-                        >
-                    {/if}
-                </button>
-                <span class="header-index" title="Current Task Position">
-                    {navState.focusedIndex + 1} <span class="index-separator">/</span>
-                    {navState.tasks.length}
-                </span>
-                <span class="header-time">{internalNow.format("HH:mm")}</span>
-            </div>
-        </div>
-    {/if}
     <div class="todo-flow-timeline">
         <ArchitectStackTemplate
             tasks={navState.tasks}
@@ -1670,200 +1575,6 @@
         user-select: none !important;
     }
 
-    .todo-flow-stack-header {
-        position: sticky;
-        top: -2.05rem; /* Tiny offset to prevent sub-pixel gaps */
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.75rem 1rem;
-        margin: -2rem -2rem 2rem -2rem;
-        background: var(--background-primary-alt);
-        border-bottom: 1px solid var(--background-modifier-border);
-        min-height: 48px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-
-    /* BUG-028: slim header on mobile */
-    @media (max-width: 600px) {
-        .todo-flow-stack-header {
-            padding: 0.4rem 0.75rem;
-            min-height: 44px;
-        }
-    }
-
-    .header-index {
-        font-family: var(--font-monospace);
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin-right: 0.75rem;
-        font-weight: 600;
-        opacity: 0.8;
-    }
-
-    .index-separator {
-        opacity: 0.5;
-        margin: 0 2px;
-    }
-
-    .back-nav-btn {
-        position: absolute;
-        left: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--background-secondary);
-        border: 1px solid var(--background-modifier-border);
-        border-radius: 6px;
-        padding: 4px 10px;
-        color: var(--text-normal);
-        font-size: 0.85rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .back-nav-btn:hover {
-        background: var(--background-modifier-border-hover);
-        border-color: var(--interactive-accent);
-        transform: translateX(-2px);
-    }
-
-    .back-nav-btn svg {
-        color: var(--text-accent);
-    }
-
-    .header-parent-name {
-        font-weight: 700;
-        color: var(--text-normal);
-        font-size: 0.95rem;
-        margin-right: 0.75rem;
-        max-width: 40%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        background: var(--background-modifier-border);
-        padding: 2px 8px;
-        border-radius: 4px;
-        opacity: 0.9;
-    }
-
-    .header-time {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-weight: 600;
-        opacity: 0.8;
-    }
-
-    .breadcrumb-trail {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        margin-left: 2.5rem; /* Space for the back button */
-    }
-
-    .breadcrumb-item {
-        cursor: pointer;
-        max-width: 120px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        transition: color 0.2s;
-    }
-
-    .breadcrumb-item:hover {
-        color: var(--text-accent);
-    }
-
-    .breadcrumb-item.active {
-        color: var(--text-normal);
-        font-weight: 600;
-        cursor: default;
-    }
-
-    .breadcrumb-separator {
-        opacity: 0.5;
-    }
-
-    .sync-sentry {
-        font-size: 1.1rem;
-        margin-right: 0.75rem;
-        opacity: 0.3;
-        filter: grayscale(1);
-        transition: all 0.3s ease;
-    }
-
-    .sync-sentry.is-active {
-        filter: grayscale(0);
-        opacity: 1;
-        animation: pulse 2s infinite ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            opacity: 0.6;
-        }
-        50% {
-            transform: scale(1.2);
-            opacity: 1;
-        }
-        100% {
-            transform: scale(1);
-            opacity: 0.6;
-        }
-    }
-
-    .todo-flow-stack-container.is-syncing {
-        cursor: wait !important;
-    }
-
-    .todo-flow-stack-container.is-syncing * {
-        pointer-events: none !important;
-        cursor: wait !important;
-        opacity: 0.8;
-    }
-
-    .todo-flow-stack-container.is-syncing .todo-flow-stack-header {
-        pointer-events: auto !important; /* Allow header interactions if needed, or keep it responsive */
-    }
-
-    .todo-flow-stack-container.is-syncing .header-right {
-        opacity: 1 !important;
-    }
-
-    .mode-toggle-btn {
-        background: var(--background-secondary);
-        border: 1px solid var(--background-modifier-border);
-        border-radius: 6px;
-        padding: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: var(--text-muted);
-        transition: all 0.2s;
-        margin-right: 0.75rem;
-    }
-
-    .mode-toggle-btn:hover {
-        background: var(--background-modifier-border-hover);
-        color: var(--text-normal);
-    }
-
-    .mode-toggle-btn.is-active {
-        background: var(--interactive-accent);
-        color: white;
-        border-color: var(--interactive-accent);
-    }
 
     .todo-flow-timeline {
         display: flex;

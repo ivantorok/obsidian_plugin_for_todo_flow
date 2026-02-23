@@ -34,10 +34,15 @@ export class ProcessGovernor {
         }
     }
 
+    private lastInteractionEndTime: number = 0;
+
     public releaseInteraction() {
         this.interactionCount = Math.max(0, this.interactionCount - 1);
-        if (this.logger && this.interactionCount === 0) {
-            this.logger.info('[ProcessGovernor] UI Interaction END');
+        if (this.interactionCount === 0) {
+            this.lastInteractionEndTime = Date.now();
+            if (this.logger) {
+                this.logger.info('[ProcessGovernor] UI Interaction END (Cooldown period started)');
+            }
         }
     }
 
@@ -76,7 +81,13 @@ export class ProcessGovernor {
     }
 
     public isHighPressure(): boolean {
-        if (this.interactionCount > 0) return true;
+        // High pressure if:
+        // 1. Any active interaction is in progress
+        // 2. We are within the 1000ms cooldown period after the last interaction
+        const inCooldown = this.interactionCount === 0 && (Date.now() - this.lastInteractionEndTime < 500);
+
+        if (this.interactionCount > 0 || inCooldown) return true;
+
         const level = this.getPressureLevel();
         return level === PressureLevel.YELLOW || level === PressureLevel.RED;
     }

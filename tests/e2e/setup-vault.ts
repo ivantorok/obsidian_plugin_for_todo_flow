@@ -145,8 +145,8 @@ async function setupVault() {
         fs.mkdirSync(todoFlowPath, { recursive: true });
     }
 
-    // 10. Symlink logs and test-results directories to avoid Obsidian directory access prompts
-    const dirsToSymlink = ['logs', 'test-results'];
+    // 10. Symlink logs, test-results, and failures directories to avoid Obsidian directory access prompts
+    const dirsToSymlink = ['logs', 'test-results', 'tests/e2e/failures'];
     for (const dirName of dirsToSymlink) {
         const targetPath = path.join(pluginSourcePath, dirName);
         const linkPath = path.join(vaultPath, dirName);
@@ -159,6 +159,12 @@ async function setupVault() {
         if (!fs.existsSync(linkPath)) {
             console.log(`[E2E Setup] Creating symlink for ${dirName} at: ${linkPath}`);
             try {
+                // Ensure parent directory of link path exists
+                const linkParent = path.dirname(linkPath);
+                if (!fs.existsSync(linkParent)) {
+                    fs.mkdirSync(linkParent, { recursive: true });
+                }
+
                 fs.symlinkSync(targetPath, linkPath, 'dir');
             } catch (e) {
                 console.warn(`[E2E Setup] Could not create symlink for ${dirName}:`, e);
@@ -169,11 +175,15 @@ async function setupVault() {
     // Symlink e2e_results.log as well
     const logFilePath = path.join(pluginSourcePath, 'e2e_results.log');
     const logFileLink = path.join(vaultPath, 'e2e_results.log');
-    if (fs.existsSync(logFilePath) && !fs.existsSync(logFileLink)) {
-        try {
-            fs.symlinkSync(logFilePath, logFileLink, 'file');
-        } catch (e) {
-            console.warn(`[E2E Setup] Could not create symlink for e2e_results.log:`, e);
+    // 11. Clear workspace metadata to ensure deterministic view layout
+    const workspacePaths = [
+        path.join(obsidianPath, 'workspace.json'),
+        path.join(obsidianPath, 'workspace-mobile.json')
+    ];
+    for (const wsPath of workspacePaths) {
+        if (fs.existsSync(wsPath)) {
+            console.log(`[E2E Setup] Clearing workspace config at: ${wsPath}`);
+            fs.writeFileSync(wsPath, JSON.stringify({}, null, 2));
         }
     }
 

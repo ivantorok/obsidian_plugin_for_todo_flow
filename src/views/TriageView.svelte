@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, untrack } from "svelte";
     import { TriageController } from "./TriageController";
     import { type TaskNode } from "../scheduler.js";
     import { slide } from "svelte/transition";
@@ -26,7 +26,7 @@
     const controller = $derived.by(
         () => new TriageController(app, initialTasks, logger),
     );
-    let currentTask = $state(controller.getCurrentTask());
+    let currentTask = $state(untrack(() => controller.getCurrentTask()));
     let swipeDirection = $state<"left" | "right" | null>(null);
     let showHelp = $state(false);
     let keyManager: KeybindingManager;

@@ -1,9 +1,22 @@
 import { browser, expect, $, $$ } from '@wdio/globals';
 
 describe('System: Persistence and Syncing', () => {
-    beforeEach(async function () {
+    before(async function () {
         // @ts-ignore
         await browser.reloadObsidian({ vault: './.test-vault' });
+        await browser.pause(2000);
+    });
+
+    beforeEach(async function () {
+        // Soft reload to reset state without losing permissions
+        await browser.executeAsync(async (done: any) => {
+            // @ts-ignore
+            await app.plugins.disablePlugin('todo-flow');
+            // @ts-ignore
+            await app.plugins.enablePlugin('todo-flow');
+            done();
+        });
+        await browser.pause(1000);
     });
 
     async function focusStack() {
@@ -199,11 +212,16 @@ describe('System: Persistence and Syncing', () => {
         });
         console.log(`[Test] Persistence content before reload:\n${stackFileContent}`);
 
-        // 4. Action: Reload Obsidian UI (simulating a plugin reload/restart)
-        // @ts-ignore
-        await browser.reloadObsidian({ vault: './.test-vault' });
-        // Wait for Obsidian to load back
-        await browser.pause(5000);
+        // 4. Action: Reload Plugin (simulating a plugin reload/restart)
+        await browser.executeAsync(async (done: any) => {
+            // @ts-ignore
+            await app.plugins.disablePlugin('todo-flow');
+            // @ts-ignore
+            await app.plugins.enablePlugin('todo-flow');
+            done();
+        });
+        // Wait for plugin to load back
+        await browser.pause(2000);
 
         // 5. Verification
         // Wait for Obsidian vault to index todo-flow/CurrentStack.md (can be slow in fresh reload)
@@ -369,8 +387,9 @@ startTime: ${new Date().toISOString()}
         await browser.pause(2000);
 
         // 5. Verify UI reflects the change (Task B should be gone)
-        // BUG-009 Assertion: This is expected to FAIL if the bug exists
-        const tasks = await $$('.todo-flow-task-card');
+        const container = await $('.todo-flow-stack-container[data-ui-ready="true"]');
+        const tasks = await container.$$('.todo-flow-task-card');
+
         await expect(tasks.length).toBe(1);
         await expect(taskB).not.toExist();
 

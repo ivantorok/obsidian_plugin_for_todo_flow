@@ -1,4 +1,4 @@
-import { App, TFile, type EventRef } from 'obsidian';
+import { App } from 'obsidian';
 import { type TaskNode } from '../scheduler.js';
 import { type StackLoader } from '../loaders/StackLoader.js';
 import { type StackPersistenceService } from '../services/StackPersistenceService.js';
@@ -28,7 +28,6 @@ export class NavigationManager {
     private persistenceService: StackPersistenceService;
     private preprocessor?: ((tasks: TaskNode[]) => TaskNode[]) | undefined;
     private listeners: ((state: NavigationState) => void)[] = [];
-    private eventRef: EventRef | null = null;
 
     constructor(
         app: App,
@@ -52,36 +51,10 @@ export class NavigationManager {
         if (typeof window !== 'undefined') {
             ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] BORN. History size: ${this.state.history.length}`);
         }
-
-        this.registerWatcher();
-    }
-
-    private registerWatcher(): void {
-        if (!this.app || !this.app.metadataCache) {
-            console.error(`[NavigationManager] FATAL: app or metadataCache is undefined!`, this.app);
-        }
-        this.eventRef = this.app.metadataCache.on('changed', async (file) => {
-            if (!(file instanceof TFile)) return;
-
-            // Check if this file is relevant to our current stack
-            const isOurSource = file.path === this.state.currentSource;
-            const isItemInStack = this.state.currentStack.some(t => t.id === file.path);
-
-            const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.state.currentStack);
-            if ((isOurSource || isItemInStack) && isExternal) {
-                if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] External update detected for ${file.path}. Triggering refresh...`);
-                await this.refresh();
-            } else if (isOurSource || isItemInStack) {
-                if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] Update detected for ${file.path} but REJECTED (Internal/Recent). isExternal=${isExternal}`);
-            }
-        });
     }
 
     public destroy(): void {
-        if (this.eventRef) {
-            this.app.metadataCache.offref(this.eventRef);
-            this.eventRef = null;
-        }
+        // Obsolete: Watcher removed to centralize in StackView (BUG-009/BUG-007)
     }
 
     /**
@@ -124,6 +97,9 @@ export class NavigationManager {
                 rawTasks = await this.loader.load(this.state.currentSource);
             }
 
+            if (typeof window !== 'undefined' && (window as any)._logs) {
+                (window as any)._logs.push(`[NavigationManager] Refresh input tasks: ${rawTasks.map(t => t.id).join(', ')}`);
+            }
             const processed = this.preprocessor ? this.preprocessor(rawTasks) : rawTasks;
 
             if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] Refresh success. Tasks: ${this.state.currentStack.length} -> ${processed.length}`);
@@ -158,6 +134,9 @@ export class NavigationManager {
             localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + msg);
         }
         this.state.currentStack = [...tasks];
+        if (typeof window !== 'undefined' && (window as any)._logs) {
+            (window as any)._logs.push(`[NavigationManager] setStack IDs: ${tasks.map(t => t.id).join(', ')}`);
+        }
         this.state.currentSource = source;
         this.state.currentFocusedIndex = 0;
         this.notifyListeners();

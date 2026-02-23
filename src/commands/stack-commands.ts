@@ -1,6 +1,7 @@
 import { type Command } from '../history.js';
 import { StackController } from '../views/StackController.js';
 import { type TaskNode } from '../scheduler.js';
+import { type StackPersistenceService } from '../services/StackPersistenceService.js';
 
 /**
  * Command to move a task up or down in the stack
@@ -231,20 +232,31 @@ export class ArchiveCommand implements Command {
     private index: number;
     private task: TaskNode;
     private onSync: (task: TaskNode) => Promise<void>;
+    private persistenceService: StackPersistenceService;
 
-    constructor(controller: StackController, index: number, onSync: (task: TaskNode) => Promise<void>) {
+    constructor(
+        controller: StackController,
+        index: number,
+        onSync: (task: TaskNode) => Promise<void>,
+        persistenceService: StackPersistenceService
+    ) {
         this.controller = controller;
         this.index = index;
         this.task = controller.getTasks()[index]!;
         this.onSync = onSync;
+        this.persistenceService = persistenceService;
         this.description = `Archive task at index ${index}`;
     }
 
     async execute(): Promise<void> {
-        // 1. Update metadata in vault
+        // 1. SILENCE persistence events for this task file to prevent sync echoes
+        // while we update the file and the CurrentStack list.
+        this.persistenceService.silence(this.task.id, 2000);
+
+        // 2. Update metadata in vault
         const updatedTask: TaskNode = { ...this.task, flow_state: 'archived' };
         await this.onSync(updatedTask);
-        // 2. Remove from local list
+        // 3. Remove from local list
         this.controller.removeTask(this.index);
     }
 

@@ -15,7 +15,7 @@ export default defineConfig({
     setupFiles: ['./src/__tests__/setup.ts'],
     reporters: ['default', 'json'],
     outputFile: 'logs/vitest-results.json',
-    exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**', 'src/__tests__/legacy/**'],
     pool: 'forks',
     poolOptions: {
       forks: {

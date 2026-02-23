@@ -53,6 +53,8 @@
             <div
                 bind:this={taskElements[i]}
                 class="todo-flow-task-card"
+                role="button"
+                tabindex="0"
                 class:is-mobile={isMobileState}
                 class:is-temporary={task.id.startsWith("temp-")}
                 data-testid="task-card-{i}"
@@ -71,6 +73,12 @@
                 onclick={(e) => {
                     if (task.id.startsWith("temp-")) return;
                     onTap(e, task, i);
+                }}
+                onkeydown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        if (task.id.startsWith("temp-")) return;
+                        onTap(e as any, task, i);
+                    }
                 }}
                 onpointerdown={(e) => {
                     if (task.id.startsWith("temp-")) return;
@@ -94,12 +102,18 @@
                 >
                     ⠿
                 </div>
-                <div
+                <button
                     class="time-col"
                     onpointerdown={(e) => e.stopPropagation()}
                     onclick={(e) => {
                         e.stopPropagation();
                         startEditStartTime(i);
+                    }}
+                    onkeydown={(e) => {
+                        if (e.key === "Enter") {
+                            e.stopPropagation();
+                            startEditStartTime(i);
+                        }
                     }}
                 >
                     {#if editingStartTimeIndex === i}
@@ -133,13 +147,11 @@
                                 task.startTime,
                                 now,
                                 true,
-                            )}</span
-                        >
+                            )}</span>
                         <span class="desktop-only-time"
-                            >{formatDateRelative(task.startTime, now)}</span
-                        >
+                            >{formatDateRelative(task.startTime, now)}</span>
                     {/if}
-                </div>
+                </button>
                 <div class="content-col" class:mobile-layout={isMobileState}>
                     {#if editingIndex === i}
                         <input
@@ -184,7 +196,6 @@
                             title={task.isMissing
                                 ? "Note missing"
                                 : "Click to rename"}
-                            role="button"
                             tabindex="0"
                         >
                             {#if task.isMissing}<span
@@ -214,7 +225,7 @@
                                     onpointerdown={(e) => e.stopPropagation()}
                                     title="Decrease Duration">−</button
                                 >
-                                <span
+                                <button
                                     class="duration-text clickable"
                                     onclick={(e) => {
                                         e.stopPropagation();
@@ -226,11 +237,9 @@
                                             openDurationPicker(i);
                                     }}
                                     onpointerdown={(e) => e.stopPropagation()}
-                                    tabindex="0"
-                                    role="button"
                                 >
                                     {formatDuration(task.duration)}
-                                </span>
+                                </button>
                                 <button
                                     class="duration-btn plus"
                                     onclick={syncGuard((e) => {
@@ -306,7 +315,7 @@
         {/each}
     {:else}
         <!-- ZEN MODE: Architect List -->
-        <div class="zen-list-empty" data-testid="zen-list-empty">
+        <div class="zen-list-empty empty-state" data-testid="zen-list-empty">
             <div class="zen-icon">🏔️</div>
             <h3>Your Architect's Desk is Clear</h3>
             <p>Add a new task to begin your next flow.</p>

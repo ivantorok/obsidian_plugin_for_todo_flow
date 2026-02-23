@@ -73,12 +73,7 @@ export default class TodoFlowPlugin extends Plugin {
             this.app.metadataCache.on('changed', async (file) => {
                 if (!(file instanceof TFile)) return;
 
-                // Reactive Update: Notify all Stack Views to refresh if their data might have changed
-                this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK).forEach(leaf => {
-                    if (leaf.view instanceof StackView) {
-                        leaf.view.requestUpdate();
-                    }
-                });
+                // Watcher centralized in StackView to handle debounce and sync fidelity.
 
                 if (this.settings.traceVaultEvents) {
                     try {
@@ -146,6 +141,18 @@ export default class TodoFlowPlugin extends Plugin {
 
         if (this.settings.enableShake) {
             this.initShakeDetector();
+        }
+    }
+
+    onunload() {
+        this.logger.info('[Todo Flow] Unloading plugin. Flushing views.');
+        this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK).forEach(leaf => {
+            if (leaf.view instanceof StackView) {
+                (leaf.view as StackView).flushPersistence();
+            }
+        });
+        if (this.shakeDetector) {
+            this.shakeDetector.stop();
         }
     }
 

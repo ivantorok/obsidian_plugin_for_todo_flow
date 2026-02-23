@@ -41,6 +41,7 @@ export class StackView extends ItemView {
     viewManager: ViewManager;
     private lastSavedIds: string[] = [];
     private saveTimeout: number | null = null;
+    private reloadTimeout: number | null = null;
     private flushResolvers: (() => void)[] = [];
     private persistenceLockCount: number = 0;
     private isSyncing: boolean = false;
@@ -48,8 +49,13 @@ export class StackView extends ItemView {
     private pendingSyncs: Set<Promise<void>> = new Set();
     private governor: ProcessGovernor | undefined;
     private isReloadPending: boolean = false;
-    private batchTimer: number | null = null;
-    private pendingMetadataChanges: Set<string> = new Set();
+
+    get navState() {
+        return {
+            ...this.navManager.getState(),
+            rootPath: this.rootPath
+        };
+    }
 
     setIsSyncing(val: boolean) {
         this.isSyncing = val;
@@ -57,18 +63,6 @@ export class StackView extends ItemView {
             // @ts-ignore
             this.component.setIsSyncing(val);
         }
-    }
-
-    private _updateTimeout: ReturnType<typeof setTimeout> | null = null;
-
-    requestUpdate() {
-        // Debounce: batch rapid changes (e.g. child creation + parent link injection)
-        // into a single reload to avoid reading stale intermediate state.
-        if (this._updateTimeout) clearTimeout(this._updateTimeout);
-        this._updateTimeout = setTimeout(() => {
-            this._updateTimeout = null;
-            this.reload();
-        }, 100);
     }
 
     constructor(leaf: WorkspaceLeaf, settings: TodoFlowSettings, historyManager: HistoryManager, logger: FileLogger, viewManager: ViewManager, persistenceService: StackPersistenceService, onTaskUpdate: (task: TaskNode) => void | Promise<void>, onTaskCreate: (title: string, options?: { startTime?: moment.Moment | undefined, duration?: number | undefined, isAnchored?: boolean | undefined, parentPath?: string | undefined }) => Promise<TaskNode>) {
@@ -79,11 +73,20 @@ export class StackView extends ItemView {
         this.viewManager = viewManager;
         this.persistenceService = persistenceService;
         // Wrap onTaskUpdate to track inflight sync promises
-        this.onTaskUpdate = (task: TaskNode) => {
+        this.onTaskUpdate = async (task: TaskNode) => {
+            if (this.governor) this.governor.claimInteraction();
             const result = onTaskUpdate(task);
             if (result instanceof Promise) {
                 this.pendingSyncs.add(result);
-                result.finally(() => this.pendingSyncs.delete(result));
+                try {
+                    const res = await result;
+                    if (this.governor) this.governor.releaseInteraction();
+                    return res;
+                } finally {
+                    this.pendingSyncs.delete(result);
+                }
+            } else {
+                if (this.governor) this.governor.releaseInteraction();
             }
         };
         this.onTaskCreate = onTaskCreate;
@@ -98,7 +101,11 @@ export class StackView extends ItemView {
             this.persistenceService,
             (tasks) => {
                 const highPressure = this.governor?.isHighPressure() ?? false;
-                return computeSchedule(tasks, this.getNow(), { highPressure });
+                const result = computeSchedule(tasks, this.getNow(), { highPressure });
+                if (typeof window !== 'undefined') {
+                    ((window as any)._logs = (window as any)._logs || []).push(`[StackView] computeSchedule called for ${tasks.length} tasks. highPressure=${highPressure}. Result counts: ${result.length}`);
+                }
+                return result;
             }
         );
 
@@ -140,11 +147,11 @@ export class StackView extends ItemView {
             if (this.rootPath && file.path === this.rootPath) {
                 const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.tasks);
                 if (isExternal) {
-                    if (this.logger) this.logger.info(`[StackView] External change detected on BACKING FILE ${file.path}. Triggering reload.`);
+                    if (this.logger) this.logger.info(`[StackView] External change detected on BACKING FILE ${file.path}. Triggering sync reload.`);
 
                     // Sync-Aware Debouncing: If actively syncing, wait for a quiet window
                     const debounceMs = this.isSyncing ? 3000 : 500;
-                    this.triggerDebouncedReload(debounceMs);
+                    this.triggerSyncReload(debounceMs);
                 }
                 return;
             }
@@ -155,41 +162,30 @@ export class StackView extends ItemView {
                 const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.tasks);
                 if (!isExternal) return;
 
-                if (this.logger) this.logger.info(`[StackView] External change detected for task ${file.path}. Queuing batch update.`);
-                this.pendingMetadataChanges.add(file.path);
-                this.triggerBatchUpdate();
+                if (this.logger) this.logger.info(`[StackView] External change detected for task ${file.path}. Triggering sync reload.`);
+                this.triggerSyncReload(this.isSyncing ? 3000 : 500);
             }
         }));
     }
 
-    private triggerDebouncedReload(ms: number) {
-        if (this.saveTimeout) window.clearTimeout(this.saveTimeout as any);
-        this.saveTimeout = window.setTimeout(() => this.reload(true), ms) as any;
-    }
+    private triggerSyncReload(ms: number) {
+        if (this.reloadTimeout) window.clearTimeout(this.reloadTimeout as any);
+        this.reloadTimeout = window.setTimeout(async () => {
+            if (this.isReloadPending) return;
+            this.isReloadPending = true;
 
-    private triggerBatchUpdate() {
-        if (this.batchTimer) window.clearTimeout(this.batchTimer as any);
-        this.batchTimer = window.setTimeout(async () => {
-            if (this.logger) this.logger.info(`[StackView] Executing batch metadata update for ${this.pendingMetadataChanges.size} tasks.`);
+            try {
+                // BUG FIX: Instead of aborting the save, we MUST flush it 
+                // to disk before we reload. This ensures that local intent 
+                // (like archiving a task) is committed before we refresh from disk.
+                await this.flushPersistence();
 
-            const updates = Array.from(this.pendingMetadataChanges);
-            this.pendingMetadataChanges.clear();
-
-            for (const path of updates) {
-                const index = this.tasks.findIndex(t => t.id === path);
-                if (index === -1) continue;
-
-                const metadata = await this.loader.parser.resolveTaskMetadata(path);
-                if (metadata) {
-                    Object.assign(this.tasks[index]!, metadata);
-                    (this.tasks[index]! as any)._loadedAt = Date.now();
-                }
+                if (this.logger) this.logger.info(`[StackView] Executing sync reload from disk.`);
+                await this.navManager.refresh();
+            } finally {
+                this.isReloadPending = false;
             }
-
-            if (this.component && this.component.update) {
-                this.component.update();
-            }
-        }, 500) as any;
+        }, ms) as any;
     }
 
     private setupSyncSentry() {
@@ -259,6 +255,16 @@ export class StackView extends ItemView {
                 }
 
                 this.navManager.setState(state.navState);
+
+                // BUG-009 Fix: Force a disk refresh after restoring workspace state to override potentially stale cache
+                // BUT: Skip if we are mid-interaction (likely an E2E reorder causing a state pulse), 
+                // to prevent stale disk from reverting the focus index we just restored.
+                if (this.governor && !this.governor.isHighPressure()) {
+                    await this.navManager.refresh();
+                } else if (this.logger) {
+                    await this.logger.info(`[StackView] Skipping setState refresh() due to active interaction pulse.`);
+                }
+
                 this.tasks = this.navManager.getCurrentStack();
                 this.rootPath = state.rootPath || state.navState.currentSource;
                 this.parentTaskName = this.resolveParentName(this.rootPath);
@@ -303,6 +309,9 @@ export class StackView extends ItemView {
             if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks?.length || 0}`);
 
             const initialTasks = computeSchedule(rawTasks || [], now);
+            if (typeof window !== 'undefined') {
+                ((window as any)._logs = (window as any)._logs || []).push(`[StackView] Initial computeSchedule for ${rawTasks?.length} tasks. result=${initialTasks.length}`);
+            }
             this.navManager.setStack(initialTasks, this.rootPath!);
 
             const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
@@ -510,9 +519,9 @@ export class StackView extends ItemView {
 
     private lastTasksForSave: TaskNode[] | null = null;
     private triggerSave(delay: number = 500) {
-        if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
+        if (this.saveTimeout) clearTimeout(this.saveTimeout);
 
-        this.saveTimeout = window.setTimeout(async () => {
+        this.saveTimeout = setTimeout(async () => {
             if (this.persistenceLockCount > 0) {
                 if (this.logger && this.settings.debug) this.logger.info(`[StackView] Save deferred: active interaction lock`);
                 return; // Will be re-triggered by unlockPersistence
@@ -616,6 +625,7 @@ export class StackView extends ItemView {
                         isMobile: (this.app as any).isMobile,
                         viewMode: (this.app as any).isMobile ? 'focus' : 'architect'
                     } as StackUIState,
+                    persistenceService: this.persistenceService,
                     onFocusChange: (index: number) => {
                         if (this.logger) this.logger.info(`[StackView] Focus change from UI: ${index}`);
                         this.navManager.setFocus(index);
@@ -626,13 +636,18 @@ export class StackView extends ItemView {
                         this.navManager.setState({ ...this.navManager.getState(), currentStack: tasks, currentFocusedIndex: idx });
                         this.app.workspace.requestSaveLayout();
 
+                        if (this.governor) {
+                            this.governor.claimInteraction();
+                            this.governor.releaseInteraction();
+                        }
+
                         const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
                         if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
                             if (tasks.length === 0 && (!this.lastSavedIds || this.lastSavedIds.length === 0)) return;
                             const currentIds = tasks.map(t => `${t.id}:${t.status}`);
                             const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
 
-                            if (idsChanged) {
+                            if (idsChanged && !this.isReloadPending) {
                                 this.lastTasksForSave = tasks;
                                 this.triggerSave(500);
                             }

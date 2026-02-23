@@ -48,10 +48,15 @@ describe('Mobile Full Journey: The Day of a User', () => {
 
         // --- STEP 3: Archive Task A ---
         console.log('[Journey] Step 3: Archiving Task A');
-        const archiveBtn = await $('.focus-action-btn.complete');
+        // Use contains-selector to be more robust against whitespace
+        const archiveBtn = await $('.focus-actions').$('button*=Archive');
         await archiveBtn.waitForExist({ timeout: 5000 });
+        console.log('[Journey] Clicking Archive button...');
 
-        await browser.execute((btn: any) => btn.click(), archiveBtn);
+        await browser.execute((btn: any) => {
+            console.log(`[Browser] Clicking Archive button. Text=${btn.innerText}, Disabled=${btn.disabled}`);
+            btn.click();
+        }, archiveBtn);
 
         // Wait for the card to actually disappear or victory lap to appear
         await browser.waitUntil(async () => {
@@ -68,27 +73,36 @@ describe('Mobile Full Journey: The Day of a User', () => {
         console.log('[Journey] Step 4: Final Verification');
 
         await browser.waitUntil(async () => {
-            const finalCards = await $$('.focus-card');
+            const finalCards = await $$('.todo-flow-task-card'); // Use generic class
             const victoryCard = await $('.todo-flow-victory-lap-card');
             const emptyState = await $('.empty-state');
+            const zenCard = await $('.zen-card');
 
             const isVictoryExisting = await victoryCard.isExisting();
             const isEmptyExisting = await emptyState.isExisting();
+            const isZenExisting = await zenCard.isExisting();
             const cardsCount = finalCards.length;
 
-            console.log(`[Journey] State Check: Cards=${cardsCount}, Victory=${isVictoryExisting}, Empty=${isEmptyExisting}`);
+            console.log(`[Journey] State Check: Total Cards=${cardsCount}, Victory=${isVictoryExisting}, Empty=${isEmptyExisting}, Zen=${isZenExisting}`);
 
             if (cardsCount > 0) {
-                const title = await finalCards[0].$('.focus-title');
-                if (await title.isExisting()) {
-                    console.log(`[Journey] First Card Title: ${await title.getText()}`);
+                // If cards exist, check if they are actually task cards (not zen cards)
+                // In mobile, we might have exactly 1 zen card which is also a focus-card
+                const firstCard = finalCards[0];
+                const isTask = await firstCard.getAttribute('data-index') !== null || await firstCard.$('.focus-title').isExisting();
+                if (isTask) {
+                    const title = await firstCard.$('.focus-title');
+                    if (await title.isExisting()) {
+                        console.log(`[Journey] Found ACTIVE Card: ${await title.getText()}`);
+                    }
+                    return false; // Still have tasks
                 }
             }
 
-            return isVictoryExisting || isEmptyExisting || cardsCount === 0;
+            return isVictoryExisting || isEmptyExisting || isZenExisting || cardsCount === 0;
         }, {
             timeout: 10000,
-            timeoutMsg: 'Expect Victory Lap, Empty State, or 0 cards after archiving Task A'
+            timeoutMsg: 'Expect Victory Lap, Empty State, or Zen Card after archiving Task A. Still found task cards.'
         });
 
         console.log('[Journey] ✅ Mobile Lifecycle Journey completed successfully');

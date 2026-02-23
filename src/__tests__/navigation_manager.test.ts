@@ -36,9 +36,7 @@ describe('NavigationManager - Basic Stack Management', () => {
         navManager = new NavigationManager(mockApp as any, mockLoader as any as StackLoader, mockPersistence as any as StackPersistenceService);
     });
 
-    it('should register a watcher on metadataCache during construction', () => {
-        expect(mockApp.metadataCache.on).toHaveBeenCalledWith('changed', expect.any(Function));
-    });
+
 
     it('should set initial stack from source', () => {
         // Arrange
@@ -114,25 +112,5 @@ describe('NavigationManager - Basic Stack Management', () => {
         expect(state.currentSource).toBe('my-source.md');
     });
 
-    it('should refresh when an external update is detected for the current source', async () => {
-        // Arrange
-        const tasks: TaskNode[] = [{ id: 'task1.md', title: 'Task 1', duration: 30, status: 'todo', isAnchored: false, children: [] }];
-        navManager.setStack(tasks, 'source.md');
 
-        const watcherCallback = mockApp.metadataCache.on.mock.calls[0][1];
-        const mockFile = new TFile();
-        mockFile.path = 'source.md';
-
-        mockLoader.load.mockResolvedValue([
-            { id: 'task1.md', title: 'Task 1 Updated', duration: 30, status: 'todo', isAnchored: false, children: [] }
-        ]);
-
-        // Act
-        await watcherCallback(mockFile);
-
-        // Assert
-        expect(mockPersistence.isExternalUpdate).toHaveBeenCalledWith('source.md', tasks);
-        expect(mockLoader.load).toHaveBeenCalledWith('source.md');
-        expect(navManager.getCurrentStack()[0]!.title).toBe('Task 1 Updated');
-    });
 });

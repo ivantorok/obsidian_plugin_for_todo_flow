@@ -29,6 +29,9 @@ export class StackController {
             this.governor = ProcessGovernor.getInstance(app);
         }
         const highPressureInit: boolean = this.governor?.isHighPressure() ?? false;
+        if (typeof window !== 'undefined') {
+            ((window as any)._logs = (window as any)._logs || []).push(`[StackController] init. HighPressure: ${highPressureInit}, IDs: ${initialTasks.map(t => t.id).join(', ')}`);
+        }
         this.tasks = computeSchedule(initialTasks, currentTime, { highPressure: highPressureInit });
     }
 
@@ -47,9 +50,11 @@ export class StackController {
         this.isFrozen = false;
         const highPressure = !!this.governor?.isHighPressure();
         if (this.pendingTasks) {
+            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] unfreeze with pending. HP: ${highPressure}, IDs: ${this.pendingTasks.map(t => t.id).join(', ')}`);
             this.tasks = computeSchedule(this.pendingTasks, this.currentTime, { highPressure });
             this.pendingTasks = null;
         } else {
+            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] unfreeze NO pending. HP: ${highPressure}, IDs: ${this.tasks.map(t => t.id).join(', ')}`);
             this.tasks = computeSchedule(this.tasks, this.currentTime, { highPressure });
         }
     }
@@ -77,6 +82,7 @@ export class StackController {
         if (this.isFrozen) {
             this.pendingTasks = resolvedTasks;
         } else {
+            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] setTasks EXECUTE. HP: ${highPressure}, IDs: ${resolvedTasks.map(t => t.id).join(', ')}`);
             this.tasks = computeSchedule(resolvedTasks, this.currentTime, { highPressure });
             this.pendingTasks = null;
         }

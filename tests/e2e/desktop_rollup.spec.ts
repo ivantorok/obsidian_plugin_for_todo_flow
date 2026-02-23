@@ -86,6 +86,25 @@ describe('Rollup Logic', () => {
         await waitForLinks('j3_p.md', ['j3_ca.md', 'j3_cb.md']);
     });
 
+    // @ts-ignore
+    afterEach(async function () {
+        if (this.currentTest.state === 'failed') {
+            // @ts-ignore
+            const logs = await browser.execute(() => {
+                const captured = (window as any)._logs || [];
+                (window as any)._logs = []; // Clear for next retry
+                return captured;
+            });
+            console.log('--- BROWSER LOGS START ---');
+            if (logs && logs.length > 0) {
+                logs.forEach((l: string) => console.log(l));
+            } else {
+                console.log('NO LOGS CAPTURED IN window._logs');
+            }
+            console.log('--- BROWSER LOGS END ---');
+        }
+    });
+
     it('should update grandparent duration via rollup from deeply nested child', async () => {
         // 1. Activate root stack
         // @ts-ignore
