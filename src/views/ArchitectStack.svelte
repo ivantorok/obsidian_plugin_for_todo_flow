@@ -57,6 +57,7 @@
     let activeInteractionToken = $state<string | null>(null);
 
     let isMobileProp = $state(navState?.isMobile || false);
+    let isSyncing = $state(false);
     export function setViewMode(mode: "focus" | "architect") {
         // Mode is now owned by Orchestrator
     }
@@ -67,7 +68,17 @@
             logger.info(
                 `[StackView.svelte] setNavState received: tasks=${newState.tasks.length}, focus=${newState.focusedIndex}`,
             );
-        navState = newState;
+        // Update properties individually to preserve reactivity of the $state object
+        navState.tasks = newState.tasks;
+        navState.focusedIndex = newState.focusedIndex;
+        navState.viewMode = newState.viewMode;
+        navState.parentTaskName = newState.parentTaskName;
+        navState.canGoBack = newState.canGoBack;
+        navState.rootPath = newState.rootPath;
+        navState.isMobile = newState.isMobile;
+
+        if (controller) controller.setTasks(newState.tasks);
+        navStateReceived = true;
 
         // CRITICAL: Ensure container remains focused after state updates (especially for empty stacks)
         // Use requestAnimationFrame for immediate next-frame restoration + setTimeout as fallback
@@ -113,6 +124,7 @@
         } else {
             navState.tasks = newTasks;
         }
+        navStateReceived = true;
 
         // Force navState to be "processed" to avoid redundant syncs
         lastProcessedNavState = navState;
@@ -134,6 +146,12 @@
 
     export function getController() {
         return controller;
+    }
+
+    export function setIsSyncing(val: boolean) {
+        isSyncing = val;
+        if (debug)
+            console.log(`[StackView] Sync status updated in UI: ${isSyncing}`);
     }
 
     export function resolveTempId(tempId: string, realId: string) {
@@ -192,6 +210,7 @@
             logger.info(
                 `[ArchitectStack] Mounted with ${navState.tasks.length} tasks`,
             );
+        if (navState.tasks.length > 0) navStateReceived = true;
 
         const update = () => {
             tick++;
@@ -292,7 +311,12 @@
             untrack(() => {
                 if (controller) {
                     controller.updateTime(currentNow);
-                    navState.tasks = controller.getTasks();
+                    const ctrTasks = controller.getTasks();
+                    // Only sync back if controller has tasks or if the stack is intended to be empty
+                    // This prevents the race condition where an empty controller overwrites newly loaded tasks
+                    if (ctrTasks.length > 0 || navState.tasks.length === 0) {
+                        navState.tasks = ctrTasks;
+                    }
                 }
             });
         }
@@ -784,11 +808,12 @@
             return;
         }
 
+        if (controller) controller.unfreeze();
+
         if (unlockPersistence && navState.rootPath && activeInteractionToken) {
             unlockPersistence(navState.rootPath, activeInteractionToken);
             activeInteractionToken = null;
         }
-        if (controller) controller.unfreeze();
 
         const deltaX = touchCurrentX - touchStartX;
         const deltaY = touchCurrentY - touchStartY;
@@ -824,13 +849,19 @@
     }
 
     function handlePointerCancel(e: PointerEvent) {
+        if (typeof window !== "undefined" && (window as any)._logs)
+            (window as any)._logs.push(`[GESTURE] handlePointerCancel`);
+
+        if (controller) controller.unfreeze();
+
         if (unlockPersistence && navState.rootPath && activeInteractionToken) {
             unlockPersistence(navState.rootPath, activeInteractionToken);
             activeInteractionToken = null;
         }
-        if (controller) controller.unfreeze();
         swipingTaskId = null;
         draggingTaskId = null;
+        dragTargetIndex = -1;
+        draggingStartIndex = -1;
     }
 
     function touchBlocking(
@@ -1283,13 +1314,6 @@
                 }
                 break;
         }
-    }
-    let isSyncing = $state(false);
-
-    export function setIsSyncing(val: boolean) {
-        isSyncing = val;
-        if (debug)
-            console.log(`[StackView] Sync status updated in UI: ${isSyncing}`);
     }
 
     function syncGuard(fn: any) {

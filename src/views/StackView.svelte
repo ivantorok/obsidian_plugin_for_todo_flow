@@ -41,28 +41,37 @@
     );
 
     $effect(() => {
-        // Keep controller synced with navState.tasks if they change from outside
+        const tasks = navState.tasks;
         untrack(() => {
-            if (controller.getTasks() !== navState.tasks) {
-                controller.setTasks(navState.tasks);
+            if (controller && controller.getTasks() !== tasks) {
+                controller.setTasks(tasks);
             }
         });
     });
 
-    let viewMode = $state<"focus" | "architect">("architect");
+    let viewMode = $derived(navState.viewMode || "architect");
     let activeComponent = $state<any>(null);
 
     export function setViewMode(mode: "focus" | "architect") {
-        viewMode = mode;
+        navState.viewMode = mode;
         if (activeComponent?.setViewMode) activeComponent.setViewMode(mode);
     }
 
     export function setNavState(newState: StackUIState) {
-        navState = newState;
+        // Update properties individually to preserve reactivity of the $state object
+        navState.tasks = newState.tasks;
+        navState.focusedIndex = newState.focusedIndex;
+        navState.viewMode = newState.viewMode;
+        navState.parentTaskName = newState.parentTaskName;
+        navState.canGoBack = newState.canGoBack;
+        navState.rootPath = newState.rootPath;
+        navState.isMobile = newState.isMobile;
+
         if (activeComponent?.setNavState) activeComponent.setNavState(newState);
     }
 
     export function setTasks(newTasks: TaskNode[]) {
+        navState.tasks = newTasks;
         if (activeComponent?.setTasks) activeComponent.setTasks(newTasks);
     }
 
@@ -72,6 +81,7 @@
     }
 
     export function setIsMobile(mobile: boolean) {
+        navState.isMobile = mobile;
         if (activeComponent?.setIsMobile) activeComponent.setIsMobile(mobile);
     }
 
@@ -121,12 +131,13 @@
         if (action === "complete") {
             cmd = new ToggleStatusCommand(controller, index);
             await restProps.historyManager.executeCommand(cmd);
+            if (restProps.onTaskUpdate) await restProps.onTaskUpdate(controller.tasks[index]);
             if ((window as any).Notice)
                 new (window as any).Notice(`Task: ${task.title} toggled`);
         } else if (action === "archive") {
-            const controller = activeComponent?.getController?.();
-            if (!controller) return;
-            cmd = new ArchiveCommand(controller, index, async (t) => {
+            const controllerAct = activeComponent?.getController?.();
+            if (!controllerAct) return;
+            cmd = new ArchiveCommand(controllerAct, index, async (t) => {
                 const { onTaskUpdate } = restProps;
                 if (onTaskUpdate) await onTaskUpdate(t);
             });
@@ -134,10 +145,11 @@
             if ((window as any).Notice)
                 new (window as any).Notice(`Archived: ${task.title}`);
         } else if (action === "anchor") {
-            const controller = activeComponent?.getController?.();
-            if (!controller) return;
-            cmd = new ToggleAnchorCommand(controller, index);
+            const controllerAct = activeComponent?.getController?.();
+            if (!controllerAct) return;
+            cmd = new ToggleAnchorCommand(controllerAct, index);
             await restProps.historyManager.executeCommand(cmd);
+            if (restProps.onTaskUpdate) await restProps.onTaskUpdate(controllerAct.tasks[index]);
             if ((window as any).Notice)
                 new (window as any).Notice(
                     `${task.isAnchored ? "Released" : "Anchored"}: ${task.title}`,
@@ -145,19 +157,26 @@
         }
 
         if (cmd && cmd.resultIndex !== undefined && cmd.resultIndex !== null) {
+            navState.tasks = [...controller.tasks]; // Force Svelte reactivity update
+
             navState.focusedIndex = cmd.resultIndex;
             // Advance focus if completing in focus mode
             if (action === "complete" && viewMode === "focus") {
+                const oldIdx = navState.focusedIndex;
                 navState.focusedIndex = Math.min(
                     navState.tasks.length - 1,
                     navState.focusedIndex + 1,
                 );
             }
+            if (restProps.onStackChange) restProps.onStackChange(navState.tasks, navState.focusedIndex);
         } else if (action === "archive") {
+            navState.tasks = [...controller.tasks];
+            
             navState.focusedIndex = Math.max(
                 0,
                 Math.min(navState.tasks.length - 1, navState.focusedIndex),
             );
+            if (restProps.onStackChange) restProps.onStackChange(navState.tasks, navState.focusedIndex);
         }
     }
 
@@ -170,24 +189,32 @@
     }
 </script>
 
-{#if viewMode === "focus"}
-    <FocusStack
-        {...restProps}
-        bind:navState
-        tasks={navState.tasks}
-        focusedIndex={navState.focusedIndex}
-        {controller}
-        {executeGestureAction}
-        bind:this={activeComponent}
-    />
-{:else}
-    <ArchitectStack
-        {...restProps}
-        bind:navState
-        tasks={navState.tasks}
-        focusedIndex={navState.focusedIndex}
-        {controller}
-        {executeGestureAction}
-        bind:this={activeComponent}
-    />
-{/if}
+<div
+    class="todo-flow-stack-container"
+    data-testid="stack-container"
+    data-ui-ready="true"
+    data-view-mode={viewMode}
+    data-task-count={navState.tasks.length}
+>
+    {#if viewMode === "focus"}
+        <FocusStack
+            {...restProps}
+            bind:navState
+            tasks={navState.tasks}
+            focusedIndex={navState.focusedIndex}
+            {controller}
+            {executeGestureAction}
+            bind:this={activeComponent}
+        />
+    {:else}
+        <ArchitectStack
+            {...restProps}
+            bind:navState
+            tasks={navState.tasks}
+            focusedIndex={navState.focusedIndex}
+            {controller}
+            {executeGestureAction}
+            bind:this={activeComponent}
+        />
+    {/if}
+</div>

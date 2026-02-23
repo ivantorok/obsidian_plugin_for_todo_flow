@@ -15,12 +15,16 @@
         openDurationPicker,
         openQuickAddModal,
         isMobileState,
-        isSyncing = false,
         ...restProps
     } = $props();
 
     const tasks = $derived(navState.tasks);
     const focusedIndex = $derived(navState.focusedIndex);
+    let isSyncing = $state(false);
+
+    export function setIsSyncing(val: boolean) {
+        isSyncing = val;
+    }
 
     function syncGuard(fn: any) {
         return (...args: any[]) => {
@@ -38,12 +42,14 @@
     }
 </script>
 
-<div class="todo-flow-timeline mode-focus" data-testid="stack-container" data-view-type="focus">
+<div class="todo-flow-timeline mode-focus" data-testid="stack-container" data-view-type="focus" data-task-count={tasks.length}>
     {#if tasks && tasks.length > 0}
         <!-- FOCUS MODE: Single Card Centerpiece -->
         {@const task = tasks[focusedIndex]}
         <div
             class="todo-flow-task-card focus-card is-focused"
+            role="button"
+            tabindex="0"
             class:is-mobile={isMobileState}
             class:is-temporary={task.id.startsWith("temp-")}
             data-testid="focus-card"
@@ -97,10 +103,54 @@
                         class="focus-action-btn"
                         onclick={syncGuard((e) => {
                             e.stopPropagation();
+                            executeGestureAction("archive", task, focusedIndex);
+                        })}
+                    >
+                        Archive
+                    </button>
+                    <button
+                        class="focus-action-btn"
+                        class:is-anchored={task.isAnchored}
+                        onclick={syncGuard((e) => {
+                            e.stopPropagation();
+                            executeGestureAction("anchor", task, focusedIndex);
+                        })}
+                    >
+                        {task.isAnchored ? "Release" : "Anchor"}
+                    </button>
+                </div>
+                
+                <div class="focus-secondary-actions">
+                    <button
+                        class="focus-nav-btn"
+                        disabled={focusedIndex === 0}
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            navState.focusedIndex = Math.max(0, focusedIndex - 1);
+                        }}
+                    >
+                        ← Previous
+                    </button>
+
+                    <button
+                        class="focus-action-btn ghost"
+                        onclick={syncGuard((e) => {
+                            e.stopPropagation();
                             openDurationPicker(focusedIndex);
                         })}
                     >
                         Adjust Time
+                    </button>
+
+                    <button
+                        class="focus-nav-btn"
+                        disabled={focusedIndex >= tasks.length - 1}
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            navState.focusedIndex = Math.min(tasks.length - 1, focusedIndex + 1);
+                        }}
+                    >
+                        Next →
                     </button>
                 </div>
             </div>
@@ -291,6 +341,49 @@
 
     .focus-action-btn.complete:hover {
         background: var(--interactive-accent-hover);
+    }
+
+    .focus-action-btn.is-anchored {
+        background: var(--background-modifier-border-hover);
+        color: var(--interactive-accent);
+        border-color: var(--interactive-accent);
+    }
+
+    .focus-action-btn.ghost {
+        background: transparent;
+        border-style: dashed;
+        font-size: 0.85rem;
+        opacity: 0.7;
+    }
+
+    .focus-secondary-actions {
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+        margin-top: 0.5rem;
+        align-items: center;
+    }
+
+    .focus-nav-btn {
+        flex: 1;
+        padding: 0.5rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: var(--background-secondary-alt);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        cursor: pointer;
+        opacity: 0.8;
+    }
+
+    .focus-nav-btn:disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+    }
+
+    .focus-nav-btn:not(:disabled):hover {
+        background: var(--background-modifier-border-hover);
+        color: var(--text-normal);
     }
 
     .focus-navigation-hints {

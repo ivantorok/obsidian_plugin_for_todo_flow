@@ -38,9 +38,9 @@ describe('Mobile Triage Addition (FEAT-001)', () => {
         await browser.pause(1000);
 
         // 3. Click the plus button to open QuickAddModal
-        const plusBtn = await $('.plus-btn');
+        const plusBtn = await $('.todo-flow-triage-container .plus-btn');
         await expect(plusBtn).toBeDisplayed();
-        await browser.execute((el) => (el as HTMLElement).click(), plusBtn);
+        await browser.execute((el: any) => (el as HTMLElement).click(), plusBtn);
         await browser.pause(1000);
 
         // 4. Verify QuickAddModal is open and add a task
@@ -48,29 +48,38 @@ describe('Mobile Triage Addition (FEAT-001)', () => {
         await expect(promptInput).toBeDisplayed();
         await promptInput.setValue('Mobile added task');
 
-        const suggestionItem = await $('.suggestion-item');
+        const suggestionItem = await $('.todo-flow-new-item');
         await suggestionItem.waitForDisplayed({ timeout: 5000 });
         await suggestionItem.click();
         await browser.pause(500);
 
         // 5. Verify task was created in the vault (with robust polling)
-        await browser.waitUntil(async () => {
+        const vaultState = await browser.waitUntil(async () => {
             return await browser.execute(async () => {
                 const files = app.vault.getMarkdownFiles();
-                const match = files.find((f: any) => f.name.includes('Mobile added task'));
-                if (!match) return false;
+                const fileNames = files.map(f => f.name);
 
-                // If file exists, check metadata or content
-                const cache = app.metadataCache.getCache(match.path);
-                if (cache?.frontmatter?.task === 'Mobile added task') return true;
+                for (const f of files) {
+                    const cache = app.metadataCache.getCache(f.path);
+                    if (cache?.frontmatter?.task === 'Mobile added task') return { success: true, files: fileNames };
+                    if (f.name.toLowerCase().includes('mobile-added-task')) return { success: true, files: fileNames };
 
-                // Fallback to content check
-                const content = await app.vault.read(match);
-                return content.includes('Mobile added task');
+                    const content = await app.vault.read(f);
+                    if (content.includes('Mobile added task')) return { success: true, files: fileNames };
+                }
+
+                // Return false to keep polling, but we want the names for the timeout message
+                // In webdriverIO, if we return false it polls. If we return an object it passes.
+                // So we can only return truthy when found.
+                return false;
             });
         }, {
             timeout: 5000,
-            timeoutMsg: 'Task "Mobile added task" did not appear in vault within 5s'
+            timeoutMsg: 'Task "Mobile added task" did not appear. Vault contents unknown.'
+        }).catch(async (e) => {
+            // On timeout, grab the final file list
+            const finalFiles = await browser.execute(() => app.vault.getMarkdownFiles().map(f => f.name));
+            throw new Error(`Task "Mobile added task" did not appear. Final vault files: ${finalFiles.join(', ')}`);
         });
 
         // 6. Verify task appears in the Triage UI (Task Card)

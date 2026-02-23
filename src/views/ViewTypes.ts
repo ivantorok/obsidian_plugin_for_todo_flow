@@ -7,4 +7,5 @@ export interface StackUIState {
     canGoBack: boolean;
     rootPath: string | null;
     isMobile: boolean;
+    viewMode?: "focus" | "architect";
 }

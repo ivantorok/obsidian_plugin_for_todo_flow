@@ -47,7 +47,7 @@
     } = $props();
 </script>
 
-<div class="todo-flow-timeline" data-testid="stack-container" data-view-type="architect">
+<div class="todo-flow-timeline" data-testid="stack-container" data-view-type="architect" data-task-count={tasks.length}>
     {#if tasks.length > 0}
         {#each tasks as task, i (task.id)}
             <div

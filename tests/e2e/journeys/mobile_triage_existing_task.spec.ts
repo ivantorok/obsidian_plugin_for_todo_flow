@@ -75,9 +75,9 @@ flow_state: backlog
         await expect(triageContainer).toBeDisplayed();
 
         // 5. Click the plus button to open QuickAddModal
-        const plusBtn = await $('.plus-btn');
+        const plusBtn = await $('.todo-flow-triage-container .plus-btn');
         await expect(plusBtn).toBeDisplayed();
-        await browser.execute((el) => (el as HTMLElement).click(), plusBtn);
+        await browser.execute((el: any) => (el as HTMLElement).click(), plusBtn);
         await browser.pause(1000);
 
         // 6. Type exact file name to get it as first suggestion

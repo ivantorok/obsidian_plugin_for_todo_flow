@@ -235,7 +235,8 @@ export class StackController {
         }
 
         const task = { ...taskToMove };
-        task.status = task.status === 'todo' ? 'done' : 'todo';
+        const currentStatus = taskToMove.status;
+        task.status = currentStatus === 'todo' ? 'done' : 'todo';
 
         const newTasks = [...this.tasks];
         newTasks[index] = task;

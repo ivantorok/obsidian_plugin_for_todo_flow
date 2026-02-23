@@ -201,7 +201,7 @@ describe('System: Persistence and Syncing', () => {
 
         // 4. Action: Reload Obsidian UI (simulating a plugin reload/restart)
         // @ts-ignore
-        await browser.execute('location.reload()');
+        await browser.reloadObsidian({ vault: './.test-vault' });
         // Wait for Obsidian to load back
         await browser.pause(5000);
 

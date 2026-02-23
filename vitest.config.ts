@@ -16,5 +16,11 @@ export default defineConfig({
     reporters: ['default', 'json'],
     outputFile: 'logs/vitest-results.json',
     exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**'],
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
   },
 });

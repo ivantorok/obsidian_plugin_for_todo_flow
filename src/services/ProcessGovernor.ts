@@ -9,6 +9,7 @@ export enum PressureLevel {
 export class ProcessGovernor {
     private static instance: ProcessGovernor;
     private logger: any;
+    private interactionCount: number = 0;
     private yellowThreshold: number = 0.7; // 70% of heap
     private redThreshold: number = 0.9;    // 90% of heap
 
@@ -21,6 +22,23 @@ export class ProcessGovernor {
             ProcessGovernor.instance = new ProcessGovernor(app, logger);
         }
         return ProcessGovernor.instance;
+    }
+
+    /**
+     * Track UI interactions (dragging, swiping) to prioritize responsiveness.
+     */
+    public claimInteraction() {
+        this.interactionCount++;
+        if (this.logger && this.interactionCount === 1) {
+            this.logger.info('[ProcessGovernor] UI Interaction START (High Pressure enabled)');
+        }
+    }
+
+    public releaseInteraction() {
+        this.interactionCount = Math.max(0, this.interactionCount - 1);
+        if (this.logger && this.interactionCount === 0) {
+            this.logger.info('[ProcessGovernor] UI Interaction END');
+        }
     }
 
     /**
@@ -58,6 +76,7 @@ export class ProcessGovernor {
     }
 
     public isHighPressure(): boolean {
+        if (this.interactionCount > 0) return true;
         const level = this.getPressureLevel();
         return level === PressureLevel.YELLOW || level === PressureLevel.RED;
     }

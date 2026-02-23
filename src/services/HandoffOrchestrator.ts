@@ -112,24 +112,7 @@ export class HandoffOrchestrator {
                 this.logger.info(`[HandoffOrchestrator] Handoff Trace: Calling activateStack with ${ids.length} IDs.`);
                 await this.activateStack(ids, persistencePath);
             },
-            async (title: string, options?: any) => {
-                const { StackController } = await import('../views/StackController.js');
-                const controller = new StackController([], moment(), (t) => { }, (title) => {
-                    const id = `${this.settings.targetFolder}/${title}.md`;
-                    return { id, title, status: 'todo', duration: 30, isAnchored: false, children: [] };
-                });
-                const result = controller.addTaskAt(-1, title);
-                if (result && result.task) {
-                    if (options) {
-                        if (options.duration !== undefined) result.task.duration = options.duration;
-                        if (options.startTime !== undefined) result.task.startTime = options.startTime;
-                        if (options.isAnchored !== undefined) result.task.isAnchored = options.isAnchored;
-                    }
-                    await this.stackPersistenceService.saveTask(result.task);
-                    return result.task;
-                }
-                throw new Error("Failed to create task");
-            },
+            async (title: string, options?: any) => await this.onCreateTask(title, options),
             this.stackPersistenceService,
             persistencePath,
             async () => {

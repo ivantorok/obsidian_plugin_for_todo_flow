@@ -5,6 +5,7 @@ import { FileLogger } from '../logger.js';
 export class StackPersistenceService {
     private lastInternalWriteTime: number = 0;
     private fileWriteTimes: Map<string, number> = new Map();
+    private lastWrittenContent: Map<string, string> = new Map();
     private silencedFiles: Map<string, number> = new Map();
     private activeLocks: Map<string, string> = new Map();
     private logger: FileLogger | undefined;
@@ -73,7 +74,7 @@ export class StackPersistenceService {
         }
 
         // Update internal write time BEFORE writing to avoid race with watcher
-        this.recordInternalWrite(filePath);
+        this.recordInternalWrite(filePath, content);
 
         const file = this.app.vault.getAbstractFileByPath(filePath);
 
@@ -109,10 +110,13 @@ export class StackPersistenceService {
         }
     }
 
-    recordInternalWrite(filePath: string): void {
+    recordInternalWrite(filePath: string, content?: string): void {
         const now = Date.now();
         this.lastInternalWriteTime = now;
         this.fileWriteTimes.set(filePath, now);
+        if (content !== undefined) {
+            this.lastWrittenContent.set(filePath, content);
+        }
         if (this.logger) this.logger.info(`[StackPersistenceService] recordInternalWrite(${filePath})`);
     }
 
@@ -121,14 +125,8 @@ export class StackPersistenceService {
         const silencedUntil = this.silencedFiles.get(filePath) || 0;
         const lastWrite = this.fileWriteTimes.get(filePath) || 0;
 
-        // Fast-path: If we just wrote this file internally, it's not external.
-        // This is crucial for individual task files where metadata diffing (below)
-        // doesn't apply because they aren't formatted as Stack lists.
-        if (now - lastWrite < 2000) {
-            return false;
-        }
-
         // 0. Interaction Lock Check (Sovereign Interaction Token)
+        // While locked, we ALWAYS reject updates to prevent UI jank/feedback loops.
         if (this.activeLocks.has(filePath)) {
             const token = this.activeLocks.get(filePath);
             const msg = `[StackPersistenceService] isExternalUpdate REJECTED (Interaction Lock: ${token})`;
@@ -140,6 +138,7 @@ export class StackPersistenceService {
         }
 
         // 1. Sovereign Silence Check
+        // Explicitly silenced windows (e.g. during rapid handoffs) take precedence.
         if (now < silencedUntil) {
             const msg = `[StackPersistenceService] isExternalUpdate REJECTED (Sovereign Silence). Remaining: ${silencedUntil - now}ms`;
             if (this.logger) this.logger.info(msg);
@@ -154,8 +153,35 @@ export class StackPersistenceService {
             return true; // No file means it's external or error
         }
 
-        let content = await this.app.vault.read(file as TFile);
-        if (typeof content !== 'string') content = String(content || '');
+        const currentContent = await this.app.vault.read(file as TFile);
+        const lastWritten = this.lastWrittenContent.get(filePath);
+
+        // 2. Fast-path: Exact content match (Fidelity Guard)
+        // If content is identical to what we last wrote, it's definitely internal (sync echo).
+        if (lastWritten !== undefined && currentContent === lastWritten) {
+            if (this.logger) this.logger.info(`[StackPersistenceService] isExternalUpdate(${filePath}) REJECTED: Content matches last internal write.`);
+            return false;
+        }
+
+        // 3. High Fidelity Signal: Content differs (External modification)
+        // If we have a record of what we wrote, and it differs from disk, it's EXTERNAL.
+        // This overrides the temporal guard because content comparison is authoritative.
+        if (lastWritten !== undefined && currentContent !== lastWritten) {
+            if (this.logger) this.logger.info(`[StackPersistenceService] isExternalUpdate(${filePath}) ACCEPTED: Content differs from last internal write.`);
+            return true;
+        }
+
+        // 4. Temporal guard (Fallback for untracked files)
+        // If it's very recent and content was NOT tracked, we still reject it
+        // to avoid feedback loops from writes that didn't provide content tracking.
+        if (now - lastWrite < 2000) {
+            if (this.logger) this.logger.info(`[StackPersistenceService] isExternalUpdate(${filePath}) REJECTED: Temporal Guard (<2s)`);
+            return false;
+        }
+
+        const content = typeof currentContent === 'string'
+            ? currentContent
+            : String(currentContent || '');
 
         const lines = content.split('\n');
 

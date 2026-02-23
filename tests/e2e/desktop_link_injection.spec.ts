@@ -46,13 +46,17 @@ describe('Link Injection in Child Stacks', () => {
 
         await browser.execute('app.commands.executeCommandById("todo-flow:open-daily-stack")');
 
-        // Wait for view to be ready
+        // Wait for open-daily-stack to fully resolve its async setViewState
+        // before we programmatically override it.
         await browser.waitUntil(async () => {
             return await browser.execute(() => {
                 // @ts-ignore
-                return app.workspace.getLeavesOfType("todo-flow-stack-view").length > 0;
+                const leaves = app.workspace.getLeavesOfType("todo-flow-stack-view");
+                if (leaves.length === 0) return false;
+                const view = leaves[0].view;
+                return view.rootPath && view.rootPath.includes('CurrentStack.md');
             });
-        }, { timeout: 10000, msg: 'Stack view never opened' });
+        }, { timeout: 15000, timeoutMsg: 'Initial load of CurrentStack.md never finished' });
     });
 
     it('RED: Should inject a link in ParentTask.md when a new task is added inside its stack', async () => {

@@ -47,6 +47,9 @@ export class StackView extends ItemView {
     private syncCheckInterval: number | null = null;
     private pendingSyncs: Set<Promise<void>> = new Set();
     private governor: ProcessGovernor | undefined;
+    private isReloadPending: boolean = false;
+    private batchTimer: number | null = null;
+    private pendingMetadataChanges: Set<string> = new Set();
 
     setIsSyncing(val: boolean) {
         this.isSyncing = val;
@@ -113,7 +116,8 @@ export class StackView extends ItemView {
                     parentTaskName: this.parentTaskName,
                     canGoBack: this.navManager.canGoBack(),
                     rootPath: this.rootPath,
-                    isMobile: (this.app as any).isMobile
+                    isMobile: (this.app as any).isMobile,
+                    viewMode: (this.app as any).isMobile ? 'focus' : 'architect'
                 };
 
                 if (this.logger) this.logger.info(`[StackView] Pushing atomic navState: tasks=${uiState.tasks.length}, focus=${uiState.focusedIndex}, parent=${uiState.parentTaskName}`);
@@ -134,37 +138,58 @@ export class StackView extends ItemView {
 
             // BUG-009 Fix: If the changed file is our backing stack file, we need a full reload
             if (this.rootPath && file.path === this.rootPath) {
-                // To avoid reloading immediately on our own saves, check write times
                 const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.tasks);
                 if (isExternal) {
-                    if (this.logger) this.logger.info(`[StackView] External change detected on BACKING FILE ${file.path}. Triggering full reload.`);
-                    await this.reload(true);
-                } else {
-                    if (this.logger) this.logger.info(`[StackView] Ignored internal save on BACKING FILE ${file.path}.`);
+                    if (this.logger) this.logger.info(`[StackView] External change detected on BACKING FILE ${file.path}. Triggering reload.`);
+
+                    // Sync-Aware Debouncing: If actively syncing, wait for a quiet window
+                    const debounceMs = this.isSyncing ? 3000 : 500;
+                    this.triggerDebouncedReload(debounceMs);
                 }
                 return;
             }
 
-            // Otherwise, check if it's an individual task file in the stack that needs re-parsing
+            // Otherwise, check if it's an individual task file in the stack
             const taskIndex = this.tasks.findIndex(t => t.id === file.path);
             if (taskIndex !== -1) {
                 const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.tasks);
-                if (!isExternal) return; // Ignore internal changes to avoid infinite loops
+                if (!isExternal) return;
 
-                if (this.logger) this.logger.info(`[StackView] External change detected for task ${file.path}. Re-parsing metadata.`);
-                const metadata = await this.loader.parser.resolveTaskMetadata(file.path);
-                if (metadata) {
-                    const task = this.tasks[taskIndex]!;
-                    // Update our in-memory task with new disk values
-                    Object.assign(task, metadata);
-                    (task as any)._loadedAt = Date.now(); // Update mtime guard anchor
-
-                    if (this.component && this.component.update) {
-                        this.component.update();
-                    }
-                }
+                if (this.logger) this.logger.info(`[StackView] External change detected for task ${file.path}. Queuing batch update.`);
+                this.pendingMetadataChanges.add(file.path);
+                this.triggerBatchUpdate();
             }
         }));
+    }
+
+    private triggerDebouncedReload(ms: number) {
+        if (this.saveTimeout) window.clearTimeout(this.saveTimeout as any);
+        this.saveTimeout = window.setTimeout(() => this.reload(true), ms) as any;
+    }
+
+    private triggerBatchUpdate() {
+        if (this.batchTimer) window.clearTimeout(this.batchTimer as any);
+        this.batchTimer = window.setTimeout(async () => {
+            if (this.logger) this.logger.info(`[StackView] Executing batch metadata update for ${this.pendingMetadataChanges.size} tasks.`);
+
+            const updates = Array.from(this.pendingMetadataChanges);
+            this.pendingMetadataChanges.clear();
+
+            for (const path of updates) {
+                const index = this.tasks.findIndex(t => t.id === path);
+                if (index === -1) continue;
+
+                const metadata = await this.loader.parser.resolveTaskMetadata(path);
+                if (metadata) {
+                    Object.assign(this.tasks[index]!, metadata);
+                    (this.tasks[index]! as any)._loadedAt = Date.now();
+                }
+            }
+
+            if (this.component && this.component.update) {
+                this.component.update();
+            }
+        }, 500) as any;
     }
 
     private setupSyncSentry() {
@@ -247,7 +272,8 @@ export class StackView extends ItemView {
                         parentTaskName: this.parentTaskName,
                         canGoBack: this.navManager.canGoBack(),
                         rootPath: this.rootPath,
-                        isMobile: (this.app as any).isMobile
+                        isMobile: (this.app as any).isMobile,
+                        viewMode: (this.app as any).isMobile ? "focus" : "architect"
                     };
                     this.component.setNavState(uiState);
                 }
@@ -383,7 +409,14 @@ export class StackView extends ItemView {
     }
 
     async reload(force: boolean = false): Promise<void> {
+        if (this.persistenceLockCount > 0) {
+            if (this.logger) this.logger.info(`[StackView] Reload DEFERRED: active interaction lock. Setting isReloadPending=true.`);
+            this.isReloadPending = true;
+            return;
+        }
+
         if (this.logger) await this.logger.info(`[StackView] Reload triggered (force=${force}). Calling flushPersistence and navManager.refresh(). NOW=${Date.now()}`);
+        this.isReloadPending = false;
         await this.flushPersistence();
         await this.navManager.refresh();
     }
@@ -423,6 +456,7 @@ export class StackView extends ItemView {
     public lockPersistence(path: string, token: string) {
         this.persistenceLockCount++;
         this.persistenceService.claimLock(path, token);
+        if (this.governor) this.governor.claimInteraction();
         if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence LOCKED for ${path} (token: ${token}, count: ${this.persistenceLockCount})`);
     }
 
@@ -432,12 +466,18 @@ export class StackView extends ItemView {
     public unlockPersistence(path: string, token: string) {
         this.persistenceLockCount = Math.max(0, this.persistenceLockCount - 1);
         this.persistenceService.releaseLock(path, token);
+        if (this.governor) this.governor.releaseInteraction();
         if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence UNLOCKED for ${path} (token: ${token}, count: ${this.persistenceLockCount})`);
 
-        if (this.persistenceLockCount === 0 && this.saveTimeout) {
-            // Re-trigger the debounced save immediately now that interaction is done
-            if (this.logger && this.settings.debug) this.logger.info(`[StackView] interaction-idle: triggering pending save`);
-            this.triggerSave(0);
+        if (this.persistenceLockCount === 0) {
+            if (this.isReloadPending) {
+                if (this.logger) this.logger.info(`[StackView] interaction-idle: triggering DEFERRED reload`);
+                this.reload();
+            } else if (this.saveTimeout) {
+                // Re-trigger the debounced save immediately now that interaction is done
+                if (this.logger && this.settings.debug) this.logger.info(`[StackView] interaction-idle: triggering pending save`);
+                this.triggerSave(0);
+            }
         }
     }
 
@@ -573,15 +613,17 @@ export class StackView extends ItemView {
                         parentTaskName: this.parentTaskName,
                         canGoBack: this.navManager.canGoBack(),
                         rootPath: this.rootPath,
-                        isMobile: (this.app as any).isMobile
+                        isMobile: (this.app as any).isMobile,
+                        viewMode: (this.app as any).isMobile ? 'focus' : 'architect'
                     } as StackUIState,
                     onFocusChange: (index: number) => {
                         if (this.logger) this.logger.info(`[StackView] Focus change from UI: ${index}`);
                         this.navManager.setFocus(index);
                     },
-                    onStackChange: (tasks: TaskNode[]) => {
-                        this.tasks = tasks;
-                        this.navManager.setStack(tasks, this.rootPath!);
+                    onStackChange: (tasks: TaskNode[], newIndex?: number) => {
+                        this.tasks = [...tasks];
+                        const idx = newIndex !== undefined ? newIndex : this.navManager.getState().currentFocusedIndex;
+                        this.navManager.setState({ ...this.navManager.getState(), currentStack: tasks, currentFocusedIndex: idx });
                         this.app.workspace.requestSaveLayout();
 
                         const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
