@@ -47,7 +47,7 @@
     } = $props();
 </script>
 
-<div class="todo-flow-timeline" data-testid="stack-container" data-view-type="architect" data-task-count={tasks.length}>
+<div class="todo-flow-timeline" data-testid="architect-timeline" data-view-type="architect" data-task-count={tasks.length}>
     {#if tasks.length > 0}
         {#each tasks as task, i (task.id)}
             <div
@@ -84,10 +84,19 @@
                     if (task.id.startsWith("temp-")) return;
                     onPointerStart(e, task.id);
                 }}
+                onmousedown={(e) => {
+                    if (task.id.startsWith("temp-")) return;
+                    onPointerStart(e as any, task.id);
+                }}
                 onpointermove={onPointerMove}
+                onmousemove={onPointerMove}
                 onpointerup={(e) => {
                     if (task.id.startsWith("temp-")) return;
                     onPointerEnd(e, task);
+                }}
+                onmouseup={(e) => {
+                    if (task.id.startsWith("temp-")) return;
+                    onPointerEnd(e as any, task);
                 }}
                 onpointercancel={onPointerCancel}
                 use:touchBlocking={handleTouchBlocking}
@@ -337,7 +346,64 @@
         gap: 0.5rem;
         max-width: 600px;
         margin: 0 auto;
-        min-height: 300px;
+        min-height: 300px; /* Ensure content area doesn't collapse */
+    }
+
+    .todo-flow-timeline.mode-focus {
+        justify-content: center;
+        align-items: center;
+        height: calc(100% - 60px); /* Fill space below header */
+    }
+
+    /* FOCUS MODE STYLES */
+    .focus-card {
+        width: 90%;
+        max-width: 400px;
+        background: var(--background-primary-alt);
+        border: 2px solid var(--background-modifier-border);
+        border-radius: 1.5rem;
+        padding: 2.5rem 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        transition:
+            transform 0.1s ease-out,
+            border-color 0.3s;
+        min-height: 250px;
+    }
+
+    /* ZEN MODE STYLES */
+    .zen-card {
+        background: linear-gradient(
+            135deg,
+            var(--background-primary-alt),
+            var(--background-secondary)
+        );
+        border: 2px dashed var(--background-modifier-border);
+        cursor: default;
+    }
+
+    .zen-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(
+            to right,
+            var(--text-normal),
+            var(--text-accent)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .zen-subtitle {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
     }
 
     .zen-list-empty {
@@ -357,206 +423,63 @@
         opacity: 0.8;
     }
 
-    .todo-flow-task-card {
-        touch-action: none !important;
-        user-select: none;
-        -webkit-user-select: none;
-        position: relative;
-        display: flex;
-        padding: 1rem;
-        background: var(--background-primary);
-        border-radius: 0.5rem;
-        border: 2px solid transparent;
-        gap: 1rem;
-        align-items: center;
-        transition: all 0.2s;
-        opacity: 0.8;
-    }
-
-    .todo-flow-task-card.is-focused {
+    .focus-card.anchored {
         border-color: var(--interactive-accent);
-        opacity: 1;
-        transform: scale(1.02);
-    }
-
-    .todo-flow-task-card.anchored {
-        background: var(--background-secondary-alt);
-        border-left: 4px solid var(--interactive-accent);
-    }
-
-    /* Darker background for anchored tasks in stack list view */
-    .todo-flow-task-card.anchored {
-        background: var(--background-modifier-hover);
-    }
-
-    .todo-flow-task-card.dragging {
-        opacity: 0.7;
-        transform: scale(1.02);
-        border: 2px solid var(--interactive-accent);
-        background: var(--background-primary-alt);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        cursor: grabbing;
-    }
-
-    .todo-flow-task-card.drop-before {
-        border-top: 3px solid var(--interactive-accent);
-    }
-
-    .todo-flow-task-card.drop-after {
-        border-bottom: 3px solid var(--interactive-accent);
-    }
-
-    .drag-handle {
-        cursor: grab;
-        color: var(--text-muted);
-        padding: 0 0.5rem;
-        opacity: 0.5;
-        font-size: 1.2rem;
-        user-select: none;
-        display: flex;
-        align-items: center;
-    }
-
-    .drag-handle:hover {
-        opacity: 1;
-        color: var(--interactive-accent);
-    }
-
-    .time-col {
-        font-family: var(--font-monospace);
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        min-width: 60px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .time-col:hover {
-        color: var(--text-accent);
-    }
-
-    .edit-icon {
-        opacity: 0.4;
-        transition: opacity 0.2s;
-    }
-
-    .time-col:hover .edit-icon {
-        opacity: 1;
-    }
-
-    .mobile-only-time {
-        display: none;
-    }
-
-    .content-col {
-        flex: 1;
-        min-width: 0;
-        width: 0;
-        overflow: hidden;
-    }
-
-    .title {
-        font-weight: 500;
-        color: var(--text-normal);
-        text-align: left;
-        background: transparent;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        font-size: 1.1rem;
-        width: 100%;
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .title:hover {
-        color: var(--text-accent);
-    }
-
-    .duration {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.2rem;
-    }
-
-    .duration-btn {
         background: var(--background-secondary);
-        border: 1px solid var(--background-modifier-border);
+    }
+
+    .focus-card-inner {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .focus-time-badge {
+        font-size: 0.85rem;
         color: var(--text-muted);
-        border-radius: 4px;
-        padding: 0 0.5rem;
-        cursor: pointer;
-        font-size: 0.8rem;
-        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        background: var(--background-secondary);
+        padding: 4px 12px;
+        border-radius: 12px;
+        width: fit-content;
+        margin: 0 auto;
+    }
+
+    .focus-title {
+        font-size: 1.8rem;
+        margin: 0.5rem 0;
+        color: var(--text-normal);
+        line-height: 1.2;
+        word-break: break-word;
+    }
+
+    .focus-metadata {
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 24px;
-        height: 24px;
+        gap: 1rem;
+        color: var(--text-muted);
     }
 
-    .duration-btn:hover {
-        background: var(--background-modifier-border-hover);
-    }
-
-    .duration-text {
+    .focus-duration-text {
+        font-size: 1.1rem;
         font-family: var(--font-monospace);
     }
 
-    .constraint-indicator {
-        font-size: 0.8rem;
-        margin-left: 0.3rem;
-        opacity: 0.7;
-        cursor: help;
-    }
-
-    .is-done {
-        opacity: 0.5;
-    }
-    .is-done .title {
-        text-decoration: line-through;
-    }
-
-    .is-missing {
-        opacity: 0.4;
-        background: var(--background-primary-alt);
-        border: 1px dashed var(--text-error);
-    }
-    .is-missing .title {
-        color: var(--text-error);
-        cursor: default;
-    }
-    .missing-icon {
-        margin-right: 0.5rem;
-    }
-
-    .rename-input {
-        width: 100%;
-        background: var(--background-modifier-form-field);
-        border: 1px solid var(--background-modifier-border);
-        color: var(--text-normal);
-        font-size: 1rem;
-        font-weight: 500;
-        padding: 2px 4px;
-        border-radius: 4px;
-    }
-
-    .todo-flow-time-input {
-        width: 60px;
-        background: var(--background-modifier-form-field);
-        border: 1px solid var(--background-modifier-border);
-        color: var(--text-normal);
-        font-family: var(--font-monospace);
+    .focus-anchor-status {
+        color: var(--interactive-accent);
         font-size: 0.9rem;
-        padding: 0 2px;
-        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .focus-actions {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        margin-top: 1rem;
     }
 
     .focus-action-btn {
@@ -569,43 +492,5 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s;
-    }
-
-    /* Mobile overrides */
-    @media (max-width: 600px) {
-        .todo-flow-task-card {
-            padding: 0.5rem 0.75rem !important;
-            gap: 0.5rem !important;
-            min-height: 44px;
-        }
-        .drag-handle {
-          padding: 0 0.25rem !important;
-        }
-        .time-col {
-            flex: 0 0 auto !important;
-            min-width: 50px !important;
-            justify-content: flex-start;
-        }
-        .desktop-only-time {
-            display: none;
-        }
-        .mobile-only-time {
-            display: inline;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        .content-col {
-            order: unset !important;
-            width: unset !important;
-            flex: 1 !important;
-        }
-        .title {
-            font-size: 1rem !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            -webkit-line-clamp: 1 !important;
-            padding: 0;
-        }
     }
 </style>

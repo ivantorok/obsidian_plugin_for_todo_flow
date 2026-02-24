@@ -203,8 +203,8 @@
 </script>
 
 <div
-    class="todo-flow-stack-container"
-    data-testid="stack-container"
+    class="todo-flow-view-wrapper"
+    data-testid="stack-view-container"
     data-ui-ready="true"
     data-view-mode={viewMode}
     data-task-count={navState.tasks.length}
@@ -347,6 +347,7 @@
             {controller}
             {executeGestureAction}
             {persistenceService}
+            onStackChange={restProps.onStackChange}
             bind:this={activeComponent}
         />
     {/if}

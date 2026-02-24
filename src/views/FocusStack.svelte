@@ -44,6 +44,10 @@
     export function getController() {
         return controller;
     }
+
+    export function update() {
+        // Force refresh if needed
+    }
 </script>
 
 <div class="todo-flow-timeline mode-focus" data-testid="stack-container" data-view-type="focus" data-task-count={tasks.length}>

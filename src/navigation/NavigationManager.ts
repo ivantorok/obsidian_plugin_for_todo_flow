@@ -48,9 +48,7 @@ export class NavigationManager {
             currentSource: ''
         };
 
-        if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] BORN. History size: ${this.state.history.length}`);
-        }
+
     }
 
     public destroy(): void {
@@ -80,8 +78,7 @@ export class NavigationManager {
     async refresh(): Promise<void> {
         if (!this.state.currentSource) return;
 
-        console.log(`[NavigationManager] Refreshing stack. Source: ${this.state.currentSource}, Current tasks: ${this.state.currentStack.length}`);
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] Refreshing stack. Source: ${this.state.currentSource}, Current tasks: ${this.state.currentStack.length}`);
+
         let rawTasks: TaskNode[] = [];
         try {
             if (this.state.currentSource.startsWith('EXPLICIT')) {
@@ -97,12 +94,12 @@ export class NavigationManager {
                 rawTasks = await this.loader.load(this.state.currentSource);
             }
 
-            if (typeof window !== 'undefined' && (window as any)._logs) {
-                (window as any)._logs.push(`[NavigationManager] Refresh input tasks: ${rawTasks.map(t => t.id).join(', ')}`);
+            if (typeof window !== 'undefined') {
+                console.log(`[NavigationManager] Refresh input tasks: ${rawTasks.map(t => t.id).join(', ')}`);
             }
             const processed = this.preprocessor ? this.preprocessor(rawTasks) : rawTasks;
 
-            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] Refresh success. Tasks: ${this.state.currentStack.length} -> ${processed.length}`);
+            if (typeof window !== 'undefined') console.log(`[NavigationManager] Refresh success. Tasks: ${this.state.currentStack.length} -> ${processed.length}`);
 
             // Preserve focus if possible
             const focusedId = this.state.currentStack[this.state.currentFocusedIndex]?.id;
@@ -128,14 +125,14 @@ export class NavigationManager {
     setStack(tasks: TaskNode[], source: string): void {
         const msg = `[NavigationManager] setStack() with ${tasks.length} tasks from ${source}`;
         console.log(msg);
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(msg);
+        if (typeof window !== 'undefined') console.log(msg);
         if (typeof window !== 'undefined') {
             const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
             localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + msg);
         }
         this.state.currentStack = [...tasks];
-        if (typeof window !== 'undefined' && (window as any)._logs) {
-            (window as any)._logs.push(`[NavigationManager] setStack IDs: ${tasks.map(t => t.id).join(', ')}`);
+        if (typeof window !== 'undefined') {
+            console.log(`[NavigationManager] setStack IDs: ${tasks.map(t => t.id).join(', ')}`);
         }
         this.state.currentSource = source;
         this.state.currentFocusedIndex = 0;
@@ -179,7 +176,7 @@ export class NavigationManager {
 
         // Log BEFORE pushing to history (to accurately report "before" state)
         const depthBefore = this.state.history.length;
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] drillDown into ${task.id}, stack depth before: ${depthBefore}`);
+        if (typeof window !== 'undefined') console.log(`[NavigationManager] drillDown into ${task.id}, stack depth before: ${depthBefore}`);
 
         // Push current state to history
         console.log(`[NavigationManager] push history. Current stack size: ${this.state.currentStack.length}, History depth before: ${depthBefore}`);
@@ -227,10 +224,10 @@ export class NavigationManager {
         const previousSource = this.state.sourceHistory.pop();
         const previousFocusIndex = this.state.focusedHistory.pop() ?? 0;
 
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] goBack() popped. previousStack exists: ${!!previousStack}, count: ${previousStack?.length}, depth now: ${this.state.history.length}`);
+        if (typeof window !== 'undefined') console.log(`[NavigationManager] goBack() popped. previousStack exists: ${!!previousStack}, count: ${previousStack?.length}, depth now: ${this.state.history.length}`);
 
         if (!previousStack || previousSource === undefined) {
-            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] goBack() FAILED - history empty or corrupt`);
+            if (typeof window !== 'undefined') console.log(`[NavigationManager] goBack() FAILED - history empty or corrupt`);
             return { success: false, focusedIndex: 0 };
         }
 
@@ -325,7 +322,7 @@ export class NavigationManager {
      */
     setState(state: NavigationState): void {
         if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(`[NavigationManager] setState called. Incoming history size: ${state.history?.length}`);
+            console.log(`[NavigationManager] setState called. Incoming history size: ${state.history?.length}`);
         }
         this.state = state;
         this.notifyListeners();

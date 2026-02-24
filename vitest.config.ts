@@ -17,10 +17,5 @@ export default defineConfig({
     outputFile: 'logs/vitest-results.json',
     exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**', 'src/__tests__/legacy/**'],
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
   },
 });

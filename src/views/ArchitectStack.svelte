@@ -28,7 +28,8 @@
         DOUBLE_TAP_WINDOW,
     } from "../gestures.js";
     import { type StackUIState } from "./ViewTypes.js";
-const {
+    import { ViewportService } from "../services/ViewportService.js";
+    let {
         navState = $bindable(),
         settings,
         executeGestureAction,
@@ -38,22 +39,45 @@ const {
         logger,
         onTaskUpdate,
         onTaskCreate,
+        controller,
         onStackChange,
-
         openQuickAddModal,
         openDurationPicker,
-        onNavigate,
+        persistenceService,
         onGoBack,
+        onNavigate,
         onExport,
         onFocusChange,
         lockPersistence,
         unlockPersistence,
+        debug,
         app,
-        debug = true,
-        controller,
-        persistenceService,
-        ...restProps
+    }: {
+        navState: StackUIState;
+        settings: TodoFlowSettings;
+        executeGestureAction: (action: string, task: TaskNode, index: number) => Promise<void>;
+        now: moment.Moment;
+        onOpenFile: (path: string) => void;
+        historyManager: HistoryManager;
+        logger: any;
+        onTaskUpdate: (task: TaskNode) => void;
+        onTaskCreate: (task: TaskNode) => void;
+        controller: StackController;
+        onStackChange: (tasks: TaskNode[], index?: number) => void;
+        openQuickAddModal?: (currentIndex: number) => void;
+        openDurationPicker?: (index: number) => void;
+        persistenceService?: any;
+        onGoBack?: () => Promise<void>;
+        onNavigate?: (id: string, index: number) => void;
+        onExport?: (tasks: TaskNode[]) => void;
+        onFocusChange?: (index: number) => void;
+        lockPersistence?: (path: string, token: string) => void;
+        unlockPersistence?: (path: string, token: string) => void;
+        debug?: boolean;
+        app?: any;
     } = $props();
+
+    const dispatch = createEventDispatcher();
 
     let activeInteractionToken = $state<string | null>(null);
 
@@ -148,7 +172,7 @@ const {
                 `[ArchitectStack] setIsMobile manual trigger: ${mobile}`,
             );
         isMobileProp = mobile;
-        tick++; // Force re-evaluation of derived state
+        rerenderTick++; // Force re-evaluation of derived state
     }
 
     export function getController() {
@@ -174,13 +198,12 @@ const {
 
     let internalSettings = $state(settings);
     let internalNow = $state(now);
-    let tick = $state(0);
     let appMobile = $derived(
         typeof window !== "undefined" && (window as any).app?.isMobile === true,
     );
 
     let isMobileState = $derived.by(() => {
-        const t = tick;
+        const t = rerenderTick;
         const prop = isMobileProp;
         const width = typeof window !== "undefined" ? window.innerWidth : 1000;
         const bodyClass =
@@ -196,6 +219,7 @@ const {
     let isReady = $derived(mounted && navStateReceived);
     let lastProcessedNavState = $state(null);
     let showHelp = $state(false); // Help Layer State
+    let rerenderTick = $state(0);
 
     onMount(async () => {
         mounted = true;
@@ -220,7 +244,7 @@ const {
         if (navState.tasks.length > 0) navStateReceived = true;
 
         const update = () => {
-            tick++;
+            rerenderTick++;
         };
         update();
         // Resize handler that updates mobile detection and forces re-render
@@ -237,7 +261,7 @@ const {
                 isMobileProp = detectedMobile;
             }
 
-            tick++; // Force isMobileState to re-evaluate
+            rerenderTick++; // Force isMobileState to re-evaluate
             update();
         };
 
@@ -265,6 +289,7 @@ const {
 
     export function updateNow(newNow: moment.Moment) {
         internalNow = newNow;
+        rerenderTick++;
     }
 
 
@@ -312,6 +337,7 @@ const {
         });
     });
 
+
     $effect(() => {
         if (internalNow) {
             const currentNow = internalNow;
@@ -357,8 +383,6 @@ const {
     let focusTimer: any = null;
     let tapTimer: any = null;
 
-    import { ViewportService } from "../services/ViewportService.js";
-
     $effect(() => {
         if (taskElements[navState.focusedIndex]) {
             // Use hardened ViewportService to ensure centered focus on mobile
@@ -379,19 +403,12 @@ const {
     }
 
     export function update() {
-        if (typeof window !== "undefined" && (window as any)._logs)
-            (window as any)._logs.push(
-                `[ArchitectStack] update() entry. Current tasks: ${navState.tasks.length}`,
-            );
-        navState.tasks = controller.getTasks();
-        if (onTaskUpdate) onTaskUpdate(navState.tasks);
+        const tasks = controller.getTasks();
+        navState.tasks = [...tasks];
+        rerenderTick++;
         if (onStackChange) onStackChange(navState.tasks, navState.focusedIndex);
-        if (onFocusChange) onFocusChange(navState.focusedIndex);
-        if (typeof window !== "undefined" && (window as any)._logs)
-            (window as any)._logs.push(
-                `[ArchitectStack] update() complete. New tasks: ${navState.tasks.length}`,
-            );
     }
+
 
     /**
      * Manually refresh mobile detection (useful for E2E tests)
@@ -405,7 +422,7 @@ const {
                 // @ts-ignore
                 (typeof app !== "undefined" && app?.isMobile === true));
         isMobileProp = detectedMobile;
-        tick++;
+        rerenderTick++;
     }
 
     export function getFocusedIndex() {

@@ -44,9 +44,7 @@ export class LinkParser implements TaskSource {
             return [];
         }
 
-        if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(`[LinkParser] parse(${filePath}): contentLen=${content.length}, contentPrefix=${content.substring(0, 50).replace(/\n/g, '\\n')}`);
-        }
+
         if (this.logger) {
             this.logger.info(`[LinkParser] parse(${filePath}): contentLen=${content.length}, contentPrefix=${content.substring(0, 50).replace(/\n/g, '\\n')}`);
         }

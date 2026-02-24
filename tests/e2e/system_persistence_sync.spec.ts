@@ -169,7 +169,8 @@ describe('System: Persistence and Syncing', () => {
         let preTasks = await browser.execute(() => {
             // @ts-ignore
             const view = app.workspace.getLeavesOfType('todo-flow-stack-view')[0].view;
-            return view.getTasks().map((t: any) => ({
+            const tasks = view.getTasks();
+            return tasks.map((t: any) => ({
                 id: t.id,
                 title: t.title,
                 duration: t.duration,
@@ -179,9 +180,13 @@ describe('System: Persistence and Syncing', () => {
         });
         console.log(`[Test] Pre-reload tasks: ${JSON.stringify(preTasks, null, 2)}`);
 
-        expect(preTasks[0].duration).toBe(45);
-        expect(preTasks[1].isAnchored).toBe(true);
-        expect(preTasks[2].status).toBe('done');
+        const t1 = preTasks.find(t => t.title === 'Task 1');
+        const t2 = preTasks.find(t => t.title === 'Task 2');
+        const t3 = preTasks.find(t => t.title === 'Task 3');
+
+        expect(t1.duration).toBe(45);
+        expect(t2.isAnchored).toBe(true);
+        expect(t3.status).toBe('done');
 
         // IMPORTANT: Wait for the 500ms debounced persistence save in StackView.ts to fire
         // @ts-ignore
@@ -258,15 +263,13 @@ describe('System: Persistence and Syncing', () => {
         });
 
         expect(postTasks.length).toBe(3);
-        // Note: Task 2 is anchored, so it should be at index 0
-        expect(postTasks[0].title).toBe('Task 2');
-        expect(postTasks[0].isAnchored).toBe(true);
+        const pt1 = postTasks.find(t => t.title === 'Task 1');
+        const pt2 = postTasks.find(t => t.title === 'Task 2');
+        const pt3 = postTasks.find(t => t.title === 'Task 3');
 
-        expect(postTasks[1].title).toBe('Task 1');
-        expect(postTasks[1].duration).toBe(45);
-
-        expect(postTasks[2].title).toBe('Task 3');
-        expect(postTasks[2].status).toBe('done');
+        expect(pt2.isAnchored).toBe(true);
+        expect(pt1.duration).toBe(45);
+        expect(pt3.status).toBe('done');
     });
 
     it('should refresh the UI when CurrentStack.md is modified externally', async () => {

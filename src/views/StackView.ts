@@ -103,7 +103,7 @@ export class StackView extends ItemView {
                 const highPressure = this.governor?.isHighPressure() ?? false;
                 const result = computeSchedule(tasks, this.getNow(), { highPressure });
                 if (typeof window !== 'undefined') {
-                    ((window as any)._logs = (window as any)._logs || []).push(`[StackView] computeSchedule called for ${tasks.length} tasks. highPressure=${highPressure}. Result counts: ${result.length}`);
+                    console.log(`[StackView] computeSchedule called for ${tasks.length} tasks. highPressure=${highPressure}. Result counts: ${result.length}`);
                 }
                 return result;
             }
@@ -309,9 +309,7 @@ export class StackView extends ItemView {
             if (this.logger) this.logger.info(`[StackView] Raw tasks loaded: ${rawTasks?.length || 0}`);
 
             const initialTasks = computeSchedule(rawTasks || [], now);
-            if (typeof window !== 'undefined') {
-                ((window as any)._logs = (window as any)._logs || []).push(`[StackView] Initial computeSchedule for ${rawTasks?.length} tasks. result=${initialTasks.length}`);
-            }
+
             this.navManager.setStack(initialTasks, this.rootPath!);
 
             const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
@@ -521,7 +519,7 @@ export class StackView extends ItemView {
     private triggerSave(delay: number = 500) {
         if (this.saveTimeout) clearTimeout(this.saveTimeout);
 
-        this.saveTimeout = setTimeout(async () => {
+        this.saveTimeout = window.setTimeout(async () => {
             if (this.persistenceLockCount > 0) {
                 if (this.logger && this.settings.debug) this.logger.info(`[StackView] Save deferred: active interaction lock`);
                 return; // Will be re-triggered by unlockPersistence
@@ -580,7 +578,7 @@ export class StackView extends ItemView {
         // disk refresh would overwrite the triaged memory state during handoff.
 
         if (this.settings.debug) {
-            console.log('[StackView] Mounting Svelte component...');
+
             if (this.logger) this.logger.info(`[StackView] Mounting Svelte Component. Tasks=${this.tasks.length}`);
         }
         try {

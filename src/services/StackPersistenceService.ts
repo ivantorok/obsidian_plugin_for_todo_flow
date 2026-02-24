@@ -26,7 +26,7 @@ export class StackPersistenceService {
         const msg = `[StackPersistenceService] Silencing ${filePath} for ${ms}ms (Until ${new Date(silencedUntil).toISOString()})`;
         if (this.logger) this.logger.info(msg);
         if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(msg);
+            console.log(msg);
         }
     }
 
@@ -39,7 +39,7 @@ export class StackPersistenceService {
         const msg = `[StackPersistenceService] LOCK CLAIMED: ${filePath} (token: ${token})`;
         if (this.logger) this.logger.info(msg);
         if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(msg);
+            console.log(msg);
         }
     }
 
@@ -53,7 +53,7 @@ export class StackPersistenceService {
             const msg = `[StackPersistenceService] LOCK RELEASED: ${filePath} (token: ${token})`;
             if (this.logger) this.logger.info(msg);
             if (typeof window !== 'undefined') {
-                ((window as any)._logs = (window as any)._logs || []).push(msg);
+                console.log(msg);
             }
         }
     }
@@ -63,8 +63,7 @@ export class StackPersistenceService {
         if (this.logger) await this.logger.info(msg);
         console.log(msg);
         if (typeof window !== 'undefined') {
-            const existing = localStorage.getItem('_todo_flow_debug_logs') || '';
-            localStorage.setItem('_todo_flow_debug_logs', existing + '\n' + msg);
+            console.log(msg);
         }
         let content = `# Current Stack\n\n`;
 
@@ -132,7 +131,7 @@ export class StackPersistenceService {
             const msg = `[StackPersistenceService] isExternalUpdate REJECTED (Interaction Lock: ${token})`;
             if (this.logger) this.logger.info(msg);
             if (typeof window !== 'undefined') {
-                ((window as any)._logs = (window as any)._logs || []).push(msg);
+                console.log(msg);
             }
             return false;
         }
@@ -143,7 +142,7 @@ export class StackPersistenceService {
             const msg = `[StackPersistenceService] isExternalUpdate REJECTED (Sovereign Silence). Remaining: ${silencedUntil - now}ms`;
             if (this.logger) this.logger.info(msg);
             if (typeof window !== 'undefined') {
-                ((window as any)._logs = (window as any)._logs || []).push(msg);
+                console.log(msg);
             }
             return false;
         }
@@ -238,7 +237,7 @@ export class StackPersistenceService {
         const msg = `[StackPersistenceService] isExternalUpdate(${filePath}): diffFound=${diffFound}`;
         if (this.logger) this.logger.info(msg);
         if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(msg);
+            console.log(msg);
         }
 
         return diffFound;

@@ -31,7 +31,7 @@ type TaskRegistry = Map<string, TaskNode>;
  * (updated by 'f'/'s' keys and UI edits). For intermediate nodes with children, 
  * we use 'originalDuration' (the overhead defined in the file) if present.
  */
-function getMinDurationWithAudit(root: TaskNode, registry?: TaskRegistry): { total: number, trace: string[] } {
+function getMinDurationWithAudit(root: TaskNode, registry?: TaskRegistry, includeDone: boolean = false): { total: number, trace: string[] } {
     let total = 0;
     const trace: string[] = [];
     const visited = new Set<string>();
@@ -49,7 +49,7 @@ function getMinDurationWithAudit(root: TaskNode, registry?: TaskRegistry): { tot
         if (visited.has(current.id)) continue;
         visited.add(current.id);
 
-        if (current.status === 'done') {
+        if (current.status === 'done' && !includeDone) {
             trace.push(`Pruned ${current.title}: status is done`);
             continue;
         }
@@ -75,18 +75,18 @@ function getMinDurationWithAudit(root: TaskNode, registry?: TaskRegistry): { tot
     }
 
     const logMsg = `[RollupTrace] getMinDurationWithAudit for ${root.id} (${root.title}). final: ${total}`;
-    if (typeof window !== 'undefined' && (window as any)._logs) (window as any)._logs.push(logMsg);
+    if (typeof window !== 'undefined') console.log(logMsg);
     console.log(logMsg);
 
     return { total, trace };
 }
 
-export function getMinDuration(root: TaskNode): number {
-    return getMinDurationWithAudit(root).total;
+export function getMinDuration(root: TaskNode, includeDone: boolean = false): number {
+    return getMinDurationWithAudit(root, undefined, includeDone).total;
 }
 
-export function getTotalGreedyDuration(root: TaskNode, registry?: TaskRegistry): { total: number, trace: string[] } {
-    const result = getMinDurationWithAudit(root, registry);
+export function getTotalGreedyDuration(root: TaskNode, registry?: TaskRegistry, includeDone: boolean = false): { total: number, trace: string[] } {
+    const result = getMinDurationWithAudit(root, registry, includeDone);
     if (root.status === 'done') {
         result.trace.push(`Note: Status is DONE - This ${result.total}m is for display only and consumes 0m in schedule.`);
     }
@@ -131,7 +131,7 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, o
         const shouldAudit = !options?.highPressure || isLeaf || t.originalDuration !== undefined || hasChildren;
 
         if (shouldAudit) {
-            const audit = getTotalGreedyDuration(t, registry);
+            const audit = getTotalGreedyDuration(t, registry, true); // Always include DONE for the object's own duration display
             totalDuration = audit.total;
             trace = audit.trace;
         } else {
@@ -142,6 +142,8 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, o
             }
         }
 
+        const scheduledDuration = t.status === 'done' ? 0 : totalDuration;
+
         if (t.isAnchored && t.startTime) {
             const rockStart = resolvedRockTimes.get(t.id)!;
             scheduled.push({
@@ -150,7 +152,7 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, o
                 duration: totalDuration,
                 trace
             });
-            const rockEnd = moment(rockStart).add(totalDuration, 'minutes');
+            const rockEnd = moment(rockStart).add(scheduledDuration, 'minutes');
             if (rockEnd.isAfter(playhead)) {
                 playhead = moment(rockEnd);
             }
@@ -160,9 +162,9 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, o
                 foundSlot = true;
                 for (const rock of rocks) {
                     const rStart = resolvedRockTimes.get(rock.id)!;
-                    const rockDuration = rock.originalDuration ?? rock.duration;
+                    const rockDuration = rock.originalDuration ?? (rock.status === 'done' ? 0 : rock.duration);
                     const rEnd = moment(rStart).add(rockDuration, 'minutes');
-                    const potentialEnd = moment(playhead).add(totalDuration, 'minutes');
+                    const potentialEnd = moment(playhead).add(scheduledDuration, 'minutes');
                     if (playhead.isBefore(rEnd) && potentialEnd.isAfter(rStart)) {
                         playhead = moment(rEnd);
                         foundSlot = false;
@@ -176,7 +178,7 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, o
                 duration: totalDuration,
                 trace
             });
-            playhead.add(totalDuration, 'minutes');
+            playhead.add(scheduledDuration, 'minutes');
         }
     }
 

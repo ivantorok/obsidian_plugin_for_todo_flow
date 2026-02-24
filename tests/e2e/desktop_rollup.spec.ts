@@ -147,12 +147,15 @@ describe('Rollup Logic', () => {
         // 4. Increase Child A's duration with 'f' (twice: 30 -> 45 -> 60)
         // @ts-ignore
         await browser.keys(['f']);
+        const wrapper = await $('.todo-flow-view-wrapper');
+        await wrapper.waitUntil(async function () { return (await this.getAttribute('data-is-syncing')) === 'false'; }, { timeout: 5000 });
         // @ts-ignore
-        await browser.pause(800);
+        await browser.pause(1000);
         // @ts-ignore
         await browser.keys(['f']);
+        await wrapper.waitUntil(async function () { return (await this.getAttribute('data-is-syncing')) === 'false'; }, { timeout: 5000 });
         // @ts-ignore
-        await browser.pause(800);
+        await browser.pause(3000);
 
         // @ts-ignore
         const newChildDuration = await browser.execute(() => {

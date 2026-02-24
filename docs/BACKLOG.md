@@ -52,6 +52,8 @@ This document tracks bugs and feature requests. To request work, add an item her
 | CHORE-01 | Pre-push Hook Stdin Conflict | Chore | - | 2026-02-01 |
 | CHORE-03 | Permanent Test Run Logging | Chore | [Spec](./backlog/CHORE-03_test_telemetry.md) | 2026-02-19 |
 | CHORE-04 | Decompose `main.ts` God File | Chore | [Spec](./archive/backlog/CHORE-04_main_ts_decomposition.md) | 2026-02-22 | v1.2.84 |
+| CHORE-05 | Decompose `ArchitectStack.svelte` Monolith | Chore | [Spec](./backlog/CHORE-05_architect_stack_refactor.md) | |
+| BUG-033 | Global `_logs` Array Memory Leak | Bug | [Spec](./backlog/BUG-033_global_logs_memory_leak.md) | |
 
 ### Phase 5: Mobile UX Polish (2026-02-22 Live Session Feedback)
 | ID | Title | Type | Spec | Priority |

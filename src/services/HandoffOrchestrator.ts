@@ -202,6 +202,11 @@ export class HandoffOrchestrator {
         const ownDuration = task.originalDuration ?? task.duration;
         this.logger.info(`[HandoffOrchestrator] Syncing Task Metadata to Disk: ID=${task.id} | Title="${task.title}"`);
 
+        // BUG FIX: Update loadedAt IMMEDIATELY (synchronously) so subsequent immediate edits 
+        // (e.g. rapid scaling) don't get rejected by our own mtime bump. If we await anything first,
+        // Svelte's proxy or UI might copy the object.
+        task._loadedAt = Date.now() + 2000;
+
         let filePath = task.id;
         if (!filePath.endsWith('.md')) filePath += '.md';
 
@@ -216,6 +221,7 @@ export class HandoffOrchestrator {
         this.stackPersistenceService.recordInternalWrite(file.path);
 
         const stats = await this.app.vault.adapter.stat(file.path);
+
         if (stats && task._loadedAt && stats.mtime > task._loadedAt) {
             this.logger.warn(`[Conflict Resolution] Rejecting sync for ${task.title}. Disk is newer.`);
             return;

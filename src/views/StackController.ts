@@ -29,9 +29,7 @@ export class StackController {
             this.governor = ProcessGovernor.getInstance(app);
         }
         const highPressureInit: boolean = this.governor?.isHighPressure() ?? false;
-        if (typeof window !== 'undefined') {
-            ((window as any)._logs = (window as any)._logs || []).push(`[StackController] init. HighPressure: ${highPressureInit}, IDs: ${initialTasks.map(t => t.id).join(', ')}`);
-        }
+
         this.tasks = computeSchedule(initialTasks, currentTime, { highPressure: highPressureInit });
     }
 
@@ -50,11 +48,11 @@ export class StackController {
         this.isFrozen = false;
         const highPressure = !!this.governor?.isHighPressure();
         if (this.pendingTasks) {
-            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] unfreeze with pending. HP: ${highPressure}, IDs: ${this.pendingTasks.map(t => t.id).join(', ')}`);
+
             this.tasks = computeSchedule(this.pendingTasks, this.currentTime, { highPressure });
             this.pendingTasks = null;
         } else {
-            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] unfreeze NO pending. HP: ${highPressure}, IDs: ${this.tasks.map(t => t.id).join(', ')}`);
+
             this.tasks = computeSchedule(this.tasks, this.currentTime, { highPressure });
         }
     }
@@ -68,7 +66,7 @@ export class StackController {
     }
 
     setTasks(tasks: TaskNode[]) {
-        if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] setTasks called with ${tasks.length} tasks, isFrozen: ${this.isFrozen}`);
+
         const tempNodes = this.tasks.filter(t => t.id.startsWith('temp-'));
         const resolvedTasks = [...tasks];
 
@@ -82,7 +80,7 @@ export class StackController {
         if (this.isFrozen) {
             this.pendingTasks = resolvedTasks;
         } else {
-            if (typeof window !== 'undefined') ((window as any)._logs = (window as any)._logs || []).push(`[StackController] setTasks EXECUTE. HP: ${highPressure}, IDs: ${resolvedTasks.map(t => t.id).join(', ')}`);
+
             this.tasks = computeSchedule(resolvedTasks, this.currentTime, { highPressure });
             this.pendingTasks = null;
         }
@@ -99,7 +97,7 @@ export class StackController {
             return;
         }
 
-        console.log(`[StackController] Resolving ${tempId} -> ${realId}`);
+
 
         // 1. Capture pending actions BEFORE we change the ID
         const actions = this.pendingActions.get(tempId);
@@ -109,7 +107,7 @@ export class StackController {
 
         // 3. Flush actions (which should now correctly find the task by realId if they retry)
         if (actions) {
-            console.log(`[StackController] Flushing ${actions.length} pending actions for ${realId}`);
+
             actions.forEach(action => action());
             this.pendingActions.delete(tempId);
         }
@@ -127,7 +125,7 @@ export class StackController {
         const actions = this.pendingActions.get(id) || [];
         actions.push(action);
         this.pendingActions.set(id, actions);
-        console.log(`[StackController] Queued action for ${id}. Pending: ${actions.length}`);
+
     }
 
     moveUp(index: number): number {
@@ -425,9 +423,11 @@ export class StackController {
                 seqIndex = Math.min(DURATION_SEQUENCE.length - 1, seqIndex + 1);
             }
             task.originalDuration = DURATION_SEQUENCE[seqIndex]!;
+            task.duration = task.originalDuration;
         } else {
             seqIndex = Math.max(0, seqIndex - 1);
             task.originalDuration = DURATION_SEQUENCE[seqIndex]!;
+            task.duration = task.originalDuration;
         }
 
         const newTasks = [...this.tasks];

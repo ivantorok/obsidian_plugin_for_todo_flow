@@ -49,13 +49,13 @@ describe('StackView Mobile Gestures Integration', () => {
         const onTaskUpdate = vi.fn();
         const { container } = render(StackView, {
             props: {
-                initialTasks: mockTasks,
                 settings: baseSettings as any,
                 logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
                 now: moment(),
                 onOpenFile: vi.fn(),
                 onTaskUpdate,
-                historyManager
+                historyManager,
+                navState: { isMobile: true, tasks: mockTasks, focusedIndex: 0 } as any
             }
         });
         await tick();
@@ -77,13 +77,13 @@ describe('StackView Mobile Gestures Integration', () => {
         const onTaskUpdate = vi.fn();
         const { container } = render(StackView, {
             props: {
-                initialTasks: mockTasks,
                 settings: baseSettings as any,
                 logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
                 now: moment(),
                 onOpenFile: vi.fn(),
                 onTaskUpdate,
-                historyManager
+                historyManager,
+                navState: { isMobile: true, tasks: mockTasks, focusedIndex: 0 } as any
             }
         });
         await tick();
@@ -104,13 +104,13 @@ describe('StackView Mobile Gestures Integration', () => {
     it('should trigger ToggleAnchorCommand on double tap and maintain focus', async () => {
         const { container } = render(StackView, {
             props: {
-                initialTasks: mockTasks,
                 settings: baseSettings as any,
                 logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
                 now: moment(),
                 onOpenFile: vi.fn(),
                 onTaskUpdate: vi.fn(),
-                historyManager
+                historyManager,
+                navState: { isMobile: true, tasks: mockTasks, focusedIndex: 0 } as any
             }
         });
         await tick();
@@ -144,13 +144,13 @@ describe('StackView Mobile Gestures Integration', () => {
     it('should stop event propagation during gestures (Gesture Shadowing)', async () => {
         const { container } = render(StackView, {
             props: {
-                initialTasks: mockTasks,
                 settings: baseSettings as any,
                 logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as any,
                 now: moment(),
                 onOpenFile: vi.fn(),
                 onTaskUpdate: vi.fn(),
-                historyManager
+                historyManager,
+                navState: { isMobile: true, tasks: mockTasks, focusedIndex: 0 } as any
             }
         });
         await tick();

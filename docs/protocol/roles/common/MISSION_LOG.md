@@ -132,3 +132,23 @@
 ## Status Logs
 - [2026-02-22 16:45]: **CHORE-04 DONE**. main.ts reduced from ~1200 to ~250 lines. Build green.
 - [2026-02-22 17:05]: **Shipped v1.2.86**. Full test suite passed.
+
+---
+
+# Session v8 — ArchitectStack Refactor & E2E Stabilization
+
+## Input & Analysis (Process Governor)
+- **Source**: E2E Failure Analysis (`system_persistence_sync.spec.ts`)
+- **Objective**: Resolve duration persistence mismatch and refactor `ArchitectStack` monolith (CHORE-05).
+- **Flavor**: [CHORE + BUG + STABILITY]
+
+## Active Objectives
+1. **[DONE]** CHORE-05: De-monolith `ArchitectStack.svelte`. Unified `StackController` usage.
+2. **[DONE]** BUG-033: Fixed global `_logs` memory leak.
+3. **[DONE]** E2E: Stabilized `system_persistence_sync.spec.ts` (Expected 45, Received 30).
+4. **[DONE]** Unified View Interface: Standardized `update()` and `onStackChange` for `FocusStack`.
+
+## Status Logs
+- [2026-02-24 07:05]: **Process Governor (PG)** session v8 initialized. Refactor CHORE-05 started.
+- [2026-02-24 08:39]: **Verification Officer (VO)** confirms E2E PASS. Duration mismatch resolved via ID-based lookup and state propagation fix.
+- [2026-02-24 10:25]: **Implementation Lead (IL)** completes documentation and `walkthrough.md`. Invoking **Release Manager**.

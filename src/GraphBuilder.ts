@@ -87,18 +87,45 @@ export class GraphBuilder {
         const baseTitle = resolveTaskTitle(frontmatter, firstLine, file.name);
         if (this.logger) this.logger.info(`[GraphBuilder] Resolved title for ${file.path}: "${baseTitle}"`);
 
+        // Synchronous Frontmatter Extraction (Fidelity Guard)
+        let syncStatus = status;
+        let syncDuration = frontmatter.duration;
+        let syncOriginalDuration = frontmatter.originalDuration;
+        let syncAnchored = frontmatter.anchored;
+        let syncStartTime = frontmatter.startTime;
+
+        if (content.startsWith('---')) {
+            const endIdx = content.indexOf('\n---', 3);
+            if (endIdx !== -1) {
+                const fmStr = content.substring(3, endIdx);
+                const lines = fmStr.split('\n');
+                for (const line of lines) {
+                    const match = line.match(/^([a-zA-Z0-9_-]+):\s*(.*)$/);
+                    if (match) {
+                        const key = match[1]!.trim();
+                        const val = match[2]!.trim();
+                        if (key === 'status') syncStatus = val;
+                        if (key === 'duration') syncDuration = parseInt(val, 10);
+                        if (key === 'originalDuration') syncOriginalDuration = parseInt(val, 10);
+                        if (key === 'anchored') syncAnchored = val === 'true';
+                        if (key === 'startTime') syncStartTime = val;
+                    }
+                }
+            }
+        }
+
         // NLP Enrichment: If frontmatter is missing data, try to extract from title
         const parsed = DateParser.parseTaskInput(baseTitle);
 
         const node: TaskNode = {
             id: file.path,
             title: parsed.title, // Use cleaned title
-            duration: frontmatter.duration || parsed.duration || 30,
-            originalDuration: frontmatter.originalDuration || (frontmatter.duration || parsed.duration || 30),
-            isAnchored: frontmatter.anchored !== undefined ? frontmatter.anchored : parsed.isAnchored,
-            status: status,
+            duration: syncDuration || parsed.duration || 30,
+            originalDuration: syncOriginalDuration || (syncDuration || parsed.duration || 30),
+            isAnchored: syncAnchored !== undefined ? syncAnchored : parsed.isAnchored,
+            status: syncStatus as 'todo' | 'done',
             children: [],
-            startTime: frontmatter.startTime ? moment(frontmatter.startTime) : (parsed.startTime ?? undefined),
+            startTime: syncStartTime ? moment(syncStartTime) : (parsed.startTime ?? undefined),
             _loadedAt: Date.now()
         };
 
