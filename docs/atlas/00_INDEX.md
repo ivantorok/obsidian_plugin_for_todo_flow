@@ -16,6 +16,7 @@ The vertical "Laws of Physics."
 - `[[CIRCULAR_LOOP]]`: Infinite navigation logic (Mobile).
 - `[[VICTORY_LAP]]`: Session closure and bird's eye view (Mobile).
 - `[[UI_FEEDBACK]]`: Command response and state projection rules.
+- `[[THIN_SHELL]]`: Manager-based orchestration and view decoupling.
 
 ## [DIMENSION 3: ENVIRONMENTS](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/atlas/ENVIRONMENTS/)
 Platform divergence.

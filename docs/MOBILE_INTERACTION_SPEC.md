@@ -1,6 +1,6 @@
 # Mobile Interaction Specification
 
-This document translates the user-facing features and "civilian" stories into technical interaction patterns using the vocabulary defined in the [Mobile UX Glossary](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_UX_GLOSSARY.md).
+This document translates the user-facing features and "civilian" stories into technical interaction patterns using the vocabulary defined in the [Mobile UX Glossary](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/MOBILE_UX_GLOSSARY.md). It serves as the primary technical reference for the [FocusStack](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/views/FocusStack.svelte) and [ArchitectStack](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/views/ArchitectStack.svelte) components.
 
 ## 0. Core UI Architecture & Terminology
 
@@ -83,7 +83,7 @@ The horizontal axis is reserved for **Contextual Swipe Actions**:
 
 ## 3. Project Law: Mobile Intent Sovereignty
 
-To ensure a consistent and predictable specialized UX on mobile, the following mappings are **hardcoded** and cannot be overridden by user settings while in `ArchitectStack` mode:
+To ensure a consistent and predictable specialized UX on mobile, the following mappings are **hardcoded** at the `StackGestureManager` level and cannot be overridden by user settings while in `ArchitectStack` or `FocusStack` mode:
 
 1. **Right Swipe** -> `complete`
 2. **Left Swipe** -> `archive`

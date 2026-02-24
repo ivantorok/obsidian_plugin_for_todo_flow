@@ -55,12 +55,16 @@ To prevent data loss during view transitions (specifically Triage -> Stack), the
 - **Decision Phase**: If a write conflict is detected (e.g., Triage complete but Stack exists), the system MUST enter a Decision Phase, presenting the user with clear options (Merge vs. Overwrite) via a Conflict Card or Modal.
 - **Merge Strategy**: The system must load the existing content, append/merge the new items (deduplicating by ID), and then write the result.
 
-## 6. The Shared State Pattern (Unified Truth)
-To prevent state drift between the Logic Layer (`NavigationManager`) and the UI Layer (`Svelte`), the system employs a Unidirectional Data Flow.
+## 6. The Shared State Pattern (Thin Shell)
+To prevent state drift between the Logic Layer (`StackController`) and the UI Layer (`Svelte`), the system employs a Unidirectional Data Flow orchestrated by specialized managers.
 
-- **Single Source of Truth**: `NavigationManager` holds the canonical `currentStack` and `focusedIndex`.
-- **Reactive Bridge**: `StackUIState` acts as the reactive glue, converting imperative class state into Svelte 5 runes (`$state`).
-- **The Funnel**: `StackView.svelte` uses an `$effect` to ingest the `navState` derived from the manager. It NEVER modifies local state directly for navigation or data; it calls methods on the Controller/Manager, which update the Truth, which then flows back down to the UI.
+- **Canonical Truth**: `StackController` holds the raw task data and business logic.
+- **Reactive Orchestration**: `StackView.ts` serves as the "Thin Shell," coordinating multiple specialized lifecycle managers:
+    - `StackStateManager`: Syncs `navState` ($state) with the controller.
+    - `StackSyncManager`: Handles background disk persistence (Graphite Fix).
+    - `StackGestureManager`: Manages touch/mouse interaction states.
+    - `StackInputManager`: Manages inline renaming and duration editing.
+- **The Flow**: UI components (`FocusStack`, `ArchitectStack`) are pure projections of the `navState`. They never modify the model; they trigger actions through the orchestrator, which updates the controller and managers, flowing back to the reactive UI.
 
 ## 7. Performance vs. Durability (The Graphite Fix)
 - **Non-Destructive Graph Building**: The `GraphBuilder` MUST never prune sub-tasks based on the parent's current status (e.g., DONE). This ensures that structural data (sub-task durations) remains durable if a task is toggled back to TODO.
