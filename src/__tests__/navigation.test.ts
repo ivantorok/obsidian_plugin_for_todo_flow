@@ -51,7 +51,7 @@ describe('Feature: Hierarchy Navigation', () => {
         const eventE = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' });
         Object.defineProperty(eventE, 'target', { value: stackContainer });
         // @ts-ignore
-        component.handleKeyDown(eventE);
+        await component.handleKeyDown(eventE);
         await tick();
 
         // ASSERT: onNavigate called with Parent ID
@@ -84,7 +84,7 @@ describe('Feature: Hierarchy Navigation', () => {
         const eventH = new KeyboardEvent('keydown', { key: 'h', code: 'KeyH' });
         Object.defineProperty(eventH, 'target', { value: stackContainer });
         // @ts-ignore
-        component.handleKeyDown(eventH);
+        await component.handleKeyDown(eventH);
         await tick();
 
         // ASSERT: onGoBack called

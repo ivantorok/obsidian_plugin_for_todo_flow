@@ -1,0 +1,79 @@
+.todo-flow-stack-container {
+    padding: 2rem;
+    background: var(--background-primary);
+    outline: none;
+    user-select: text;
+    height: 100%;
+    overflow-y: auto;
+    touch-action: pan-y;
+    transition: padding-bottom 0.2s ease;
+}
+
+.todo-flow-stack-container.is-editing {
+    padding-bottom: 40vh;
+}
+
+/* Mobile Scrollbar Visibility */
+@media (max-width: 768px) {
+    .todo-flow-stack-container::-webkit-scrollbar {
+        width: 4px;
+        display: block !important;
+    }
+
+    .todo-flow-stack-container::-webkit-scrollbar-thumb {
+        background-color: var(--text-muted);
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background-clip: content-box;
+        opacity: 0.3;
+    }
+}
+
+.todo-flow-stack-container.is-dragging {
+    user-select: none !important;
+    cursor: grabbing !important;
+}
+
+/* Enhanced Drag Feedback */
+:global(.todo-flow-task-card.dragging) {
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2) !important;
+    transform: scale(1.05) !important;
+    z-index: 9999 !important;
+    opacity: 0.9 !important;
+    background: var(--interactive-accent) !important;
+    color: var(--text-on-accent) !important;
+}
+
+:global(.todo-flow-task-card.dragging .title) {
+    color: var(--text-on-accent) !important;
+}
+
+:global(.todo-flow-task-card.dragging .drag-handle) {
+    color: var(--text-on-accent) !important;
+    opacity: 1 !important;
+}
+
+/* Mobile Drag Handle Target */
+@media (max-width: 600px) {
+    :global(.todo-flow-task-card .drag-handle) {
+        padding: 0 1rem !important;
+        min-width: 44px !important;
+        font-size: 1.5rem !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.todo-flow-stack-container.is-dragging * {
+    user-select: none !important;
+}
+
+.todo-flow-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 600px;
+    margin: 0 auto;
+    min-height: 300px;
+}

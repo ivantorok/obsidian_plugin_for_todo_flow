@@ -73,13 +73,13 @@ The horizontal axis is reserved for **Contextual Swipe Actions**:
 *   **Technical Reality**: Missing `e.stopPropagation()` and `e.stopImmediatePropagation()` for **Gesture Shadowing**.
 *   **Requirement**: Ensure **Pointer Capture** is active and event bubbling is halted as soon as the **Threshold** is reached.
 
-### BUG-011: "Body Drag vs. Handle Drag"
-*   **Technical Reality**: **Intent Locking** is currently restricted to the **Drag Handle (Affordance)**.
-*   **Requirement**: Expand **Pointer Capture** to the entire task card while distinguishing between a **Pan** (scroll) and a **Vertical Drag** (reorder).
+### BUG-011: "Body Drag vs. Handle Drag" [RESOLVED]
+*   **Technical Reality**: **Intent Locking** is now distinguished between a **Pan** (scroll) and a **Vertical Drag** (reorder) at the `StackGestureManager` level.
+*   **Result**: Reordering is stable across handle and body interactions.
 
-### BUG-020: "The Selection Jump"
-*   **Technical Reality**: **Focused Index** desynchronization after an **Optimistic Update** triggers a sort.
-*   **Requirement**: Ensure **Focus Sovereignty** is maintained by recalculating the index of the operating task *after* the command completes.
+### BUG-020: "The Selection Jump" [RESOLVED]
+*   **Technical Reality**: **Focused Index** synchronization is now handled by the `StackStateManager` orchestrator using Svelte 5 runes.
+*   **Result**: Selection parity is maintained after all commands.
 
 ## 3. Project Law: Mobile Intent Sovereignty
 

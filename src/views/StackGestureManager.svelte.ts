@@ -1,5 +1,5 @@
 import type { TaskNode } from "../scheduler.js";
-import { resolveSwipe } from "../gestures.js";
+import { resolveSwipe, DOUBLE_TAP_WINDOW } from "../gestures.js";
 import type { GestureManagerConfig } from "./GestureTypes.js";
 
 export class StackGestureManager {
@@ -16,13 +16,17 @@ export class StackGestureManager {
     private longPressTimer: ReturnType<typeof setTimeout> | null = null;
     private tapTimer: ReturnType<typeof setTimeout> | null = null;
     private lastTapTime = 0;
-    private DOUBLE_TAP_WINDOW = 300;
+    private DOUBLE_TAP_WINDOW_INTERNAL = DOUBLE_TAP_WINDOW;
     private isPressing = false;
     private _touchMovedSignificant = false;
     private startedOnHandle = false;
     private lastDragEndTime = 0;
 
-    constructor(private config: GestureManagerConfig) { }
+    private config: GestureManagerConfig;
+
+    constructor(config: GestureManagerConfig) {
+        this.config = config;
+    }
 
     get touchMovedSignificant() {
         return this._touchMovedSignificant;
@@ -49,7 +53,7 @@ export class StackGestureManager {
         return resolveSwipe(deltaX, deltaY);
     }
 
-    handlePointerStart(e: PointerEvent, taskId: string) {
+    handlePointerStart = (e: PointerEvent, taskId: string) => {
         if (e.button !== 0 && e.pointerType === 'mouse') return;
 
         this.config.onInteractionStart();
@@ -72,20 +76,21 @@ export class StackGestureManager {
         if (!task) return;
 
         if (this.longPressTimer) clearTimeout(this.longPressTimer);
-        if (this.config.isMobileState() && this.config.settings?.longPressAction) {
+        const settings = this.config.getSettings();
+        if (this.config.isMobileState() && settings?.longPressAction) {
             this.longPressTimer = setTimeout(async () => {
                 if (this.isPressing && !this.swipingTaskId && !this.draggingTaskId && !this._touchMovedSignificant) {
                     if (typeof window !== 'undefined' && (window as any).obsidian?.haptics) {
                         (window as any).obsidian.haptics.impact("heavy");
                     }
-                    await this.config.onGestureAction(this.config.settings.longPressAction, task, index);
+                    await this.config.onGestureAction(settings.longPressAction, task, index);
                     this.isPressing = false;
                 }
             }, 500);
         }
     }
 
-    handlePointerMove(e: PointerEvent) {
+    handlePointerMove = (e: PointerEvent) => {
         if (!this.isPressing && !this.swipingTaskId && !this.draggingTaskId) return;
 
         this.touchCurrentX = e.clientX;
@@ -98,8 +103,8 @@ export class StackGestureManager {
             this._touchMovedSignificant = true;
         }
 
-        if (!this.swipingTaskId && !this.draggingTaskId) {
-            if (this.startedOnHandle && Math.abs(dy) > 5) {
+        if (!this.draggingTaskId) {
+            if ((this.startedOnHandle || Math.abs(dy) > Math.abs(dx) * 1.2) && Math.abs(dy) > 5) {
                 const tasks = this.config.getTasks();
                 const elements = this.config.getTaskElements();
 
@@ -120,6 +125,7 @@ export class StackGestureManager {
                     this.draggingTaskId = tasks[bestStart]!.id;
                     this.draggingStartIndex = bestStart;
                     this.dragTargetIndex = bestStart;
+                    this.swipingTaskId = null; // Clear swipe intent
                 }
             } else if (!this.config.isMobileState() && Math.abs(dx) > 15 && !this.startedOnHandle) {
                 this.isPressing = false;
@@ -150,7 +156,7 @@ export class StackGestureManager {
         }
     }
 
-    async handlePointerEnd(e: PointerEvent, task: TaskNode) {
+    handlePointerEnd = async (e: PointerEvent, task: TaskNode) => {
         if (!this.swipingTaskId && !this.draggingTaskId) {
             return;
         }
@@ -188,13 +194,14 @@ export class StackGestureManager {
         const swipe = this.getResolvedSwipe(deltaX, deltaY);
 
         const tasks = this.config.getTasks();
+        const settings = this.config.getSettings();
         const index = tasks.findIndex((t) => t.id === task.id);
 
         if (index !== -1) {
             if (swipe === "right") {
-                await this.config.onGestureAction(this.config.isMobileState() ? "complete" : this.config.settings.swipeRightAction, task, index);
+                await this.config.onGestureAction(this.config.isMobileState() ? "complete" : settings.swipeRightAction, task, index);
             } else if (swipe === "left") {
-                await this.config.onGestureAction(this.config.isMobileState() ? "archive" : this.config.settings.swipeLeftAction, task, index);
+                await this.config.onGestureAction(this.config.isMobileState() ? "archive" : settings.swipeLeftAction, task, index);
             }
         }
 
@@ -203,7 +210,7 @@ export class StackGestureManager {
         this.touchCurrentX = 0;
     }
 
-    handlePointerCancel(e: PointerEvent) {
+    handlePointerCancel = (e: PointerEvent) => {
         this.config.unfreezeController();
         this.config.unlockPersistence();
 
@@ -248,7 +255,7 @@ export class StackGestureManager {
         };
     }
 
-    async handleTap(e: MouseEvent, task: TaskNode, index: number, isSyncing: boolean, editingActive: boolean) {
+    handleTap = async (e: MouseEvent, task: TaskNode, index: number, isSyncing: boolean, editingActive: boolean) => {
         if (isSyncing) {
             new (window as any).Notice("Syncing in progress. Please wait...");
             return;
@@ -268,13 +275,14 @@ export class StackGestureManager {
         const delta = now - this.lastTapTime;
         this.lastTapTime = now;
 
-        if (delta < this.DOUBLE_TAP_WINDOW) {
+        if (delta < this.DOUBLE_TAP_WINDOW_INTERNAL) {
             if (this.tapTimer) {
                 clearTimeout(this.tapTimer);
                 this.tapTimer = null;
             }
 
-            await this.config.onGestureAction(this.config.isMobileState() ? "anchor" : this.config.settings.doubleTapAction, task, index);
+            const settings = this.config.getSettings();
+            await this.config.onGestureAction(this.config.isMobileState() ? "anchor" : settings.doubleTapAction, task, index);
             this.lastTapTime = 0;
             return;
         }

@@ -21,7 +21,7 @@ const baseSettings = {
     enableShake: false
 };
 
-describe.skip('ArchitectStack Drag & Drop TDD', () => {
+describe('ArchitectStack Drag & Drop TDD', () => {
     let container: HTMLElement;
     let component: any;
     let historyManager: any;
@@ -60,12 +60,21 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
                 onOpenFile: vi.fn(),
                 onTaskUpdate: vi.fn(),
                 historyManager,
+                controller: {
+                    setTasks: vi.fn(),
+                    getTasks: () => [...mockTasks],
+                    freeze: vi.fn(),
+                    unfreeze: vi.fn(),
+                    updateTime: vi.fn(),
+                    handleEnter: vi.fn()
+                } as any,
                 navState: {
                     tasks: [...mockTasks],
                     focusedIndex: 0,
                     parentTaskName: null,
                     canGoBack: false,
                     rootPath: null,
+                    viewMode: 'architect',
                     isMobile: false
                 }
             }
@@ -92,6 +101,7 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
 
         handle1.dispatchEvent(new PointerEvent('pointerup', { clientX: 10, clientY: 150, pointerId: 1, bubbles: true, isPrimary: true }));
         await tick();
+        await tick(); // multiple ticks to ensure async onReorder finishes
 
         expect(historyManager.executeCommand).toHaveBeenCalledWith(expect.any(ReorderToIndexCommand));
     });
@@ -106,12 +116,21 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
                 onOpenFile: vi.fn(),
                 onTaskUpdate: vi.fn(),
                 historyManager,
+                controller: {
+                    setTasks: vi.fn(),
+                    getTasks: () => [...mockTasks],
+                    freeze: vi.fn(),
+                    unfreeze: vi.fn(),
+                    updateTime: vi.fn(),
+                    handleEnter: vi.fn()
+                } as any,
                 navState: {
                     tasks: [...mockTasks],
                     focusedIndex: 0,
                     parentTaskName: null,
                     canGoBack: false,
                     rootPath: null,
+                    viewMode: 'architect',
                     isMobile: false
                 }
             }
@@ -137,6 +156,7 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
 
         card1.dispatchEvent(new PointerEvent('pointerup', { clientX: 150, clientY: 150, pointerId: 1, bubbles: true, isPrimary: true }));
         await tick();
+        await tick();
 
         expect(historyManager.executeCommand).toHaveBeenCalledWith(expect.any(ReorderToIndexCommand));
     });
@@ -151,12 +171,21 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
                 onOpenFile: vi.fn(),
                 onTaskUpdate: vi.fn(),
                 historyManager,
+                controller: {
+                    setTasks: vi.fn(),
+                    getTasks: () => [...mockTasks],
+                    freeze: vi.fn(),
+                    unfreeze: vi.fn(),
+                    updateTime: vi.fn(),
+                    handleEnter: vi.fn()
+                } as any,
                 navState: {
                     tasks: [...mockTasks],
                     focusedIndex: 0,
                     parentTaskName: null,
                     canGoBack: false,
                     rootPath: null,
+                    viewMode: 'architect',
                     isMobile: false
                 }
             }
@@ -181,6 +210,7 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
         await tick();
         card1.dispatchEvent(new PointerEvent('pointerup', { clientX: 150, clientY: 150, pointerId: 1, bubbles: true, isPrimary: true }));
         await tick();
+        await tick();
 
         card1.click();
         await tick();
@@ -189,6 +219,16 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
     });
 
     it('should update focusedIndex after a successful drag-and-drop', async () => {
+        let navState = {
+            tasks: [...mockTasks],
+            focusedIndex: 0,
+            parentTaskName: null,
+            canGoBack: false,
+            rootPath: null,
+            viewMode: 'architect',
+            isMobile: false
+        };
+
         component = mount(ArchitectStack, {
             target: container,
             props: {
@@ -198,14 +238,15 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
                 onOpenFile: vi.fn(),
                 onTaskUpdate: vi.fn(),
                 historyManager,
-                navState: {
-                    tasks: [...mockTasks],
-                    focusedIndex: 0,
-                    parentTaskName: null,
-                    canGoBack: false,
-                    rootPath: null,
-                    isMobile: false
-                }
+                controller: {
+                    setTasks: vi.fn(),
+                    getTasks: () => [...mockTasks],
+                    freeze: vi.fn(),
+                    unfreeze: vi.fn(),
+                    updateTime: vi.fn(),
+                    handleEnter: vi.fn()
+                } as any,
+                navState: navState as any
             }
         });
         await tick();
@@ -224,9 +265,14 @@ describe.skip('ArchitectStack Drag & Drop TDD', () => {
         handle1.dispatchEvent(new PointerEvent('pointermove', { clientY: 150, pointerId: 1, bubbles: true, isPrimary: true }));
         await tick();
         handle1.dispatchEvent(new PointerEvent('pointerup', { clientY: 150, pointerId: 1, bubbles: true, isPrimary: true }));
+
+        // Wait for all async reordering and ticks
+        await tick();
+        await tick();
         await tick();
 
         const updatedCards = container.querySelectorAll('.todo-flow-task-card');
+        // We expect the focused index to be updated to 1
         expect(updatedCards[1].classList.contains('is-focused')).toBe(true);
     });
 });

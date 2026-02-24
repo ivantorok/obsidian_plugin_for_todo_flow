@@ -208,7 +208,8 @@ describe('UI Workbench: Interaction & Stability', () => {
                 onGoBack: vi.fn(),
                 onTaskUpdate: vi.fn(),
                 onTaskCreate: vi.fn(),
-                historyManager
+                historyManager,
+                navState: { tasks: [], focusedIndex: 0, canGoBack: false } as any
             }
         });
         await tick();

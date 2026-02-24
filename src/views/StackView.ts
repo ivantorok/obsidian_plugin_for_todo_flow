@@ -21,6 +21,7 @@ import moment from 'moment';
 import { type ViewManager } from '../ViewManager.js';
 import { type StackUIState } from './ViewTypes.js';
 import { ProcessGovernor } from '../services/ProcessGovernor.js';
+import { StackSyncManager } from './StackSyncManager.js';
 
 export const VIEW_TYPE_STACK = "todo-flow-stack-view";
 
@@ -39,16 +40,8 @@ export class StackView extends ItemView {
     navManager: NavigationManager;
     persistenceService: StackPersistenceService;
     viewManager: ViewManager;
-    private lastSavedIds: string[] = [];
-    private saveTimeout: number | null = null;
-    private reloadTimeout: number | null = null;
-    private flushResolvers: (() => void)[] = [];
-    private persistenceLockCount: number = 0;
-    private isSyncing: boolean = false;
-    private syncCheckInterval: number | null = null;
-    private pendingSyncs: Set<Promise<void>> = new Set();
     private governor: ProcessGovernor | undefined;
-    private isReloadPending: boolean = false;
+    private syncManager: StackSyncManager;
 
     get navState() {
         return {
@@ -58,7 +51,6 @@ export class StackView extends ItemView {
     }
 
     setIsSyncing(val: boolean) {
-        this.isSyncing = val;
         if (this.component) {
             // @ts-ignore
             this.component.setIsSyncing(val);
@@ -77,13 +69,13 @@ export class StackView extends ItemView {
             if (this.governor) this.governor.claimInteraction();
             const result = onTaskUpdate(task);
             if (result instanceof Promise) {
-                this.pendingSyncs.add(result);
+                this.syncManager.trackSyncPromise(result);
                 try {
                     const res = await result;
                     if (this.governor) this.governor.releaseInteraction();
                     return res;
                 } finally {
-                    this.pendingSyncs.delete(result);
+                    // Handled by trackSyncPromise
                 }
             } else {
                 if (this.governor) this.governor.releaseInteraction();
@@ -136,76 +128,20 @@ export class StackView extends ItemView {
             }
         });
 
-        // Sync Sentry: Monitor Obsidian Sync status
-        this.setupSyncSentry();
-
-        // Reactive Sync: Listen for external task file changes
-        this.registerEvent(this.app.metadataCache.on('changed', async (file) => {
-            if (!(file instanceof TFile)) return;
-
-            // BUG-009 Fix: If the changed file is our backing stack file, we need a full reload
-            if (this.rootPath && file.path === this.rootPath) {
-                const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.tasks);
-                if (isExternal) {
-                    if (this.logger) this.logger.info(`[StackView] External change detected on BACKING FILE ${file.path}. Triggering sync reload.`);
-
-                    // Sync-Aware Debouncing: If actively syncing, wait for a quiet window
-                    const debounceMs = this.isSyncing ? 3000 : 500;
-                    this.triggerSyncReload(debounceMs);
-                }
-                return;
-            }
-
-            // Otherwise, check if it's an individual task file in the stack
-            const taskIndex = this.tasks.findIndex(t => t.id === file.path);
-            if (taskIndex !== -1) {
-                const isExternal = await this.persistenceService.isExternalUpdate(file.path, this.tasks);
-                if (!isExternal) return;
-
-                if (this.logger) this.logger.info(`[StackView] External change detected for task ${file.path}. Triggering sync reload.`);
-                this.triggerSyncReload(this.isSyncing ? 3000 : 500);
-            }
-        }));
-    }
-
-    private triggerSyncReload(ms: number) {
-        if (this.reloadTimeout) window.clearTimeout(this.reloadTimeout as any);
-        this.reloadTimeout = window.setTimeout(async () => {
-            if (this.isReloadPending) return;
-            this.isReloadPending = true;
-
-            try {
-                // BUG FIX: Instead of aborting the save, we MUST flush it 
-                // to disk before we reload. This ensures that local intent 
-                // (like archiving a task) is committed before we refresh from disk.
-                await this.flushPersistence();
-
-                if (this.logger) this.logger.info(`[StackView] Executing sync reload from disk.`);
-                await this.navManager.refresh();
-            } finally {
-                this.isReloadPending = false;
-            }
-        }, ms) as any;
-    }
-
-    private setupSyncSentry() {
-        const checkSync = () => {
-            const syncPlugin = (this.app as any).internalPlugins?.getPluginById('sync');
-            const isActive = syncPlugin?.instance?.status === 'syncing' ||
-                syncPlugin?.instance?.status === 'downloading' ||
-                syncPlugin?.instance?.status === 'uploading';
-
-            if (isActive !== this.isSyncing) {
-                this.isSyncing = isActive;
-                if (this.component && this.component.setIsSyncing) {
-                    this.component.setIsSyncing(this.isSyncing);
-                }
-            }
-        };
-
-        // Poll every 2 seconds for sync status
-        this.syncCheckInterval = window.setInterval(checkSync, 2000);
-        checkSync();
+        this.syncManager = new StackSyncManager({
+            app: this.app,
+            logger: this.logger,
+            persistenceService: this.persistenceService,
+            navManager: this.navManager,
+            governor: this.governor,
+            getTasks: () => this.tasks,
+            getRootPath: () => this.rootPath,
+            getCurrentTaskIds: () => this.currentTaskIds,
+            settings: this.settings,
+            setIsSyncing: (val) => this.setIsSyncing(val),
+            triggerViewReload: () => this.reload(),
+            registerEvent: (ref) => this.registerEvent(ref)
+        });
     }
 
     getViewType() {
@@ -320,7 +256,7 @@ export class StackView extends ItemView {
                 if (isCurrentlyViewingShortlist) {
                     await this.persistenceService.saveStack(
                         this.navManager.getCurrentStack(), persistencePath);
-                    this.lastSavedIds = this.navManager.getCurrentStack().map(t => `${t.id}:${t.status}`);
+                    this.syncManager.setLastSavedIds(this.navManager.getCurrentStack().map(t => `${t.id}:${t.status}`));
                 }
             } catch (e) {
                 if (this.logger) this.logger.error(`[StackView] Failed to save CurrentStack.md: ${e}`);
@@ -356,8 +292,7 @@ export class StackView extends ItemView {
         }
 
         // Trigger a save so flushPersistence has something to do
-        this.lastTasksForSave = controller.getTasks();
-        this.triggerSave(500);
+        this.syncManager.handleStackChange(controller.getTasks());
 
         // 2. BACKGROUND RESOLUTION
         let resolveBg: (p: Promise<void>) => void;
@@ -388,15 +323,15 @@ export class StackView extends ItemView {
                     this.component.resolveTempId(tempId, nodeToInsert.id);
 
                     // BUG-022: Ensure the real ID is persisted to the stack file immediately
-                    this.flushPersistence();
+                    this.syncManager.flushPersistence();
                 }
             } finally {
-                this.pendingSyncs.delete(bgPromiseTracker);
+                // Cleaned up by trackSyncPromise wrapper automatically 
             }
         })();
 
-        // Track in pendingSyncs so flushPersistence drains it
-        this.pendingSyncs.add(bgPromiseTracker);
+        // Track natively in sync manager so flushPersistence drains it
+        this.syncManager.trackSyncPromise(bgPromiseTracker);
         resolveBg!(createPromise);
     }
 
@@ -416,116 +351,22 @@ export class StackView extends ItemView {
     }
 
     async reload(force: boolean = false): Promise<void> {
-        if (this.persistenceLockCount > 0) {
+        if (this.syncManager.isLocked()) {
             if (this.logger) this.logger.info(`[StackView] Reload DEFERRED: active interaction lock. Setting isReloadPending=true.`);
-            this.isReloadPending = true;
+            this.syncManager.setReloadPending(true);
             return;
         }
 
         if (this.logger) await this.logger.info(`[StackView] Reload triggered (force=${force}). Calling flushPersistence and navManager.refresh(). NOW=${Date.now()}`);
-        this.isReloadPending = false;
-        await this.flushPersistence();
+        this.syncManager.setReloadPending(false);
+        await this.syncManager.flushPersistence();
         await this.navManager.refresh();
     }
 
-    async flushPersistence(): Promise<void> {
-        // 1. Drain all inflight task syncs (syncTaskToNote calls)
-        if (this.pendingSyncs.size > 0) {
-            this.logger.info(`[StackView] Draining ${this.pendingSyncs.size} pending task syncs before flush.`);
-            await Promise.all(this.pendingSyncs);
+    public async flushPersistence(): Promise<void> {
+        if (this.syncManager) {
+            await this.syncManager.flushPersistence();
         }
-
-        if (!this.saveTimeout) return;
-        this.logger.info(`[StackView] Flush requested.`);
-
-        // If locked, we MUST clear the lock or wait. 
-        // For flush, we force immediate execution by clearing the timeout.
-        if (this.saveTimeout) {
-            window.clearTimeout(this.saveTimeout);
-            await this.performSave();
-        }
-
-        return new Promise((resolve) => {
-            this.flushResolvers.push(resolve);
-            // If nothing was pending after performSave, resolve now
-            if (!this.saveTimeout) {
-                const resolvers = [...this.flushResolvers];
-                this.flushResolvers = [];
-                resolvers.forEach(res => res());
-            }
-        });
-    }
-
-    /**
-     * Lock persistence during active user interaction (swiping/dragging)
-     * to prevent UI jank from disk I/O.
-     */
-    public lockPersistence(path: string, token: string) {
-        this.persistenceLockCount++;
-        this.persistenceService.claimLock(path, token);
-        if (this.governor) this.governor.claimInteraction();
-        if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence LOCKED for ${path} (token: ${token}, count: ${this.persistenceLockCount})`);
-    }
-
-    /**
-     * Unlock persistence and trigger a save if one was pending.
-     */
-    public unlockPersistence(path: string, token: string) {
-        this.persistenceLockCount = Math.max(0, this.persistenceLockCount - 1);
-        this.persistenceService.releaseLock(path, token);
-        if (this.governor) this.governor.releaseInteraction();
-        if (this.logger && this.settings.debug) this.logger.info(`[StackView] Persistence UNLOCKED for ${path} (token: ${token}, count: ${this.persistenceLockCount})`);
-
-        if (this.persistenceLockCount === 0) {
-            if (this.isReloadPending) {
-                if (this.logger) this.logger.info(`[StackView] interaction-idle: triggering DEFERRED reload`);
-                this.reload();
-            } else if (this.saveTimeout) {
-                // Re-trigger the debounced save immediately now that interaction is done
-                if (this.logger && this.settings.debug) this.logger.info(`[StackView] interaction-idle: triggering pending save`);
-                this.triggerSave(0);
-            }
-        }
-    }
-
-    private async performSave() {
-        if (!this.lastTasksForSave) return;
-        const tasks = this.lastTasksForSave;
-        const currentIds = tasks.map(t => `${t.id}:${t.status}`);
-        const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
-        const savePath = (this.rootPath && this.rootPath.includes('CurrentStack.md')) ? this.rootPath : persistencePath;
-        const isCurrentlyViewingShortlist = this.rootPath === persistencePath || (this.rootPath && this.rootPath.includes('CurrentStack.md'));
-
-        try {
-            // BUG-025 Fix: ONLY save the task list (the shortlist) if we are actually 
-            // viewing the shortlist. If we are drilled into a task file, do NOT 
-            // overwrite the global CurrentStack.md with our current view's children.
-            if (isCurrentlyViewingShortlist) {
-                await this.persistenceService.saveStack(tasks, savePath);
-                this.lastSavedIds = currentIds;
-            } else {
-                if (this.logger) this.logger.info(`[StackView] Skipping shortlist save: current view is drilled into ${this.rootPath}`);
-            }
-        } finally {
-            this.saveTimeout = null;
-            this.lastTasksForSave = null;
-            const resolvers = [...this.flushResolvers];
-            this.flushResolvers = [];
-            resolvers.forEach(resolve => resolve());
-        }
-    }
-
-    private lastTasksForSave: TaskNode[] | null = null;
-    private triggerSave(delay: number = 500) {
-        if (this.saveTimeout) clearTimeout(this.saveTimeout);
-
-        this.saveTimeout = window.setTimeout(async () => {
-            if (this.persistenceLockCount > 0) {
-                if (this.logger && this.settings.debug) this.logger.info(`[StackView] Save deferred: active interaction lock`);
-                return; // Will be re-triggered by unlockPersistence
-            }
-            await this.performSave();
-        }, delay);
     }
 
     private isModalOpen: boolean = false;
@@ -593,7 +434,7 @@ export class StackView extends ItemView {
                     onTaskUpdate: this.onTaskUpdate,
                     onTaskCreate: this.onTaskCreate,
                     onGoBack: async () => {
-                        await this.flushPersistence();
+                        await this.syncManager.flushPersistence();
                         const result = await this.navManager.goBack();
                         if (result.success) {
                             this.tasks = this.navManager.getCurrentStack();
@@ -640,16 +481,7 @@ export class StackView extends ItemView {
                         }
 
                         const persistencePath = `${this.settings.targetFolder}/CurrentStack.md`;
-                        if (this.rootPath === persistencePath || this.rootPath === 'CurrentStack.md' || (this.currentTaskIds && this.currentTaskIds.length > 0)) {
-                            if (tasks.length === 0 && (!this.lastSavedIds || this.lastSavedIds.length === 0)) return;
-                            const currentIds = tasks.map(t => `${t.id}:${t.status}`);
-                            const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
-
-                            if (idsChanged && !this.isReloadPending) {
-                                this.lastTasksForSave = tasks;
-                                this.triggerSave(500);
-                            }
-                        }
+                        this.syncManager.handleStackChange(tasks);
                     },
                     openQuickAddModal: (currentIndex: number) => {
                         this.isModalOpen = true;
@@ -708,8 +540,8 @@ export class StackView extends ItemView {
                         this.app.workspace.openLinkText(path, '', true);
                     },
                     onNavigate: this.onNavigate.bind(this),
-                    lockPersistence: (path: string, token: string) => this.lockPersistence(path, token),
-                    unlockPersistence: (path: string, token: string) => this.unlockPersistence(path, token),
+                    lockPersistence: (path: string, token: string) => this.syncManager.lockPersistence(path, token),
+                    unlockPersistence: (path: string, token: string) => this.syncManager.unlockPersistence(path, token),
                     app: this.app
                 }
             });
@@ -767,8 +599,7 @@ export class StackView extends ItemView {
     }
 
     async onClose() {
-        if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
-        if (this.syncCheckInterval) window.clearInterval(this.syncCheckInterval);
+        if (this.syncManager) this.syncManager.destroy();
         if (this.navManager) this.navManager.destroy();
         if (this.component) unmount(this.component);
     }

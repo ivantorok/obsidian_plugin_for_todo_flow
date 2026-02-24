@@ -99,6 +99,8 @@
                     onPointerEnd(e as any, task);
                 }}
                 onpointercancel={onPointerCancel}
+                ontouchstart={handleTouchBlocking}
+                ontouchmove={handleTouchBlocking}
                 use:touchBlocking={handleTouchBlocking}
                 style={isMobileState
                     ? `touch-action: none; transform: ${getCardTransform(task.id)}; flex-wrap: wrap !important; padding: 0.75rem !important; gap: 0.5rem !important; pointer-events: ${task.id.startsWith("temp-") ? "none" : "auto"};`
@@ -340,6 +342,8 @@
 </div>
 
 <style>
+    @import "../styles/stack-shared.css";
+
     .todo-flow-timeline {
         display: flex;
         flex-direction: column;
@@ -356,141 +360,82 @@
     }
 
     /* FOCUS MODE STYLES */
-    .focus-card {
-        width: 90%;
-        max-width: 400px;
-        background: var(--background-primary-alt);
-        border: 2px solid var(--background-modifier-border);
-        border-radius: 1.5rem;
-        padding: 2.5rem 1.5rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        display: flex !important;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1.5rem;
-        transition:
-            transform 0.1s ease-out,
-            border-color 0.3s;
-        min-height: 250px;
-    }
 
-    /* ZEN MODE STYLES */
-    .zen-card {
-        background: linear-gradient(
-            135deg,
-            var(--background-primary-alt),
-            var(--background-secondary)
-        );
-        border: 2px dashed var(--background-modifier-border);
-        cursor: default;
-    }
-
-    .zen-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(
-            to right,
-            var(--text-normal),
-            var(--text-accent)
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .zen-subtitle {
-        font-size: 1.1rem;
+    .index-display {
+        font-size: 0.8rem;
         color: var(--text-muted);
-        margin-bottom: 2rem;
-    }
-
-    .zen-list-empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 4rem 2rem;
-        text-align: center;
-        color: var(--text-muted);
-        gap: 1.5rem;
-    }
-
-    .zen-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.8;
-    }
-
-    .focus-card.anchored {
-        border-color: var(--interactive-accent);
-        background: var(--background-secondary);
-    }
-
-    .focus-card-inner {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .focus-time-badge {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 600;
-        background: var(--background-secondary);
-        padding: 4px 12px;
-        border-radius: 12px;
-        width: fit-content;
-        margin: 0 auto;
-    }
-
-    .focus-title {
-        font-size: 1.8rem;
-        margin: 0.5rem 0;
-        color: var(--text-normal);
-        line-height: 1.2;
-        word-break: break-word;
-    }
-
-    .focus-metadata {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        color: var(--text-muted);
-    }
-
-    .focus-duration-text {
-        font-size: 1.1rem;
+        opacity: 0.5;
         font-family: var(--font-monospace);
+        margin-bottom: -0.5rem;
     }
 
-    .focus-anchor-status {
-        color: var(--interactive-accent);
-        font-size: 0.9rem;
-        font-weight: 600;
+    .todo-flow-stack-container {
+        padding: 2rem;
+        background: var(--background-primary);
+        outline: none;
+        user-select: text;
+        height: 100%;
+        overflow-y: auto;
+        touch-action: pan-y;
+        transition: padding-bottom 0.2s ease;
     }
 
-    .focus-actions {
-        display: flex;
-        gap: 1rem;
-        width: 100%;
-        margin-top: 1rem;
+    .todo-flow-stack-container.is-editing {
+        padding-bottom: 40vh; /* Reduced from 50vh to avoid ghost space covering inputs */
     }
 
-    .focus-action-btn {
-        flex: 1;
-        padding: 0.75rem;
-        border-radius: 10px;
-        border: 1px solid var(--background-modifier-border);
-        background: var(--background-secondary);
-        color: var(--text-normal);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
+    /* Mobile Scrollbar Visibility (UI-001) */
+    @media (max-width: 768px) {
+        .todo-flow-stack-container::-webkit-scrollbar {
+            width: 4px;
+            display: block !important;
+        }
+        .todo-flow-stack-container::-webkit-scrollbar-thumb {
+            background-color: var(--text-muted);
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background-clip: content-box;
+            opacity: 0.3;
+        }
+    }
+
+    .todo-flow-stack-container.is-dragging {
+        user-select: none !important;
+        cursor: grabbing !important;
+    }
+
+    /* Enhanced Drag Feedback */
+    :global(.todo-flow-task-card.dragging) {
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2) !important;
+        transform: scale(1.05) !important;
+        z-index: 9999 !important;
+        opacity: 0.9 !important;
+        background: var(--interactive-accent) !important;
+        color: var(--text-on-accent) !important;
+    }
+
+    :global(.todo-flow-task-card.dragging .title) {
+        color: var(--text-on-accent) !important;
+    }
+
+    :global(.todo-flow-task-card.dragging .drag-handle) {
+        color: var(--text-on-accent) !important;
+        opacity: 1 !important;
+    }
+
+    /* Mobile Drag Handle Target (BUG-006) */
+    @media (max-width: 600px) {
+        :global(.todo-flow-task-card .drag-handle) {
+            padding: 0 1rem !important; /* Wider hit area */
+            min-width: 44px !important; /* Apple HIG minimum */
+            font-size: 1.5rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .todo-flow-stack-container.is-dragging * {
+        user-select: none !important;
     }
 </style>

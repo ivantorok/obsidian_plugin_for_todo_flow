@@ -80,26 +80,26 @@ describe('BUG-021: Deferred Reload', () => {
     });
 
     it('should defer reload when persistence is locked', async () => {
-        stackView.lockPersistence('/path', 'token-1');
+        (stackView as any).syncManager.lockPersistence('/path', 'token-1');
 
         await stackView.reload();
 
-        expect(stackView.isReloadPending).toBe(true);
+        expect((stackView as any).syncManager.isReloadPending).toBe(true);
         expect(stackView.navManager.refresh).not.toHaveBeenCalled();
 
-        stackView.unlockPersistence('/path', 'token-1');
+        (stackView as any).syncManager.unlockPersistence('/path', 'token-1');
 
         // Let the async reload() call inside unlockPersistence start
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        expect(stackView.isReloadPending).toBe(false);
+        expect((stackView as any).syncManager.isReloadPending).toBe(false);
         expect(stackView.navManager.refresh).toHaveBeenCalled();
     });
 
     it('should execute reload immediately if not locked', async () => {
         await stackView.reload();
 
-        expect(stackView.isReloadPending).toBe(false);
+        expect((stackView as any).syncManager.isReloadPending).toBe(false);
         expect(stackView.navManager.refresh).toHaveBeenCalled();
     });
 });

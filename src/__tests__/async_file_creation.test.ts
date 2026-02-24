@@ -31,7 +31,11 @@ const mockSettings = {
 };
 
 const mockHistoryManager = {
-    executeCommand: vi.fn().mockResolvedValue(undefined)
+    executeCommand: vi.fn().mockImplementation(async (cmd) => {
+        if (cmd && typeof cmd.execute === 'function') {
+            await cmd.execute();
+        }
+    })
 };
 
 const mockLogger = { info: vi.fn(), error: vi.fn() };
@@ -126,13 +130,20 @@ describe('Async File Creation in StackView', () => {
         stackView.app = mockApp;
         stackView.rootPath = 'CurrentStack.md';
 
+        const tasks: TaskNode[] = [];
         // CRITICAL: We MUST have a component mocked BEFORE we do anything
         stackView.component = {
             resolveTempId: vi.fn(),
             getController: vi.fn().mockReturnValue({
-                addTaskAt: vi.fn().mockReturnValue({ resultIndex: 0 }),
-                getTasks: vi.fn().mockReturnValue([]),
-                insertAfter: vi.fn().mockReturnValue(0)
+                addTaskAt: vi.fn().mockImplementation((index, node) => {
+                    tasks.splice(index, 0, node);
+                    return { resultIndex: index };
+                }),
+                getTasks: vi.fn().mockImplementation(() => tasks),
+                insertAfter: vi.fn().mockImplementation((index, node) => {
+                    tasks.splice(index + 1, 0, node);
+                    return index + 1;
+                })
             }),
             update: vi.fn(),
             setFocus: vi.fn()
@@ -175,7 +186,7 @@ describe('Async File Creation in StackView', () => {
         await new Promise(r => setTimeout(r, 0));
 
         // @ts-ignore
-        await Promise.all(Array.from(stackView.pendingSyncs));
+        await stackView.flushPersistence();
 
         // Verify the component was notified
         expect(stackView.component.resolveTempId).toHaveBeenCalledWith(expect.stringContaining('temp-'), newNode.id);
