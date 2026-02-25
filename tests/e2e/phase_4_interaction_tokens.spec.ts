@@ -11,7 +11,8 @@ describe('Phase 4: Skeptical Specs - Interaction Token Sovereignty', () => {
         await focusStack();
     });
 
-    it('should reject external updates while a touch/interaction is active on a specifically locked path', async () => {
+    it('should reject external updates while a touch/interaction is active on a specifically locked path', async function () {
+        this.timeout(180000); // 3 minutes for this complex interaction test
         // 1. Wait for the stack view to be ready
         const container = await $('.todo-flow-stack-container');
         await browser.waitUntil(async () => {

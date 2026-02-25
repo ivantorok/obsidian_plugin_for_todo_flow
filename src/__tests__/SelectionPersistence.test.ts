@@ -148,7 +148,9 @@ describe('StackView Selection Persistence', () => {
         const mockPersistence = {
             saveStack: vi.fn(),
             loadStackIds: vi.fn(),
-            isExternalUpdate: vi.fn().mockResolvedValue(true)
+            isExternalUpdate: vi.fn().mockResolvedValue(true),
+            onIdleChange: vi.fn(),
+            getIsIdle: vi.fn().mockReturnValue(true)
         };
         view = new StackView(mockLeaf as any, mockSettings, mockHistory as any, mockLogger as any, { isSovereign: vi.fn().mockReturnValue(true) } as any, mockPersistence as any, vi.fn(), vi.fn());
 

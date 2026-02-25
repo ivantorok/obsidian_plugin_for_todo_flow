@@ -122,7 +122,7 @@ describe('Async File Creation in StackView', () => {
             mockHistoryManager as any,
             mockLogger as any,
             { isSovereign: vi.fn().mockReturnValue(true) } as any, // mockViewManager
-            mockPersistenceService as any,
+            { ...mockPersistenceService, onIdleChange: vi.fn(), getIsIdle: vi.fn().mockReturnValue(true) } as any,
             vi.fn(), // onTaskUpdate
             onTaskCreateSpy // onTaskCreate
         );
@@ -146,7 +146,9 @@ describe('Async File Creation in StackView', () => {
                 })
             }),
             update: vi.fn(),
-            setFocus: vi.fn()
+            setFocus: vi.fn(),
+            setIsSyncing: vi.fn(),
+            setIsPersistenceIdle: vi.fn()
         };
     });
 

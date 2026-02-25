@@ -16,6 +16,7 @@ export interface SyncManagerConfig {
     getCurrentTaskIds: () => string[] | null;
     settings: any;
     setIsSyncing: (val: boolean) => void;
+    setIsPersistenceIdle: (val: boolean) => void;
     registerEvent?: (ref: any) => void;
     triggerViewReload: () => void;
 }
@@ -26,6 +27,7 @@ export class StackSyncManager {
     private isReloadPending = false;
     private syncCheckInterval: number | null = null;
     private pendingSyncs: Set<Promise<void>> = new Set();
+    private currentIdleState: boolean | null = null;
 
     // Persistence state
     private lastTasksForSave: TaskNode[] | null = null;
@@ -37,6 +39,19 @@ export class StackSyncManager {
     constructor(private config: SyncManagerConfig) {
         this.setupSyncSentry();
         this.registerChangeListeners();
+
+        // Push-based notifications: subscribe to persistence service
+        this.config.persistenceService.onIdleChange(() => this.broadcastIdleState());
+        // Initial broadcast
+        this.broadcastIdleState();
+    }
+
+    private broadcastIdleState() {
+        const isIdle = this.isPersistenceIdle();
+        if (isIdle !== this.currentIdleState) {
+            this.currentIdleState = isIdle;
+            this.config.setIsPersistenceIdle(isIdle);
+        }
     }
 
     private setupSyncSentry() {
@@ -66,7 +81,6 @@ export class StackSyncManager {
             if (rootPath && file.path === rootPath) {
                 const isExternal = await this.config.persistenceService.isExternalUpdate(file.path, tasks);
                 if (isExternal) {
-                    if (this.config.logger) this.config.logger.info(`[StackSyncManager] External change detected on BACKING FILE ${file.path}. Triggering sync reload.`);
                     this.triggerSyncReload(this.isSyncing ? 3000 : 500);
                 }
                 return;
@@ -89,9 +103,13 @@ export class StackSyncManager {
 
     public triggerSyncReload(ms: number) {
         if (this.reloadTimeout) window.clearTimeout(this.reloadTimeout as any);
+
         this.reloadTimeout = window.setTimeout(async () => {
-            if (this.isReloadPending) return;
+            this.reloadTimeout = null;
+            this.broadcastIdleState(); // Broadcast change after clearing timeout
+
             this.isReloadPending = true;
+            this.broadcastIdleState();
 
             try {
                 await this.flushPersistence();
@@ -100,14 +118,18 @@ export class StackSyncManager {
                 await this.config.navManager.refresh();
             } finally {
                 this.isReloadPending = false;
+                this.broadcastIdleState();
             }
         }, ms) as any;
+
+        this.broadcastIdleState(); // Broadcast change after setting timeout
     }
 
     public async flushPersistence(): Promise<void> {
         if (this.pendingSyncs.size > 0) {
             if (this.config.logger) this.config.logger.info(`[StackSyncManager] Draining ${this.pendingSyncs.size} pending task syncs before flush.`);
             await Promise.all(this.pendingSyncs);
+            this.broadcastIdleState();
         }
 
         if (!this.saveTimeout) return;
@@ -158,14 +180,20 @@ export class StackSyncManager {
         if (this.persistenceLockCount > 0) {
             if (this.config.logger) this.config.logger.info(`[StackSyncManager] Save DEFERRED: active interaction lock`);
             this.saveTimeout = 1 as any;
+            this.broadcastIdleState();
             return;
         }
 
         this.saveTimeout = window.setTimeout(() => this.performSave(), ms) as any;
+        this.broadcastIdleState();
     }
 
     private async performSave() {
-        if (!this.lastTasksForSave) return;
+        if (!this.lastTasksForSave) {
+            this.saveTimeout = null;
+            this.broadcastIdleState();
+            return;
+        }
         const tasks = this.lastTasksForSave;
         const currentIds = tasks.map(t => `${t.id}:${t.status}`);
         const persistencePath = `${this.config.settings.targetFolder}/CurrentStack.md`;
@@ -189,6 +217,7 @@ export class StackSyncManager {
             if (this.config.logger) this.config.logger.error(`[StackSyncManager] Failed to save stack list: ${e}`);
         } finally {
             this.saveTimeout = null;
+            this.broadcastIdleState();
             const resolvers = [...this.flushResolvers];
             this.flushResolvers = [];
             resolvers.forEach(res => res());
@@ -218,12 +247,17 @@ export class StackSyncManager {
 
     public trackSyncPromise(promise: Promise<void>) {
         this.pendingSyncs.add(promise);
-        promise.finally(() => this.pendingSyncs.delete(promise));
+        this.broadcastIdleState();
+        promise.finally(() => {
+            this.pendingSyncs.delete(promise);
+            this.broadcastIdleState();
+        });
     }
 
     public async drainSyncPromises() {
         if (this.pendingSyncs.size > 0) {
             await Promise.all(this.pendingSyncs);
+            this.broadcastIdleState();
         }
     }
 
@@ -233,6 +267,15 @@ export class StackSyncManager {
 
     public setReloadPending(pending: boolean) {
         this.isReloadPending = pending;
+        this.broadcastIdleState();
+    }
+
+    public isPersistenceIdle(): boolean {
+        return this.pendingSyncs.size === 0 &&
+            this.saveTimeout === null &&
+            this.reloadTimeout === null &&
+            this.isReloadPending === false &&
+            this.config.persistenceService.getIsIdle();
     }
 
     public destroy() {

@@ -135,7 +135,7 @@ describe('StackView Integration', () => {
             mockHistoryManager,
             mockLogger,
             { isSovereign: vi.fn().mockReturnValue(true) } as any, // mockViewManager
-            { saveStack: vi.fn(), loadStackIds: vi.fn() } as any,
+            { saveStack: vi.fn(), loadStackIds: vi.fn(), onIdleChange: vi.fn(), getIsIdle: vi.fn().mockReturnValue(true) } as any,
             vi.fn(),
             vi.fn()
         );

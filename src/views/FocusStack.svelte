@@ -14,17 +14,14 @@
         executeGestureAction,
         openDurationPicker,
         openQuickAddModal,
+        isSyncing = false,
+        isPersistenceIdle = true,
         ...restProps
     } = $props();
 
     const tasks = $derived(navState.tasks);
     const focusedIndex = $derived(navState.focusedIndex);
     const isMobile = $derived(navState.isMobile);
-    let isSyncing = $state(false);
-
-    export function setIsSyncing(val: boolean) {
-        isSyncing = val;
-    }
 
     function syncGuard(fn: any) {
         return (...args: any[]) => {
@@ -56,6 +53,15 @@
     export function updateNow(newNow: moment.Moment) {
         now = newNow;
     }
+
+    export function setTasks(newTasks: TaskNode[]) {
+        navState.tasks = newTasks;
+    }
+
+    export function getTasks() {
+        return navState.tasks;
+    }
+
 </script>
 
 <div class="todo-flow-timeline mode-focus todo-flow-stack-container" data-testid="stack-container" data-view-type="focus" data-task-count={tasks.length} data-ui-ready="true" data-focused-index={focusedIndex}>

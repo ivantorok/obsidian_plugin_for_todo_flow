@@ -39,6 +39,8 @@ vi.mock('../services/StackPersistenceService.js', () => ({
         claimLock() { }
         releaseLock() { }
         saveStack() { return Promise.resolve() }
+        onIdleChange() { }
+        getIsIdle() { return true }
     }
 }));
 vi.mock('../ui/QuickAddModal.js', () => ({ QuickAddModal: class { } }));
@@ -68,7 +70,7 @@ describe('BUG-021: Deferred Reload', () => {
             {}, // history
             { info: vi.fn(), warn: vi.fn(), error: vi.fn() }, // logger
             { isSovereign: () => true }, // viewManager
-            { isExternalUpdate: vi.fn(), claimLock: vi.fn(), releaseLock: vi.fn() }, // persistence
+            { isExternalUpdate: vi.fn(), claimLock: vi.fn(), releaseLock: vi.fn(), onIdleChange: vi.fn(), getIsIdle: () => true }, // persistence
             vi.fn(), // onUpdate
             vi.fn()  // onCreate
         );

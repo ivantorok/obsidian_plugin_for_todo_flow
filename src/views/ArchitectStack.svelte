@@ -38,6 +38,8 @@
         onFocusChange,
         lockPersistence,
         unlockPersistence,
+        isSyncing = false,
+        isPersistenceIdle = true,
         debug,
     }: {
         navState: StackUIState;
@@ -68,7 +70,6 @@
     let navStateReceived = $state(false);
     let showHelp = $state(false);
     let rerenderTick = $state(0);
-    let isSyncing = $state(false);
     let editingIndex = $state(-1);
     let renamingText = $state("");
     let editingStartTimeIndex = $state(-1);
@@ -218,7 +219,7 @@
     export const getFocusedIndex = () => navState.focusedIndex;
     export const setFocus = (index: number) => { navState.focusedIndex = index; stateManager.triggerUpdate(); };
     export const setTasks = (tasks: TaskNode[]) => { navState.tasks = tasks; stateManager.triggerUpdate(); };
-    export const setIsSyncing = (val: boolean) => isSyncing = val;
+    export const getTasks = () => navState.tasks;
     export const resolveTempId = (tempId: string, realId: string) => {
         controller.resolveTempId(tempId, realId);
         stateManager.triggerUpdate();

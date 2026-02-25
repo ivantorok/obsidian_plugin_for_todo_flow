@@ -9,11 +9,27 @@ export class StackPersistenceService {
     private silencedFiles: Map<string, number> = new Map();
     private activeLocks: Map<string, string> = new Map();
     private logger: FileLogger | undefined;
+    private isIdle: boolean = true;
+    private idleChangeCallbacks: ((idle: boolean) => void)[] = [];
 
     constructor(private app: App) { }
 
     setLogger(logger: FileLogger) {
         this.logger = logger;
+    }
+
+    getIsIdle(): boolean {
+        return this.isIdle;
+    }
+
+    onIdleChange(cb: (idle: boolean) => void) {
+        this.idleChangeCallbacks.push(cb);
+    }
+
+    private setInternalIdle(idle: boolean) {
+        if (this.isIdle === idle) return;
+        this.isIdle = idle;
+        this.idleChangeCallbacks.forEach(cb => cb(idle));
     }
 
     /**
@@ -59,53 +75,63 @@ export class StackPersistenceService {
     }
 
     async saveStack(tasks: TaskNode[], filePath: string): Promise<void> {
-        const msg = `[StackPersistenceService] saveStack() path=${filePath}, count=${tasks.length}`;
-        if (this.logger) await this.logger.info(msg);
-        console.log(msg);
-        if (typeof window !== 'undefined') {
+        this.setInternalIdle(false);
+        try {
+            const msg = `[StackPersistenceService] saveStack() path=${filePath}, count=${tasks.length}`;
+            if (this.logger) await this.logger.info(msg);
             console.log(msg);
-        }
-        let content = `# Current Stack\n\n`;
-
-        for (const task of tasks) {
-            const checkbox = task.status === 'done' ? '[x]' : '[ ]';
-            content += `- ${checkbox} [[${task.id}]]\n`;
-        }
-
-        // Update internal write time BEFORE writing to avoid race with watcher
-        this.recordInternalWrite(filePath, content);
-
-        const file = this.app.vault.getAbstractFileByPath(filePath);
-
-        // Ensure directory exists
-        const lastSlash = filePath.lastIndexOf('/');
-        if (lastSlash !== -1) {
-            const folderPath = filePath.substring(0, lastSlash);
-            if (!await this.app.vault.adapter.exists(folderPath)) {
-                await this.app.vault.adapter.mkdir(folderPath);
+            if (typeof window !== 'undefined') {
+                console.log(msg);
             }
-        }
+            let content = `# Current Stack\n\n`;
 
-        // Relaxed check for TFile to support mocks
-        if (file && (file instanceof TFile || (file as any).extension === 'md')) {
-            await this.app.vault.modify(file as TFile, content);
-        } else {
-            await this.app.vault.create(filePath, content);
+            for (const task of tasks) {
+                const checkbox = task.status === 'done' ? '[x]' : '[ ]';
+                content += `- ${checkbox} [[${task.id}]]\n`;
+            }
+
+            // Update internal write time BEFORE writing to avoid race with watcher
+            this.recordInternalWrite(filePath, content);
+
+            const file = this.app.vault.getAbstractFileByPath(filePath);
+
+            // Ensure directory exists
+            const lastSlash = filePath.lastIndexOf('/');
+            if (lastSlash !== -1) {
+                const folderPath = filePath.substring(0, lastSlash);
+                if (!await this.app.vault.adapter.exists(folderPath)) {
+                    await this.app.vault.adapter.mkdir(folderPath);
+                }
+            }
+
+            // Relaxed check for TFile to support mocks
+            if (file && (file instanceof TFile || (file as any).extension === 'md')) {
+                await this.app.vault.modify(file as TFile, content);
+            } else {
+                await this.app.vault.create(filePath, content);
+            }
+        } finally {
+            this.setInternalIdle(true);
         }
     }
 
     async saveTask(task: TaskNode): Promise<void> {
-        // Implement task metadata saving (e.g., frontmatter update)
-        // For now, we rely on the fact that any change to task metadata 
-        // should be reflected in its backing file.
-        const file = this.app.vault.getAbstractFileByPath(task.id);
-        if (file instanceof TFile) {
-            this.recordInternalWrite(task.id);
-            await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
-                if (task.duration !== undefined) frontmatter.duration = task.duration;
-                if (task.startTime) frontmatter.startTime = task.startTime.format();
-                if (task.isAnchored !== undefined) frontmatter.isAnchored = task.isAnchored;
-            });
+        this.setInternalIdle(false);
+        try {
+            // Implement task metadata saving (e.g., frontmatter update)
+            // For now, we rely on the fact that any change to task metadata 
+            // should be reflected in its backing file.
+            const file = this.app.vault.getAbstractFileByPath(task.id);
+            if (file instanceof TFile) {
+                this.recordInternalWrite(task.id);
+                await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+                    if (task.duration !== undefined) frontmatter.duration = task.duration;
+                    if (task.startTime) frontmatter.startTime = task.startTime.format();
+                    if (task.isAnchored !== undefined) frontmatter.isAnchored = task.isAnchored;
+                });
+            }
+        } finally {
+            this.setInternalIdle(true);
         }
     }
 

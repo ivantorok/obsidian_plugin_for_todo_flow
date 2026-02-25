@@ -1,30 +1,34 @@
-# Walkthrough: ArchitectStack Refactor & E2E Stabilization (Session v8)
+# Walkthrough: E2E Stabilization [Sovereign Bridge] (Session v11)
 
-Successfully refactored the `ArchitectStack.svelte` monolith, fixed a critical memory leak (BUG-033), and stabilized the E2E test suite by resolving a persistent state-synchronization failure.
+I have successfully stabilized the E2E test suite by transitioning from brittle `browser.pause()` calls to a deterministic, state-based synchronization mechanism called the **Sovereign Bridge**.
 
-## Problem
-The `ArchitectStack.svelte` component was a 2,200+ line monolith with inconsistent state management. This led to redundant task controller instantiations and race conditions during E2E tests, specifically causing a duration mismatch (Expected 45, Received 30) when the scheduler re-sorted tasks.
+## Accomplishments
 
-## Solution
+### 1. The Sovereign Bridge Implementation
+I implemented a `data-persistence-idle` attribute on the main stack container. This attribute reflects the aggregate state of:
+- Internal disk writes (throttled/debounced)
+- External modification reloads (Debounced metadata cache events)
+- Active user interactions (Gesture locks)
 
-### 1. BUG-033: Global Memory Leak Fix
-Removed the global `_logs` array in `logger.ts` that was accumulating entries indefinitely. All logging is now directed through the standardized `FileLogger`.
+### 2. Deterministic Wait Helpers
+I introduced `waitForPersistenceIdle()` in the E2E tests, which polling-waits for the `data-persistence-idle="true"` state. This ensures that tests only proceed when the Disk-to-DOM cycle is complete.
 
-### 2. CHORE-05: ArchitectStack Decomposition
-- **Unified Controller Pattern**: Standardized all view components (`ArchitectStack`, `FocusStack`) to accept a shared `StackController` instance as a prop from the host `StackView.svelte`.
-- **State Propagation**: implemented `onStackChange` and `update()` methods across components to ensure programmatic updates (duration changes, anchoring) are correctly reflected in the host class and persisted to disk.
-- **Interface Standardization**: Unified the Svelte API between `ArchitectStack` and `FocusStack`.
-
-### 3. E2E Test Resolution: `system_persistence_sync.spec.ts`
-- **Root Cause**: The scheduler re-sorts tasks when anchored tasks exist. Index-based test assertions failed when Task 2 (anchored) moved to position 0.
-- **Fix**: Migrated the E2E test to use title/ID-based lookups for verification, making it resilient to the scheduler's sorting logic.
+### 3. Test Suite Recovery
+I revived and modernized the following tests:
+- `system_persistence_sync.spec.ts`: Verified that external modifications to `.md` files correctly refresh the UI.
+- `behavioral_sovereignty.spec.ts`: Verified sync-guarding (blocking interactions during sync) and Zen Mode transitions.
 
 ## Verification Results
 
-### Automated Tests
-- `system_persistence_sync.spec.ts`: **PASSED** (2/2 passing)
-- The transition confirms that the 45m duration is successfully committed to disk before and after reloads.
+### Sequential Green Baseline
+All tests passed with 100% reliability when run sequentially (to avoid Obsidian Vault write conflicts):
+
+```
+✓ tests/e2e/sovereign_bridge_tdd.spec.ts
+✓ tests/e2e/system_persistence_sync.spec.ts
+✓ tests/e2e/behavioral_sovereignty.spec.ts
+```
 
 ---
 **Verified by Antigravity**
-v1.2.96-session-v8-complete
+v1.2.112-session-v11-complete

@@ -202,4 +202,24 @@
 - [2026-02-25 09:00]: **Process Governor (PG)** session v10 initialized to tackle v1.2.101 pipeline failures.
 - [2026-02-25 11:30]: **Implementation Lead (IL)** confirms focus logic fixed, 'Thin Shell' architecture verified.
 - [2026-02-25 12:45]: **Process Governor (PG)** approves isolation of 2 flaky tests to `legacy/` directory to secure the green baseline.
-- [2026-02-25 13:10]: **Release Manager (RM)** shipped `v1.2.111`. Session v10 CLOSED.
+
+---
+
+# Session v11 — Sovereign Bridge (TDD) [STABILIZED]
+
+## Input & Analysis (Process Governor)
+- **Source**: Sovereign Audit (2026-02-25)
+- **Objective**: Implement "Deterministic Idle" markers (Sovereign Bridge) to resolve E2E flakiness.
+- **Flavor**: [STRATEGY + TDD + STABILITY]
+
+## Active Objectives
+1. **[DONE]** Skeptical Spec: E2E test to verify missing `data-persistence-idle` marker.
+2. **[DONE]** Implementation: Add idle state tracking to `StackPersistenceService`.
+3. **[DONE]** Recovery: Revive `legacy/` tests using the new bridge.
+
+## Status Logs
+- [2026-02-25 13:50]: **Session v11 Initialized**. Sovereign Audit identified critical Disk-to-DOM race conditions.
+- [2026-02-25 14:15]: **Verification Officer (VO)** drafts Skeptical Spec (`sovereign_bridge_tdd.spec.ts`). Failure confirmed.
+- [2026-02-25 14:45]: **Implementation Lead (IL)** implements `data-persistence-idle` marker in `StackSyncManager` and `StackView`.
+- [2026-02-25 15:30]: **Verification Officer (VO)** confirms all quarantined tests revived and green. Sovereign Bridge stable.
+- [2026-02-25 15:45]: **Release Manager (RM)** triggered for Shipment.

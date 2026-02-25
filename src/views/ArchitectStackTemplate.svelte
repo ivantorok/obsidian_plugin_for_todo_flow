@@ -62,6 +62,7 @@
                 data-index={i}
                 class:anchored={task.isAnchored}
                 class:is-done={task.status === "done"}
+                data-status={task.status}
                 class:is-missing={task.isMissing}
                 class:dragging={draggingTaskId === task.id}
                 class:drop-before={dragTargetIndex === i &&

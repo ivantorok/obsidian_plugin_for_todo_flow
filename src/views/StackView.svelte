@@ -58,6 +58,7 @@
     let viewMode = $derived(navState.viewMode || "architect");
     let activeComponent = $state<any>(null);
     let isSyncing = $state(false);
+    let isPersistenceIdle = $state(true);
 
     let navigationHistory = $derived(navState.history || []);
     let internalParentTaskName = $derived(navState.parentTaskName || null);
@@ -68,9 +69,17 @@
         if (activeComponent?.setIsSyncing) activeComponent.setIsSyncing(val);
     }
 
+    export function setIsPersistenceIdle(val: boolean) {
+        isPersistenceIdle = val;
+    }
+
     export function setViewMode(mode: "focus" | "architect") {
         navState.viewMode = mode;
         if (activeComponent?.setViewMode) activeComponent.setViewMode(mode);
+    }
+
+    export function getViewMode() {
+        return navState.viewMode;
     }
 
     export function setNavState(newState: StackUIState) {
@@ -211,6 +220,7 @@
     data-view-mode={viewMode}
     data-task-count={navState.tasks.length}
     data-is-syncing={isSyncing}
+    data-persistence-idle={isPersistenceIdle}
 >
     <StackHeader
         bind:navState
@@ -227,6 +237,8 @@
             bind:navState
             {controller}
             {executeGestureAction}
+            {isSyncing}
+            {isPersistenceIdle}
             bind:this={activeComponent}
         />
     {:else}
@@ -236,6 +248,8 @@
             {controller}
             {executeGestureAction}
             {persistenceService}
+            {isSyncing}
+            {isPersistenceIdle}
             onStackChange={restProps.onStackChange}
             bind:this={activeComponent}
         />
