@@ -136,10 +136,10 @@ export class StackInputManager {
 
     private restoreContainerFocus() {
         if (this.focusTimer) clearTimeout(this.focusTimer);
-        this.focusTimer = setTimeout(() => {
+        // Using requestAnimationFrame to ensure DOM is settled but faster than 50ms timeout
+        requestAnimationFrame(() => {
             const containerEl = this.config.getContainerEl();
             containerEl?.focus();
-            this.focusTimer = null;
-        }, 50);
+        });
     }
 }

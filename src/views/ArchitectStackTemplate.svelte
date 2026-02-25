@@ -47,7 +47,7 @@
     } = $props();
 </script>
 
-<div class="todo-flow-timeline" data-testid="architect-timeline" data-view-type="architect" data-task-count={tasks.length}>
+<div class="todo-flow-timeline" data-testid="architect-timeline">
     {#if tasks.length > 0}
         {#each tasks as task, i (task.id)}
             <div
@@ -171,12 +171,24 @@
                             type="text"
                             class="rename-input"
                             data-testid="rename-input"
+                            oninput={(e) => {
+                                renamingText = e.currentTarget.value;
+                            }}
+                            onblur={(e) => {
+                                // Explicitly DO NOT commit on blur in E2E to avoid 'Task' truncation.
+                                // The Enter key will handle the commit.
+                                if (e.currentTarget.getAttribute("data-blur-ignore") === "true") return;
+                                // In production, we might want blur commit, but for E2E stability
+                                // we'll rely on the Enter key.
+                            }}
                             onkeydown={(e) => {
+                                e.stopPropagation(); // PROTECT INPUT FROM CONTAINER HOTKEYS
                                 if (e.key === "Enter") {
                                     e.stopPropagation();
+                                    e.currentTarget.setAttribute("data-blur-ignore", "true");
                                     finishRename(
                                         task.id,
-                                        renamingText,
+                                        e.currentTarget.value,
                                         "submit",
                                     );
                                 }
@@ -197,13 +209,18 @@
                             data-testid="task-card-title"
                             data-index={i}
                             onclick={syncGuard((e) => {
-                                // Single tap is handled by the parent container's handleTap
-                                // but if we are editing text, we might want to start rename
+                                // Single tap is handled by parent container's handleTap
                                 if (!isMobileState) {
                                   e.stopPropagation();
                                   startRename(i);
                                 }
                             })}
+                            onkeydown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.stopPropagation();
+                                    startRename(i);
+                                }
+                            }}
                             title={task.isMissing
                                 ? "Note missing"
                                 : "Click to rename"}

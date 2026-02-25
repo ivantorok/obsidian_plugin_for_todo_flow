@@ -1,17 +1,10 @@
 import type { TaskNode } from "../scheduler.js";
 import { resolveSwipe, DOUBLE_TAP_WINDOW } from "../gestures.js";
-import type { GestureManagerConfig } from "./GestureTypes.js";
+import type { GestureManagerConfig, GestureState } from "./GestureTypes.js";
 
 export class StackGestureManager {
-    touchStartX = $state(0);
-    touchStartY = $state(0);
-    touchCurrentX = $state(0);
-    touchCurrentY = $state(0);
-
-    swipingTaskId = $state<string | null>(null);
-    draggingTaskId = $state<string | null>(null);
-    dragTargetIndex = $state<number>(-1);
-    draggingStartIndex = $state<number>(-1);
+    private state: GestureState;
+    private config: GestureManagerConfig;
 
     private longPressTimer: ReturnType<typeof setTimeout> | null = null;
     private tapTimer: ReturnType<typeof setTimeout> | null = null;
@@ -22,9 +15,8 @@ export class StackGestureManager {
     private startedOnHandle = false;
     private lastDragEndTime = 0;
 
-    private config: GestureManagerConfig;
-
-    constructor(config: GestureManagerConfig) {
+    constructor(state: GestureState, config: GestureManagerConfig) {
+        this.state = state;
         this.config = config;
     }
 
@@ -36,13 +28,13 @@ export class StackGestureManager {
     }
 
     getCardTransform(taskId: string): string {
-        if (this.swipingTaskId === taskId) {
-            const deltaX = this.touchCurrentX - this.touchStartX;
+        if (this.state.swipingTaskId === taskId) {
+            const deltaX = this.state.touchCurrentX - this.state.touchStartX;
             const rotation = deltaX / 20;
             return `translateX(${deltaX}px) rotate(${rotation}deg)`;
         }
-        if (this.draggingTaskId === taskId) {
-            const deltaY = this.touchCurrentY - this.touchStartY;
+        if (this.state.draggingTaskId === taskId) {
+            const deltaY = this.state.touchCurrentY - this.state.touchStartY;
             return `translateY(${deltaY}px) scale(1.02) rotate(1deg)`;
         }
         return "";
@@ -63,11 +55,11 @@ export class StackGestureManager {
 
         this.isPressing = true;
         this._touchMovedSignificant = false;
-        this.touchStartX = e.clientX;
-        this.touchStartY = e.clientY;
-        this.touchCurrentX = e.clientX;
-        this.touchCurrentY = e.clientY;
-        this.swipingTaskId = taskId;
+        this.state.touchStartX = e.clientX;
+        this.state.touchStartY = e.clientY;
+        this.state.touchCurrentX = e.clientX;
+        this.state.touchCurrentY = e.clientY;
+        this.state.swipingTaskId = taskId;
 
         const tasks = this.config.getTasks();
         const index = tasks.findIndex((t) => t.id === taskId);
@@ -79,7 +71,7 @@ export class StackGestureManager {
         const settings = this.config.getSettings();
         if (this.config.isMobileState() && settings?.longPressAction) {
             this.longPressTimer = setTimeout(async () => {
-                if (this.isPressing && !this.swipingTaskId && !this.draggingTaskId && !this._touchMovedSignificant) {
+                if (this.isPressing && !this.state.swipingTaskId && !this.state.draggingTaskId && !this._touchMovedSignificant) {
                     if (typeof window !== 'undefined' && (window as any).obsidian?.haptics) {
                         (window as any).obsidian.haptics.impact("heavy");
                     }
@@ -91,19 +83,19 @@ export class StackGestureManager {
     }
 
     handlePointerMove = (e: PointerEvent) => {
-        if (!this.isPressing && !this.swipingTaskId && !this.draggingTaskId) return;
+        if (!this.isPressing && !this.state.swipingTaskId && !this.state.draggingTaskId) return;
 
-        this.touchCurrentX = e.clientX;
-        this.touchCurrentY = e.clientY;
+        this.state.touchCurrentX = e.clientX;
+        this.state.touchCurrentY = e.clientY;
 
-        const dx = this.touchCurrentX - this.touchStartX;
-        const dy = this.touchCurrentY - this.touchStartY;
+        const dx = this.state.touchCurrentX - this.state.touchStartX;
+        const dy = this.state.touchCurrentY - this.state.touchStartY;
 
         if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
             this._touchMovedSignificant = true;
         }
 
-        if (!this.draggingTaskId) {
+        if (!this.state.draggingTaskId) {
             if ((this.startedOnHandle || Math.abs(dy) > Math.abs(dx) * 1.2) && Math.abs(dy) > 5) {
                 const tasks = this.config.getTasks();
                 const elements = this.config.getTaskElements();
@@ -115,24 +107,24 @@ export class StackGestureManager {
                     if (!el) continue;
                     const rect = el.getBoundingClientRect();
                     const elCenter = rect.top + rect.height / 2;
-                    const distance = Math.abs(this.touchStartY - elCenter);
+                    const distance = Math.abs(this.state.touchStartY - elCenter);
                     if (distance < minStartDist) {
                         minStartDist = distance;
                         bestStart = i;
                     }
                 }
                 if (bestStart !== -1 && tasks[bestStart]) {
-                    this.draggingTaskId = tasks[bestStart]!.id;
-                    this.draggingStartIndex = bestStart;
-                    this.dragTargetIndex = bestStart;
-                    this.swipingTaskId = null; // Clear swipe intent
+                    this.state.draggingTaskId = tasks[bestStart]!.id;
+                    this.state.draggingStartIndex = bestStart;
+                    this.state.dragTargetIndex = bestStart;
+                    this.state.swipingTaskId = null; // Clear swipe intent
                 }
             } else if (!this.config.isMobileState() && Math.abs(dx) > 15 && !this.startedOnHandle) {
                 this.isPressing = false;
             }
         }
 
-        if (this.draggingTaskId) {
+        if (this.state.draggingTaskId) {
             const elements = this.config.getTaskElements();
             let bestTarget = -1;
             let minDistance = Infinity;
@@ -142,7 +134,7 @@ export class StackGestureManager {
                 if (!el) continue;
                 const rect = el.getBoundingClientRect();
                 const elCenter = rect.top + rect.height / 2;
-                const distance = Math.abs(this.touchCurrentY - elCenter);
+                const distance = Math.abs(this.state.touchCurrentY - elCenter);
 
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -150,14 +142,14 @@ export class StackGestureManager {
                 }
             }
 
-            if (bestTarget !== -1 && bestTarget !== this.dragTargetIndex) {
-                this.dragTargetIndex = bestTarget;
+            if (bestTarget !== -1 && bestTarget !== this.state.dragTargetIndex) {
+                this.state.dragTargetIndex = bestTarget;
             }
         }
     }
 
     handlePointerEnd = async (e: PointerEvent, task: TaskNode) => {
-        if (!this.swipingTaskId && !this.draggingTaskId) {
+        if (!this.state.swipingTaskId && !this.state.draggingTaskId) {
             return;
         }
 
@@ -167,30 +159,30 @@ export class StackGestureManager {
             this.longPressTimer = null;
         }
 
-        if (this.draggingTaskId) {
+        if (this.state.draggingTaskId) {
             this.config.unfreezeController();
 
-            if (this.dragTargetIndex !== -1 && this.dragTargetIndex !== this.draggingStartIndex && this.dragTargetIndex < this.config.getTasks().length) {
-                await this.config.onReorder(this.draggingStartIndex, this.dragTargetIndex);
+            if (this.state.dragTargetIndex !== -1 && this.state.dragTargetIndex !== this.state.draggingStartIndex && this.state.dragTargetIndex < this.config.getTasks().length) {
+                await this.config.onReorder(this.state.draggingStartIndex, this.state.dragTargetIndex);
             } else {
                 this.config.unlockPersistence();
             }
 
             this.lastDragEndTime = Date.now();
-            this.draggingTaskId = null;
-            this.draggingStartIndex = -1;
-            this.dragTargetIndex = -1;
-            this.swipingTaskId = null;
-            this.touchStartX = 0;
-            this.touchCurrentX = 0;
+            this.state.draggingTaskId = null;
+            this.state.draggingStartIndex = -1;
+            this.state.dragTargetIndex = -1;
+            this.state.swipingTaskId = null;
+            this.state.touchStartX = 0;
+            this.state.touchCurrentX = 0;
             return;
         }
 
         this.config.unfreezeController();
         this.config.unlockPersistence();
 
-        const deltaX = this.touchCurrentX - this.touchStartX;
-        const deltaY = this.touchCurrentY - this.touchStartY;
+        const deltaX = this.state.touchCurrentX - this.state.touchStartX;
+        const deltaY = this.state.touchCurrentY - this.state.touchStartY;
         const swipe = this.getResolvedSwipe(deltaX, deltaY);
 
         const tasks = this.config.getTasks();
@@ -205,9 +197,9 @@ export class StackGestureManager {
             }
         }
 
-        this.swipingTaskId = null;
-        this.touchStartX = 0;
-        this.touchCurrentX = 0;
+        this.state.swipingTaskId = null;
+        this.state.touchStartX = 0;
+        this.state.touchCurrentX = 0;
     }
 
     handlePointerCancel = (e: PointerEvent) => {
@@ -220,25 +212,25 @@ export class StackGestureManager {
             this.longPressTimer = null;
         }
 
-        this.swipingTaskId = null;
-        this.draggingTaskId = null;
-        this.dragTargetIndex = -1;
-        this.draggingStartIndex = -1;
+        this.state.swipingTaskId = null;
+        this.state.draggingTaskId = null;
+        this.state.dragTargetIndex = -1;
+        this.state.draggingStartIndex = -1;
     }
 
     handleTouchBlocking(e: TouchEvent) {
         e.stopPropagation();
 
-        const dx = Math.abs(this.touchCurrentX - this.touchStartX);
-        const dy = Math.abs(this.touchCurrentY - this.touchStartY);
+        const dx = Math.abs(this.state.touchCurrentX - this.state.touchStartX);
+        const dy = Math.abs(this.state.touchCurrentY - this.state.touchStartY);
 
         if (dx > 10 || dy > 10) {
             this._touchMovedSignificant = true;
         }
 
-        if (this.draggingTaskId) {
+        if (this.state.draggingTaskId) {
             if (e.cancelable) e.preventDefault();
-        } else if (this.swipingTaskId && (dx > 10 || dy > 10)) {
+        } else if (this.state.swipingTaskId && (dx > 10 || dy > 10)) {
             if (e.cancelable) e.preventDefault();
         }
     }

@@ -173,8 +173,8 @@ export class StackPersistenceService {
         // 4. Temporal guard (Fallback for untracked files)
         // If it's very recent and content was NOT tracked, we still reject it
         // to avoid feedback loops from writes that didn't provide content tracking.
-        if (now - lastWrite < 2000) {
-            if (this.logger) this.logger.info(`[StackPersistenceService] isExternalUpdate(${filePath}) REJECTED: Temporal Guard (<2s)`);
+        if (now - lastWrite < 500) {
+            if (this.logger) this.logger.info(`[StackPersistenceService] isExternalUpdate(${filePath}) REJECTED: Temporal Guard (<500ms)`);
             return false;
         }
 

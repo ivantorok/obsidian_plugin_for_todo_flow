@@ -1,4 +1,80 @@
 /* Shared Stack Styles - Used by FocusStack and ArchitectStack Template */
+:global(.todo-flow-task-card) {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--background-primary-alt);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s ease, border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    user-select: none;
+}
+
+:global(.todo-flow-task-card:hover) {
+    background: var(--background-secondary);
+    border-color: var(--background-modifier-border-focus);
+}
+
+:global(.todo-flow-task-card.is-focused) {
+    border-color: var(--interactive-accent);
+    background: var(--background-secondary);
+    box-shadow: 0 0 0 2px var(--interactive-accent);
+    z-index: 10;
+}
+
+:global(.todo-flow-task-card.is-done) {
+    opacity: 0.6;
+}
+
+:global(.todo-flow-task-card.is-done .title) {
+    text-decoration: line-through;
+}
+
+:global(.todo-flow-task-card .drag-handle) {
+    cursor: grab;
+    color: var(--text-muted);
+    opacity: 0.3;
+    font-size: 1.2rem;
+    padding: 0 0.5rem;
+}
+
+:global(.todo-flow-task-card:hover .drag-handle) {
+    opacity: 0.8;
+}
+
+:global(.todo-flow-task-card .content-col) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+:global(.todo-flow-task-card .title) {
+    font-weight: 500;
+    color: var(--text-normal);
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+:global(.todo-flow-task-card .metadata) {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
 
 :global(.todo-flow-timeline.mode-focus) {
     justify-content: center;

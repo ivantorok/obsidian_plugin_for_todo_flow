@@ -205,7 +205,7 @@
 </script>
 
 <div
-    class="todo-flow-view-wrapper"
+    class="todo-flow-view-wrapper todo-flow-stack-container"
     data-testid="stack-view-container"
     data-ui-ready="true"
     data-view-mode={viewMode}

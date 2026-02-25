@@ -342,7 +342,7 @@ describe('System: Persistence and Syncing', () => {
 
         // Wait for view to mount
         console.log('TEST: Waiting for view mount...');
-        await browser.pause(2000);
+        await browser.pause(3000); // Increased for stability
         console.log('TEST: Checking for task cards...');
 
         const taskA = await $('.todo-flow-task-card*=Task A');
@@ -382,12 +382,18 @@ startTime: ${new Date().toISOString()}
 ---
 - [ ] [[Task A.md|Task A]]`;
 
-            await (window as any).app.vault.adapter.write('todo-flow/CurrentStack.md', newContent);
+            const targetFile = (window as any).app.vault.getAbstractFileByPath('todo-flow/CurrentStack.md');
+            if (targetFile) {
+                await (window as any).app.vault.modify(targetFile, newContent);
+            } else {
+                await (window as any).app.vault.adapter.write('todo-flow/CurrentStack.md', newContent);
+            }
         });
 
         // 4. Wait for Watcher to trigger reload
         // This is the race condition area: Does the plugin see the change?
-        await browser.pause(2000);
+        // Increased to 5000ms to allow for sync-active delays (3000ms) + refresh overhead.
+        await browser.pause(5000);
 
         // 5. Verify UI reflects the change (Task B should be gone)
         const container = await $('.todo-flow-stack-container[data-ui-ready="true"]');

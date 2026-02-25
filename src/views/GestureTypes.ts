@@ -1,5 +1,16 @@
 import type { TaskNode } from "../scheduler.js";
 
+export interface GestureState {
+    touchStartX: number;
+    touchStartY: number;
+    touchCurrentX: number;
+    touchCurrentY: number;
+    swipingTaskId: string | null;
+    draggingTaskId: string | null;
+    dragTargetIndex: number;
+    draggingStartIndex: number;
+}
+
 export interface GestureManagerConfig {
     isMobileState: () => boolean;
     getTasks: () => TaskNode[];

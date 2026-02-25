@@ -63,8 +63,13 @@ export class StackStateManager {
             untrack(() => {
                 controller.updateTime(internalNow);
                 const ctrTasks = controller.getTasks();
-                // Only sync back if controller has tasks or if the stack is intended to be empty
-                if (ctrTasks.length > 0 || navState.tasks.length === 0) {
+                // Optimization: Only update navState.tasks if there's a structural or status change
+                // to prevent Svelte from destroying/recreating DOM nodes for every tick.
+                const currentTasks = navState.tasks;
+                const hasChanged = ctrTasks.length !== currentTasks.length ||
+                    ctrTasks.some((t: any, i: number) => t.id !== currentTasks[i]?.id || t.status !== currentTasks[i]?.status);
+
+                if (hasChanged) {
                     navState.tasks = [...ctrTasks];
                 }
             });

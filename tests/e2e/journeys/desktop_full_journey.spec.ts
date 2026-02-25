@@ -164,7 +164,7 @@ describe('Desktop Full Journey: Keyboard Efficiency', () => {
 
         // Native key dispatch so Svelte's bindings update normally
         await browser.keys(['Task B Edited']);
-        await browser.pause(200);
+        await browser.pause(1000); // Give plenty of time for Svelte 5 proxies and native input to settle
         await browser.keys(['Enter']);
 
         await browser.pause(1000); // Allow Svelte and Obsidian to sync

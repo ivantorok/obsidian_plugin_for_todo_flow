@@ -96,7 +96,14 @@
     });
 
     const lifecycleManager = new StackLifecycleManager({
-        onTick: () => { internalNow = moment(); stateManager.syncControllerTime(); },
+        onTick: () => { 
+            // PREVENT RERENDER DURING RENAME: The lifecycle timer can trigger a re-render 
+            // that causes input focus loss, especially in E2E tests.
+            if (editingIndex !== -1) return;
+            
+            internalNow = moment(); 
+            stateManager.syncControllerTime(); 
+        },
         onResize: () => { 
             const detected = window.innerWidth <= 600 || document.body.classList.contains("is-mobile");
             if (isMobileProp !== detected) isMobileProp = detected;
@@ -110,7 +117,18 @@
         logger
     });
 
-    const gestureManager = new StackGestureManager({
+    const gestureState = $state({
+        touchStartX: 0,
+        touchStartY: 0,
+        touchCurrentX: 0,
+        touchCurrentY: 0,
+        swipingTaskId: null,
+        draggingTaskId: null,
+        dragTargetIndex: -1,
+        draggingStartIndex: -1
+    });
+
+    const gestureManager = new StackGestureManager(gestureState, {
         isMobileState: () => isMobileProp,
         getTasks: () => navState.tasks,
         getTaskElements: () => taskElements,
@@ -171,9 +189,13 @@
     onMount(() => { mounted = true; lifecycleManager.mount(); return () => lifecycleManager.unmount(); });
 
     $effect(() => stateManager.syncFocusIndex());
+    $effect(() => {
+        console.log(`[ArchitectStack] Focus State: ${navState.focusedIndex}, Task Count: ${navState.tasks.length}`);
+    });
     $effect(() => stateManager.syncNavState());
     $effect(() => stateManager.syncControllerTime());
     $effect(() => {
+        if (editingIndex !== -1) return; // DON'T SCROLL DURING RENAME - causes E2E instability
         if (taskElements[navState.focusedIndex]) {
             ViewportService.scrollIntoView(taskElements[navState.focusedIndex], "smooth", "center");
         }
@@ -197,6 +219,14 @@
     export const setFocus = (index: number) => { navState.focusedIndex = index; stateManager.triggerUpdate(); };
     export const setTasks = (tasks: TaskNode[]) => { navState.tasks = tasks; stateManager.triggerUpdate(); };
     export const setIsSyncing = (val: boolean) => isSyncing = val;
+    export const resolveTempId = (tempId: string, realId: string) => {
+        controller.resolveTempId(tempId, realId);
+        stateManager.triggerUpdate();
+        // Explicit focus restoration to prevent race conditions in E2E tests
+        if (containerEl) {
+            containerEl.focus();
+        }
+    };
     export const updateNow = (newNow: moment.Moment) => { internalNow = newNow; stateManager.syncControllerTime(); };
     export const update = () => stateManager.triggerUpdate();
 
@@ -213,13 +243,13 @@
     };
 </script>
 
-<div bind:this={containerEl} class="todo-flow-stack-container" class:is-mobile={isMobileProp} tabindex="0" onkeydown={(e) => keyboardManager.handleKeyDown(e)}>
+<div bind:this={containerEl} class="todo-flow-stack-container" class:is-mobile={isMobileProp} class:is-editing={editingIndex !== -1} tabindex="0" onkeydown={(e) => keyboardManager.handleKeyDown(e)} data-ui-ready="true" data-view-type="architect" data-focused-index={navState.focusedIndex} data-task-count={navState.tasks.length}>
     <div class="todo-flow-timeline">
         <ArchitectStackTemplate
             tasks={navState.tasks} focusedIndex={navState.focusedIndex} now={internalNow}
             {historyManager} {controller} {editingIndex} {editingStartTimeIndex} bind:renamingText
-            draggingTaskId={gestureManager.draggingTaskId} dragTargetIndex={gestureManager.dragTargetIndex}
-            draggingStartIndex={gestureManager.draggingStartIndex}
+            draggingTaskId={gestureState.draggingTaskId} dragTargetIndex={gestureState.dragTargetIndex}
+            draggingStartIndex={gestureState.draggingStartIndex}
             {isMobileProp} onTap={handleTap} onPointerStart={(e, id) => gestureManager.handlePointerStart(e, id)}
             onPointerMove={(e) => gestureManager.handlePointerMove(e)} onPointerEnd={(e, t) => gestureManager.handlePointerEnd(e, t)}
             onPointerCancel={(e) => gestureManager.handlePointerCancel(e)} 
@@ -243,5 +273,5 @@
 </div>
 
 <style>
-    @import "./architect-stack.css";
+    @import "../styles/architect-stack.css";
 </style>

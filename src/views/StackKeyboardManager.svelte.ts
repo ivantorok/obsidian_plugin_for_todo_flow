@@ -169,6 +169,7 @@ export class StackKeyboardManager {
                 if (navResult && navResult.action === "DRILL_DOWN") {
                     const task = tasks[focusedIndex];
                     if (task) {
+                        // Priority: Navigation for drill-down to allow adding children
                         onNavigate(task.id, focusedIndex);
                     }
                 }
