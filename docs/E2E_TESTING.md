@@ -154,3 +154,24 @@ The `npm run e2e:open` command is NOT just a shortcut for `obsidian .test-vault`
 Testing in emulated mobile modes (e.g., `is-mobile`) can be flaky with standard `.click()` calls due to pointer-event emulation.
 *   **Fix**: Use `browser.execute((el) => (el as HTMLElement).click(), element)` for direct interaction with small interactive elements like +/- buttons.
 *   **Sequence Verification**: When testing lists or sequences (like durations), always source the expected values from the actual shared constants (e.g., `DURATION_SEQUENCE` in `StackController.ts`) to avoid "expected 15m received 20m" type failures when logic changes.
+
+### 6. Component Initialization vs. Leaf Readiness
+Tests can be extremely flaky if they assume a view is fully ready just because Obsidian's `app.workspace.getLeavesOfType()` returns a leaf.
+*   **Gotcha**: The Obsidian View wrapper might exist, but the underlying Svelte component (`view.component`) might still be mounting.
+*   **Fix**: Explicitly check that `view.component` exists before dispatching commands, changing state, or querying the UI.
+
+### 7. Sovereign State Management in Views
+When an Obsidian View (e.g., `StackView.ts`) wraps a reactive UI (like Svelte), relying solely on the UI's internal state (or querying it via `getViewMode()`) for the source of truth can lead to race conditions during rapid test execution or external sync pulses.
+*   **Gotcha**: The view might briefly unmount/remount or receive a `setState` call from Obsidian, resetting the UI to a default state before it can report its actual mode.
+*   **Fix**: The TypeScript View class must maintain sovereign ownership of its state (e.g., `private currentViewMode`) and push it deterministically to the UI, rather than implicitly inheriting or defaulting it.
+
+### 8. Mocha Timeouts and Contexts
+WebdriverIO tests running concurrently can starve each other for CPU cycles, especially in CI or when running the full suite locally.
+*   **Gotcha**: A complex interaction test (like holding a pointer for 500ms, waiting for a file sync, and verifying the DOM) might easily exceed Mocha's default 90s timeout under load.
+*   **Fix**: Use `this.timeout(180000)` inside the `it()` block for specific heavy tests. **Crucially**, this requires using a standard `function () {}` instead of an arrow function `() => {}` in Mocha to access the `this` context.
+
+### 9. Initial State Assertions with `waitUntil`
+Do not use `expect(val).toBe(true)` for the initial read of a reactive state (like `data-persistence-idle`) immediately after a view loads in an E2E test.
+*   **Gotcha**: The vault may still be indexing or performing initial IO, causing temporary state fluctuations before settling into the "idle" state. A strict `expect` will fail the test immediately.
+*   **Fix**: Always use robust polling for initial states: `await browser.waitUntil(async () => { return await el.getAttribute('data-sync') === 'idle'; }, { timeout: 10000 });`
+
