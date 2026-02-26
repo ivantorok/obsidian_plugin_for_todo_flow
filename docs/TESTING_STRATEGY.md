@@ -70,3 +70,27 @@ A feature is only "Done" when:
 1.  **Usage flows** (E2E) are Green.
 2.  **Logic flows** (Unit) are Green.
 3.  **Architecture** is respected (no hacks to make tests pass).
+
+---
+
+## 5. Mocking Boundaries & Context Gotchas (Lessons Learned)
+
+These are hard-earned lessons from stabilizing the plugin that might not be obvious to a new pair-programming session:
+
+### 1. Never Mock the Obsidian File System in E2E
+When testing features like "External Sync Reaction" or File Watchers in E2E, **do not** mock the event by manually calling a UI update function. You must actually modify the file on disk via `browser.execute` using `app.vault.adapter.process`.
+*   **Why**: Mocking the event bypasses the real Obsidian file watcher latency and race conditions (like vault indexing delays). A mocked test will falsely pass even if the real implementation is missing a `waitForPersistenceIdle` guard.
+
+### 2. Svelte Component Isolation (The Obsidian Firewall)
+If a Svelte Unit Test requires you to mock Obsidian globals (`app.workspace`, `app.metadataCache`), **the architecture is broken**.
+*   **Why**: Svelte components (`StackView.svelte`, `ArchitectStack.svelte`) exist strictly in the "View" layer. They must receive all their context (e.g., `isSyncing`, `tasks`, `viewMode`) as **injected reactive props** from the TypeScript controller (`StackView.ts`).
+*   **Rule**: Never import Obsidian API directly into `.svelte` files. If you do, unit testing becomes impossibly brittle.
+
+### 3. Emulating External State Pulses
+In testing, we often assume state transitions happen once and cleanly (e.g., `isSyncing = true` directly to `false`). In reality, `StackSyncManager` and Obsidian's debouncers can yield multiple "state pulses" in a span of milliseconds.
+*   **Gotcha**: An E2E test verifying a Notice or a CSS class might execute in the microsecond gap between two state pulses, causing intermittent failures.
+*   **Fix**: When verifying transient states (like "Syncing..."), use `browser.waitUntil` instead of synchronous `expect()` checks. If a state causes a fundamental UI switch (like changing view modes), the wrapper (`StackView.ts`) MUST have a sovereign memory of that mode rather than relying on the UI to not reset during a rapid remount.
+
+### 4. Time and Timers (The `moment` Trap)
+If you mock time in a Unit Test (`vi.setSystemTime`), ensure you mock both `Date.now()` and standard `Date` objects because libraries like `moment.js` rely heavily on the global environment.
+*   **Gotcha**: Failing to mock time consistently leads to "Golden Scheduler" tests producing tasks that mysteriously fall into the wrong timeframe because part of the system saw 2024 and part saw 2026.
