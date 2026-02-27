@@ -252,10 +252,11 @@
 - **Flavor**: [UX + SOVEREIGNTY + POLISH]
 
 ## Active Objectives
-1. **[IN_PROGRESS]** BUG-029 (Sovereignty Audit): Deconflict tap-to-focus vs drag vs open interactions.
-2. **[IN_PROGRESS]** FEAT-003 (Layout Shift): Implement Modal Capture for mobile renaming.
-3. **[IN_PROGRESS]** FEAT-008 (Mobile Parity): Add Anchoring, Index Display, and duration visibility to mobile cards.
-4. **[IN_PROGRESS]** BUG-027 (Default Mode): Enforce List View as the default "Architect" state.
+1. **[DONE]** BUG-029 (Sovereignty Audit): Deconflict tap-to-focus vs drag vs open interactions.
+2. **[DONE]** FEAT-003 (Layout Shift): Implement Modal Capture for mobile renaming.
+3. **[DONE]** FEAT-008 (Mobile Parity): Add Anchoring, Index Display, and duration visibility to mobile cards.
+4. **[DONE]** BUG-027 (Default Mode): Enforce List View as the default "Architect" state.
 
 ## Status Logs
 - [2026-02-27 19:10]: **Process Governor (PG)** session v13 initialized. "Sovereign UX" mission activated.
+- [2026-02-27 19:45]: **Process Governor (PG)** session v13 complete. Mobile UX restored to premium state. Build is GREEN.
