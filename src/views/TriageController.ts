@@ -85,6 +85,23 @@ export class TriageController {
         this.index++;
     }
 
+    async skipAllToShortlist() {
+        if (this.logger) this.logger.info(`[TriageController] skipAllToShortlist: Jumping from ${this.index} to ${this.tasks.length}`);
+
+        while (this.index < this.tasks.length) {
+            const task = this.tasks[this.index]!;
+            if (!task.id.startsWith('temp-')) {
+                this.shortlistIndices.add(this.index);
+                // We fire and forget updates to disk to avoid massive sequential awaits.
+                // The HandoffOrchestrator will eventually save the final list.
+                this.updateFlowState(task.id, 'shortlist').catch(err => {
+                    if (this.logger) this.logger.error(`[TriageController] Async updateFlowState failed for ${task.id}: ${err}`);
+                });
+            }
+            this.index++;
+        }
+    }
+
     public async updateFlowState(path: string, state: string) {
         if (this.logger) await this.logger.info(`[TriageController] updateFlowState: Setting ${path} to "${state}"`);
         const file = this.app.vault.getAbstractFileByPath(path);

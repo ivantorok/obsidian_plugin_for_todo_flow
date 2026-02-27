@@ -95,6 +95,18 @@
         }, 200);
     }
 
+    async function skipAll() {
+        if (logger) logger.info("[TriageView.svelte] skipAll triggered");
+        await controller.skipAllToShortlist();
+        currentTask = null;
+
+        if (checkForConflict && (await checkForConflict())) {
+            isConflictState = true;
+        } else {
+            onComplete(controller.getResults());
+        }
+    }
+
     function handlePointerStart(e: PointerEvent) {
         e.stopPropagation();
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -356,6 +368,14 @@
             >
                 Undo
             </button>
+            <button
+                onclick={(e) => handleBtnClick(e, undefined, skipAll)}
+                class="control-btn skip-all"
+                disabled={currentTask?.id?.startsWith("temp-")}
+                title="Move all remaining items to shortlist"
+            >
+                Skip All →
+            </button>
         {/if}
         <button
             onclick={(e) => handleBtnClick(e, "right")}
@@ -472,6 +492,17 @@
     .shortlist:hover,
     .shortlist:active {
         background: var(--interactive-accent);
+    }
+
+    .skip-all {
+        background: var(--background-secondary-alt);
+        border: 1px dashed var(--interactive-accent);
+        opacity: 0.8;
+    }
+
+    .skip-all:hover {
+        opacity: 1;
+        background: var(--background-secondary-alt);
     }
 
     /* Conflict Mode Styles */

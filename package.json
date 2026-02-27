@@ -10,7 +10,7 @@
     "copy-to": "mkdir -p \"$VAULT/.obsidian/plugins/todo-flow\" && cp main.js styles.css manifest.json \"$VAULT/.obsidian/plugins/todo-flow/\"",
     "test": "node scripts/test-gatekeeper.mjs \"vitest run\" && node scripts/log_test_run.mjs unit",
     "test:watch": "node scripts/test-gatekeeper.mjs \"vitest\"",
-    "test:quick": "node scripts/test-gatekeeper.mjs \"vitest run src/__tests__/golden_scheduler.test.ts\" && npm run e2e -- --spec tests/e2e/journeys/*.spec.ts",
+    "test:quick": "node scripts/test-gatekeeper.mjs \"vitest run src/__tests__/triage.test.ts\" && npm run e2e -- --spec tests/e2e/journeys/*.spec.ts",
     "test:full": "npm run test && npm run e2e",
     "ship": "./ship.sh",
     "refresh": "./refresh.sh",
