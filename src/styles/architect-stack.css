@@ -77,3 +77,59 @@
     margin: 0 auto;
     min-height: 300px;
 }
+
+/* Mobile Feature Parity (FEAT-008) */
+.mobile-index-display {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+    margin-left: 8px;
+    font-family: var(--font-monospace);
+    white-space: nowrap;
+    padding: 2px 4px;
+    background: var(--background-secondary-alt);
+    border-radius: 4px;
+}
+
+.mobile-duration {
+    background: var(--background-secondary-alt);
+    padding: 2px 8px !important;
+    border-radius: 12px !important;
+    font-size: 0.8rem !important;
+    color: var(--interactive-accent) !important;
+    font-weight: 600 !important;
+    border: 1px solid var(--background-modifier-border) !important;
+}
+
+.mobile-anchor-btn {
+    padding: 4px 8px !important;
+    margin-left: auto;
+    border-radius: 6px !important;
+    background: var(--background-secondary-alt) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--background-modifier-border) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-anchor-btn.is-active {
+    background: var(--interactive-accent) !important;
+    color: white !important;
+    border-color: var(--interactive-accent) !important;
+}
+
+.mobile-only-time {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .mobile-only-time {
+        display: inline;
+        font-weight: 700;
+        color: var(--text-accent);
+    }
+    .desktop-only-time {
+        display: none;
+    }
+}

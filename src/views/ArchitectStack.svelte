@@ -12,10 +12,10 @@
     import { ViewportService } from "../services/ViewportService.js";
     import { StackGestureManager } from "./StackGestureManager.svelte.ts";
     import { StackKeyboardManager } from "./StackKeyboardManager.svelte.ts";
-    import { StackInputManager } from "./StackInputManager.svelte.ts";
-    import { StackStateManager } from "./StackStateManager.svelte.ts";
     import { StackLifecycleManager } from "./StackLifecycleManager.svelte.ts";
     import { DOUBLE_TAP_WINDOW } from "../gestures.js";
+    import CaptureModal from "./CaptureModal.svelte";
+    import { RenameTaskCommand, ScaleDurationCommand } from "../commands/stack-commands.js";
 
     let {
         navState = $bindable(),
@@ -78,6 +78,9 @@
     let internalNow = $state(now);
     let taskElements: HTMLElement[] = $state([]);
     let renameInputs: HTMLInputElement[] = $state([]);
+    let showingCaptureModal = $state(false);
+    let taskToCapture = $state<TaskNode | null>(null);
+    let capturedIndex = $state(-1);
 
     const keyManager = $derived(new KeybindingManager(settings.keys));
 
@@ -203,9 +206,17 @@
     });
 
     function handleTap(e, task, index) {
-        if (containerEl) containerEl.focus(); // Explicit Auto-Refocus Governance Axiom
+        if (containerEl) containerEl.focus(); 
         gestureManager.handleTap(e, task, index, isSyncing, editingIndex !== -1).then(r => {
             if (r?.type === 'single_tap') {
+                // BUG-029: On mobile, single tap ONLY focuses. 
+                // Drill down (navigation) is moved to Double Tap or explicit intent.
+                if (isMobileProp) {
+                    navState.focusedIndex = index; 
+                    if (onFocusChange) onFocusChange(index);
+                    return;
+                }
+
                 setTimeout(() => {
                     gestureManager.clearTapTimer();
                     if (navState.focusedIndex === index) onNavigate?.(task.id, index);
@@ -213,6 +224,28 @@
                 }, DOUBLE_TAP_WINDOW - 50);
             }
         });
+    }
+
+    function openCaptureModal(index: number) {
+        if (isMobileProp) {
+            taskToCapture = navState.tasks[index];
+            capturedIndex = index;
+            showingCaptureModal = true;
+        } else {
+            inputManager.startRename(index);
+        }
+    }
+
+    async function handleCaptureSave(title: string, duration: number) {
+        if (!taskToCapture) return;
+        
+        if (title !== taskToCapture.title) {
+            await historyManager.executeCommand(new RenameTaskCommand(controller, capturedIndex, title));
+        }
+        if (duration !== taskToCapture.duration) {
+            await historyManager.executeCommand(new ScaleDurationCommand(controller, capturedIndex, "up", duration - taskToCapture.duration));
+        }
+        stateManager.triggerUpdate();
     }
     export const handleKeyDown = (e: KeyboardEvent) => keyboardManager.handleKeyDown(e);
     export const getController = () => controller;
@@ -261,9 +294,19 @@
             cancelRename={() => inputManager.cancelRename()} startEditStartTime={(i) => inputManager.startEditStartTime(i)}
             finishEditStartTime={(id, t) => inputManager.finishEditStartTime(id, t)}
             selectOnFocus={(n) => { n.focus(); ViewportService.scrollIntoView(n, "smooth", "center"); }}
-            update={() => stateManager.triggerUpdate()} {openQuickAddModal} {openDurationPicker}
+            update={() => stateManager.triggerUpdate()} {openQuickAddModal}
+            openDurationPicker={(idx) => isMobileProp ? openCaptureModal(idx) : openDurationPicker?.(idx)}
+            openCaptureModal={openCaptureModal}
             bind:renameInputs bind:taskElements
         />
+
+        {#if showingCaptureModal && taskToCapture}
+            <CaptureModal 
+                task={taskToCapture} 
+                onClose={() => showingCaptureModal = false} 
+                onSave={handleCaptureSave}
+            />
+        {/if}
     </div>
     <StackFooter {historyManager} {showHelp} keys={settings.keys} {settings}
         onUndo={() => { historyManager.undo(); stateManager.triggerUpdate(); }}

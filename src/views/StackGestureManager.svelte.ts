@@ -91,7 +91,9 @@ export class StackGestureManager {
         const dx = this.state.touchCurrentX - this.state.touchStartX;
         const dy = this.state.touchCurrentY - this.state.touchStartY;
 
-        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+        // BUG-029: More sensitive movement guard on mobile to prevent unintentional taps during scroll/drag initialization
+        const threshold = this.config.isMobileState() ? 5 : 10;
+        if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
             this._touchMovedSignificant = true;
         }
 
@@ -224,13 +226,14 @@ export class StackGestureManager {
         const dx = Math.abs(this.state.touchCurrentX - this.state.touchStartX);
         const dy = Math.abs(this.state.touchCurrentY - this.state.touchStartY);
 
-        if (dx > 10 || dy > 10) {
+        const threshold = this.config.isMobileState() ? 5 : 10;
+        if (dx > threshold || dy > threshold) {
             this._touchMovedSignificant = true;
         }
 
         if (this.state.draggingTaskId) {
             if (e.cancelable) e.preventDefault();
-        } else if (this.state.swipingTaskId && (dx > 10 || dy > 10)) {
+        } else if (this.state.swipingTaskId && (dx > threshold || dy > threshold)) {
             if (e.cancelable) e.preventDefault();
         }
     }
@@ -254,6 +257,11 @@ export class StackGestureManager {
         }
         if (editingActive) return;
 
+        // BUG-029: Explicitly block tap if we are in the middle of a gesture
+        if (this.state.draggingTaskId || this.state.swipingTaskId) {
+            return;
+        }
+
         if (this._touchMovedSignificant) {
             this._touchMovedSignificant = false;
             return;
@@ -274,7 +282,10 @@ export class StackGestureManager {
             }
 
             const settings = this.config.getSettings();
-            await this.config.onGestureAction(this.config.isMobileState() ? "anchor" : settings.doubleTapAction, task, index);
+            // BUG-029: On mobile, double-tap is now 'open' (drill down) because we have a dedicated button for anchoring.
+            // This makes the 'biggest problem' (unintentional drill-down) much harder to trigger.
+            const action = this.config.isMobileState() ? "open" : settings.doubleTapAction;
+            await this.config.onGestureAction(action, task, index);
             this.lastTapTime = 0;
             return;
         }

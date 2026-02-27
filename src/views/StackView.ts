@@ -151,7 +151,7 @@ export class StackView extends ItemView {
 
     private pushStateToComponent(focusedIndex: number = 0) {
         if (this.component && this.component.setNavState) {
-            const modeToPush = this.currentViewMode || this.component.getViewMode?.() || ((this.app as any).isMobile ? "focus" : "architect");
+            const modeToPush = this.currentViewMode || this.component.getViewMode?.() || "architect";
             // Sync the internal state
             this.currentViewMode = modeToPush as any;
 
@@ -467,7 +467,7 @@ export class StackView extends ItemView {
                         canGoBack: this.navManager.canGoBack(),
                         rootPath: this.rootPath,
                         isMobile: (this.app as any).isMobile,
-                        viewMode: (this.app as any).isMobile ? 'focus' : 'architect'
+                        viewMode: 'architect'
                     } as StackUIState,
                     persistenceService: this.persistenceService,
                     onFocusChange: (index: number) => {
