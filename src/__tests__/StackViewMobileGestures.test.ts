@@ -121,6 +121,13 @@ describe('StackView Mobile Gestures Integration', () => {
 
         const card = container.querySelector('.todo-flow-task-card') as HTMLElement;
 
+        // Double Click (equivalent to mobile double tap for Svelte onclick)
+        await fireEvent.click(card);
+        // Wait slightly less than DOUBLE_TAP_WINDOW (300ms) for the second tap
+        await new Promise(r => setTimeout(r, 100));
+        await fireEvent.click(card);
+        await tick();
+
         // Verify Navigation (Session v13 Mobile Design: Double-tap = Open)
         expect(onNavigate).toHaveBeenCalledWith(mockTasks[0].id, 0);
 
