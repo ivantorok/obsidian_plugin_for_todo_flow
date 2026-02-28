@@ -181,6 +181,8 @@
                 new (window as any).Notice(
                     `${task.isAnchored ? "Released" : "Anchored"}: ${task.title}`,
                 );
+        } else if (action === "open") {
+            if (restProps.onNavigate) restProps.onNavigate(task.id, index);
         }
 
         if (cmd && cmd.resultIndex !== undefined && cmd.resultIndex !== null) {

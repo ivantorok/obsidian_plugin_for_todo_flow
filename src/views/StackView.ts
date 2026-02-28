@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, TFile } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, Platform } from 'obsidian';
 import type { Modifier } from 'obsidian';
 import { mount, unmount } from 'svelte';
 import StackViewSvelte from './StackView.svelte';
@@ -466,8 +466,8 @@ export class StackView extends ItemView {
                         parentTaskName: this.parentTaskName,
                         canGoBack: this.navManager.canGoBack(),
                         rootPath: this.rootPath,
-                        isMobile: (this.app as any).isMobile,
-                        viewMode: 'architect'
+                        isMobile: Platform.isMobile || (typeof window !== 'undefined' && (window as any).WDIO_MOBILE_MOCK),
+                        viewMode: (Platform.isMobile || (typeof window !== 'undefined' && (window as any).WDIO_MOBILE_MOCK)) ? 'focus' : 'architect'
                     } as StackUIState,
                     persistenceService: this.persistenceService,
                     onFocusChange: (index: number) => {

@@ -260,3 +260,39 @@
 ## Status Logs
 - [2026-02-27 19:10]: **Process Governor (PG)** session v13 initialized. "Sovereign UX" mission activated.
 - [2026-02-27 19:45]: **Process Governor (PG)** session v13 complete. Mobile UX restored to premium state. Build is GREEN.
+- [2026-02-28 16:15]: **Release Manager (RM)** shipped `v1.2.121`. local commits synchronized and rebased.
+
+---
+
+# Session v14 — Securing Background Monitoring
+
+## Input & Analysis (Process Governor)
+- **Source**: Raw User Feedback (2026-02-28 06:54)
+- **Objective**: Secure background monitoring script (`slabtop`, `dmesg`) via `sudo` without password.
+- **Flavor**: [DEVOPS / SECURITY]
+
+## Active Objectives
+1. **[DONE]** Identify privileged commands in monitoring script.
+2. **[DONE]** Configure `sudoers` for `ivan` user (passwordless execution for specific binary paths).
+3. **[DONE]** Verify script execution after reboot.
+
+## Status Logs
+- [2026-02-28 07:15]: **Process Governor (PG)** session v14 initialized. DevOps mission activated.
+- [2026-02-28 11:44]: **Process Governor (PG)** session v14 complete. Background monitoring secured and verified.
+
+---
+
+# Session v15 — Protocol Sync & Governor Embodiment
+
+## Input & Analysis (Process Governor)
+- **Source**: User Request ("embody the process governor")
+- **Objective**: Perform intake ritual, synchronize protocol logs, and verify Green Baseline for v1.2.119.
+- **Flavor**: [GOVERNANCE / INTAKE]
+
+## Active Objectives
+1. **[DONE]** Protocol Sync: Reconcile `MISSION_LOG.md` and `triage_log.md` with repo state `v1.2.119`.
+2. **[IN_PROGRESS]** Governor Embodiment: Internalize `ROLE.md` and perform session audit.
+3. **[PENDING]** Green Baseline: Run full test suite to confirm v1.2.119 stability.
+
+## Status Logs
+- [2026-02-28 12:45]: **Process Governor (PG)** session v15 initialized. Protocol sync in progress.

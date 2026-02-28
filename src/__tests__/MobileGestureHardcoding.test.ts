@@ -104,7 +104,7 @@ describe('Mobile Gesture Hardcoding (TDD Verification)', () => {
         await fireEvent.click(card);
         await tick();
 
-        // EXPECTATION: Should trigger ToggleAnchorCommand despite settings being 'none'
-        expect(historyManager.executeCommand).toHaveBeenCalledWith(expect.any(ToggleAnchorCommand));
+        // EXPECTATION: Should trigger onNavigate (drill-down) despite settings being 'none'
+        expect(onNavigate).toHaveBeenCalled();
     });
 });

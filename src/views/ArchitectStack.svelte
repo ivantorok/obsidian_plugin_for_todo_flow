@@ -16,6 +16,9 @@
     import { DOUBLE_TAP_WINDOW } from "../gestures.js";
     import CaptureModal from "./CaptureModal.svelte";
     import { RenameTaskCommand, ScaleDurationCommand } from "../commands/stack-commands.js";
+import { StackStateManager } from "./StackStateManager.svelte.ts";
+import { StackInputManager } from "./StackInputManager.svelte.ts";
+import { type StackUIState } from "./ViewTypes.js";
 
     let {
         navState = $bindable(),
