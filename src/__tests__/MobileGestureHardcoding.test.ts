@@ -86,11 +86,13 @@ describe('Mobile Gesture Hardcoding (TDD Verification)', () => {
     });
 
     it('should override settings.doubleTapAction on mobile and trigger "anchor"', async () => {
+        const onNavigate = vi.fn();
         const { container } = render(StackView, {
             props: {
                 initialTasks: mockTasks,
                 settings: conflictingSettings as any,
                 navState: { isMobile: true, tasks: mockTasks, focusedIndex: 0 } as any,
+                onNavigate,
                 historyManager
             }
         });

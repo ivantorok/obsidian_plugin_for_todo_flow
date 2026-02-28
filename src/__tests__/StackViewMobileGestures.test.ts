@@ -104,6 +104,7 @@ describe('StackView Mobile Gestures Integration', () => {
     });
 
     it('should trigger ToggleAnchorCommand on double tap and maintain focus', async () => {
+        const onNavigate = vi.fn();
         const { container } = render(StackView, {
             props: {
                 settings: baseSettings as any,
@@ -111,6 +112,7 @@ describe('StackView Mobile Gestures Integration', () => {
                 now: moment(),
                 onOpenFile: vi.fn(),
                 onTaskUpdate: vi.fn(),
+                onNavigate,
                 historyManager,
                 navState: { isMobile: true, tasks: mockTasks, focusedIndex: 0 } as any
             }
@@ -134,6 +136,7 @@ describe('StackView Mobile Gestures Integration', () => {
                 now: moment(),
                 onOpenFile: vi.fn(),
                 onTaskUpdate: vi.fn(),
+                onNavigate: vi.fn(),
                 historyManager,
                 navState: { isMobile: true, tasks: mockTasks, focusedIndex: 0 } as any
             }
