@@ -14,7 +14,7 @@ The PG is the **first listener** invoked at the start of every session or when r
 ---
 
 ## Ritual & Responsibilities
-1. **Intake**: Scan `docs/protocol/roles/common/` for orphans and triage raw feedback.
+1. **Intake**: Scan `docs/protocol/roles/common/` and `docs/discovery/` for orphans and triage raw feedback.
 2. **Mission Log**: Create/Update the `MISSION_LOG.md` for every task.
 3. **Routing**: Delegate task facets to the appropriate roles (AG for mechanics, IL for logic, etc.).
 4. **Resolution**: Ensure the "Chain of Custody" is complete.
