@@ -1,0 +1,35 @@
+/* Sovereign UX Design Tokens */
+:root {
+    /* Glassmorphism & Depth */
+    --tf-glass-bg: rgba(var(--mono-rgb-100, 255, 255, 255), 0.7);
+    --tf-glass-blur: blur(12px);
+    --tf-glass-border: rgba(var(--mono-rgb-100, 255, 255, 255), 0.2);
+    --tf-shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    
+    /* Dynamic Gradients */
+    --tf-gradient-focused: linear-gradient(135deg, 
+        rgba(var(--interactive-accent-rgb), 0.15) 0%, 
+        rgba(var(--background-primary-rgb), 0.1) 100%);
+    --tf-gradient-accent: linear-gradient(135deg, 
+        var(--interactive-accent) 0%, 
+        var(--interactive-accent-hover) 100%);
+
+    /* Refined Typography */
+    --tf-font-weight-title: 600;
+    --tf-letter-spacing-tight: -0.01em;
+
+    /* Spacing & Radii */
+    --tf-radius-pill: 9999px;
+    --tf-radius-card: 16px;
+    --tf-touch-min-height: 44px;
+}
+
+.is-mobile {
+    --tf-glass-blur: blur(8px); /* Less blur on mobile for performance */
+}
+
+/* Dark Mode Overrides if needed by Obsidian */
+.theme-dark {
+    --tf-glass-bg: rgba(var(--mono-rgb-0, 0, 0, 0.4));
+    --tf-glass-border: rgba(255, 255, 255, 0.1);
+}

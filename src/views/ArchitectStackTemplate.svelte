@@ -103,9 +103,7 @@
                 ontouchstart={handleTouchBlocking}
                 ontouchmove={handleTouchBlocking}
                 use:touchBlocking={handleTouchBlocking}
-                style={isMobileState
-                    ? `touch-action: none; transform: ${getCardTransform(task.id)}; flex-wrap: wrap !important; padding: 0.75rem !important; gap: 0.5rem !important; pointer-events: ${task.id.startsWith("temp-") ? "none" : "auto"};`
-                    : `touch-action: none; transform: ${getCardTransform(task.id)}; pointer-events: ${task.id.startsWith("temp-") ? "none" : "auto"};`}
+                style="transform: {getCardTransform(task.id)}; pointer-events: {task.id.startsWith('temp-') ? 'none' : 'auto'};"
             >
                 <div
                     class="drag-handle"
@@ -164,8 +162,8 @@
                             >{formatDateRelative(task.startTime, now)}</span>
                     {/if}
                 </button>
-                <div class="content-col" class:mobile-layout={isMobileState}>
-                    <div class="title-row" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                <div class="content-col">
+                    <div class="title-row">
                         {#if editingIndex === i}
                             <input
                                 bind:this={renameInputs[i]}
@@ -202,9 +200,6 @@
                                 class="title"
                                 class:is-done={task.done}
                                 class:mobile-clamp={isMobileState}
-                                style={isMobileState
-                                    ? "display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; flex: 1;"
-                                    : ""}
                                 data-testid="task-card-title"
                                 data-index={i}
                                 onclick={syncGuard((e) => {
@@ -244,7 +239,7 @@
                         {/if}
                     </div>
                     
-                    <div class="metadata" style={isMobileState ? "display: flex; align-items: center; gap: 0.75rem; margin-top: 4px;" : ""}>
+                    <div class="metadata">
                         <div class="duration">
                             {#if !isMobileState}
                                 <button
@@ -307,7 +302,7 @@
                         </div>
 
                         {#if !task.isMissing}
-                            <div class="anchor-col" style={isMobileState ? "display: block;" : ""}>
+                            <div class="anchor-col">
                                 <button
                                     class="toggle-anchor-btn"
                                     class:is-active={task.isAnchored}
@@ -330,12 +325,12 @@
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        width={isMobileState ? "16" : "14"}
-                                        height={isMobileState ? "16" : "14"}
+                                        width="16"
+                                        height="16"
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
-                                        stroke-width="2"
+                                        stroke-width="2.5"
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                         ><path
