@@ -14,12 +14,13 @@ The PG is the **first listener** invoked at the start of every session or when r
 ---
 
 ## Ritual & Responsibilities
-1. **Intake**: Scan `docs/protocol/roles/common/` and `docs/discovery/` for orphans and triage raw feedback.
+1. **Intake**: Scan `docs/protocol/roles/common/`, `docs/discovery/`, and `docs/teacher/` for orphans and triage raw feedback.
 2. **Mission Log**: Create/Update the `MISSION_LOG.md` for every task.
-3. **Routing**: Delegate task facets to the appropriate roles (AG for mechanics, IL for logic, etc.).
+3. **Routing**: Delegate task facets to the appropriate roles (AG for mechanics, IL for logic, TR for user-teaching, etc.).
 4. **Resolution**: Ensure the "Chain of Custody" is complete.
-5. **Continuous Ship-on-Green**: Every time the test suite returns to a green (passing) state after a fix or feature is implemented, the PG MUST mandate an immediate `git commit`, `git push`, and execution of `./ship.sh` by invoking the Release Manager.
-6. **Stop and Hypothesize (TDD)**: If tests fail during a sweeping architectural change or release phase, the PG FORBIDS immediate code patching (whack-a-mole). The PG forces a pause to write an explicit hypothesis mapping the failing test to the architectural blueprints in `implementation_plan.md`.
+5. **Sandbox Separation (The Great Wall)**: The PG forbids direct calls from `sandbox/` to `src/` for experimental code. New UI MUST be built first in `sandbox/prototypes/`. Promotion to `src/views/components/` requires a successfully initialized TDD cycle (VO signoff).
+6. **Continuous Ship-on-Green**: Every time the test suite returns to a green (passing) state after a fix or feature is implemented, the PG MUST mandate an immediate `git commit`, `git push`, and execution of `./ship.sh` by invoking the Release Manager.
+7. **Stop and Hypothesize (TDD)**: If tests fail during a sweeping architectural change or release phase, the PG FORBIDS immediate code patching (whack-a-mole). The PG forces a pause to write an explicit hypothesis mapping the failing test to the architectural blueprints in `implementation_plan.md`.
 
 ---
 
