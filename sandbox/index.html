@@ -1,39 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Todo Flow Sandbox</title>
-    <style>
-      body { 
-        margin: 0; 
-        background: #111; 
-        color: #fff; 
-        font-family: var(--font-interface, sans-serif); 
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #mobile-frame {
-        width: 360px;
-        height: 780px;
-        background: #1e1e1e;
-        border: 8px solid #333;
-        border-radius: 32px;
-        overflow: hidden;
-        position: relative;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      }
-      #app { height: 100%; border-radius: 24px; overflow: hidden; }
-      /* Mock Obsidian classes */
-      .theme-dark { color-scheme: dark; }
-    </style>
-  </head>
-  <body class="theme-dark">
-    <div id="mobile-frame">
-      <div id="app"></div>
-    </div>
-    <script type="module" src="/main.ts"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo Flow - Live App Prototype</title>
+  <style>
+    :root {
+      --font-interface: 'Inter', sans-serif;
+      --font-monospace: 'JetBrains Mono', monospace;
+      --background-primary: #1e1e1e;
+      --background-secondary: #111;
+      --text-normal: #dcddde;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background-secondary);
+      color: var(--text-normal);
+      font-family: var(--font-interface);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      gap: 20px;
+    }
+
+    .mobile-jail {
+      width: 360px;
+      height: 780px;
+      background: var(--background-primary);
+      border: 12px solid #222;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+      transition: height 0.3s ease;
+    }
+
+    .mobile-jail.keyboard-active {
+      height: 480px;
+    }
+
+    #app {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .control-btn {
+      background: #444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body class="theme-dark is-mobile">
+  <div class="controls">
+    <button class="control-btn" onclick="toggleKeyboard()">⌨ Toggle Keyboard</button>
+  </div>
+  <div class="mobile-jail" id="jail">
+    <div id="app"></div>
+  </div>
+  <script>
+    function toggleKeyboard() {
+      document.getElementById('jail').classList.toggle('keyboard-active');
+    }
+  </script>
+  <script type="module" src="/main.ts"></script>
+</body>
+
 </html>

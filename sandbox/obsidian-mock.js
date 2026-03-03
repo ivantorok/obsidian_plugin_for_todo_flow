@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export class Notice {
     constructor(message, duration) {
         console.log(`[Notice] ${message}`);
@@ -24,6 +26,8 @@ export const TFile = class { };
 export const View = class { };
 export const WorkspaceLeaf = class { };
 
+export { moment };
+
 export default {
     Notice,
     PluginSettingTab,
@@ -31,5 +35,6 @@ export default {
     App,
     TFile,
     View,
-    WorkspaceLeaf
+    WorkspaceLeaf,
+    moment
 };

@@ -17,55 +17,31 @@ const mockTasks = [
 
 const historyManager = new HistoryManager();
 
-const app = mount(StackView, {
+mount(StackView, {
     target: document.getElementById('app')!,
     props: {
         initialTasks: mockTasks,
         settings: {
             keys: {
-                navUp: ['k', 'ArrowUp'],
-                navDown: ['j', 'ArrowDown'],
-                moveUp: ['K'],
-                moveDown: ['J'],
-                anchor: ['Shift+F'],
-                durationUp: ['f', 'ArrowRight'],
-                durationDown: ['d', 'ArrowLeft'],
-                undo: ['u'],
-                redo: ['U'],
-                confirm: ['Enter'],
-                cancel: ['Escape'],
-                toggleDone: ['x'],
-                createTask: ['c'],
-                deleteTask: ['Backspace'],
-                forceOpen: ['Shift+Enter'],
-                goBack: ['h'],
-                export: ['Shift+E'],
-                rename: ['e'],
-                archive: ['z'],
-                quickAdd: [],
-                editStartTime: ['s'],
-                toggleHelp: ['?']
+                navUp: ['k', 'ArrowUp'], navDown: ['j', 'ArrowDown'],
+                moveUp: ['K'], moveDown: ['J'], anchor: ['Shift+F'],
+                durationUp: ['f', 'ArrowRight'], durationDown: ['d', 'ArrowLeft'],
+                undo: ['u'], redo: ['U'], confirm: ['Enter'], cancel: ['Escape'],
+                toggleDone: ['x'], createTask: ['c'], deleteTask: ['Backspace'],
+                forceOpen: ['Shift+Enter'], goBack: ['h'], export: ['Shift+E'],
+                rename: ['e'], archive: ['z'], quickAdd: [], toggleHelp: ['?'],
+                editStartTime: ['s']
             },
             enableMobileView: true
         } as any,
         now: moment(),
         onOpenFile: (path: string) => console.log(`Opening ${path}`),
         onTaskUpdate: (task: any) => console.log('Update', task),
-        onTaskCreate: (title: string) => {
-            console.log('Create', title);
-            return { id: Math.random().toString(), title, duration: 30, status: 'todo', isAnchored: false, children: [] };
-        },
+        onTaskCreate: (title: string) => ({ id: Math.random().toString(), title, duration: 30, status: 'todo', isAnchored: false, children: [] }),
         historyManager,
         navState: {
-            tasks: mockTasks,
-            focusedIndex: 0,
-            parentTaskName: null,
-            canGoBack: false,
-            rootPath: null,
-            isMobile: true,
-            viewMode: "architect"
+            tasks: mockTasks, focusedIndex: 0, parentTaskName: null,
+            canGoBack: false, rootPath: null, isMobile: true, viewMode: "architect"
         }
     }
 });
-
-export default app;
