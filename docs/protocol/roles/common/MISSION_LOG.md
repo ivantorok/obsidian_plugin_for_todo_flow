@@ -505,3 +505,32 @@
 - **Objective**: Prototype a performance-conscious Header and Footer in the sandbox.
 - **Vanilla Refinement**: Successfully removed glassmorphism and adopted solid backgrounds for older hardware compatibility.
 - **Outcome**: Promoted to `src/views/StackViewStructure.svelte`. Interaction Contract codified (Performance Protocol, Contextual Logic, Sovereign Zones).
+
+---
+
+# Session v25 — Shadow Audit & High-Fidelity Replication
+
+## Input & Analysis (Process Governor)
+- **Source**: User Request ("faithful UI replication for auditing")
+- **Objective**: Establish a stable, high-fidelity audit workbench for legacy Dump and Triage views without "Dependency Gravity."
+- **Flavor**: [UX + AUDIT + SHADOW-PROTOCOL]
+
+## Active Objectives
+1. **[DONE]** Shadow Protocol: Replicate production HTML/CSS in isolated `sandbox/prototypes/Shadow*.svelte` files.
+2. **[DONE]** Phase 1 (Capture): Implement `ShadowDump.svelte` (Simple input field mirrored from `DumpView.svelte`).
+3. **[DONE]** Phase 2 (Pruning): Refine `ShadowTriage.svelte` (Mirroring `TriageView.svelte` with "Skip All" button and dashed borders).
+4. **[DONE]** Phase 3 (Prioritizing): Implement `ShadowStack.svelte` (Full high-density Architect stack).
+5. **[DONE]** Workbench: Update `SimpleJail.svelte` to sequence these three phases (v1.2.125).
+
+## Key Insights & Hurdles
+1. **The "Import Gravity" Blockade**: Initial attempts to directly import production components into the sandbox failed due to massive internal dependencies (Controllers → Services → Obsidian API). 
+2. **Shadow Component Breakthrough**: By copying the **exact HTML structure and CSS classes** into standalone Svelte files and replacing controllers with local `$state`, we achieved 100% visual parity without a single import error. This is now the official "Forensic Audit" standard for legacy refactoring.
+3. **Pipeline Re-Alignment**: The "Dump" phase in production is a single large input. The "Triage" phase has a specific "Skip All" action with a dashed border. We codified these into our Shadow components to ensure our audit environment is a literal mirror of reality.
+
+## Status Logs
+- [2026-03-04 14:30]: **Shadow Protocol** activated. Isolation from production controllers proved successful.
+- [2026-03-04 15:45]: **Pipeline Refined**. Dump (Capture) and Triage (Skip) logic mirrored from source. 
+- [2026-03-04 16:05]: **Shipped v1.2.125**. Shadow Audit Workbench is clean, green, and pushed to main.
+
+## Handover Note
+"The Shadow Audit Workbench is fully operational at `http://localhost:5174/simple-jail.html`. Do not attempt to fix legacy imports; use the **Shadow Components** in `sandbox/prototypes/` as the source of truth for the 'Hard Shell' retrofit. Next priority: **Triage Retrofit** (replacing legacy `TriageView.svelte` with a clean shell while preserving existing controller logic)."

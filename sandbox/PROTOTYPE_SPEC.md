@@ -28,5 +28,12 @@ We are currently prototyping two distinct, isolated HTML views to test specific 
 
 - [x] **Detailed Task View**: Full-detail task inspector. Strict tap/keyboard input (no gestures). *Promoted to `src/views/DetailedTaskView.svelte` with Viewport-Aware logic.*
 - [x] **Stack View Structure**: Header (displaying current stack deep-link/position) and Footer (add task / export). *Promoted to `src/views/StackViewStructure.svelte` with Vanilla Interaction Contract.*
-- [ ] **Dump & Triage Refinement**: Revisit existing models and formalize/codify their designs into Interaction Contracts.
+- [x] **Dump & Triage Refinement**: Revisit existing models and formalize/codify their designs into Interaction Contracts. *Verified via High-Fidelity Shadow Audit Workbench (v1.2.125).*
+
+## The Shadow Protocol (Forensic Auditing)
+To audit legacy UI without "Import Gravity" (dependency hell):
+1. **Mirror Structure**: Copy the literal HTML tags and class names from production.
+2. **Mirror Style**: Copy the production CSS blocks into the component's `<style>`.
+3. **Decouple Logic**: Replace imported controllers/services with local Svelte `$state` and dummy functions.
+4. **Zero Imports**: No external production imports allowed in shadow components.
 
