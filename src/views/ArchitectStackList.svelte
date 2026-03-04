@@ -161,8 +161,8 @@
                 </button>
 
                 <button
-                    class="duration-text clickable"
-                    class:mobile-duration={isMobileState}
+                    class="duration-text"
+                    class:is-mobile={isMobileState}
                     onclick={(e) => {
                         e.stopPropagation();
                         if (task.id.startsWith("temp-")) return;
@@ -280,54 +280,68 @@
     .todo-flow-timeline {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
-        max-width: 600px;
-        margin: 0 auto;
+        width: 100%;
+        margin: 0;
         min-height: 300px; 
+        padding: 0;
     }
 
     .todo-flow-timeline.mode-focus {
         justify-content: center;
         align-items: center;
         height: calc(100% - 60px);
+        max-width: 600px;
+        margin: 0 auto;
     }
 
     /* Sovereign UX Overrides for the main task card wrapper (Architect Mode ONLY) */
     :global(.todo-flow-timeline.mode-architect .todo-flow-task-card) {
-        min-height: 56px; /* Flexible but high-density */
+        min-height: 48px; /* High density */
         height: auto;
-        margin-bottom: 8px; /* spacing between cards */
+        margin: 0;
+        width: 100%;
+        box-sizing: border-box;
         
-        /* High-performance Flat Visuals (Android Optimized) */
-        background: var(--background-secondary);
-        border: 1px solid var(--background-modifier-border);
-        border-radius: 4px; /* Simple, crisp corners */
+        /* Naked Text Visuals */
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--background-modifier-border);
+        border-radius: 0;
+        padding: 0.5rem 0;
+        gap: 0.75rem;
     }
-
 
     .time-col {
         flex: 0 0 auto;
         font-family: var(--font-monospace, 'JetBrains Mono', monospace);
         font-weight: 700;
         font-size: 0.95rem;
-        color: var(--text-muted, #888);
+        color: var(--interactive-accent);
         padding: 0;
         background: transparent;
         border: none;
         cursor: pointer;
+        min-width: 60px;
+        text-align: left;
     }
 
     .duration-text {
         flex: 0 0 auto;
         font-family: var(--font-monospace, 'JetBrains Mono', monospace);
-        color: var(--text-muted, #888);
-        background: rgba(255, 255, 255, 0.08); /* subtle pill */
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.85em;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+        font-size: 0.9rem;
+        border: none;
         cursor: pointer;
-        margin: 0;
+        margin: 0 0.5rem 0 0;
+        font-weight: 500;
+    }
+
+    .time-col, .duration-text, .title {
+        outline: none !important;
+        box-shadow: none !important;
     }
 
     .title-row {
