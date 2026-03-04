@@ -534,3 +534,34 @@
 
 ## Handover Note
 "The Shadow Audit Workbench is fully operational at `http://localhost:5174/simple-jail.html`. Do not attempt to fix legacy imports; use the **Shadow Components** in `sandbox/prototypes/` as the source of truth for the 'Hard Shell' retrofit. Next priority: **Triage Retrofit** (replacing legacy `TriageView.svelte` with a clean shell while preserving existing controller logic)."
+
+---
+
+# Session v26 — Triage Retrofit (Hard Shell Initiative)
+
+## Input & Analysis (Process Governor)
+- **Source**: Strategic Handoff (Forensic Briefcase)
+- **Objective**: Replace legacy `TriageView.svelte` with a "Hard Shell" version using the Shadow Audit Workbench.
+- **Flavor**: [UX + REFACTOR + STABILITY]
+
+## Active Objectives
+1. **[DONE]** Phase 1: Baseline HardShell Draft & Workbench Wiring.
+2. **[DONE]** Phase 2: Swipe Physics & Gesture Hardening.
+3. **[DONE]** Phase 3: Button Logic (Skip All, Undo) & Shortcuts.
+4. **[DONE]** Phase 4: Conflict State & Final Integration.
+5. **[DONE]** Production Promotion: Swapped legacy view for HardShell in `TriageView.ts`.
+
+## Key Insights & Hurdles
+1. **The "Hard Shell" Standard**: By starting in the sandbox with `ShadowTriage.svelte`, we avoided all legacy dependency issues ("Import Gravity").
+2. **TDD-First Refactor**: Each phase was verified against a behavioral baseline in `TriageViewHardShell.test.ts`.
+3. **Release Manager Embodiment**: Conducted three interim ships (`v1.2.126`–`v1.2.128`) to facilitate immediate mobile verification.
+4. **E2E Stability**: Final integration verified via `skip_triage_journey.spec.ts`.
+
+## Status Logs
+- [2026-03-04 16:35]: **Session v26 Initialized**. Process Governor mandate: Caution & TDD.
+- [2026-03-04 16:38]: **Phase 2 Shipped (v1.2.126)**. Mobile verification enabled.
+- [2026-03-04 16:41]: **Phase 3 Shipped (v1.2.127)**. Logic & Shortcuts enabled.
+- [2026-03-04 16:45]: **Phase 4 & Promotion Shipped (v1.2.128)**. Production promotion successful.
+
+## Handover Note
+"The Triage View has been successfully retrofitted to the 'Hard Shell' standard. It is now leaner, performance-optimized, and gesture-hardened."
