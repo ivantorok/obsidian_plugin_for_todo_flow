@@ -18,10 +18,15 @@
     } = $props();
 
     const controller = $derived.by(() => new TriageController(app, initialTasks, logger));
-    let currentTask = $state(untrack(() => controller.getCurrentTask()));
+    let currentTask = $state<TaskNode | null>(null);
     let swipeDirection = $state<"left" | "right" | null>(null);
     let isConflictState = $state(false);
     let keyManager: KeybindingManager;
+
+    $effect(() => {
+        // Sync currentTask when controller (initialTasks) changes
+        currentTask = untrack(() => controller.getCurrentTask());
+    });
 
     onMount(() => {
         keyManager = new KeybindingManager(keys || {
@@ -86,7 +91,7 @@
         currentTask = controller.getCurrentTask();
     }
 
-    function handleKeyDown(e: KeyboardEvent) {
+    export function handleKeyDown(e: KeyboardEvent) {
         if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
         
         const action = keyManager.resolveAction(e);
@@ -111,6 +116,14 @@
             case "CONFIRM":
                 controller.openCurrentTask();
                 break;
+        }
+    }
+
+    export function addTaskToQueue(task: TaskNode, persist: boolean = false) {
+        if (logger) logger.info(`[TriageViewHardShell] addTaskToQueue: ${task.title}, persist: ${persist}`);
+        controller.addTask(task, persist);
+        if (!currentTask) {
+            currentTask = controller.getCurrentTask();
         }
     }
 
@@ -162,8 +175,8 @@
             style:transform={cardTransform()}
         >
             <div class="todo-flow-card variant-triage">
+                <h2 class="todo-flow-card-header">{(currentTask?.title || "").toUpperCase()}</h2>
                 <div class="todo-flow-card-body">
-                    <h2>{currentTask.title}</h2>
                     <div class="todo-flow-triage-hint">
                         ← Not Now | Shortlist →
                     </div>
@@ -173,8 +186,8 @@
     {:else if isConflictState}
         <div class="triage-card-wrapper {swipeDirection}" transition:slide style:transform={cardTransform()}>
             <div class="todo-flow-card variant-triage">
+                <h2 class="todo-flow-card-header">EXISTING STACK DETECTED</h2>
                 <div class="todo-flow-card-body">
-                    <h2>Existing Stack Detected</h2>
                     <div class="todo-flow-triage-conflict-message">
                         <p>You have an active Daily Stack.</p>
                     </div>
@@ -322,6 +335,17 @@
         background: var(--interactive-success);
         color: var(--text-on-accent);
         border-color: var(--interactive-success);
+    }
+
+    .todo-flow-card-header {
+        text-align: center;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin: 0;
+        font-size: 1.1rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     .todo-flow-card {
