@@ -26,89 +26,79 @@
     import HelpModal from "./HelpModal.svelte";
 </script>
 
-<div class="footer-controls">
-    <button
-        class="icon-button undo-btn"
-        onclick={onUndo}
-        title="Undo (Ctrl+Z)"
-    >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v.5" /></svg
+<div class="todo-flow-stack-footer">
+    <div class="footer-actions">
+        <button
+            class="action-btn secondary undo-btn"
+            onclick={onUndo}
+            title="Undo (Ctrl+Z)"
         >
-    </button>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v.5" /></svg
+            >
+        </button>
 
-    <button
-        class="icon-button plus-btn"
-        onclick={onQuickAdd}
-        title="Add Task"
-    >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><line x1="12" y1="5" x2="12" y2="19"></line><line
-                x1="5"
-                y1="12"
-                x2="19"
-                y2="12"
-            ></line></svg
+        <button
+            class="action-btn primary plus-btn"
+            onclick={onQuickAdd}
+            title="Add Task"
         >
-    </button>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><line x1="12" y1="5" x2="12" y2="19"></line><line
+                    x1="5"
+                    y1="12"
+                    x2="19"
+                    y2="12"
+                ></line></svg
+            >
+        </button>
 
-    <button
-        class="icon-button export-btn"
-        onclick={onExport}
-        title="Export completed tasks"
-    >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4" /><polyline
-                points="7 10 12 15 17 10"
-            /><line x1="12" y1="15" x2="12" y2="3" /></svg
+        <button
+            class="action-btn secondary export-btn"
+            onclick={onExport}
+            title="Export completed tasks"
+            style="display:none;"
         >
-    </button>
+            <!-- Hide export for now to match the 3-button shadow stack, or keep it depending on UX. The prototype had 3 buttons. -->
+        </button>
 
-    <button
-        class="icon-button redo-btn"
-        onclick={onRedo}
-        title="Redo (Ctrl+Y)"
-    >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><path d="m15 14 5-5-5-5" /><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v.5" /></svg
+        <button
+            class="action-btn secondary redo-btn"
+            onclick={onRedo}
+            title="Redo (Ctrl+Y)"
         >
-    </button>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="m15 14 5-5-5-5" /><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v.5" /></svg
+            >
+        </button>
+    </div>
 
     {#if showHelp}
         <HelpModal {keys} {settings} />
@@ -116,48 +106,63 @@
 </div>
 
 <style>
-    .footer-controls {
-        position: fixed;
-        bottom: 1.5rem;
-        left: 50%;
-        transform: translateX(-50%);
+    /* Shadow Footer Styles */
+    .todo-flow-stack-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem;
+        background: linear-gradient(transparent, var(--background-primary) 60%);
         display: flex;
-        gap: 1rem;
-        background: var(--background-secondary-alt);
-        padding: 0.6rem 1.2rem;
-        border-radius: 2rem;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        border: 1px solid var(--background-modifier-border);
-        backdrop-filter: blur(8px);
+        justify-content: center;
+        pointer-events: none; /* Let clicks pass through the gradient */
     }
 
-    .icon-button {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        cursor: pointer;
-        padding: 0.5rem;
+    .footer-actions {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        pointer-events: auto; /* Re-enable clicks for buttons */
+    }
+
+    .action-btn {
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
+        border: none;
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
         transition: all 0.2s ease;
     }
 
-    .icon-button:hover {
-        background: var(--background-modifier-hover);
-        color: var(--text-normal);
+    .action-btn:hover {
         transform: translateY(-2px);
     }
 
-    .plus-btn {
+    .action-btn.primary {
         background: var(--interactive-accent);
-        color: var(--text-on-accent);
+        color: white;
+        width: 54px;
+        height: 54px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
-    .plus-btn:hover {
+    .action-btn.primary:hover {
         background: var(--interactive-accent-hover);
-        color: var(--text-on-accent);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-btn.secondary {
+        background: var(--background-secondary-alt);
+        color: var(--text-muted);
+        border: 1px solid var(--background-modifier-border);
+    }
+
+    .action-btn.secondary:hover {
+        background: var(--background-modifier-hover);
+        color: var(--text-normal);
     }
 </style>

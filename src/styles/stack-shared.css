@@ -319,3 +319,43 @@
     font-weight: 500;
     opacity: 0.5;
 }
+
+/* Hard Shell: Mobile Aesthetic Overrides from ShadowStack */
+:global(.mobile-index-display) {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+:global(.mobile-duration) {
+    background: rgba(var(--interactive-accent-rgb), 0.08);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--interactive-accent);
+    font-weight: 700;
+    border: 1px solid rgba(var(--interactive-accent-rgb), 0.2);
+    text-decoration: none !important; /* Override button browser styles */
+}
+
+:global(.mobile-anchor-btn) {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--background-secondary-alt);
+    color: var(--text-muted);
+    border: 1px solid var(--tf-glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Reset */
+}
+
+:global(.mobile-anchor-btn.is-active) {
+    background: var(--interactive-accent);
+    color: white;
+    border: none;
+}
