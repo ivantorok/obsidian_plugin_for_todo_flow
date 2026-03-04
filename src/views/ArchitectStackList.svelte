@@ -176,62 +176,60 @@
                     {formatDuration(task.duration)}
                 </button>
 
-                <div class="title-row">
-                    {#if editingIndex === i}
-                        <input
-                            bind:this={renameInputs[i]}
-                            bind:value={renamingText}
-                            type="text"
-                            class="rename-input"
-                            data-testid="rename-input"
-                            oninput={(e) => { renamingText = e.currentTarget.value; }}
-                            onblur={(e) => {
-                                if (e.currentTarget.getAttribute("data-blur-ignore") === "true") return;
-                            }}
-                            onkeydown={(e) => {
+                {#if editingIndex === i}
+                    <input
+                        bind:this={renameInputs[i]}
+                        bind:value={renamingText}
+                        type="text"
+                        class="rename-input"
+                        data-testid="rename-input"
+                        oninput={(e) => { renamingText = e.currentTarget.value; }}
+                        onblur={(e) => {
+                            if (e.currentTarget.getAttribute("data-blur-ignore") === "true") return;
+                        }}
+                        onkeydown={(e) => {
+                            e.stopPropagation();
+                            if (e.key === "Enter") {
                                 e.stopPropagation();
-                                if (e.key === "Enter") {
-                                    e.stopPropagation();
-                                    e.currentTarget.setAttribute("data-blur-ignore", "true");
-                                    finishRename(task.id, e.currentTarget.value, "submit");
-                                }
-                                if (e.key === "Escape") {
-                                    e.stopPropagation();
-                                    cancelRename();
-                                }
-                            }}
-                            use:selectOnFocus
-                        />
-                    {:else}
-                        <button
-                            class="title"
-                            class:is-done={task.done}
-                            data-testid="task-card-title"
-                            data-index={i}
-                            onclick={syncGuard((e) => {
-                                if (!isMobileState) {
-                                  e.stopPropagation();
-                                  startRename(i);
-                                } else {
-                                  e.stopPropagation();
-                                  if (focusedIndex === i) {
-                                    openCaptureModal(i);
-                                  }
-                                }
-                            })}
-                            onkeydown={(e) => {
-                                if (e.key === "Enter") {
-                                    e.stopPropagation();
-                                    startRename(i);
-                                }
-                            }}
-                            title={task.isMissing ? "Note missing" : "Click to rename"}
-                            tabindex="0"
-                        >
-                            {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span>{/if}{task.title}
-                        </button>
-                    {/if}
-                </div>
+                                e.currentTarget.setAttribute("data-blur-ignore", "true");
+                                finishRename(task.id, e.currentTarget.value, "submit");
+                            }
+                            if (e.key === "Escape") {
+                                e.stopPropagation();
+                                cancelRename();
+                            }
+                        }}
+                        use:selectOnFocus
+                    />
+                {:else}
+                    <button
+                        class="title"
+                        class:is-done={task.done}
+                        data-testid="task-card-title"
+                        data-index={i}
+                        onclick={syncGuard((e) => {
+                            if (!isMobileState) {
+                              e.stopPropagation();
+                              startRename(i);
+                            } else {
+                              e.stopPropagation();
+                              if (focusedIndex === i) {
+                                openCaptureModal(i);
+                              }
+                            }
+                        })}
+                        onkeydown={(e) => {
+                            if (e.key === "Enter") {
+                                e.stopPropagation();
+                                startRename(i);
+                            }
+                        }}
+                        title={task.isMissing ? "Note missing" : "Click to rename"}
+                        tabindex="0"
+                    >
+                        {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span>{/if}{task.title}
+                    </button>
+                {/if}
 
                 <!-- Sovereign UX: State (Anchored) is indicated by border/shadow, not a cluttered column -->
 
@@ -309,6 +307,12 @@
         border-radius: 0;
         padding: 0.5rem 0;
         gap: 0.75rem;
+
+        /* Mono-row Enforcement */
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
     }
 
     .time-col {
@@ -344,12 +348,9 @@
         box-shadow: none !important;
     }
 
-    .title-row {
+    .rename-input {
         flex: 1 1 auto;
-        width: auto;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
+        min-width: 0;
         margin: 0;
     }
 
