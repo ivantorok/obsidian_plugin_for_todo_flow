@@ -33,6 +33,7 @@
             canGoBack: false,
             rootPath: null,
             isMobile: false,
+            isReorderMode: false
         };
     }
 
@@ -91,6 +92,7 @@
         navState.canGoBack = newState.canGoBack;
         navState.rootPath = newState.rootPath;
         navState.isMobile = newState.isMobile;
+        navState.isReorderMode = newState.isReorderMode || false;
 
         if (activeComponent?.setNavState) activeComponent.setNavState(newState);
     }
@@ -183,6 +185,8 @@
                 );
         } else if (action === "open") {
             if (restProps.onNavigate) restProps.onNavigate(task.id, index);
+        } else if (action === "context_menu") {
+            if (activeComponent?.openContextMenu) activeComponent.openContextMenu(index);
         }
 
         if (cmd && cmd.resultIndex !== undefined && cmd.resultIndex !== null) {

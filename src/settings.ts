@@ -32,6 +32,6 @@ export const DEFAULT_SETTINGS: TodoFlowSettings = {
     swipeLeftAction: 'archive',
     swipeRightAction: 'complete',
     doubleTapAction: 'anchor',
-    longPressAction: 'none',
+    longPressAction: 'context_menu',
     absoluteLogPath: ''
 }

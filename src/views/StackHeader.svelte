@@ -133,6 +133,16 @@
             {navState.tasks.length}
         </span>
         <span class="header-time">{moment().format("HH:mm")}</span>
+        
+        {#if navState.isReorderMode}
+            <button 
+                class="reorder-done-btn" 
+                onclick={() => navState.isReorderMode = false}
+                data-testid="reorder-done-btn"
+            >
+                DONE
+            </button>
+        {/if}
     </div>
 </div>
 
@@ -248,5 +258,21 @@
         font-family: var(--font-monospace);
         min-width: 45px;
         text-align: right;
+    }
+
+    .reorder-done-btn {
+        background: var(--interactive-accent);
+        color: var(--text-on-accent);
+        border: none;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        margin-left: 0.5rem;
+    }
+
+    .reorder-done-btn:hover {
+        background: var(--interactive-accent-hover);
     }
 </style>

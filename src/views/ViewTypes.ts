@@ -8,4 +8,5 @@ export interface StackUIState {
     rootPath: string | null;
     isMobile: boolean;
     viewMode?: "focus" | "architect";
+    isReorderMode?: boolean;
 }

@@ -113,6 +113,8 @@
         left: 0;
         right: 0;
         padding: 1.5rem;
+        /* Increase bottom buffer to clear Obsidian mobile navigation bar */
+        padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 32px));
         background: linear-gradient(transparent, var(--background-primary) 60%);
         display: flex;
         justify-content: center;

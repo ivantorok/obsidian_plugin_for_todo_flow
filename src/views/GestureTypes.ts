@@ -13,6 +13,7 @@ export interface GestureState {
 
 export interface GestureManagerConfig {
     isMobileState: () => boolean;
+    isReorderMode: () => boolean;
     getTasks: () => TaskNode[];
     getTaskElements: () => HTMLElement[];
     onGestureAction: (actionType: string, task: TaskNode, index: number) => Promise<void>;

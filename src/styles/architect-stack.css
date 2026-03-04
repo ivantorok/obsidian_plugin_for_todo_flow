@@ -26,16 +26,8 @@
     min-height: 300px;
 }
 
-/* Architect Mode Specific Card Overrides */
-.todo-flow-task-card {
-    padding: 1.25rem;
-}
+/* Sovereign UX: Base card layout is handled in the component for strict structural adherence */
 
-.todo-flow-task-card.is-mobile {
-    padding: 0.85rem 1rem !important;
-    gap: 0.75rem !important;
-    border-radius: 12px;
-}
 
 .title-row {
     display: flex;
@@ -82,27 +74,8 @@
         display: none;
     }
 
-    .todo-flow-task-card.is-mobile {
-        flex-wrap: wrap;
-    }
+    /* Sovereign UX: Mobile Architect maintains mono-row layout. No wrapping. */
 
-    .todo-flow-task-card.is-mobile .content-col {
-        flex: 1 1 200px;
-    }
-
-    .todo-flow-task-card.is-mobile .title {
-        font-size: 1.05rem;
-        white-space: normal;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        line-height: 1.3;
-    }
-
-    .todo-flow-task-card.is-mobile .metadata {
-        margin-top: 6px;
-        gap: 1rem;
-    }
 }
 
 .mobile-index-display {
@@ -125,25 +98,8 @@
     border: 1px solid rgba(var(--interactive-accent-rgb), 0.2) !important;
 }
 
-.mobile-anchor-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 50% !important;
-    background: var(--background-secondary-alt) !important;
-    color: var(--text-muted) !important;
-    border: 1px solid var(--tf-glass-border) !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
+/* Sovereign UX: Anchoring is state-driven (border-left), not icon-driven on the list */
 
-.mobile-anchor-btn.is-active {
-    background: var(--tf-gradient-accent) !important;
-    color: white !important;
-    border: none !important;
-    box-shadow: 0 4px 12px rgba(var(--interactive-accent-rgb), 0.3);
-}
 
 /* Rename Input Styling */
 .rename-input {

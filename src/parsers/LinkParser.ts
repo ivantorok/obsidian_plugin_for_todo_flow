@@ -85,14 +85,23 @@ export class LinkParser implements TaskSource {
                 const { DateParser } = await import('../utils/DateParser.js');
                 const lineNlp = DateParser.parseTaskInput(nlpInput);
 
+                // Deeply resolve the file metadata to get the TRUE title (Frontmatter > First Line > Filename)
+                // This prevents empty results in E2E tests when the link path is different from the task title.
+                const metadata = await this.resolveTaskMetadata(resolvedPath, nlpInput);
+                const finalTitle = displayText || metadata.title || linkPath;
+
+                if (typeof window !== 'undefined') {
+                    console.log(`[LinkParser] Creating node for ${resolvedPath}: title="${finalTitle}" (displayText="${displayText}", metadataTitle="${metadata.title}", linkPath="${linkPath}")`);
+                }
+
                 tasks.push({
                     id: resolvedPath,
-                    // Use custom display text if provided, otherwise resolved title
-                    title: displayText || linkPath,
-                    duration: lineNlp.duration || 30,
+                    // Priority: Alias ([[link|alias]]) > Metadata (Resolved Title) > Link Path
+                    title: finalTitle,
+                    duration: lineNlp.duration || metadata.duration || 30,
                     status: (line.includes('[x]') ? 'done' : 'todo'),
-                    isAnchored: lineNlp.isAnchored || false,
-                    startTime: lineNlp.startTime,
+                    isAnchored: lineNlp.isAnchored || metadata.isAnchored || false,
+                    startTime: lineNlp.startTime || metadata.startTime,
                     children: []
                 });
             }
@@ -139,6 +148,10 @@ export class LinkParser implements TaskSource {
             // Resolve title using new global hierarchy
             const firstLine = getFirstNonMetadataLine(content);
             const title = resolveTaskTitle(metadata, firstLine, filePath.split('/').pop() || filePath);
+
+            if (typeof window !== 'undefined') {
+                console.log(`[LinkParser] Resolved metadata for ${filePath}: title="${title}", hasFrontmatter=${!!match}`);
+            }
 
             // NLP Enrichment: Try to extract from first line of file, but allow nlpInput to override/augment
             const { DateParser } = await import('../utils/DateParser.js');

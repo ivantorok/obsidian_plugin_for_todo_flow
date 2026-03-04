@@ -101,7 +101,9 @@
                     {formatDateRelative(task.startTime, now)}
                 </div>
 
-                <h1 class="focus-title">{task.title}</h1>
+                <h1 class="focus-title">
+                    {task.title || task.id.split('/').pop()?.replace('.md', '') || 'Untitled Task'}
+                </h1>
 
                 <div class="focus-metadata">
                     <span class="focus-duration-text"

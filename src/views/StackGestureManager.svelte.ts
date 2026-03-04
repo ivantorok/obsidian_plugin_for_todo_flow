@@ -98,6 +98,12 @@ export class StackGestureManager {
         }
 
         if (!this.state.draggingTaskId) {
+            // Reorder Mode Guard: Only allow dragging on mobile if explicitly in reorder mode.
+            // This prevents conflict with native scrolling.
+            if (this.config.isMobileState() && !this.config.isReorderMode()) {
+                return;
+            }
+
             if ((this.startedOnHandle || Math.abs(dy) > Math.abs(dx) * 1.2) && Math.abs(dy) > 5) {
                 const tasks = this.config.getTasks();
                 const elements = this.config.getTaskElements();

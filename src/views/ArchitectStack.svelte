@@ -6,7 +6,7 @@
     import { KeybindingManager } from "../keybindings";
     import { type HistoryManager } from "../history.js";
     import { ReorderToIndexCommand } from "../commands/stack-commands.js";
-    import ArchitectStackTemplate from "./ArchitectStackTemplate.svelte";
+    import ArchitectStackList from "./ArchitectStackList.svelte";
     import StackFooter from "./StackFooter.svelte";
     import { type TodoFlowSettings } from "../main";
     import { ViewportService } from "../services/ViewportService.js";
@@ -84,6 +84,9 @@ import { type StackUIState } from "./ViewTypes.js";
     let showingCaptureModal = $state(false);
     let taskToCapture = $state<TaskNode | null>(null);
     let capturedIndex = $state(-1);
+    let showContextMenu = $state(false);
+    let contextMenuTask = $state<TaskNode | null>(null);
+    let contextMenuTarget = $state<HTMLElement | null>(null);
 
     const keyManager = $derived(new KeybindingManager(settings.keys));
 
@@ -137,6 +140,7 @@ import { type StackUIState } from "./ViewTypes.js";
 
     const gestureManager = new StackGestureManager(gestureState, {
         isMobileState: () => isMobileProp,
+        isReorderMode: () => !!navState.isReorderMode,
         getTasks: () => navState.tasks,
         getTaskElements: () => taskElements,
         onGestureAction: executeGestureAction,
@@ -268,6 +272,11 @@ import { type StackUIState } from "./ViewTypes.js";
     export const update = () => stateManager.triggerUpdate();
 
     export const setIsMobile = (val: boolean) => { isMobileProp = val; stateManager.triggerUpdate(); };
+    export const openContextMenu = (idx: number) => {
+        contextMenuTask = navState.tasks[idx];
+        contextMenuTarget = taskElements[idx];
+        showContextMenu = true;
+    };
 
     const getCardTransform = (id) => gestureManager.getCardTransform(id);
 
@@ -282,7 +291,7 @@ import { type StackUIState } from "./ViewTypes.js";
 
 <div bind:this={containerEl} class="todo-flow-stack-container" class:is-mobile={isMobileProp} class:is-editing={editingIndex !== -1} tabindex="0" onkeydown={(e) => keyboardManager.handleKeyDown(e)} data-ui-ready="true" data-view-type="architect" data-focused-index={navState.focusedIndex} data-task-count={navState.tasks.length}>
     <div class="todo-flow-timeline">
-        <ArchitectStackTemplate
+        <ArchitectStackList
             tasks={navState.tasks} focusedIndex={navState.focusedIndex} now={internalNow}
             {historyManager} {controller} {editingIndex} {editingStartTimeIndex} bind:renamingText
             draggingTaskId={gestureState.draggingTaskId} dragTargetIndex={gestureState.dragTargetIndex}
@@ -300,6 +309,10 @@ import { type StackUIState } from "./ViewTypes.js";
             update={() => stateManager.triggerUpdate()} {openQuickAddModal}
             openDurationPicker={(idx) => isMobileProp ? openCaptureModal(idx) : openDurationPicker?.(idx)}
             openCaptureModal={openCaptureModal}
+            {showContextMenu} 
+            {contextMenuTask} 
+            {contextMenuTarget}
+            onCloseContextMenu={() => showContextMenu = false}
             bind:renameInputs bind:taskElements
         />
 
