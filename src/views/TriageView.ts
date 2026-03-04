@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, type Modifier, Notice } from 'obsidian';
 import { mount, unmount } from 'svelte';
-import TriageViewSvelte from './TriageView.svelte';
+import TriageViewSvelte from './TriageViewHardShell.svelte';
 import { type TaskNode } from '../scheduler.js';
 import { type KeybindingSettings, DEFAULT_KEYBINDINGS } from '../keybindings.js';
 import { parseTitleFromFilename } from '../persistence.js';
