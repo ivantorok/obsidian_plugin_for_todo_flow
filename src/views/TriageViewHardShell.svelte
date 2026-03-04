@@ -19,20 +19,67 @@
     let swipeDirection = $state<"left" | "right" | null>(null);
     let isConflictState = $state(false);
 
-    // Placeholder for swipe state
+    // Swipe state
     let touchStartX = $state(0);
     let touchCurrentX = $state(0);
     let isSwiping = $state(false);
+    const SWIPE_THRESHOLD = 100;
 
     function next(direction: "left" | "right") {
         swipeDirection = direction;
-        // Logic to be poured in Phase 2/3
+        setTimeout(() => {
+            if (direction === "right") controller.swipeRight();
+            else controller.swipeLeft();
+            
+            currentTask = controller.getCurrentTask();
+            swipeDirection = null;
+            if (!currentTask) onComplete(controller.getResults());
+        }, 200);
     }
+
+    function handlePointerStart(e: PointerEvent) {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        touchStartX = e.clientX;
+        touchCurrentX = touchStartX;
+        isSwiping = true;
+    }
+
+    function handlePointerMove(e: PointerEvent) {
+        if (!isSwiping) return;
+        touchCurrentX = e.clientX;
+    }
+
+    function handlePointerEnd(e: PointerEvent) {
+        if (!isSwiping) return;
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+
+        const deltaX = touchCurrentX - touchStartX;
+        if (deltaX > SWIPE_THRESHOLD) next("right");
+        else if (deltaX < -SWIPE_THRESHOLD) next("left");
+
+        isSwiping = false;
+        touchStartX = 0;
+        touchCurrentX = 0;
+    }
+
+    const cardTransform = $derived(() => {
+        if (!isSwiping) return "";
+        const deltaX = touchCurrentX - touchStartX;
+        const rotation = deltaX / 20;
+        return `translateX(${deltaX}px) rotate(${rotation}deg)`;
+    });
 </script>
 
 <div class="todo-flow-triage-container" tabindex="-1">
     {#if currentTask}
-        <div class="triage-card-wrapper {swipeDirection}" transition:slide>
+        <div 
+            class="triage-card-wrapper {swipeDirection}" 
+            transition:slide
+            onpointerdown={handlePointerStart}
+            onpointermove={handlePointerMove}
+            onpointerup={handlePointerEnd}
+            style:transform={cardTransform()}
+        >
             <div class="todo-flow-card variant-triage">
                 <div class="todo-flow-card-body">
                     <h2>{currentTask.title}</h2>

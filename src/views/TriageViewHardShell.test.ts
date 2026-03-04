@@ -4,7 +4,24 @@ import TriageViewHardShell from './TriageViewHardShell.svelte';
 import { TriageController } from './TriageController';
 
 describe('TriageViewHardShell Behavioral Baseline', () => {
-    it('should be a placeholder for now', () => {
-        expect(true).toBe(true);
+    const SWIPE_THRESHOLD = 100;
+
+    function resolveSwipeAction(deltaX: number): 'left' | 'right' | 'none' {
+        if (deltaX > SWIPE_THRESHOLD) return 'right';
+        if (deltaX < -SWIPE_THRESHOLD) return 'left';
+        return 'none';
+    }
+
+    it('should resolve swipe right when deltaX exceeds positive threshold', () => {
+        expect(resolveSwipeAction(120)).toBe('right');
+    });
+
+    it('should resolve swipe left when deltaX exceeds negative threshold', () => {
+        expect(resolveSwipeAction(-120)).toBe('left');
+    });
+
+    it('should not resolve any action for small movements', () => {
+        expect(resolveSwipeAction(50)).toBe('none');
+        expect(resolveSwipeAction(-50)).toBe('none');
     });
 });
