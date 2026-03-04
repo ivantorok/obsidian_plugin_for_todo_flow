@@ -1,33 +1,30 @@
-# Handoff: Hard Shell Initiative v1.2.125
+# Handoff: Hard Shell Initiative v1.2.130
 
 **Role**: Process Governor / Implementation Lead
-**Status**: CLEAN & GREEN. Audit Workbench Operational.
+**Status**: TRIAGE RETROFIT COMPLETE. Proceed to Capture.
 
 ## 🎯 Current Mission
-We are in the **"Forensic Audit"** phase of moving legacy UI components to the **Hard Shell Standard**. The goal is to replace brittle, high-dependency views with performance-optimized, gesture-hardened Svelte components while preserving existing business logic.
+The **Triage Retrofit** is successful. We have replaced the legacy monolith with a gesture-hardened "Hard Shell" standard. The next objective is the **Capture/Dump Retrofit**.
 
-## 🚀 Key Breakthrough: The Shadow Protocol
-To avoid "Import Gravity" (broken builds when importing production views into the sandbox), we have established a **Shadow Audit Workbench**:
-- **Location**: `http://localhost:5174/simple-jail.html`
-- **Workbench**: `sandbox/SimpleJail.svelte`
-- **Fact-Files**: `sandbox/prototypes/Shadow{Dump,Triage,Stack}.svelte`
-これらのコンポーネントは、実際のCSSとHTML構造を100%ミラーリングしていますが、ロジックはデカップリングされています。
+## 🚀 Key Achievements (Session v26)
+- **Hard Shell Promotion**: `src/views/TriageViewHardShell.svelte` is now the production triage view.
+- **E2E Stability**: Resolved critical reactivity and HTML parity bugs that broke legacy tests.
+- **Gesture Physics**: Implemented premium pointer-based swipe with rotation forensics.
 
 ## 📍 Where We Are
-1. **Phase 1: Dump (Capture)**: Updated to use a simple `textarea` input (mirrored from `DumpView.svelte`).
-2. **Phase 2: Triage (Pruning)**: Refined with the production "Skip All" button (dashed borders) and swipe physics.
-3. **Phase 3: Stack (Prioritizing)**: Full Architect Stack view, now stable in the workbench.
+1. **Phase 1: Dump (Capture)**: Prototype stable in sandbox. Still using legacy `DumpView.svelte` in production.
+2. **Phase 2: Triage (Pruning)**: **DONE**. Hard Shell promoted to production in `v1.2.130`.
+3. **Phase 3: Stack (Prioritizing)**: Prototype stable in sandbox.
 
-## 🛠 Next Step: The Triage Retrofit
-Your primary objective is to begin the **Official Triage Retrofit**:
-1. Open `src/views/TriageView.svelte` (The Legacy monolith).
-2. Create `src/views/TriageViewHardShell.svelte` using the **structure** from `sandbox/prototypes/ShadowTriage.svelte`.
-3. Wire the new shell into the existing `TriageController.ts` and `HistoryManager.ts` without breaking the interaction contract.
-4. **Audit Requirement**: Use the workbench (`SimpleJail.svelte`) to verify that the new "Hard Shell" version matches the "Shadow" version's visual fidelity.
+## 🛠 Next Step: The Capture Retrofit
+Your primary objective is to begin the **Official Capture/Dump Retrofit**:
+1. Open `src/views/TriageView.svelte` (Wait, no, `src/views/DumpView.svelte` - the legacy capture view).
+2. Create `src/views/DumpViewHardShell.svelte` using the **structure** from `sandbox/prototypes/ShadowDump.svelte`.
+3. Wire the new shell into the existing controllers without breaking the "Quick Add" contract.
+4. **Audit Requirement**: Use the workbench (`SimpleJail.svelte`) to verify visual parity.
 
 ## 📚 Essential Reading
-- [MISSION_LOG.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/protocol/roles/common/MISSION_LOG.md) (Session v25)
-- [PROTOTYPE_SPEC.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/sandbox/PROTOTYPE_SPEC.md) (Shadow Protocol definition)
-- [interaction_recording](file:///home/ivan/.gemini/antigravity/brain/12fa63ff-242f-4e1e-8b09-92aaf9d74e24/shadow_refinement_verification_1772635195363.webp)
+- [MISSION_LOG.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/protocol/roles/common/MISSION_LOG.md) (Read Session v26 for the Triage Retrofit wrap-up).
+- [walkthrough.md](file:///home/ivan/.gemini/antigravity/brain/546cd1d3-81ea-4639-bf57-faa5cc1044b1/walkthrough.md) (Final Triage audit summary).
 
-**Proceed to Triage Retrofit. Good luck.**
+**Proceed to Capture Retrofit. Maintain the Hard Shell standard.**

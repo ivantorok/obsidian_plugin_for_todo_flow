@@ -3,12 +3,14 @@
     import ShadowTriage from './prototypes/ShadowTriage.svelte';
     import ShadowStack from './prototypes/ShadowStack.svelte';
     import TriageViewHardShell from '../src/views/TriageViewHardShell.svelte';
+    import DumpViewHardShell from '../src/views/DumpViewHardShell.svelte';
 
-    let currentView = $state<'dump' | 'triage' | 'hardshell' | 'stack'>('dump');
+    let currentView = $state<'dump' | 'dump_hardshell' | 'triage' | 'hardshell' | 'stack'>('dump');
 </script>
 
 <div class="lab-controls">
     <button class:active={currentView === 'dump'} onclick={() => currentView = 'dump'}>1. Dump Mode</button>
+    <button class:active={currentView === 'dump_hardshell'} onclick={() => currentView = 'dump_hardshell'}>1b. Dump Mode (Hard Shell)</button>
     <button class:active={currentView === 'triage'} onclick={() => currentView = 'triage'}>2. Triage Mode (Shadow)</button>
     <button class:active={currentView === 'hardshell'} onclick={() => currentView = 'hardshell'}>2b. Triage Mode (Hard Shell)</button>
     <button class:active={currentView === 'stack'} onclick={() => currentView = 'stack'}>3. Stack Mode (Architect)</button>
@@ -17,6 +19,13 @@
 <div class="view-container">
     {#if currentView === 'dump'}
         <ShadowDump onComplete={() => currentView = 'triage'} />
+    {:else if currentView === 'dump_hardshell'}
+        <DumpViewHardShell 
+            app={{}} 
+            folder="sandbox" 
+            logger={{ info: () => {} }} 
+            onComplete={() => currentView = 'triage'} 
+        />
     {:else if currentView === 'triage'}
         <ShadowTriage title="Process: New Plugin Idea" />
     {:else if currentView === 'hardshell'}

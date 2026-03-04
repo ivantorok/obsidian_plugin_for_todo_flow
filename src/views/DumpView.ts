@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { mount, unmount } from 'svelte';
-import DumpViewSvelte from './DumpView.svelte';
+import DumpViewHardShell from './DumpViewHardShell.svelte';
 import { type TaskNode } from '../scheduler.js';
 import { FileLogger } from '../logger.js';
 
@@ -28,7 +28,7 @@ export class DumpView extends ItemView {
     }
 
     async onOpen() {
-        this.component = mount(DumpViewSvelte, {
+        this.component = mount(DumpViewHardShell, {
             target: this.contentEl,
             props: {
                 app: this.app,
