@@ -281,7 +281,8 @@
         width: 100%;
         margin: 0;
         min-height: 300px; 
-        padding: 0;
+        /* Increase bottom buffer significantly to clear Obsidian mobile navigation bar and keyboard accessories */
+        padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 64px));
     }
 
     .todo-flow-timeline.mode-focus {
