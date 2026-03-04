@@ -430,3 +430,78 @@
 
 ## Status Logs
 - [2026-03-03 15:32]: **Process Governor (PG)** session v20 initialized. Focus View mission activated.
+
+---
+
+# Session v22 — Context Menu Prototype Stabilization
+
+## Input & Analysis (Process Governor)
+- **Source**: Prototyping feedback and stability review
+- **Objective**: Wind down the Long Press UX prototype safely, bridging the documentation gap before implementation.
+- **Flavor**: [UX + STRATEGY + DOCS]
+
+## Active Objectives
+1. **[DONE]** Component Extraction: `TaskContextMenu.svelte` created and verified with smart viewport-aware positioning.
+2. **[DONE]** Documentation Bridge: Explicitly documented local `z-index` debt within the Svelte file.
+3. **[DONE]** Concept Atlas: Formalized the `LOGARITHMIC_DURATION_SEQUENCE.md` for the +/- actions.
+4. **[DONE]** Sandbox Spec: Formalized Long Press context menu definitions in `PROTOTYPE_SPEC.md`.
+
+## Triage Routing
+1. **Process Governor (PG)**: Enforce documentation requirements; safely wind down the prototyping branch.
+2. **Atlas Guardian (AG)**: Verify logarithmic sequence logic.
+
+## Status Logs
+- [Current]: Prototype successfully shelved. Conceptual alignment documented. Code is safe for future `ArchitectStackTemplate` integration.
+
+---
+
+# Session v23 — Prototyping Roadmap Formalization
+
+## Input & Analysis (Process Governor)
+- **Source**: Protocol analysis post-Session v22
+- **Objective**: Consolidate prototype artifacts, salvage old references, and define the prototyping roadmap.
+- **Flavor**: [UX + STRATEGY + PROTOTYPE]
+
+## Active Objectives
+1. **[DONE]** Salvage & Extract: Extracted the `HighDensityLeanCard` (Sleek Mono-Row) prototype to `src/views/HighDensityLeanCard.svelte` with Architecture notes to preserve strict flex constraints.
+2. **[DONE]** Prototyping Roadmap: Appended a formal `## Prototyping Roadmap` section to `sandbox/PROTOTYPE_SPEC.md` for the Process Governor to track upcoming concepts without polluting `docs/backlog/`.
+
+## Triage Routing
+1. **Process Governor (PG)**: Enforce documentation tracking. Direct prototyping pipeline to the "Detailed Task View".
+
+## Status Logs
+- [Current]: Extraction complete. Roadmap documented. Proceeding to Detailed Task View concept.
+
+---
+
+# Session v24 — Detailed Task View Promotion (FEAT-014)
+
+## Input & Analysis (Process Governor)
+- **Source**: Prototyping feedback and roadmap execution
+- **Objective**: Salvage the `DetailedTaskView` from the sandbox after successfully experimenting with "Viewport-Aware Option A" UI mechanics.
+- **Flavor**: [UX + PROTOTYPE + EXTRACTION]
+
+## Active Objectives
+1. **[DONE]** Component Extraction: Moved `DetailedTaskView.svelte` to `src/views/`
+2. **[DONE]** Documentation Bridge: Explicitly documented the Option A Viewport Shifting logic via inline architect comments, ensuring the strict "No Gestures, 100% Tap/Keyboard driven" rule is preserved.
+3. **[DONE]** Prototyping Roadmap: Checked off "Detailed Task View" in `sandbox/PROTOTYPE_SPEC.md`.
+
+## Triage Routing
+1. **Process Governor (PG)**: Validated Sandbox/Src separation and formally promoted the asset to `src/` so it can be wired up to actual logic later.
+
+## Status Logs
+- [Current]: Extraction complete. Component safely stored alongside other UI prototypes (`TaskContextMenu` and `HighDensityLeanCard`).
+
+## Key Insights & Hurdles
+1. **The "Viewport-Aware Option A" Breakthrough**: On mobile, the soft keyboard arbitrarily obliterates the bottom 50% of the screen. We initially debated complex "Edit Modes" versus "Reading Modes." Solution: A single, unified view works perfectly if the textarea uses `flex-shrink: 0` and dynamically scales its `min-height` via an `onfocus` event. This naturally pushes all action buttons below the fold, creating a clean typing surface without requiring mode-switching.
+2. **UI Clutter vs. Obsidian Native Actions**: Trying to design bespoke, heavily styled icons and layouts for every possible action (Anchor, Set Time, Complete, Archive, Drill Down, Undo) made the modal feel extremely cluttered and broke the sleek "Sovereign UX" aesthetic. Solution: We "dumbed it down." The top stays purely visual (Start Time, Duration, Title). All functional actions are simply dumped underneath as standard, text-based Obsidian buttons (`.obsidian-btn`). Because the keyboard pushes them off-screen anyway, they don't clutter the primary reading/typing experience, but remain easily accessible via scrolling.
+3. **Logarithmic Adjuster Universality**: Linear +/- 15m duration buttons were too slow for large changes and completely broke if the user had previously entered an irregular time (like 17m). Solution: We confirmed that the `LOGARITHMIC_DURATION_SEQUENCE` designed for the Context Menu (2, 5, 10... 480) is universally applicable. We wired the simple text buttons to snap dynamically to this array, providing a fast, robust editing experience without a massive time-picker UI.
+4. **Strict Isolation Protocol Followed**: Feature entanglement was avoided. The `DetailedTaskView` was built 100% in the `sandbox/` and was only promoted to `src/views/` (complete with inline architectural comments documenting the Viewport shifts) after the UI interaction rules were proven.
+
+## Handover Note
+"The Detailed Task View (FEAT-014) prototype is complete and promoted to `src/views/DetailedTaskView.svelte`. Key insight: Do not build separate 'Read' and 'Edit' modes for this modal. Rely on the newly established 'Option A Viewport-Aware' CSS constraints, where focusing the title gracefully scales the text area and pushes 'dumped' Obsidian-native action buttons below the keyboard fold. Furthermore, utilize the `LOGARITHMIC_DURATION_SEQUENCE` for rapid, picker-less time adjustments."
+
+## Stack View Structure Prototype (PROMOTED)
+- **Objective**: Prototype a performance-conscious Header and Footer in the sandbox.
+- **Vanilla Refinement**: Successfully removed glassmorphism and adopted solid backgrounds for older hardware compatibility.
+- **Outcome**: Promoted to `src/views/StackViewStructure.svelte`. Interaction Contract codified (Performance Protocol, Contextual Logic, Sovereign Zones).
