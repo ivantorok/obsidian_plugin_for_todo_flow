@@ -14,6 +14,7 @@
         logger,
         contentEl,
         checkForConflict,
+        openQuickAddModal,
     } = $props();
 
     const controller = $derived.by(() => new TriageController(app, initialTasks, logger));
@@ -46,19 +47,38 @@
     function next(direction: "left" | "right") {
         swipeDirection = direction;
         setTimeout(async () => {
+            if (isConflictState) {
+                const strategy = direction === "right" ? "merge" : "overwrite";
+                onComplete({ ...controller.getResults(), strategy });
+                swipeDirection = null;
+                return;
+            }
+
             if (direction === "right") await controller.swipeRight();
             else await controller.swipeLeft();
             
             currentTask = controller.getCurrentTask();
             swipeDirection = null;
-            if (!currentTask) onComplete(controller.getResults());
+            
+            if (!currentTask) {
+                if (checkForConflict && (await checkForConflict())) {
+                    isConflictState = true;
+                } else {
+                    onComplete(controller.getResults());
+                }
+            }
         }, 200);
     }
 
     async function skipAll() {
         await controller.skipAllToShortlist();
         currentTask = null;
-        onComplete(controller.getResults());
+        
+        if (checkForConflict && (await checkForConflict())) {
+            isConflictState = true;
+        } else {
+            onComplete(controller.getResults());
+        }
     }
 
     function undo() {
@@ -150,6 +170,20 @@
                 </div>
             </div>
         </div>
+    {:else if isConflictState}
+        <div class="triage-card-wrapper {swipeDirection}" transition:slide style:transform={cardTransform()}>
+            <div class="todo-flow-card variant-triage">
+                <div class="todo-flow-card-body">
+                    <h2>Existing Stack Detected</h2>
+                    <div class="todo-flow-triage-conflict-message">
+                        <p>You have an active Daily Stack.</p>
+                    </div>
+                    <div class="todo-flow-triage-hint conflict">
+                        ← Overwrite (Fresh) | Merge (Append) →
+                    </div>
+                </div>
+            </div>
+        </div>
     {:else}
         <div class="todo-flow-triage-done">
             <h2>All done!</h2>
@@ -158,10 +192,30 @@
     {/if}
 
     <div class="todo-flow-triage-controls">
-        <button onclick={() => next("left")} class="control-btn not-now">← Not Now</button>
-        <button onclick={undo} class="control-btn undo">Undo</button>
-        <button onclick={skipAll} class="control-btn skip-all" title="Move all remaining items to shortlist">Skip All →</button>
-        <button onclick={() => next("right")} class="control-btn shortlist">Shortlist →</button>
+        <button 
+            onclick={() => next("left")} 
+            class="control-btn not-now {isConflictState ? 'conflict-reject' : ''}"
+        >
+            {isConflictState ? "← Overwrite" : "← Not Now"}
+        </button>
+        
+        {#if !isConflictState}
+            <button onclick={undo} class="control-btn undo">Undo</button>
+            <button onclick={skipAll} class="control-btn skip-all" title="Move all remaining items to shortlist">Skip All →</button>
+        {/if}
+
+        <button 
+            onclick={() => next("right")} 
+            class="control-btn shortlist {isConflictState ? 'conflict-resolve' : ''}"
+        >
+            {isConflictState ? "Merge →" : "Shortlist →"}
+        </button>
+    </div>
+
+    <div class="footer-controls">
+        <button class="icon-button plus-btn" onclick={() => openQuickAddModal()} title="Add Task">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
     </div>
 </div>
 
@@ -202,6 +256,28 @@
         gap: 0.75rem;
     }
 
+    .footer-controls {
+        position: absolute;
+        bottom: 60px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        padding: 1.5rem;
+        pointer-events: none;
+    }
+
+    .footer-controls .icon-button {
+        pointer-events: auto;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--interactive-accent);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
     .control-btn {
         padding: 0.5rem 0.75rem;
         border-radius: 0.5rem;
@@ -222,6 +298,30 @@
         background: var(--background-secondary-alt);
         border: 1px dashed var(--interactive-accent);
         opacity: 0.8;
+    }
+
+    /* Conflict Mode Styles */
+    .todo-flow-triage-conflict-message {
+        padding: 1rem 0;
+        text-align: center;
+        opacity: 0.8;
+    }
+
+    .todo-flow-triage-hint.conflict {
+        color: var(--text-warning);
+        font-weight: bold;
+    }
+
+    .conflict-reject {
+        background: var(--background-modifier-error);
+        color: var(--text-on-accent);
+        border-color: var(--background-modifier-error);
+    }
+
+    .conflict-resolve {
+        background: var(--interactive-success);
+        color: var(--text-on-accent);
+        border-color: var(--interactive-success);
     }
 
     .todo-flow-card {
