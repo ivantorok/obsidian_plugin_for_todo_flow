@@ -2,13 +2,15 @@
     import ShadowDump from './prototypes/ShadowDump.svelte';
     import ShadowTriage from './prototypes/ShadowTriage.svelte';
     import ShadowStack from './prototypes/ShadowStack.svelte';
+    import TriageViewHardShell from '../src/views/TriageViewHardShell.svelte';
 
-    let currentView = $state<'dump' | 'triage' | 'stack'>('dump');
+    let currentView = $state<'dump' | 'triage' | 'hardshell' | 'stack'>('dump');
 </script>
 
 <div class="lab-controls">
     <button class:active={currentView === 'dump'} onclick={() => currentView = 'dump'}>1. Dump Mode</button>
-    <button class:active={currentView === 'triage'} onclick={() => currentView = 'triage'}>2. Triage Mode</button>
+    <button class:active={currentView === 'triage'} onclick={() => currentView = 'triage'}>2. Triage Mode (Shadow)</button>
+    <button class:active={currentView === 'hardshell'} onclick={() => currentView = 'hardshell'}>2b. Triage Mode (Hard Shell)</button>
     <button class:active={currentView === 'stack'} onclick={() => currentView = 'stack'}>3. Stack Mode (Architect)</button>
 </div>
 
@@ -17,6 +19,12 @@
         <ShadowDump onComplete={() => currentView = 'triage'} />
     {:else if currentView === 'triage'}
         <ShadowTriage title="Process: New Plugin Idea" />
+    {:else if currentView === 'hardshell'}
+        <TriageViewHardShell 
+            tasks={[{ title: "Process: New Plugin Idea", id: "task1" }]}
+            app={{}}
+            onComplete={() => console.log('Complete')}
+        />
     {:else}
         <ShadowStack />
     {/if}
