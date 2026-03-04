@@ -2,11 +2,13 @@
     import { onMount, untrack } from "svelte";
     import { slide } from "svelte/transition";
     import { TriageController } from "./TriageController";
+    import { KeybindingManager } from "../keybindings";
     import type { TaskNode } from "../scheduler.js";
 
     let {
         app,
         tasks: initialTasks,
+        keys,
         onComplete,
         historyManager,
         logger,
@@ -18,6 +20,22 @@
     let currentTask = $state(untrack(() => controller.getCurrentTask()));
     let swipeDirection = $state<"left" | "right" | null>(null);
     let isConflictState = $state(false);
+    let keyManager: KeybindingManager;
+
+    onMount(() => {
+        keyManager = new KeybindingManager(keys || {
+            navUp: [],
+            navDown: [],
+            moveUp: [],
+            moveDown: [],
+            anchor: [],
+            durationUp: ["ArrowRight"],
+            durationDown: ["ArrowLeft"],
+            undo: ["u"],
+            confirm: [],
+            cancel: [],
+        });
+    });
 
     // Swipe state
     let touchStartX = $state(0);
@@ -27,14 +45,53 @@
 
     function next(direction: "left" | "right") {
         swipeDirection = direction;
-        setTimeout(() => {
-            if (direction === "right") controller.swipeRight();
-            else controller.swipeLeft();
+        setTimeout(async () => {
+            if (direction === "right") await controller.swipeRight();
+            else await controller.swipeLeft();
             
             currentTask = controller.getCurrentTask();
             swipeDirection = null;
             if (!currentTask) onComplete(controller.getResults());
         }, 200);
+    }
+
+    async function skipAll() {
+        await controller.skipAllToShortlist();
+        currentTask = null;
+        onComplete(controller.getResults());
+    }
+
+    function undo() {
+        historyManager.undo();
+        currentTask = controller.getCurrentTask();
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+        
+        const action = keyManager.resolveAction(e);
+        if (!action) return;
+
+        e.preventDefault();
+
+        if (action === "UNDO") {
+            undo();
+            return;
+        }
+
+        switch (action) {
+            case "DURATION_DOWN":
+            case "NAV_DOWN":
+                next("left");
+                break;
+            case "DURATION_UP":
+            case "NAV_UP":
+                next("right");
+                break;
+            case "CONFIRM":
+                controller.openCurrentTask();
+                break;
+        }
     }
 
     function handlePointerStart(e: PointerEvent) {
@@ -70,7 +127,11 @@
     });
 </script>
 
-<div class="todo-flow-triage-container" tabindex="-1">
+<div 
+    class="todo-flow-triage-container" 
+    tabindex="-1"
+    onkeydown={handleKeyDown}
+>
     {#if currentTask}
         <div 
             class="triage-card-wrapper {swipeDirection}" 
@@ -98,8 +159,8 @@
 
     <div class="todo-flow-triage-controls">
         <button onclick={() => next("left")} class="control-btn not-now">← Not Now</button>
-        <button class="control-btn undo">Undo</button>
-        <button class="control-btn skip-all" title="Move all remaining items to shortlist">Skip All →</button>
+        <button onclick={undo} class="control-btn undo">Undo</button>
+        <button onclick={skipAll} class="control-btn skip-all" title="Move all remaining items to shortlist">Skip All →</button>
         <button onclick={() => next("right")} class="control-btn shortlist">Shortlist →</button>
     </div>
 </div>

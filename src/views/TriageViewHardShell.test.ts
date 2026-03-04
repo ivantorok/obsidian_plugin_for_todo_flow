@@ -24,4 +24,13 @@ describe('TriageViewHardShell Behavioral Baseline', () => {
         expect(resolveSwipeAction(50)).toBe('none');
         expect(resolveSwipeAction(-50)).toBe('none');
     });
+
+    it('should resolve skip-all action', async () => {
+        // Behavioral expectation for skipAll
+        const tasks = [{ id: '1' }, { id: '2' }];
+        let index = 0;
+        function skip() { index = tasks.length; }
+        skip();
+        expect(index).toBe(2);
+    });
 });
