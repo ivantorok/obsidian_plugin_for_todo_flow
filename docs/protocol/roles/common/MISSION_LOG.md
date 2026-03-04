@@ -562,6 +562,7 @@
 - [2026-03-04 16:38]: **Phase 2 Shipped (v1.2.126)**. Mobile verification enabled.
 - [2026-03-04 16:41]: **Phase 3 Shipped (v1.2.127)**. Logic & Shortcuts enabled.
 - [2026-03-04 16:45]: **Phase 4 & Promotion Shipped (v1.2.128)**. Production promotion successful.
+- [2026-03-04 17:25]: **Final Verification & Fixes Shipped (v1.2.130)**. Resolved reactivity and HTML parity regressions.
 
 ## Handover Note
 "The Triage View has been successfully retrofitted to the 'Hard Shell' standard. It is now leaner, performance-optimized, and gesture-hardened."
