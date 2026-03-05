@@ -1,18 +1,14 @@
-/* Sovereign UX Design Tokens */
+/* Sovereign UX Design Tokens - Flat & Performant Standard */
 :root {
-    /* Glassmorphism & Depth */
-    --tf-glass-bg: rgba(var(--mono-rgb-100, 255, 255, 255), 0.7);
-    --tf-glass-blur: blur(12px);
-    --tf-glass-border: rgba(var(--mono-rgb-100, 255, 255, 255), 0.2);
-    --tf-shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-    
-    /* Dynamic Gradients */
-    --tf-gradient-focused: linear-gradient(135deg, 
-        rgba(var(--interactive-accent-rgb), 0.15) 0%, 
-        rgba(var(--background-primary-rgb), 0.1) 100%);
-    --tf-gradient-accent: linear-gradient(135deg, 
-        var(--interactive-accent) 0%, 
-        var(--interactive-accent-hover) 100%);
+    /* Flat Aesthetic (REPLACED Glassmorphism) */
+    --tf-glass-bg: var(--background-primary);
+    --tf-glass-blur: none;
+    --tf-glass-border: var(--border-color);
+    --tf-shadow-premium: 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+
+    /* Dynamic UI Colors (Subtle & Performant) */
+    --tf-gradient-focused: var(--background-secondary);
+    --tf-gradient-accent: var(--interactive-accent);
 
     /* Refined Typography */
     --tf-font-weight-title: 600;
@@ -25,11 +21,11 @@
 }
 
 .is-mobile {
-    --tf-glass-blur: blur(8px); /* Less blur on mobile for performance */
+    --tf-glass-blur: none;
 }
 
-/* Dark Mode Overrides if needed by Obsidian */
+/* Dark Mode Overrides */
 .theme-dark {
-    --tf-glass-bg: rgba(var(--mono-rgb-0, 0, 0, 0.4));
-    --tf-glass-border: rgba(255, 255, 255, 0.1);
+    --tf-glass-bg: var(--background-primary);
+    --tf-glass-border: var(--border-color);
 }

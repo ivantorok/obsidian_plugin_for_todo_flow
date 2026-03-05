@@ -7,8 +7,6 @@
     gap: 1rem;
     padding: 1rem;
     background: var(--tf-glass-bg);
-    backdrop-filter: var(--tf-glass-blur);
-    -webkit-backdrop-filter: var(--tf-glass-blur);
     border: 1px solid var(--tf-glass-border);
     border-radius: var(--tf-radius-card);
     cursor: pointer;
@@ -103,8 +101,6 @@
     width: 92%;
     max-width: 440px;
     background: var(--tf-glass-bg);
-    backdrop-filter: var(--tf-glass-blur);
-    -webkit-backdrop-filter: var(--tf-glass-blur);
     border: 1px solid var(--tf-glass-border);
     border-radius: 2rem;
     padding: 3rem 2rem;
@@ -338,7 +334,8 @@
     color: var(--interactive-accent);
     font-weight: 700;
     border: 1px solid rgba(var(--interactive-accent-rgb), 0.2);
-    text-decoration: none !important; /* Override button browser styles */
+    text-decoration: none !important;
+    /* Override button browser styles */
 }
 
 :global(.mobile-anchor-btn) {
@@ -351,7 +348,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0; /* Reset */
+    padding: 0;
+    /* Reset */
 }
 
 :global(.mobile-anchor-btn.is-active) {

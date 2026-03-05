@@ -236,7 +236,8 @@ export class StackSyncManager {
 
             if (idsChanged && !this.isReloadPending) {
                 this.lastTasksForSave = tasks;
-                this.triggerSave(500);
+                // Architectural Pivot: Increase debounce to 5s for in-memory sovereignty
+                this.triggerSave(5000);
             }
         }
     }

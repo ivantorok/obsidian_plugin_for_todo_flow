@@ -281,8 +281,8 @@
         width: 100%;
         margin: 0;
         min-height: 300px; 
-        /* Increase bottom buffer significantly to clear Obsidian mobile navigation bar and keyboard accessories */
-        padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 64px));
+        /* Massive bottom buffer to clear the heightened floating footer (Lift 2) */
+        padding-bottom: 200px;
     }
 
     .todo-flow-timeline.mode-focus {

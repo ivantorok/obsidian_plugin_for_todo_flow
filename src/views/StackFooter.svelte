@@ -112,8 +112,9 @@
         bottom: 0;
         left: 0;
         right: 0;
-        padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 64px));
-        background: linear-gradient(transparent, var(--background-primary) 60%);
+        /* Aggressive Lift 2: Definitive clearance for mobile toolbars */
+        padding-bottom: calc(5rem + env(safe-area-inset-bottom, 80px));
+        background: var(--background-primary);
         display: flex;
         justify-content: center;
         pointer-events: none; /* Let clicks pass through the gradient */

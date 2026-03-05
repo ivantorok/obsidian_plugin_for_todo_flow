@@ -217,12 +217,12 @@ export class StackView extends ItemView {
                 this.navManager.setState(state.navState);
 
                 // BUG-009 Fix: Force a disk refresh after restoring workspace state to override potentially stale cache
-                // BUT: Skip if we are mid-interaction (likely an E2E reorder causing a state pulse), 
+                // BUT: Skip if we are mid-interaction or have pending in-memory changes
                 // to prevent stale disk from reverting the focus index we just restored.
-                if (this.governor && !this.governor.isHighPressure()) {
+                if (this.syncManager.isPersistenceIdle()) {
                     await this.navManager.refresh();
                 } else if (this.logger) {
-                    await this.logger.info(`[StackView] Skipping setState refresh() due to active interaction pulse.`);
+                    await this.logger.info(`[StackView] Skipping setState refresh() due to active interaction or pending save.`);
                 }
 
                 this.tasks = this.navManager.getCurrentStack();
@@ -567,6 +567,8 @@ export class StackView extends ItemView {
 
     async onNavigate(path: string, currentFocus: number) {
         this.logger.info(`[StackView] onNavigate entry: ${path}`);
+        // Architectural Pivot: Flush pending memory changes before view transition
+        await this.syncManager.flushPersistence();
         const success = await this.navManager.drillDown(path, currentFocus);
         if (success) {
             this.tasks = this.navManager.getCurrentStack();
