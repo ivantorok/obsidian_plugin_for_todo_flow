@@ -14,7 +14,7 @@
     import { StackKeyboardManager } from "./StackKeyboardManager.svelte.ts";
     import { StackLifecycleManager } from "./StackLifecycleManager.svelte.ts";
     import { DOUBLE_TAP_WINDOW } from "../gestures.js";
-    import CaptureModal from "./CaptureModal.svelte";
+    import DetailedTaskView from "./DetailedTaskView.svelte";
     import { RenameTaskCommand, ScaleDurationCommand } from "../commands/stack-commands.js";
 import { StackStateManager } from "./StackStateManager.svelte.ts";
 import { StackInputManager } from "./StackInputManager.svelte.ts";
@@ -81,8 +81,8 @@ import { type StackUIState } from "./ViewTypes.js";
     let internalNow = $state(now);
     let taskElements: HTMLElement[] = $state([]);
     let renameInputs: HTMLInputElement[] = $state([]);
-    let showingCaptureModal = $state(false);
-    let taskToCapture = $state<TaskNode | null>(null);
+    let showingDetailedView = $state(false);
+    let detailedViewTask = $state<TaskNode | null>(null);
     let capturedIndex = $state(-1);
     let showContextMenu = $state(false);
     let contextMenuTask = $state<TaskNode | null>(null);
@@ -233,25 +233,19 @@ import { type StackUIState } from "./ViewTypes.js";
         });
     }
 
-    function openCaptureModal(index: number) {
+    function openDetailedTaskView(index: number) {
         if (isMobileProp) {
-            taskToCapture = navState.tasks[index];
+            detailedViewTask = navState.tasks[index];
             capturedIndex = index;
-            showingCaptureModal = true;
+            showingDetailedView = true;
         } else {
             inputManager.startRename(index);
         }
     }
 
-    async function handleCaptureSave(title: string, duration: number) {
-        if (!taskToCapture) return;
-        
-        if (title !== taskToCapture.title) {
-            await historyManager.executeCommand(new RenameTaskCommand(controller, capturedIndex, title));
-        }
-        if (duration !== taskToCapture.duration) {
-            await historyManager.executeCommand(new ScaleDurationCommand(controller, capturedIndex, "up", duration - taskToCapture.duration));
-        }
+    async function handleDetailedUpdate(task: TaskNode) {
+        if (!detailedViewTask) return;
+        await onTaskUpdate(task);
         stateManager.triggerUpdate();
     }
     export const handleKeyDown = (e: KeyboardEvent) => keyboardManager.handleKeyDown(e);
@@ -307,8 +301,8 @@ import { type StackUIState } from "./ViewTypes.js";
             finishEditStartTime={(id, t) => inputManager.finishEditStartTime(id, t)}
             selectOnFocus={(n) => { n.focus(); ViewportService.scrollIntoView(n, "smooth", "center"); }}
             update={() => stateManager.triggerUpdate()} {openQuickAddModal}
-            openDurationPicker={(idx) => isMobileProp ? openCaptureModal(idx) : openDurationPicker?.(idx)}
-            openCaptureModal={openCaptureModal}
+            openDurationPicker={(idx) => isMobileProp ? openDetailedTaskView(idx) : openDurationPicker?.(idx)}
+            openCaptureModal={openDetailedTaskView}
             {showContextMenu} 
             {contextMenuTask} 
             {contextMenuTarget}
@@ -316,11 +310,16 @@ import { type StackUIState } from "./ViewTypes.js";
             bind:renameInputs bind:taskElements
         />
 
-        {#if showingCaptureModal && taskToCapture}
-            <CaptureModal 
-                task={taskToCapture} 
-                onClose={() => showingCaptureModal = false} 
-                onSave={handleCaptureSave}
+        {#if showingDetailedView && detailedViewTask}
+            <DetailedTaskView 
+                task={detailedViewTask} 
+                onClose={() => { showingDetailedView = false; detailedViewTask = null; }} 
+                onTaskUpdate={handleDetailedUpdate}
+                onToggleAnchor={() => executeGestureAction('anchor', detailedViewTask!, capturedIndex)}
+                onDrillDown={() => onNavigate?.(detailedViewTask!.id, capturedIndex)}
+                onComplete={() => executeGestureAction('complete', detailedViewTask!, capturedIndex)}
+                onArchive={() => executeGestureAction('archive', detailedViewTask!, capturedIndex)}
+                onUndo={() => { historyManager.undo(); stateManager.triggerUpdate(); }}
             />
         {/if}
     </div>

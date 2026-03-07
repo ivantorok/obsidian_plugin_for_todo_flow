@@ -20,7 +20,13 @@ if (target) {
                 isAnchored: true,
                 status: 'todo'
             },
-            onClose: () => { console.log("Closed"); }
+            onClose: () => { console.log("Closed"); },
+            onTaskUpdate: (t) => { console.log("Task Update", t); },
+            onToggleAnchor: () => { console.log("Toggle Anchor"); },
+            onDrillDown: () => { console.log("Drill Down"); },
+            onComplete: () => { console.log("Complete"); },
+            onArchive: () => { console.log("Archive"); },
+            onUndo: () => { console.log("Undo"); }
         }
     });
 }

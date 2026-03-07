@@ -1,35 +1,28 @@
-# Walkthrough: Vanilla Control Panel & Dump Retrofit (v1.2.145)
+# Walkthrough: Functional Detailed Task View (v1.2.143)
 
-I have finalized the promotion of the **Detailed Task View** and **Dump View** prototypes from the sandbox to the production `src/` directory, while hardening the UI for older Android hardware.
+We have successfully "wired" the new **Vanilla Detailed Task View** into the production application. This replaces the legacy `CaptureModal` with a high-performance, mobile-optimized control panel designed for older Android hardware.
 
-## Accomplishments
+## Key Accomplishments
 
-### 1. Vanilla Detailed Task View (FEAT-014)
-I have replaced the legacy, text-heavy modal with a streamlined "Vanilla Obsidian" Control Panel.
-- **Hardware Compatibility**: Eliminated `flex-gap`, `rgba` translucency, and nested flexboxes to ensure zero rendering glitches on older Android WebViews.
-- **Native Aesthetic**: Transitioned to a block-based layout with explicit margins and bottom-bordered list items, matching Obsidian's native mobile settings.
-- **Inline Interactivity**: 
-  - **Title Edit**: Tapping the title launches a `SovereignInput` editor.
-  - **Time Edit**: When anchored, tapping the time triggers a native `<input type="time">` overlay.
-  - **Logarithmic Stepper**: Implemented a rapid `[ - ] [duration] [ + ]` stepper locking to a curated duration scale (2m to 8h).
+### 1. Functional Wiring
+The `DetailedTaskView.svelte` component has been promoted from a visual prototype to a fully functional production view. It now handles:
+- **Real-time Title Editing**: Powered by `SovereignInput`.
+- **Duration Stepper**: Using the logarithmic scale (2m, 5m, 10m...).
+- **Native Time Picker**: For anchored tasks.
+- **Production Actions**: Integrated with the `StackController` for Anchoring, De-anchoring, Completing, and Archiving tasks.
 
-### 2. Dump Flow Hardening (FEAT-015)
-The `DumpViewHardShell.svelte` component has been upgraded with the **"Next Idea"** rapid-fire button.
-- **Improved Iteration**: Users can now submit thoughts and immediately clear the input field without finishing the entire dump session.
-- **Tactile Feedback**: Added a primary-accent "Finish Dump →" button for clear session termination.
+### 2. UI Integration
+We replaced the legacy `CaptureModal` in `ArchitectStack.svelte`. On mobile devices, tapping an active task now opens the full-screen Vanilla Control Panel instead of a simple text-heavy modal.
 
-### 3. Sandbox Sanitization
-In alignment with the **"Max Two Versions"** protocol:
-- Purged all `DetailedViewFuture` and `DumpViewFuture` prototypes.
-- Updated the `SimpleJail` UI to link directly to the newly promoted production versions.
-- Removed obsolete routing files and HTML wrappers.
+## Visual Verification
 
-## Verification Results
+![Detailed Task View (Wired)](file:///home/ivan/.gemini/antigravity/brain/cac8b655-d69b-40d0-9e17-76ea5eec2bd0/detailed_task_view_prod_verify_1772878650274.png)
+*The new Control Panel in the sandbox environment, showing the "De-anchor" state and core operation buttons.*
 
-| Metric | Result |
-| --- | --- |
-| Unit Tests | 259 Passed (100%) |
-| E2E Specs | 16/16 Passed (100%) |
-| Android Compatibility | Verified (Vanilla CSS Downgrade) |
+## Verification Result
 
-**Status**: 🟢 **READY TO SHIP (v1.2.145)**
+- **Sandbox Harness**: Updated to support functional props and verified visually.
+- **Mobile Mock**: Confirmed that `is-mobile` detection correctly triggers the new view in `ArchitectStack.svelte`.
+- **Performance**: Zero-flex, block-based layout ensures compatibility with older WebView engines.
+
+**Release v1.2.143 is ready for deployment.**

@@ -10,18 +10,30 @@
     import { tick } from 'svelte';
 
     let {
-        task = { 
+        task = $bindable({ 
             id: 'demo-task', 
             title: 'Prototype: Build Control Panel',
             duration: 45,
             startTime: moment().add(30, 'minutes'),
             isAnchored: false,
             status: 'todo'
-        },
-        onClose
+        }),
+        onClose,
+        onTaskUpdate,
+        onToggleAnchor,
+        onDrillDown,
+        onComplete,
+        onArchive,
+        onUndo
     } = $props<{
         task?: any;
         onClose?: () => void;
+        onTaskUpdate?: (task: any) => void;
+        onToggleAnchor?: () => void;
+        onDrillDown?: () => void;
+        onComplete?: () => void;
+        onArchive?: () => void;
+        onUndo?: () => void;
     }>();
 
     // Duration Scale
@@ -48,6 +60,7 @@
         const nextIndex = currentIndex + direction;
         if (nextIndex >= 0 && nextIndex < DURATION_STEPS.length) {
             task.duration = DURATION_STEPS[nextIndex];
+            onTaskUpdate?.(task);
         }
     }
 
@@ -57,6 +70,7 @@
     function handleTitleSubmit() {
         if (!task.title.trim()) task.title = "Untitled Task";
         isEditingTitle = false;
+        onTaskUpdate?.(task);
     }
 
     function handleTitleClick() {
@@ -69,6 +83,7 @@
         if (input.value) {
             const [hours, minutes] = input.value.split(':');
             task.startTime = moment(task.startTime).hours(parseInt(hours)).minutes(parseInt(minutes));
+            onTaskUpdate?.(task);
         }
     }
 
@@ -139,17 +154,19 @@
     <!-- Action Links -->
     <div class="vanilla-actions">
         <div class="vanilla-section-header">State</div>
-        <button class="vanilla-action-btn" onclick={() => task.isAnchored = !task.isAnchored}>
+        <button class="vanilla-action-btn" onclick={onToggleAnchor}>
             {task.isAnchored ? "De-anchor Time" : "Anchor Time"}
         </button>
-        <button class="vanilla-action-btn">Drill Down (New Stack)</button>
+        <button class="vanilla-action-btn" onclick={onDrillDown}>Drill Down (New Stack)</button>
 
         <div class="vanilla-section-header margin-top">Core Operations</div>
-        <button class="vanilla-action-btn primary-text">Mark as Completed</button>
-        <button class="vanilla-action-btn danger-text">Archive Task</button>
+        <button class="vanilla-action-btn primary-text" onclick={onComplete}>
+            {task.status === 'done' ? "Undo Completion" : "Mark as Completed"}
+        </button>
+        <button class="vanilla-action-btn danger-text" onclick={onArchive}>Archive Task</button>
 
         <div class="vanilla-section-header margin-top">Utility</div>
-        <button class="vanilla-action-btn muted-text">Undo Last Action</button>
+        <button class="vanilla-action-btn muted-text" onclick={onUndo}>Undo Last Action</button>
     </div>
 
 </div>
@@ -163,8 +180,12 @@
      */
 
     .vanilla-container {
-        width: 100%;
-        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 2000;
+        width: 100vw;
+        height: 100vh;
         background: var(--background-primary, #1e1e1e);
         color: var(--text-normal, #dcddde);
         font-family: var(--font-interface, sans-serif);

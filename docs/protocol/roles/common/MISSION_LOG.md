@@ -762,15 +762,17 @@
 - Iterated on `DetailedTaskView` layout density and applied `HighDensityLeanCard` aesthetics to pills.
 - Added "Next Idea" rapid-fire button to `DumpViewHardShell.svelte`.
 
-### Version v1.2.142 - Detailed View Control Panel Pivot
-- Abandoned the text-heavy modal paradigm for the Detailed Task View in favor of an action-oriented Control Panel.
-- Created `DetailedViewFuture.svelte` using `HighDensityLeanCard` aesthetics for the anchor header and segmented `ActionButton` groups for task operations.
-- Updated sandbox routing and documented changes.
-### Version v1.2.143 - Ultra-Minimal Detailed View Pivot
-- Refactored `DetailedViewFuture.svelte` to an ultra-minimal, native Obsidian Mobile style.
-- Replaced generic ActionButtons with inline Title editing (`SovereignInput`) and native inline conditional Start Time editing.
-- Implemented a custom stepper component locking the Duration to a curated logarithmic scale (2m to 8h).
-
-### Version v1.2.144 - Vanilla Obsidian Android Downgrade
-- Refactored DetailedViewFuture.svelte to eliminate flex/gap/rgba dependencies for older Android compatibility.
+### Version v1.2.142 - Vanilla Obsidian Android Downgrade
+- Promoted the Detailed Task View (FEAT-014) to Production (`DetailedTaskView.svelte`).
+- Refactored Detailed View to eliminate flex/gap/rgba dependencies for older Android compatibility.
 - Transitioned to native block layouts, explicit margins, and inline-block text steppers.
+- Promoted the Dump View Hard Shell (FEAT-015) with the "Next Idea" rapid-fire button.
+- Purged sandbox `[Future]` prototypes and updated visual jail routing.
+- Established a 100% Green E2E Baseline (16/16 Specs) for the new UI architecture.
+
+### Version v1.2.143 - Functional Detailed Task View (Mobile Patch)
+- Integrated `DetailedTaskView.svelte` with production action handlers (Anchor, Complete, Archive, Drill Down).
+- Replaced legacy `CaptureModal` in `ArchitectStack.svelte` with the new Vanilla Control Panel for mobile.
+- Hardened CSS for fixed-position mobile overlay to ensure visual precedence.
+- Verified functional compatibility in sandbox and mock mobile environments.
+- Ready for mobile verification.
