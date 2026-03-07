@@ -25,6 +25,10 @@ obsidian_logs_link
 
 # E2E failure screenshots (transient debugging artifacts)
 tests/e2e/failures/
+tests/e2e/screenshots/
+*.png
+wdio_*.log
+logs/wdio-results.json
 
 # Sandbox environment (development/testing)
 sandbox/node_modules/
