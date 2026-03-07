@@ -4,55 +4,60 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simple Jail - Dump & Triage Prototype</title>
+    <title>Prototype Index (Jail)</title>
     <style>
-        :root {
-            --font-interface: 'Inter', sans-serif;
-            --font-monospace: 'JetBrains Mono', monospace;
-            --background-primary: #1e1e1e;
-            --background-secondary: #111;
-            --text-normal: #dcddde;
-        }
-
         body {
-            margin: 0;
-            background: var(--background-secondary);
-            color: var(--text-normal);
-            font-family: var(--font-interface);
-            min-height: 100vh;
+            background: #111;
+            color: #ddd;
+            font-family: sans-serif;
+            padding: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px;
-            gap: 20px;
+            gap: 10px;
         }
 
-        .mobile-jail {
-            width: 360px;
-            height: 780px;
-            background: var(--background-primary);
-            border: 12px solid #222;
-            border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
-            display: flex;
-            flex-direction: column;
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
         }
 
-        #app {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        .section-title {
+            color: #888;
+            margin-top: 20px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        a {
+            display: block;
+            width: 300px;
+            padding: 12px 16px;
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #75abd0;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        a:hover {
+            background: #333;
+            color: #fff;
         }
     </style>
 </head>
 
-<body class="theme-dark is-mobile">
-    <div class="mobile-jail">
-        <div id="app"></div>
-    </div>
-    <script type="module" src="/simple-jail.ts"></script>
+<body>
+    <h1>UI Prototype Lab</h1>
+    <a href="/primitives.html">Primitives Lab</a>
+
+    <div class="section-title">Current Production</div>
+    <a href="/dump-hardshell.html">Dump Mode (Prod)</a>
+    <a href="/triage-hardshell.html">Triage Mode (Prod)</a>
+    <a href="/detailed-view.html">Detailed Task View (Prod)</a>
 </body>
 
 </html>

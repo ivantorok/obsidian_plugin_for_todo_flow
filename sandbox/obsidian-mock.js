@@ -25,6 +25,12 @@ export const App = class { };
 export const TFile = class { };
 export const View = class { };
 export const WorkspaceLeaf = class { };
+export const MetadataCache = class { };
+
+export const setIcon = (parent, iconId) => {
+    // Simple mock to just render the icon name for visual debugging
+    parent.textContent = `[ Icon: ${iconId} ]`;
+};
 
 export { moment };
 

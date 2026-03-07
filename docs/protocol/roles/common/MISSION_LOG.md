@@ -755,3 +755,22 @@
 
 ## Handover Note
 "The UI Primitives library is now live in `src/components/`. All foundational elements for the Master Blueprint are ready for composition. The Sandbox Storybook is available for visual verification at `http://localhost:5174/simple-jail.html` (Select Primitives Lab)."
+
+### Version v1.2.141 - Sandbox Refinement & UI Iterations
+- Extracting the Sandbox into dedicated prototype pages for component isolation.
+- Enforced the "Max Two Versions" rule for sandbox components (Prod vs Future), purging outdated Shadow files.
+- Iterated on `DetailedTaskView` layout density and applied `HighDensityLeanCard` aesthetics to pills.
+- Added "Next Idea" rapid-fire button to `DumpViewHardShell.svelte`.
+
+### Version v1.2.142 - Detailed View Control Panel Pivot
+- Abandoned the text-heavy modal paradigm for the Detailed Task View in favor of an action-oriented Control Panel.
+- Created `DetailedViewFuture.svelte` using `HighDensityLeanCard` aesthetics for the anchor header and segmented `ActionButton` groups for task operations.
+- Updated sandbox routing and documented changes.
+### Version v1.2.143 - Ultra-Minimal Detailed View Pivot
+- Refactored `DetailedViewFuture.svelte` to an ultra-minimal, native Obsidian Mobile style.
+- Replaced generic ActionButtons with inline Title editing (`SovereignInput`) and native inline conditional Start Time editing.
+- Implemented a custom stepper component locking the Duration to a curated logarithmic scale (2m to 8h).
+
+### Version v1.2.144 - Vanilla Obsidian Android Downgrade
+- Refactored DetailedViewFuture.svelte to eliminate flex/gap/rgba dependencies for older Android compatibility.
+- Transitioned to native block layouts, explicit margins, and inline-block text steppers.
