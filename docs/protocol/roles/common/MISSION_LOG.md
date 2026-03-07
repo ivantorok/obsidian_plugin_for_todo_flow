@@ -776,3 +776,29 @@
 - Hardened CSS for fixed-position mobile overlay to ensure visual precedence.
 - Verified functional compatibility in sandbox and mock mobile environments.
 - Ready for mobile verification.
+
+---
+
+# Session v35 — Detailed Task View Hoisting (Process Governor Audit)
+
+## Input & Analysis (Process Governor)
+- **Source**: Plan Update ("Hoisting DetailedTaskView to Global Scope")
+- **Objective**: Evaluate and execute the hoisting of `DetailedTaskView` to `StackView.svelte` for global accessibility.
+- **Flavor**: [GOVERNANCE / ARCHITECTURE / UX]
+
+## Active Objectives
+1. **[DONE]** Detailed View Hoisting: Move component and state to `StackView.svelte`.
+2. **[DONE]** Focus Mode Wiring: Enable tap-to-expand on Focus cards.
+3. **[DONE]** Sovereignty Audit: Verify focus return and Android compatibility.
+
+## Triage Routing
+1. **Visual Architect (VA)**: Sole owner of `.svelte` presentation and global overlay CSS.
+2. **Interaction Architect (IA)**: Manage the event flow from children to global modal.
+3. **Stability Warden (SW)**: Secure the green baseline via E2E hoisting tests.
+
+## Status Logs
+- [2026-03-07 11:45]: **Process Governor (PG)** session v35 initialized. Plan evaluation complete.
+- [2026-03-07 13:05]: **Process Governor (PG)** session v35 RESOLVED. DetailedTaskView successfully hoisted to global scope.
+- [2026-03-07 13:10]: **Verification Officer (VO)**: Final E2E Audit confirms 100% Green Baseline (17/17 Specs). Mobile Focus title-tap verified. Hoisting stable.
+- [2026-03-07 13:13]: **Process Governor (PG)** session v35 CLOSED. Repository is CLEAN & GREEN. Ready for Release v1.2.144.
+- [2026-03-07 11:46]: **Implementation Plan Drafted**. Audit Summary confirms compliance with Triple-Lock and UX Governance.

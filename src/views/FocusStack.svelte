@@ -14,6 +14,7 @@
         executeGestureAction,
         openDurationPicker,
         openQuickAddModal,
+        openDetailedView,
         isSyncing = false,
         isPersistenceIdle = true,
         ...restProps
@@ -101,7 +102,7 @@
                     {formatDateRelative(task.startTime, now)}
                 </div>
 
-                <h1 class="focus-title">
+                <h1 class="focus-title" onclick={(e) => { e.stopPropagation(); if (isMobile) openDetailedView(focusedIndex); }}>
                     {task.title || task.id.split('/').pop()?.replace('.md', '') || 'Untitled Task'}
                 </h1>
 

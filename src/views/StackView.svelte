@@ -8,6 +8,7 @@
     import ArchitectStack from "./ArchitectStack.svelte";
     import FocusStack from "./FocusStack.svelte";
     import StackHeader from "./StackHeader.svelte";
+    import DetailedTaskView from "./DetailedTaskView.svelte";
     import {
         ToggleStatusCommand,
         ArchiveCommand,
@@ -57,33 +58,61 @@
     });
 
     let viewMode = $derived(navState.viewMode || "architect");
+    let showingDetailedView = $state(false);
+    let detailedViewTask = $state<TaskNode | null>(null);
+    let capturedIndex = $state(-1);
     let activeComponent = $state<any>(null);
     let isSyncing = $state(false);
     let isPersistenceIdle = $state(true);
+
+    export const setIsMobile = (mobile: boolean) => {
+        navState.isMobile = mobile;
+        if (activeComponent?.setIsMobile) activeComponent.setIsMobile(mobile);
+    };
+
+    export const openDetailedView = (index: number) => {
+        console.log(`[StackView] openDetailedView called for index ${index}. Total tasks: ${navState.tasks.length}`);
+        if (!navState.tasks[index]) {
+            console.error(`[StackView] ERROR: No task found at index ${index}`);
+            return;
+        }
+        detailedViewTask = navState.tasks[index];
+        capturedIndex = index;
+        showingDetailedView = true;
+    };
+
+    export const isShowingDetailedView = () => showingDetailedView;
+
 
     let navigationHistory = $derived(navState.history || []);
     let internalParentTaskName = $derived(navState.parentTaskName || null);
     let internalCanGoBack = $derived(navState.canGoBack || false);
 
-    export function setIsSyncing(val: boolean) {
+    $effect(() => {
+        console.log(`[StackView] State Digest: tasks=${navState.tasks.length}, viewMode=${navState.viewMode}, isMobile=${navState.isMobile}, showingDetailedView=${showingDetailedView}`);
+    });
+
+    let containerEl = $state<HTMLElement | null>(null);
+
+    export const setIsSyncing = (val: boolean) => {
         isSyncing = val;
         if (activeComponent?.setIsSyncing) activeComponent.setIsSyncing(val);
-    }
+    };
 
-    export function setIsPersistenceIdle(val: boolean) {
+    export const setIsPersistenceIdle = (val: boolean) => {
         isPersistenceIdle = val;
-    }
+    };
 
-    export function setViewMode(mode: "focus" | "architect") {
+    export const setViewMode = (mode: "focus" | "architect") => {
         navState.viewMode = mode;
         if (activeComponent?.setViewMode) activeComponent.setViewMode(mode);
-    }
+    };
 
-    export function getViewMode() {
+    export const getViewMode = () => {
         return navState.viewMode;
-    }
+    };
 
-    export function setNavState(newState: StackUIState) {
+    export const setNavState = (newState: StackUIState) => {
         // Update properties individually to preserve reactivity of the $state object
         navState.tasks = newState.tasks;
         navState.focusedIndex = newState.focusedIndex;
@@ -95,58 +124,54 @@
         navState.isReorderMode = newState.isReorderMode || false;
 
         if (activeComponent?.setNavState) activeComponent.setNavState(newState);
-    }
+    };
 
-    export function setTasks(newTasks: TaskNode[]) {
+    export const setTasks = (newTasks: TaskNode[]) => {
         navState.tasks = newTasks;
         controller.setTasks(newTasks);
         if (activeComponent?.setTasks) activeComponent.setTasks(newTasks);
-    }
+    };
 
-    export function setFocus(index: number) {
+    export const setFocus = (index: number) => {
         navState.focusedIndex = index;
         if (activeComponent?.setFocus) activeComponent.setFocus(index);
-    }
+    };
 
-    export function setIsMobile(mobile: boolean) {
-        navState.isMobile = mobile;
-        if (activeComponent?.setIsMobile) activeComponent.setIsMobile(mobile);
-    }
 
-    export function getController() {
+    export const getController = () => {
         return activeComponent?.getController?.() || null;
-    }
+    };
 
-    export function resolveTempId(tempId: string, realId: string) {
+    export const resolveTempId = (tempId: string, realId: string) => {
         if (activeComponent?.resolveTempId)
             activeComponent.resolveTempId(tempId, realId);
-    }
+    };
 
-    export function updateSettings(newSettings: TodoFlowSettings) {
+    export const updateSettings = (newSettings: TodoFlowSettings) => {
         if (activeComponent?.updateSettings)
             activeComponent.updateSettings(newSettings);
-    }
+    };
 
-    export function updateNow(newNow: moment.Moment) {
+    export const updateNow = (newNow: moment.Moment) => {
         if (activeComponent?.updateNow) activeComponent.updateNow(newNow);
-    }
+    };
 
-    export function update() {
+    export const update = () => {
         if (activeComponent?.update) activeComponent.update();
-    }
+    };
 
-    export function refreshMobileDetection() {
+    export const refreshMobileDetection = () => {
         if (activeComponent?.refreshMobileDetection)
             activeComponent.refreshMobileDetection();
-    }
+    };
 
-    export function getFocusedIndex() {
+    export const getFocusedIndex = () => {
         return activeComponent?.getFocusedIndex?.() ?? 0;
-    }
+    };
 
-    export function startRename(index: number) {
+    export const startRename = (index: number) => {
         if (activeComponent?.startRename) activeComponent.startRename(index);
-    }
+    };
 
     async function executeGestureAction(
         action: string,
@@ -214,12 +239,21 @@
     }
 
 
-    export async function handleKeyDown(e: KeyboardEvent) {
+    export const handleKeyDown = async (e: KeyboardEvent) => {
         if (activeComponent?.handleKeyDown) await activeComponent.handleKeyDown(e);
+    };
+
+
+    async function handleDetailedUpdate(updatedTask: TaskNode) {
+        if (!detailedViewTask) return;
+        if (restProps.onTaskUpdate) await restProps.onTaskUpdate(updatedTask);
+        // Force reactivity update for the tasks array
+        navState.tasks = [...controller.tasks];
     }
 </script>
 
 <div
+    bind:this={containerEl}
     class="todo-flow-view-wrapper todo-flow-stack-container"
     data-testid="stack-view-container"
     data-ui-ready="true"
@@ -245,6 +279,7 @@
             {executeGestureAction}
             {isSyncing}
             {isPersistenceIdle}
+            {openDetailedView}
             bind:this={activeComponent}
         />
     {:else}
@@ -256,8 +291,22 @@
             {persistenceService}
             {isSyncing}
             {isPersistenceIdle}
+            {openDetailedView}
             onStackChange={restProps.onStackChange}
             bind:this={activeComponent}
+        />
+    {/if}
+
+    {#if showingDetailedView && detailedViewTask}
+        <DetailedTaskView 
+            task={detailedViewTask} 
+            onClose={() => { showingDetailedView = false; detailedViewTask = null; if (containerEl) containerEl.focus(); }} 
+            onTaskUpdate={handleDetailedUpdate}
+            onToggleAnchor={() => executeGestureAction('anchor', detailedViewTask!, capturedIndex)}
+            onDrillDown={() => executeGestureAction('open', detailedViewTask!, capturedIndex)}
+            onComplete={() => executeGestureAction('complete', detailedViewTask!, capturedIndex)}
+            onArchive={() => executeGestureAction('archive', detailedViewTask!, capturedIndex)}
+            onUndo={() => { restProps.historyManager.undo(); navState.tasks = [...controller.tasks]; }}
         />
     {/if}
 </div>

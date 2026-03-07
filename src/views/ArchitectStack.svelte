@@ -14,7 +14,6 @@
     import { StackKeyboardManager } from "./StackKeyboardManager.svelte.ts";
     import { StackLifecycleManager } from "./StackLifecycleManager.svelte.ts";
     import { DOUBLE_TAP_WINDOW } from "../gestures.js";
-    import DetailedTaskView from "./DetailedTaskView.svelte";
     import { RenameTaskCommand, ScaleDurationCommand } from "../commands/stack-commands.js";
 import { StackStateManager } from "./StackStateManager.svelte.ts";
 import { StackInputManager } from "./StackInputManager.svelte.ts";
@@ -66,6 +65,7 @@ import { type StackUIState } from "./ViewTypes.js";
         lockPersistence?: (path: string, token: string) => void;
         unlockPersistence?: (path: string, token: string) => void;
         debug?: boolean;
+        openDetailedView: (index: number) => void;
     } = $props();
 
     let containerEl: HTMLElement | null = $state(null);
@@ -81,9 +81,6 @@ import { type StackUIState } from "./ViewTypes.js";
     let internalNow = $state(now);
     let taskElements: HTMLElement[] = $state([]);
     let renameInputs: HTMLInputElement[] = $state([]);
-    let showingDetailedView = $state(false);
-    let detailedViewTask = $state<TaskNode | null>(null);
-    let capturedIndex = $state(-1);
     let showContextMenu = $state(false);
     let contextMenuTask = $state<TaskNode | null>(null);
     let contextMenuTarget = $state<HTMLElement | null>(null);
@@ -235,19 +232,12 @@ import { type StackUIState } from "./ViewTypes.js";
 
     function openDetailedTaskView(index: number) {
         if (isMobileProp) {
-            detailedViewTask = navState.tasks[index];
-            capturedIndex = index;
-            showingDetailedView = true;
+            openDetailedView(index);
         } else {
             inputManager.startRename(index);
         }
     }
 
-    async function handleDetailedUpdate(task: TaskNode) {
-        if (!detailedViewTask) return;
-        await onTaskUpdate(task);
-        stateManager.triggerUpdate();
-    }
     export const handleKeyDown = (e: KeyboardEvent) => keyboardManager.handleKeyDown(e);
     export const getController = () => controller;
     export const getFocusedIndex = () => navState.focusedIndex;
@@ -309,19 +299,6 @@ import { type StackUIState } from "./ViewTypes.js";
             onCloseContextMenu={() => showContextMenu = false}
             bind:renameInputs bind:taskElements
         />
-
-        {#if showingDetailedView && detailedViewTask}
-            <DetailedTaskView 
-                task={detailedViewTask} 
-                onClose={() => { showingDetailedView = false; detailedViewTask = null; }} 
-                onTaskUpdate={handleDetailedUpdate}
-                onToggleAnchor={() => executeGestureAction('anchor', detailedViewTask!, capturedIndex)}
-                onDrillDown={() => onNavigate?.(detailedViewTask!.id, capturedIndex)}
-                onComplete={() => executeGestureAction('complete', detailedViewTask!, capturedIndex)}
-                onArchive={() => executeGestureAction('archive', detailedViewTask!, capturedIndex)}
-                onUndo={() => { historyManager.undo(); stateManager.triggerUpdate(); }}
-            />
-        {/if}
     </div>
     <StackFooter {historyManager} {showHelp} keys={settings.keys} {settings}
         onUndo={() => { historyManager.undo(); stateManager.triggerUpdate(); }}
