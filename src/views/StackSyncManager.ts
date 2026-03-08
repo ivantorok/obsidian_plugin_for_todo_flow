@@ -86,12 +86,12 @@ export class StackSyncManager {
                 return;
             }
 
-            const taskIndex = tasks.findIndex(t => t.id === file.path);
-            if (taskIndex !== -1) {
+            const allIds = this.getAllRecursiveIds(tasks);
+            if (allIds.has(file.path)) {
                 const isExternal = await this.config.persistenceService.isExternalUpdate(file.path, tasks);
                 if (!isExternal) return;
 
-                if (this.config.logger) this.config.logger.info(`[StackSyncManager] External change detected for task ${file.path}. Triggering sync reload.`);
+                if (this.config.logger) this.config.logger.info(`[StackSyncManager] External change detected for task or subtask ${file.path}. Triggering sync reload.`);
                 this.triggerSyncReload(this.isSyncing ? 3000 : 500);
             }
         });
@@ -99,6 +99,20 @@ export class StackSyncManager {
         if (this.config.registerEvent) {
             this.config.registerEvent(ref);
         }
+    }
+
+    private getAllRecursiveIds(tasks: TaskNode[]): Set<string> {
+        const ids = new Set<string>();
+        const visit = (nodes: TaskNode[]) => {
+            for (const node of nodes) {
+                ids.add(node.id);
+                if (node.children && node.children.length > 0) {
+                    visit(node.children);
+                }
+            }
+        };
+        visit(tasks);
+        return ids;
     }
 
     public triggerSyncReload(ms: number) {

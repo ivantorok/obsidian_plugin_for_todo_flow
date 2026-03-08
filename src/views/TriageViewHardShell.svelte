@@ -4,6 +4,7 @@
     import { TriageController } from "./TriageController";
     import { KeybindingManager } from "../keybindings";
     import type { TaskNode } from "../scheduler.js";
+    import ActionButton from "../components/ActionButton.svelte";
 
     let {
         app,
@@ -205,24 +206,26 @@
     {/if}
 
     <div class="todo-flow-triage-controls">
-        <button 
+        <ActionButton 
             onclick={() => next("left")} 
-            class="control-btn not-now {isConflictState ? 'conflict-reject' : ''}"
-        >
-            {isConflictState ? "← Overwrite" : "← Not Now"}
-        </button>
+            text={isConflictState ? "← Overwrite" : "← Not Now"}
+            variant={isConflictState ? "danger" : "secondary"}
+        />
         
         {#if !isConflictState}
-            <button onclick={undo} class="control-btn undo">Undo</button>
-            <button onclick={skipAll} class="control-btn skip-all" title="Move all remaining items to shortlist">Skip All →</button>
+            <ActionButton onclick={undo} text="Undo" variant="secondary" />
+            <ActionButton 
+                onclick={skipAll} 
+                text="Shortlist All →" 
+                variant="secondary"
+                class="tf-shortlist-all-btn"
+            />
         {/if}
 
-        <button 
+        <ActionButton 
             onclick={() => next("right")} 
-            class="control-btn shortlist {isConflictState ? 'conflict-resolve' : ''}"
-        >
-            {isConflictState ? "Merge →" : "Shortlist →"}
-        </button>
+            text={isConflictState ? "Merge →" : "Shortlist →"}
+        />
     </div>
 
     <div class="footer-controls">
@@ -322,7 +325,14 @@
 
     .todo-flow-triage-hint.conflict {
         color: var(--text-warning);
-        font-weight: bold;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.8rem;
+        background: rgba(var(--interactive-accent-rgb), 0.1);
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid rgba(var(--interactive-accent-rgb), 0.2);
     }
 
     .conflict-reject {

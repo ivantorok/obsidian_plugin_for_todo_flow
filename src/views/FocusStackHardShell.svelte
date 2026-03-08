@@ -120,27 +120,25 @@
 
                 <!-- NAVIGATION ROW: Purged of action buttons -->
                 <div class="focus-secondary-actions hard-shell-nav">
-                    <button
-                        class="focus-nav-btn"
+                    <ActionButton
+                        text="← Previous"
+                        variant="secondary"
                         disabled={focusedIndex === 0}
-                        onclick={(e) => {
+                        onclick={(e: MouseEvent) => {
                             e.stopPropagation();
                             navState.focusedIndex = Math.max(0, focusedIndex - 1);
                         }}
-                    >
-                        ← Previous
-                    </button>
+                    />
 
-                    <button
-                        class="focus-nav-btn"
+                    <ActionButton
+                        text="Next →"
+                        variant="secondary"
                         disabled={focusedIndex >= tasks.length - 1}
-                        onclick={(e) => {
+                        onclick={(e: MouseEvent) => {
                             e.stopPropagation();
                             navState.focusedIndex = Math.min(tasks.length - 1, focusedIndex + 1);
                         }}
-                    >
-                        Next →
-                    </button>
+                    />
                 </div>
             </div>
         </div>

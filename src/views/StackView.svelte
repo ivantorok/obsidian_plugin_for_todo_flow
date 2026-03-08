@@ -13,6 +13,8 @@
         ToggleStatusCommand,
         ArchiveCommand,
         ToggleAnchorCommand,
+        SetDurationCommand,
+        RenameTaskCommand,
     } from "../commands/stack-commands.js";
     import { type StackUIState } from "./ViewTypes.js";
 
@@ -89,7 +91,9 @@
     let internalCanGoBack = $derived(navState.canGoBack || false);
 
     $effect(() => {
-        console.log(`[StackView] State Digest: tasks=${navState.tasks.length}, viewMode=${navState.viewMode}, isMobile=${navState.isMobile}, showingDetailedView=${showingDetailedView}`);
+        if (showingDetailedView && capturedIndex !== -1 && navState.tasks[capturedIndex]) {
+            detailedViewTask = navState.tasks[capturedIndex];
+        }
     });
 
     let containerEl = $state<HTMLElement | null>(null);
@@ -250,6 +254,22 @@
         // Force reactivity update for the tasks array
         navState.tasks = [...controller.tasks];
     }
+
+    async function handleDetailedDurationChange(minutes: number) {
+        if (!detailedViewTask) return;
+        const cmd = new SetDurationCommand(controller, capturedIndex, minutes);
+        await restProps.historyManager.executeCommand(cmd);
+        if (restProps.onTaskUpdate) await restProps.onTaskUpdate(controller.tasks[capturedIndex]);
+        navState.tasks = [...controller.tasks];
+    }
+
+    async function handleDetailedTitleChange(newTitle: string) {
+        if (!detailedViewTask) return;
+        const cmd = new RenameTaskCommand(controller, capturedIndex, newTitle);
+        await restProps.historyManager.executeCommand(cmd);
+        if (restProps.onTaskUpdate) await restProps.onTaskUpdate(controller.tasks[capturedIndex]);
+        navState.tasks = [...controller.tasks];
+    }
 </script>
 
 <div
@@ -302,6 +322,8 @@
             task={detailedViewTask} 
             onClose={() => { showingDetailedView = false; detailedViewTask = null; if (containerEl) containerEl.focus(); }} 
             onTaskUpdate={handleDetailedUpdate}
+            onDurationChange={handleDetailedDurationChange}
+            onTitleChange={handleDetailedTitleChange}
             onToggleAnchor={() => executeGestureAction('anchor', detailedViewTask!, capturedIndex)}
             onDrillDown={() => executeGestureAction('open', detailedViewTask!, capturedIndex)}
             onComplete={() => executeGestureAction('complete', detailedViewTask!, capturedIndex)}

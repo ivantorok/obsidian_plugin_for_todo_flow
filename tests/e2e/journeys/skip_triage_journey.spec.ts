@@ -77,11 +77,11 @@ describe('Skip Triage Journey: BUG-025 bulk shortlist', () => {
         await firstCardTitle.waitForDisplayed({ timeout: 10000 });
         expect(await firstCardTitle.getText()).toBe('TASK 1');
 
-        // --- STEP 2: Trigger Skip All ---
-        console.log('[Journey] Step 2: Clicking Skip All');
-        const skipAllBtn = await $('button=Skip All →');
-        await skipAllBtn.waitForExist({ timeout: 10000 });
-        await skipAllBtn.click();
+        // --- STEP 2: Trigger Shortlist All ---
+        console.log('[Journey] Step 2: Clicking Shortlist All');
+        const shortlistAllBtn = await $('.tf-shortlist-all-btn');
+        await shortlistAllBtn.waitForExist({ timeout: 10000 });
+        await shortlistAllBtn.click();
 
         // --- STEP 3: Verify Stack View (No conflict expected as we cleaned up) ---
         console.log('[Journey] Step 3: Verifying transition to stack');

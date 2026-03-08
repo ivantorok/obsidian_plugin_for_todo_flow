@@ -6,6 +6,7 @@
      * to ensure perfect rendering on older Android WebView engines.
      */
     import SovereignInput from '../components/SovereignInput.svelte';
+    import ActionButton from '../components/ActionButton.svelte';
     import moment from 'moment';
     import { tick } from 'svelte';
 
@@ -34,10 +35,12 @@
         onComplete?: () => void;
         onArchive?: () => void;
         onUndo?: () => void;
+        onDurationChange?: (minutes: number) => void;
+        onTitleChange?: (title: string) => void;
     }>();
 
-    // Duration Scale
-    const DURATION_STEPS = [2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300, 360, 420, 480];
+    // Duration Scale per Master Plan v1.0
+    const DURATION_STEPS = [2, 5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 300, 360, 420, 480]; // 480m = 8h
     
     function formatDuration(minutes: number) {
         if (minutes < 60) return `${minutes}m`;
@@ -47,19 +50,38 @@
     }
 
     function stepDuration(direction: 1 | -1) {
-        let currentIndex = DURATION_STEPS.indexOf(task.duration);
-        if (currentIndex === -1) {
-            currentIndex = 0;
-            for (let i = 0; i < DURATION_STEPS.length; i++) {
-                if (DURATION_STEPS[i] >= task.duration) {
-                    currentIndex = i;
-                    break;
-                }
-            }
+        const current = task.duration;
+        
+        // Ceiling Bypass: If duration >= 480m (8h), allow custom steps of 30m
+        if (current >= 480 && direction === 1) {
+            const nextDuration = current + 30;
+            task.duration = nextDuration;
+            onDurationChange?.(nextDuration);
+            return;
         }
-        const nextIndex = currentIndex + direction;
-        if (nextIndex >= 0 && nextIndex < DURATION_STEPS.length) {
-            task.duration = DURATION_STEPS[nextIndex];
+        if (current > 480 && direction === -1) {
+            const nextDuration = Math.max(480, current - 30);
+            task.duration = nextDuration;
+            onDurationChange?.(nextDuration);
+            return;
+        }
+
+        // Snapping Logic: Find the next meaningful step
+        let nextDuration = current;
+        if (direction === 1) {
+            // Find first step greater than current
+            const nextStep = DURATION_STEPS.find(s => s > current);
+            nextDuration = nextStep ?? current;
+        } else {
+            // Find first step less than current
+            const prevStep = [...DURATION_STEPS].reverse().find(s => s < current);
+            nextDuration = prevStep ?? current;
+        }
+        
+        task.duration = nextDuration;
+        if (onDurationChange) {
+            onDurationChange(nextDuration);
+        } else {
             onTaskUpdate?.(task);
         }
     }
@@ -70,7 +92,12 @@
     function handleTitleSubmit() {
         if (!task.title.trim()) task.title = "Untitled Task";
         isEditingTitle = false;
-        onTaskUpdate?.(task);
+        
+        if (onTitleChange) {
+            onTitleChange(task.title);
+        } else {
+            onTaskUpdate?.(task);
+        }
     }
 
     function handleTitleClick() {
@@ -91,7 +118,14 @@
     let inputTimeValue = $derived(task.startTime.format("HH:mm"));
 </script>
 
-<div class="vanilla-container todo-flow-detailed-view" data-testid="detailed-task-view">
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div 
+    class="vanilla-container todo-flow-detailed-view" 
+    data-testid="detailed-task-view"
+    onclick={(e) => e.stopPropagation()}
+    onpointerdown={(e) => e.stopPropagation()}
+>
     
     <!-- Header -->
     <div class="vanilla-header">
@@ -143,9 +177,9 @@
         <div class="vanilla-row">
             <span class="vanilla-label">Duration</span>
             <div class="vanilla-stepper">
-                <button class="stepper-btn" onclick={() => stepDuration(-1)} disabled={task.duration <= DURATION_STEPS[0]}>[ - ]</button>
-                <span class="stepper-val">{formatDuration(task.duration)}</span>
-                <button class="stepper-btn" onclick={() => stepDuration(1)} disabled={task.duration >= DURATION_STEPS[DURATION_STEPS.length - 1]}>[ + ]</button>
+                <button class="stepper-btn" data-testid="step-down" onclick={() => stepDuration(-1)} disabled={task.duration <= DURATION_STEPS[0]}>-</button>
+                <span class="stepper-val" data-testid="duration-value">{formatDuration(task.duration)}</span>
+                <button class="stepper-btn" data-testid="step-up" onclick={() => stepDuration(1)}>+</button>
             </div>
         </div>
 
@@ -154,19 +188,39 @@
     <!-- Action Links -->
     <div class="vanilla-actions">
         <div class="vanilla-section-header">State</div>
-        <button class="vanilla-action-btn" onclick={onToggleAnchor}>
-            {task.isAnchored ? "De-anchor Time" : "Anchor Time"}
-        </button>
-        <button class="vanilla-action-btn" onclick={onDrillDown}>Drill Down (New Stack)</button>
+        <ActionButton 
+            text={task.isAnchored ? "De-anchor Time" : "Anchor Time"} 
+            variant="secondary"
+            class="vanilla-action-btn-sovereign"
+            onclick={onToggleAnchor} 
+        />
+        <ActionButton 
+            text="Drill Down (New Stack)" 
+            variant="secondary"
+            class="vanilla-action-btn-sovereign"
+            onclick={onDrillDown} 
+        />
 
         <div class="vanilla-section-header margin-top">Core Operations</div>
-        <button class="vanilla-action-btn primary-text" onclick={onComplete}>
-            {task.status === 'done' ? "Undo Completion" : "Mark as Completed"}
-        </button>
-        <button class="vanilla-action-btn danger-text" onclick={onArchive}>Archive Task</button>
+        <ActionButton 
+            text={task.status === 'done' ? "Undo Completion" : "Mark as Completed"} 
+            class="vanilla-action-btn-sovereign"
+            onclick={onComplete} 
+        />
+        <ActionButton 
+            text="Archive Task" 
+            variant="danger"
+            class="vanilla-action-btn-sovereign"
+            onclick={onArchive} 
+        />
 
         <div class="vanilla-section-header margin-top">Utility</div>
-        <button class="vanilla-action-btn muted-text" onclick={onUndo}>Undo Last Action</button>
+        <ActionButton 
+            text="Undo Last Action" 
+            variant="secondary"
+            class="vanilla-action-btn-sovereign muted-text"
+            onclick={onUndo} 
+        />
     </div>
 
 </div>
@@ -192,6 +246,12 @@
         overflow-y: auto;
         padding-top: var(--safe-area-inset-top, 0px);
         box-sizing: border-box;
+        animation: vanilla-slide-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes vanilla-slide-up {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
 
     /* Standard Header */
@@ -379,30 +439,22 @@
     }
 
     .vanilla-section-header.margin-top {
-        margin-top: 24px;
+        margin-top: 32px;
         border-top: 1px dashed var(--background-modifier-border, #333);
+        padding-top: 32px;
     }
 
-    .vanilla-action-btn {
-        display: block;
-        width: 100%;
-        text-align: left;
-        background: transparent;
-        border: none;
-        border-bottom: 1px solid var(--background-modifier-border, #333);
-        padding: 16px;
-        font-size: 15px;
-        color: var(--text-normal, #ddd);
-        cursor: pointer;
-        outline: none;
-        -webkit-tap-highlight-color: rgba(255,255,255,0.05); /* very basic highlight */
+    .vanilla-action-btn-sovereign {
+        width: 100% !important;
+        border-radius: 0 !important;
+        justify-content: flex-start !important;
+        border-bottom: 1px solid var(--background-modifier-border, #333) !important;
+        background-color: transparent !important;
     }
 
-    .vanilla-action-btn:last-child {
-        border-bottom: none;
+    .vanilla-action-btn-sovereign:last-child {
+        border-bottom: none !important;
     }
 
-    .vanilla-action-btn.primary-text { color: var(--interactive-accent, #75abd0); }
-    .vanilla-action-btn.danger-text { color: #e87b7b; }
-    .vanilla-action-btn.muted-text { color: var(--text-muted, #888); }
+    .muted-text { color: var(--text-muted, #888) !important; }
 </style>

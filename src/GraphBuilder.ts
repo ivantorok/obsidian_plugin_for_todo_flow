@@ -121,7 +121,7 @@ export class GraphBuilder {
             id: file.path,
             title: parsed.title, // Use cleaned title
             duration: syncDuration || parsed.duration || 30,
-            originalDuration: syncOriginalDuration || (syncDuration || parsed.duration || 30),
+            originalDuration: syncOriginalDuration || syncDuration || parsed.duration, // No system default for overhead
             isAnchored: syncAnchored !== undefined ? syncAnchored : parsed.isAnchored,
             status: syncStatus as 'todo' | 'done',
             children: [],

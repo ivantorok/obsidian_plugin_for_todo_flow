@@ -4,6 +4,7 @@
     import type { App } from "obsidian";
     import { type TaskNode } from "../scheduler.js";
     import { FileLogger } from "../logger.js";
+    import ActionButton from "../components/ActionButton.svelte";
 
     let {
         app,
@@ -66,8 +67,9 @@
                     <strong>done</strong> + Enter or tap the button to finish.
                 </p>
                 <div class="dump-actions">
-                    <button
-                        class="todo-flow-dump-next-btn"
+                    <ActionButton
+                        text="Next Idea"
+                        variant="secondary"
                         onclick={async () => {
                             const currentThought = thought.trim();
                             if (currentThought) {
@@ -79,23 +81,21 @@
                             }
                             inputEl?.focus();
                         }}
-                    >
-                        Next Idea
-                    </button>
-                    <button
-                        class="todo-flow-dump-finish-btn"
+                    />
+                    <ActionButton
+                        text="Finish Dump →"
                         onclick={() => {
                             if (onComplete) onComplete(sessionTasks);
                         }}
-                    >
-                        Finish Dump →
-                    </button>
+                    />
                 </div>
             </div>
 
             {#if sessionTasks.length > 0}
                 <div class="session-log">
-                    <div class="log-count">{sessionTasks.length} thoughts captured</div>
+                    <div class="log-count">
+                        {sessionTasks.length} {sessionTasks.length === 1 ? 'thought' : 'thoughts'} captured
+                    </div>
                 </div>
             {/if}
         </div>

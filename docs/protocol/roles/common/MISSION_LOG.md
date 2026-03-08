@@ -827,4 +827,102 @@
 - [2026-03-07 14:25]: **Process Governor (PG)** session v36 initialized. Focus Stack identified as the final legacy monolith in the primary view-layer.
 - [2026-03-08 11:15]: **Implementation Lead (IL)** complete. Hard Shell card and Locality Hardening verified.
 - [2026-03-08 11:20]: **Verification Officer (VO)** confirms 100% Green Headline for core logic and hardened permission protocol.
-- [2026-03-08 11:25]: **Process Governor (PG)** session v36 RESOLVED. Invoking **Release Manager** for v1.2.144.
+- [2026-03-08 11:25]: **Process Governor (PG)** session v36 RESOLVED. Invoking **Release Manager** for v1.2.145.
+- [2026-03-08 11:30]: **Release Manager (RM)** shipped `v1.2.145`. Green baseline verified (261/261 tests). Session v36 CLOSED.
+
+---
+
+# Session v37 — Sovereign Triage Polish (Hard Shell Alignment)
+
+## Input & Analysis (Process Governor)
+- **Source**: Constitutional Intake (Master Plan, Blueprint, Critique) + Mobile Audit (Photos-3-001 (1)).
+- **Objective**: Align Triage terminology with BUG-025 ("Shortlist All"), fix linguistic pluralization, and harden aesthetic primitives.
+- **Flavor**: [UX + LINGUISTIC + SOVEREIGNTY]
+
+## Active Objectives
+1. **[DONE]** BUG-025 Alignment: Renamed "Skip All" to "Shortlist All" in Triage View.
+2. **[DONE]** Linguistic Fix: Resolved "1 THOUGHTS" pluralization bug in Dump View.
+3. **[DONE]** Aesthetic Hardening: Switched Triage/Dump buttons to `ActionButton` primitives and refined conflict UI.
+4. **[DONE]** Constitutional Intake: Ingested Master Plan & Blueprint docs into `docs/protocol/roles/common/`.
+5. **[DONE]** Verification: `skip_triage_journey.spec.ts` passed after build refresh.
+
+## Triage Routing
+1. **Visual Architect (VA)**: Verification of `ActionButton` elevation and conflict screen color tokens.
+2. **Interaction Architect (IA)**: Managing the "Shortlist All" bulk action state.
+3. **Process Governor (PG)**: Enforcing the new "Constitutional" terminology.
+
+## Status Logs
+- [2026-03-08 13:45]: **Process Governor (PG)** session v37 initialized. "Shortlist All" identified as the canonical bulk action for BUG-025.
+- [2026-03-08 14:00]: **Constitutional Intake** complete. Master Plan docs moved to `common/` for triage.
+- [2026-03-08 14:15]: **Implementation Lead (IL)** complete. Linguistic fixes and aesthetic hardening verified.
+- [2026-03-08 14:20]: **Verification Officer (VO)** confirms 100% Green Headline for `skip_triage_journey.spec.ts`.
+- [2026-03-08 14:25]: **Process Governor (PG)** session v37 RESOLVED. Ready for final audit.
+- [2026-03-08 16:30]: **Process Governor (PG)** session v38 initialized. **Mission: Detailed Task View Sovereignty (FEAT-003)**.
+- [2026-03-08 18:45]: **Implementation Lead (IL)** complete. Constitutional duration logic and command-based persistence implemented.
+- [2026-03-08 19:15]: **Verification Officer (VO)** confirms green baseline for hoisting and duration logic.
+- [2026-03-08 19:30]: **Process Governor (PG)** session v38 RESOLVED. Sovereign control layer active.
+
+---
+
+# Session v39 — Intake & Backdrop Audit
+
+## Input & Analysis (Process Governor)
+- **Source**: User Intake (Photos-3-003).
+- **Objective**: Verify end-to-end mobile flow and identify the next "Backdrop" mission.
+- **Flavor**: [GOVERNANCE / INTAKE]
+
+## Active Objectives
+1. **[DONE]** Intake Audit: Verified Dump -> Triage -> Stack flow on mobile via user screenshots.
+2. **[IN_PROGRESS]** Mission Selection: Identify the next high-impact architectural objective.
+
+## Triage Routing
+1. **Process Governor (PG)**: Evaluate the Master Plan for the next phase of the "Greedy Rollup" or "Substack" hierarchy.
+
+## Status Logs
+- [2026-03-08 19:55]: **Process Governor (PG)** session v39 initialized. Mobile UX confirmed as "Stable & Premium".
+- [2026-03-08 20:00]: **Intake complete**. Ready to triage the next mission.
+- [2026-03-08 20:05]: **Process Governor (PG)** session v39 RESOLVED.
+
+---
+
+# Session v40 — Greedy Rollup Duration Calculation
+
+## Input & Analysis (Implementation Lead)
+- **Source**: FEAT-005.
+- **Objective**: Implement recursive duration calculation (Greedy Rollup) across link-based hierarchies.
+- **Flavor**: [ARCHITECTURE / BACKDROP]
+
+## Active Objectives
+1. **[DONE]** Link-based Hierarchy: Ensured `GraphBuilder` recursively traverses wikilinks in bodies.
+2. **[DONE]** Greedy Rollup: Verified math via unit tests (Parents = sum of children + optional explicit overhead).
+3. **[DONE]** Live Updates: Implemented recursive ID tracking in `StackSyncManager` to refresh UI on subtask edits.
+
+## Triage Routing
+1. **Verification Officer (VO)**: Verify the rollup visibility in the mobile stack UI.
+
+## Status Logs
+- [2026-03-08 20:10]: **Process Governor (PG)** session v40 initialized.
+- [2026-03-08 20:30]: **Implementation Lead (IL)** complete. `StackSyncManager` now tracks recursive child changes.
+- [2026-03-08 20:35]: **Verification Officer (VO)** confirms 100% Green on `rollup_logic.test.ts`.
+- [2026-03-08 20:40]: **Process Governor (PG)** session v40 RESOLVED. Hierarchy is now sovereign.
+
+---
+
+# Session v41 — Mobile UX Sovereignty
+
+## Input & Analysis (Process Governor)
+- **Source**: Backlog Audit (BUG-021, BUG-029, BUG-027).
+- **Objective**: Harden the mobile interface against unintentional gestures and external clobbering.
+- **Flavor**: [UX / SOVEREIGNTY]
+
+## Active Objectives
+1. **[TODO]** Intent Disambiguation (BUG-029): Prevent accidental drill-downs during scrolling/dragging.
+2. **[TODO]** Interaction Shroud (BUG-021): Extend the "Interaction Lock" to prevent storage syncs during active UI manipulation.
+3. **[TODO]** Default Alignment (BUG-027): Force Daily Stack to open in "Architect" (List) mode by default on mobile.
+
+## Triage Routing
+1. **Interaction Architect (IA)**: Refine pointer event handling in `ArchitectStack` and `FocusStack`.
+2. **Process Governor (PG)**: Monitor the "Sovereign Interaction" token state during high-pressure sessions.
+
+## Status Logs
+- [2026-03-08 21:00]: **Process Governor (PG)** session v41 initialized. Mission: Mobile UX Sovereignty.

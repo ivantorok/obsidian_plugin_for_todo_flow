@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent, waitFor } from '@testing-library/svelte';
 import DumpViewHardShell from './DumpViewHardShell.svelte';
-import { DumpController } from './DumpController';
+import { DumpController } from './DumpController.js';
 
 // Mock DumpController
 vi.mock('./DumpController', () => {
@@ -61,7 +61,7 @@ describe('DumpViewHardShell Behavioral Baseline', () => {
 
         await waitFor(() => {
             expect(input.value).toBe('');
-            expect(queryByText('1 thoughts captured')).toBeTruthy();
+            expect(queryByText('1 thought captured')).toBeTruthy();
         });
     });
 
