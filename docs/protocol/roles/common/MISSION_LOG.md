@@ -939,3 +939,32 @@
 4. **WDIO `dragAndDrop` Unreliability**: The `dragAndDrop` API in WDIO for Obsidian E2E is unreliable for simulating swipe gestures. Replacing it with deterministic button clicks (`shortlist` button) and `waitUntil` polling eliminates the primary source of flakiness.
 5. **CSS Selector Drift After Component Refactors**: When Svelte components are refactored (e.g., `<button class="shortlist">` → `<ActionButton text="Shortlist →">`), legacy CSS class selectors in E2E specs break silently. All 4 `mobile_triage_*.spec.ts` failed on first E2E run due to this. **Use WDIO text selectors or `data-testid` attributes instead.**
 6. **Svelte `$props()` Silent Failures**: Optional props added to Svelte components work without error even when not passed. The feature simply doesn't activate. Always verify the full prop wiring chain (parent `.ts` → Svelte component → usage) end-to-end.
+
+---
+
+# Session v42 — Sync Fortress (E2E Hardening)
+
+## Input & Analysis (Process Governor)
+- **Source**: Session v41 Forensic Briefcase.
+- **Objective**: Un-skip and harden 3 remaining flaky E2E specs using the proven v41 pattern.
+- **Flavor**: [STABILITY / E2E / HARDENING]
+
+## Active Objectives
+1. **[DONE]** `drill-down.spec.ts`: Replaced `browser.keys` with programmatic `view.onNavigate()` / `navManager.goBack()` via `browser.execute`. Replaced all `browser.pause` with `waitUntil` polling on view API state.
+2. **[DONE]** `bug_007_verify.spec.ts`: Replaced CSS `.title` selector with `view.getTasks()` API reads. Replaced `browser.pause(3000)` with `waitUntil` on `data-persistence-idle`. Fixed import path.
+3. **[DONE]** `selective_flush.spec.ts`: Replaced `browser.keys(['z'])` with DOM-dispatched synthetic `KeyboardEvent` through `window.dispatchEvent`. Replaced `$$('.todo-flow-task-card')` with view API + data attribute checks. Added vault indexing wait.
+4. **[DONE]** Un-skip: Removed all 3 specs from `wdio.conf.mts` exclude list.
+
+## Key Insights & Hurdles (v42)
+1. **Programmatic Navigation > Keyboard Events**: `view.onNavigate(path, focusIndex)` and `navManager.goBack()` are 100% deterministic — they bypass the Electron keydown event propagation pipeline entirely. This eliminates the most critical source of drill-down flakiness.
+2. **Synthetic KeyboardEvent Target is Null**: `new KeyboardEvent('keydown', ...)` created via constructor has `target: null`. If the handler reads `e.target.tagName`, it crashes. Solution: dispatch the event on `window` via `window.dispatchEvent()`, which sets the target correctly and routes through the real `registerDomEvent(window, 'keydown', ...)` listener.
+3. **Vault Indexing After Pre-Population**: Writing files to disk via `fs.writeFileSync` after `reloadObsidian` requires a `waitUntil` poll for `app.vault.getMarkdownFiles()` to detect them. Without this, the stack command fires before Obsidian has indexed the files.
+4. **View API Over CSS Selectors**: `view.getTasks().map(t => t.title)` is infinitely more stable than `$$('.todo-flow-task-card .title')` — immune to CSS class renaming and DOM structure changes.
+
+## Status Logs
+- [2026-03-08 22:00]: **Process Governor (PG)** session v42 initialized. Forensic Briefcase received from v41.
+- [2026-03-08 22:05]: **Stability Warden (SW)** created all 3 hardened specs.
+- [2026-03-08 22:10]: **Verification Officer (VO)** first E2E run: 21/22 passed. `selective_flush.spec.ts` failed (null target + missing reloadObsidian).
+- [2026-03-08 22:15]: **Stability Warden (SW)** fixed: DOM dispatch + vault indexing wait.
+- [2026-03-08 22:25]: **Verification Officer (VO)** second E2E run: **22/22 passed**, exit code 0. Session v42 RESOLVED.
+
