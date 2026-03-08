@@ -179,3 +179,17 @@ Do not use `expect(val).toBe(true)` for the initial read of a reactive state (li
 *   **Gotcha**: The vault may still be indexing or performing initial IO, causing temporary state fluctuations before settling into the "idle" state. A strict `expect` will fail the test immediately.
 *   **Fix**: Always use robust polling for initial states: `await browser.waitUntil(async () => { return await el.getAttribute('data-sync') === 'idle'; }, { timeout: 10000 });`
 
+### 10. CSS Selector Drift After Component Refactors (Session v41 Lesson)
+When Svelte components are refactored (e.g., raw `<button class="shortlist">` → `<ActionButton text="Shortlist →">`), legacy CSS class selectors in E2E specs **break silently** — the element is never found, and the test fails with "not displayed."
+*   **Gotcha**: This happened to all 4 `mobile_triage_*.spec.ts` specs after the Hard Shell retrofit replaced buttons with `ActionButton` components.
+*   **Fix**: Prefer **WDIO text selectors** (`$('button=Shortlist →')`) or **explicit test IDs** (`$('[data-testid="shortlist-btn"]')`) over CSS class selectors. Text selectors survive component refactors as long as the label doesn't change.
+
+### 11. `dragAndDrop` Gesture Simulation is Unreliable
+WDIO's `element.dragAndDrop({ x, y })` does not reliably simulate swipe gestures in the Obsidian Electron environment. Animations, pointer capture, and event ordering differ from real touch events.
+*   **Gotcha**: Tests using `dragAndDrop` to simulate card swipes in Triage fail intermittently because the gesture doesn't complete or the coordinates are miscalculated.
+*   **Fix**: Test the **user intent** (e.g., shortlisting a task) via its **button equivalent** (`$('button=Shortlist →').click()`). If testing the swipe gesture itself is necessary, use `browser.performActions` with explicit `pointerDown` → `pointerMove` → `pointerUp` sequences.
+
+### 12. Persistence Lock Coverage for Gesture-Handling Components
+Any Svelte component that handles pointer gestures (`pointerdown` → `pointerup`) over user data should wire `lockPersistence`/`unlockPersistence` to prevent external file watchers (Obsidian's `metadataCache`) from clobbering the UI during active interaction.
+*   **Gotcha**: `TriageViewHardShell.svelte` handled swipe gestures but had no persistence lock. External file modifications during a swipe could trigger a reload that destroyed the animation state.
+*   **Fix**: Follow the `ArchitectStack.svelte` pattern — lock on `pointerdown`, unlock on `pointerup`, using a unique interaction token per gesture.

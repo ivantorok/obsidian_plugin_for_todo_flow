@@ -28,3 +28,6 @@ Tests should NOT remain in the flaky category indefinitely. Every developer is e
 - Use `browser.waitUntil` instead of fixed pauses.
 - Use direct application API calls (`browser.execute`) for verification when the UI layer is the source of flakiness.
 - Document and investigate the root cause of new flakiness immediately.
+- Use **WDIO text selectors** (`$('button=Label')`) or `data-testid` attributes instead of CSS class selectors, which break silently during component refactors (see [E2E_TESTING.md #10](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/E2E_TESTING.md)).
+- Avoid `element.dragAndDrop()` for gesture simulation in Obsidian E2E. Use button clicks to test user intent, or `browser.performActions` for explicit pointer sequences.
+- Ensure all gesture-handling components wire `lockPersistence`/`unlockPersistence` to prevent external clobbering during active interaction (see [E2E_TESTING.md #12](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/docs/E2E_TESTING.md)).
