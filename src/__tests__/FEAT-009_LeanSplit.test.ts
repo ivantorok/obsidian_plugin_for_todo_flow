@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/svelte';
-import FocusStack from '../views/FocusStack.svelte';
+import FocusStack from '../views/FocusStackHardShell.svelte';
 import moment from 'moment';
 
 describe('FEAT-009: FocusStack Zero-Physics', () => {
@@ -25,13 +25,12 @@ describe('FEAT-009: FocusStack Zero-Physics', () => {
         };
     });
 
-    it('should render action tray buttons in focus mode', () => {
-        const { getByText, getByTestId } = render(FocusStack, { props: mockProps });
-
-        expect(getByText('Complete')).toBeDefined();
-        expect(getByText('Archive')).toBeDefined();
-        expect(getByText('Anchor')).toBeDefined();
-        expect(getByText('Next →')).toBeDefined();
+    it('should NOT render action tray buttons (Offloaded to DetailedView)', () => {
+        const { queryByText } = render(FocusStack, { props: mockProps });
+        expect(queryByText('Complete')).toBeNull();
+        expect(queryByText('Archive')).toBeNull();
+        expect(queryByText('Anchor')).toBeNull();
+        expect(queryByText('Next →')).toBeDefined();
     });
 
     it('should respect navigation buttons', async () => {

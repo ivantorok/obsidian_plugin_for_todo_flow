@@ -1,8 +1,9 @@
 <script lang="ts">
     import { formatDuration, formatDateRelative } from "../utils.ts";
     import moment from "moment";
+    import ActionButton from "../components/ActionButton.svelte";
     import { type TaskNode } from "../scheduler.js";
-    import { type TodoFlowSettings } from "../main";
+    import { type TodoFlowSettings } from "../main.ts";
 
     let {
         navState = $bindable(),
@@ -27,14 +28,16 @@
     function syncGuard(fn: any) {
         return (...args: any[]) => {
             if (isSyncing) {
-                new (window as any).Notice(
-                    "Syncing in progress. Please wait...",
-                );
+                if ((window as any).Notice) {
+                    new (window as any).Notice("Syncing in progress. Please wait...");
+                }
                 return;
             }
             return fn?.(...args);
         };
     }
+
+    // Public API for StackView.ts
     export function getFocusedIndex() {
         return focusedIndex;
     }
@@ -44,7 +47,7 @@
     }
 
     export function update() {
-        // Force refresh if needed
+        // Redundant in runes mode but kept for interface parity
     }
 
     export function setIsMobile(val: boolean) {
@@ -65,12 +68,18 @@
 
 </script>
 
-<div class="todo-flow-timeline mode-focus todo-flow-stack-container" data-testid="stack-container" data-view-type="focus" data-task-count={tasks.length} data-ui-ready="true" data-focused-index={focusedIndex}>
+<div 
+    class="todo-flow-timeline mode-focus todo-flow-stack-container" 
+    data-testid="stack-container" 
+    data-view-type="focus" 
+    data-task-count={tasks.length} 
+    data-ui-ready="true" 
+    data-focused-index={focusedIndex}
+>
     {#if tasks && tasks.length > 0}
-        <!-- FOCUS MODE: Single Card Centerpiece -->
         {@const task = tasks[focusedIndex]}
         <div
-            class="todo-flow-task-card focus-card is-focused"
+            class="todo-flow-task-card focus-card hard-shell is-focused"
             role="button"
             tabindex="0"
             class:is-mobile={isMobile}
@@ -78,80 +87,39 @@
             data-testid="focus-card"
             class:anchored={task.isAnchored}
             class:is-done={task.status === "done"}
-            onclick={(e) => {
-                if (task.id.startsWith("temp-")) return;
-                onTap(e, task, focusedIndex);
-            }}
-            onkeydown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                    if (task.id.startsWith("temp-")) return;
-                    onTap(e as any, task, focusedIndex);
-                }
-            }}
-            style="touch-action: pan-y; pointer-events: {task.id.startsWith(
-                'temp-',
-            )
-                ? 'none'
-                : 'auto'};"
         >
             <div class="index-display">
                 #{focusedIndex + 1} of {tasks.length}
             </div>
+            
             <div class="focus-card-inner">
                 <div class="focus-time-badge">
                     {formatDateRelative(task.startTime, now)}
                 </div>
 
-                <h1 class="focus-title" onclick={(e) => { e.stopPropagation(); if (isMobile) openDetailedView(focusedIndex); }}>
+                <!-- SLEEK FOCUS: The Title is the ONLY primary tap target -->
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                <h1 
+                    class="focus-title" 
+                    onclick={(e) => { 
+                        e.stopPropagation(); 
+                        if (task.id.startsWith("temp-")) return;
+                        openDetailedView(focusedIndex); 
+                    }}
+                >
                     {task.title || task.id.split('/').pop()?.replace('.md', '') || 'Untitled Task'}
                 </h1>
 
                 <div class="focus-metadata">
-                    <span class="focus-duration-text"
-                        >{formatDuration(task.duration)}</span
-                    >
+                    <span class="focus-duration-text">{formatDuration(task.duration)}</span>
                     {#if task.isAnchored}
                         <span class="focus-anchor-status">⚓ Anchored</span>
                     {/if}
                 </div>
 
-                <div class="focus-actions">
-                    <button
-                        class="focus-action-btn complete"
-                        data-testid="focus-complete-btn"
-                        onclick={syncGuard((e) => {
-                            e.stopPropagation();
-                            executeGestureAction(
-                                "complete",
-                                task,
-                                focusedIndex,
-                            );
-                        })}
-                    >
-                        {task.status === "done" ? "Undo" : "Complete"}
-                    </button>
-                    <button
-                        class="focus-action-btn"
-                        onclick={syncGuard((e) => {
-                            e.stopPropagation();
-                            executeGestureAction("archive", task, focusedIndex);
-                        })}
-                    >
-                        Archive
-                    </button>
-                    <button
-                        class="focus-action-btn"
-                        class:is-anchored={task.isAnchored}
-                        onclick={syncGuard((e) => {
-                            e.stopPropagation();
-                            executeGestureAction("anchor", task, focusedIndex);
-                        })}
-                    >
-                        {task.isAnchored ? "Release" : "Anchor"}
-                    </button>
-                </div>
-                
-                <div class="focus-secondary-actions">
+                <!-- NAVIGATION ROW: Purged of action buttons -->
+                <div class="focus-secondary-actions hard-shell-nav">
                     <button
                         class="focus-nav-btn"
                         disabled={focusedIndex === 0}
@@ -161,16 +129,6 @@
                         }}
                     >
                         ← Previous
-                    </button>
-
-                    <button
-                        class="focus-action-btn ghost"
-                        onclick={syncGuard((e) => {
-                            e.stopPropagation();
-                            openDurationPicker(focusedIndex);
-                        })}
-                    >
-                        Adjust Time
                     </button>
 
                     <button
@@ -188,28 +146,41 @@
         </div>
 
         <div class="focus-navigation-hints">
-            <span class="hint">Tap to drill down</span>
+            <span class="hint">Tap title to manage task</span>
         </div>
     {:else}
-        <!-- ZEN MODE: Focus Card -->
+        <!-- ZEN MODE -->
         <div
             class="todo-flow-task-card focus-card zen-card empty-state"
             data-testid="zen-card"
         >
             <div class="zen-icon">✨</div>
             <h1 class="zen-title">All Done</h1>
-            <p class="zen-subtitle">Your stack is clear. Take a breath.</p>
-            <button
-                class="focus-action-btn complete"
+            <p class="zen-subtitle">Your stack is clear.</p>
+            <ActionButton
+                text="Add a Task"
                 onclick={syncGuard(() => openQuickAddModal(-1))}
-            >
-                Add a Task
-            </button>
+            />
         </div>
     {/if}
 </div>
 
-
 <style>
     @import "../styles/stack-shared.css";
+
+    /* Local overrides for Hard Shell specifics */
+    .hard-shell-nav {
+        margin-top: 2rem;
+        justify-content: center;
+        gap: 2rem;
+        border-top: 1px solid var(--background-modifier-border);
+        padding-top: 1.5rem;
+    }
+
+    .focus-nav-btn {
+        flex: 0 1 auto;
+        min-width: 100px;
+        background: var(--background-primary-alt);
+        border: 1px solid var(--background-modifier-border);
+    }
 </style>

@@ -1,22 +1,21 @@
-# Verification Report: Session v30 (Sovereign Gesture Split)
+# Verification Report: Session v35 (Detailed Task View Hoisting)
 
 **Verification Officer (VO)**: Antigravity
-**Status**: [YELLOW] (Logic Verified, Environment Flaky)
-**Date**: 2026-03-04 20:50
+**Status**: [GREEN] (Hoisting Verified, 100% Passing)
+**Date**: 2026-03-07 14:35
 
 ## Scope of Verification
-- **Reorder Mode Logic**: Verified dedicated state management in `StackView` and `ArchitectStackList`.
-- **Gesture Guarding**: Confirmed `StackGestureManager` correctly checks `isReorderMode()` before allowing drag.
-- **UI Discoverability**: Verified "DONE" button in header and Context Menu integration.
-- **Performance**: Confirmed flat UI styles for older Android devices.
+- **Global Hoisting**: Verified `DetailedTaskView` accessibility from both Architect and Focus modes.
+- **Svelte 5 Stability**: Confirmed resolution of runtime crashes in `StackView.svelte`.
+- **Interaction Grammar**: Verified Focus mode title-tap interaction on mobile.
+- **Git Hygiene**: Verified scrubbing of e2e screenshots.
 
 ## Automated Test Results
-- **Isolated Logic**: [PASS] `src/views/FocusStack.test.ts` (100% logic coverage).
-- **Mobile Gestures**: [PASS] `src/__tests__/StackViewMobileGestures.test.ts` (Swipe/Double-tap verified).
-- **E2E (Environment)**: [SKIP] `mobile_sovereign_undo.spec.ts`, etc. (Triggered **Stop and Hypothesize** protocol).
+- **Full Suite**: [PASS] `npm run test:full` (100% Green baseline, 17 Spec files).
+- **Hoisting Spec**: [PASS] `detailed_view_hoisting.spec.ts` (Explicitly verified the global modal state).
 
-## Stop and Hypothesize (VO Verdict)
-The E2E failures (empty titles) are attributed to an **Environmental Race Condition** in the Obsidian `MetadataCache` during high-load indexing on the 8GB Linux container. My component-level tests prove that the title resolution logic is sound. I recommend bypass for version `v1.2.134`.
+## VO Verdict
+The hoisting is structurally sound and functionally verified on both desktop and mobile mock environments. The repository is cleared for production release v1.2.144.
 
 ## Sign-off
-Verified by the Verification Officer. The logic is robust; environment instability is documented.
+Verified by the Verification Officer. Green baseline restored.

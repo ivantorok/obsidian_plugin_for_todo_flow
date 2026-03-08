@@ -1,10 +1,11 @@
 import { test, expect, describe, beforeEach, afterEach, vi } from 'vitest';
 import { mount, unmount, tick } from 'svelte';
 import StackView from '../views/StackView.svelte';
+import FocusStack from '../views/FocusStackHardShell.svelte';
 import { HistoryManager } from '../history.js';
 import { FileLogger } from '../logger.js';
 import moment from 'moment';
-import type { TodoFlowSettings } from '../main.js';
+import { type TodoFlowSettings } from '../settings.js';
 
 function createMockTask(id: string, title: string, status: string, duration: number, children: any[] = []) {
     return {
@@ -14,6 +15,7 @@ function createMockTask(id: string, title: string, status: string, duration: num
         duration,
         originalDuration: duration,
         isAnchored: false,
+        startTime: moment(),
         children
     };
 }
@@ -62,8 +64,6 @@ describe('FEAT-009 Lean Mobile Split Validation (Skeptical Specs)', () => {
             editStartTime: ['s'],
             toggleHelp: ['?']
         },
-        timeFormat: 'MM-DD HH:mm',
-        enableMobileView: true,
         debug: false
     };
 
@@ -164,30 +164,25 @@ describe('FEAT-009 Lean Mobile Split Validation (Skeptical Specs)', () => {
         expect(component.getFocusedIndex()).toBe(2);
     });
 
-    test('E2E Test 3: Lean Interaction Check', async () => {
-        component = mountComponent();
+    test('E2E Test 3: Title Tap Opens Detailed View (Hard Shell Contract)', async () => {
+        component = mountComponent(dummyTasks, true);
+
+        // Switch to focus mode
         component.setViewMode('focus');
         await tick();
-
-        const controller = component.getController();
-        const executeSpy = vi.spyOn(historyManager, 'executeCommand');
+        await tick();
 
         // Verify Focus mode is active
-        expect(container.querySelector('.focus-title')?.textContent).toBe('Task 1');
+        const titleEl = container.querySelector('.focus-title') as HTMLElement;
+        expect(titleEl?.textContent).toBe('Task 1');
 
-        // Tap "Complete"
-        const completeBtn = container.querySelector('[data-testid="focus-complete-btn"]') as HTMLButtonElement;
-        completeBtn.click();
+        // Tap Title
+        titleEl.click();
+        await tick();
         await tick();
 
-        // ASSERTION: Command executes successfully
-        expect(executeSpy).toHaveBeenCalled();
-        const cmd = executeSpy.mock.calls[0][0];
-        expect(cmd.constructor.name).toBe('ToggleStatusCommand');
-
-        // Validate state mutation
-        component.update();
-        await tick();
-        expect(component.getFocusedIndex()).toBe(1);
+        // ASSERTION: DetailedTaskView should now be visible in StackView
+        const detailedView = container.querySelector('.todo-flow-detailed-view');
+        expect(detailedView).not.toBeNull();
     });
 });

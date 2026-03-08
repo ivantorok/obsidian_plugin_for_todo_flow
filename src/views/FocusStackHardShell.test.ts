@@ -1,7 +1,7 @@
 
 import { render, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi } from 'vitest';
-import FocusStack from './FocusStack.svelte';
+import FocusStack from './FocusStackHardShell.svelte';
 import moment from 'moment';
 
 describe('FocusStack Hard Shell', () => {

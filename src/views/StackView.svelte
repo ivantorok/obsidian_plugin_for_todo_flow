@@ -6,7 +6,7 @@
     import { KeybindingManager } from "../keybindings";
     import { type HistoryManager } from "../history.js";
     import ArchitectStack from "./ArchitectStack.svelte";
-    import FocusStack from "./FocusStack.svelte";
+    import FocusStack from "./FocusStackHardShell.svelte";
     import StackHeader from "./StackHeader.svelte";
     import DetailedTaskView from "./DetailedTaskView.svelte";
     import {

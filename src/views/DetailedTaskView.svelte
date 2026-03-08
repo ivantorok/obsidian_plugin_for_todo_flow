@@ -91,7 +91,7 @@
     let inputTimeValue = $derived(task.startTime.format("HH:mm"));
 </script>
 
-<div class="vanilla-container">
+<div class="vanilla-container todo-flow-detailed-view" data-testid="detailed-task-view">
     
     <!-- Header -->
     <div class="vanilla-header">
