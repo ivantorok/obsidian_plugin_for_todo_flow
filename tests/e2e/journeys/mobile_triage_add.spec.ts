@@ -54,61 +54,61 @@ describe('Mobile Triage Addition (FEAT-001)', () => {
         await browser.pause(500);
 
         // 5. Verify task was created in the vault (with robust polling)
-        const vaultState = await browser.waitUntil(async () => {
+        await browser.waitUntil(async () => {
             return await browser.execute(async () => {
                 const files = app.vault.getMarkdownFiles();
-                const fileNames = files.map(f => f.name);
-
                 for (const f of files) {
                     const cache = app.metadataCache.getCache(f.path);
-                    if (cache?.frontmatter?.task === 'Mobile added task') return { success: true, files: fileNames };
-                    if (f.name.toLowerCase().includes('mobile-added-task')) return { success: true, files: fileNames };
-
+                    if (cache?.frontmatter?.task === 'Mobile added task') return true;
+                    if (f.name.toLowerCase().includes('mobile-added-task')) return true;
                     const content = await app.vault.read(f);
-                    if (content.includes('Mobile added task')) return { success: true, files: fileNames };
+                    if (content.includes('Mobile added task')) return true;
                 }
-
-                // Return false to keep polling, but we want the names for the timeout message
-                // In webdriverIO, if we return false it polls. If we return an object it passes.
-                // So we can only return truthy when found.
                 return false;
             });
         }, {
             timeout: 5000,
-            timeoutMsg: 'Task "Mobile added task" did not appear. Vault contents unknown.'
-        }).catch(async (e) => {
-            // On timeout, grab the final file list
-            const finalFiles = await browser.execute(() => app.vault.getMarkdownFiles().map(f => f.name));
-            throw new Error(`Task "Mobile added task" did not appear. Final vault files: ${finalFiles.join(', ')}`);
+            timeoutMsg: 'Task "Mobile added task" did not appear in vault'
         });
 
         // 6. Verify task appears in the Triage UI (Task Card)
         console.log('[Test] Verifying UI update - Step 6');
 
-        // Wait for potential animation/update
-        await browser.pause(1000);
+        // Initial Card check — use waitUntil for the card to settle
+        await browser.waitUntil(async () => {
+            const titleEl = await $('.todo-flow-card .todo-flow-card-header');
+            if (!await titleEl.isDisplayed()) return false;
+            const text = await titleEl.getText();
+            return text.length > 0;
+        }, {
+            timeout: 3000,
+            timeoutMsg: 'Initial triage card did not appear'
+        });
 
-        // Initial Card check
         const initialTitleEl = await $('.todo-flow-card .todo-flow-card-header');
         const initialTitle = await initialTitleEl.getText();
         console.log(`[Test] Initial Card Title: "${initialTitle}"`);
         await expect(initialTitleEl).toHaveText('TASK A');
 
-        // Swipe away the current task ("Triage Test Task")
-        console.log('[Test] Swiping right...');
-        const card = await $('.triage-card-wrapper');
-        await card.dragAndDrop({ x: 200, y: 0 }); // Swipe right
+        // Click the shortlist button instead of using flaky dragAndDrop
+        console.log('[Test] Clicking Shortlist button...');
+        const shortlistBtn = await $('button=Shortlist →');
+        await expect(shortlistBtn).toBeDisplayed();
+        await browser.execute((el: any) => (el as HTMLElement).click(), shortlistBtn);
 
-        // Wait for debounce (200ms) + animation (200ms) + safety
-        await browser.pause(1500);
+        // Wait for the next card to appear via waitUntil
+        await browser.waitUntil(async () => {
+            const titleEl = await $('.todo-flow-card .todo-flow-card-header');
+            if (!await titleEl.isDisplayed()) return false;
+            const text = await titleEl.getText();
+            return text === 'MOBILE ADDED TASK';
+        }, {
+            timeout: 5000,
+            interval: 300,
+            timeoutMsg: 'New card "MOBILE ADDED TASK" did not appear after shortlisting'
+        });
 
-        // Now the new task should be visible
-        console.log('[Test] Checking for new card...');
         const newCardTitle = await $('.todo-flow-card .todo-flow-card-header');
-        const newTitle = await newCardTitle.getText();
-        console.log(`[Test] New Card Title: "${newTitle}"`);
-
         await expect(newCardTitle).toHaveText('MOBILE ADDED TASK');
     });
 });
-

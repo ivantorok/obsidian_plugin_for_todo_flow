@@ -118,7 +118,11 @@ export class TriageView extends ItemView {
                     this.leaf.detach();
                 },
                 openQuickAddModal: () => this.openAddModal(),
-                checkForConflict: this.checkForConflict // Pass to Svelte
+                checkForConflict: this.checkForConflict, // Pass to Svelte
+                // BUG-021: Interaction Shroud — pass persistence lock functions for swipe gestures
+                lockPersistence: this.persistenceService ? (path: string, token: string) => this.persistenceService.claimLock(path, token) : undefined,
+                unlockPersistence: this.persistenceService ? (path: string, token: string) => this.persistenceService.releaseLock(path, token) : undefined,
+                rootPath: this.rootPath
             }
         });
 

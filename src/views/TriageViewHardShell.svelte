@@ -16,6 +16,10 @@
         contentEl,
         checkForConflict,
         openQuickAddModal,
+        // BUG-021: Interaction Shroud — lock persistence during active swipe
+        lockPersistence,
+        unlockPersistence,
+        rootPath,
     } = $props();
 
     const controller = $derived.by(() => new TriageController(app, initialTasks, logger));
@@ -48,6 +52,7 @@
     let touchStartX = $state(0);
     let touchCurrentX = $state(0);
     let isSwiping = $state(false);
+    let activeSwipeToken = $state<string | null>(null);
     const SWIPE_THRESHOLD = 100;
 
     function next(direction: "left" | "right") {
@@ -133,6 +138,12 @@
         touchStartX = e.clientX;
         touchCurrentX = touchStartX;
         isSwiping = true;
+
+        // BUG-021: Lock persistence during swipe to prevent external clobbering
+        if (lockPersistence && rootPath) {
+            activeSwipeToken = `triage-swipe-${Date.now()}`;
+            lockPersistence(rootPath, activeSwipeToken);
+        }
     }
 
     function handlePointerMove(e: PointerEvent) {
@@ -151,6 +162,12 @@
         isSwiping = false;
         touchStartX = 0;
         touchCurrentX = 0;
+
+        // BUG-021: Release persistence lock after swipe completes
+        if (unlockPersistence && rootPath && activeSwipeToken) {
+            unlockPersistence(rootPath, activeSwipeToken);
+            activeSwipeToken = null;
+        }
     }
 
     const cardTransform = $derived(() => {

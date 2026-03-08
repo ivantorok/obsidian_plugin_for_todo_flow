@@ -38,14 +38,26 @@ describe('Mobile Triage Sticky Button (BUG-013)', () => {
         await browser.pause(1000);
 
         // 3. Find the shortlist button
-        const shortlistBtn = await $('.shortlist');
+        const shortlistBtn = await $('button=Shortlist →');
         await expect(shortlistBtn).toBeDisplayed();
 
         // 4. Click the button using native script to avoid WDIO focus side effects
         await browser.execute((el) => (el as HTMLElement).click(), shortlistBtn);
-        await browser.pause(1000); // Wait longer for transition/action
 
-        // 5. Verify focus is NOT on the button anymore
+        // 5. Use waitUntil to deterministically verify focus is cleared
+        // This avoids flaky fixed-pause timing issues
+        await browser.waitUntil(async () => {
+            const state = await browser.execute((btn) => {
+                return document.activeElement !== btn;
+            }, shortlistBtn);
+            return state;
+        }, {
+            timeout: 5000,
+            interval: 200,
+            timeoutMsg: 'Button still focused after click — focus sovereignty violated'
+        });
+
+        // 6. Final verification of focus state
         const focusState = await browser.execute((btn) => {
             return {
                 isBtnFocused: document.activeElement === btn,
@@ -58,8 +70,5 @@ describe('Mobile Triage Sticky Button (BUG-013)', () => {
         expect(focusState).toEqual(expect.objectContaining({
             isBtnFocused: false
         }));
-
-        // 6. Optionally check for a specific "active" class if we use one, 
-        // but since we don't, focus is the most likely culprit.
     });
 });

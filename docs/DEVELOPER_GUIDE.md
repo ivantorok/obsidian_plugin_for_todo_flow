@@ -283,6 +283,9 @@ import { foo } from './bar.js';
 
 // INCORRECT
 import { foo } from './bar';
+
+#### 📌 Vitest ESM Gotcha (Lubuntu/Linux)
+In an ESM environment, Vitest requires local imports to explicitly include the `.js` extension even for `.ts` source files. Omitting this will lead to module resolution errors during `npm test`.
 ```
 
 ### 5. File Locations Reference

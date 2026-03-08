@@ -23,10 +23,7 @@ export const config: Options.Testrunner = {
         'tests/e2e/legacy/**/*.spec.ts',
         'tests/e2e/drill-down.spec.ts',
         'tests/e2e/bug_007_verify.spec.ts',
-        'tests/e2e/selective_flush.spec.ts',
-        'tests/e2e/journeys/mobile_triage_*.spec.ts',
-        'tests/e2e/journeys/mobile_triage_existing_task.spec.ts',
-        'tests/e2e/journeys/mobile_triage_visual_reset.spec.ts'
+        'tests/e2e/selective_flush.spec.ts'
     ],
 
     //

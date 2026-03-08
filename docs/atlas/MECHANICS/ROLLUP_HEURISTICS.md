@@ -19,3 +19,8 @@ Effective(Task) = OwnDuration + Sum(Effective(Child) for Child in Children if Ch
 ## Technical Reference
 - `getTotalGreedyDuration` in `src/scheduler.ts`
 - `rollup_logic.test.ts`
+
+## Implementation Wisdom: Recursive Change Detection
+For a "Sovereign Rollup" UI to remain responsive without manual refreshes:
+1.  **Multi-ID Tracking**: The `StackSyncManager` must maintain a registry of ALL recursive descendant IDs for a parent task.
+2.  **Invalidation Ripple**: Any file-change event matching an ID in that registry MUST trigger a refresh of the root parent. Failure to track recursive IDs (e.g. only tracking immediate children) leads to "stale" rollup durations when deep subtasks are edited.

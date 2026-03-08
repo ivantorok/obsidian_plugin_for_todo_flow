@@ -28,3 +28,8 @@ A short "Audit Summary" at the end of your implementation plan confirming:
 - "No redundant utilities found/Existing utility X will be reused."
 - "UX Governance rules A and B have been applied."
 - "Svelte 5 Runes verified."
+
+### ⚠️ Technical Gotchas (Pre-Flight)
+- **Vitest ESM**: Ensure all local imports in new tests use the `.js` extension.
+- **WDIO Exclude**: Never use `./` prefix in `wdio.conf.mts` exclusion globs.
+- **Hierarchy Sync**: If implementing rollups or nested state, confirm `StackSyncManager` tracks all recursive descendant IDs.

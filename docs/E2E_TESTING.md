@@ -144,6 +144,10 @@ We use **Vitest** for unit tests and **WebdriverIO** for E2E.
     exclude: ['**/node_modules/**', 'tests/e2e/**']
     ```
 
+### 10. WDIO Exclude Path Sensitivity
+The `exclude` array in `wdio.conf.mts` is highly sensitive to path prefixes when running via `ship.sh`.
+- **Constraint**: Use absolute-style globs (e.g., `tests/e2e/legacy/**/*.spec.ts`) **without** the `./` prefix. Using `./tests/...` can cause the runner to ignore the exclusion on certain environments (specifically the 8GB Lubuntu test-vault runner).
+
 ### 4. Manual Testing Magic
 The `npm run e2e:open` command is NOT just a shortcut for `obsidian .test-vault`.
 *   It uses WebdriverIO to launch the app.

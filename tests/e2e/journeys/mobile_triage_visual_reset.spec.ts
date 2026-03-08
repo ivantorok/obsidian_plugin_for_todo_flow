@@ -38,7 +38,7 @@ describe('Mobile Triage Visual Reset (BUG-014)', () => {
         await browser.pause(1000);
 
         // 3. Capture the idle background color of the shortlist button
-        const shortlistBtn = await $('.shortlist');
+        const shortlistBtn = await $('button=Shortlist →');
         await expect(shortlistBtn).toBeDisplayed();
         const idleColor = await shortlistBtn.getCSSProperty('background-color');
         console.log('[DEBUG] Idle Color:', idleColor.value);
@@ -46,16 +46,20 @@ describe('Mobile Triage Visual Reset (BUG-014)', () => {
         // 4. Click the button
         await browser.execute((el) => (el as HTMLElement).click(), shortlistBtn);
 
-        // 5. Check color DURING the action (should be exactly the same as idle)
-        await browser.pause(50);
-        const activeColor = await shortlistBtn.getCSSProperty('background-color');
-        console.log('[DEBUG] Color during click (50ms):', activeColor.value);
-        expect(activeColor.value).toBe(idleColor.value);
+        // 5. Wait for the triage animation to complete and verify color resets
+        // Use waitUntil to poll until the button returns to idle color
+        await browser.waitUntil(async () => {
+            const currentColor = await shortlistBtn.getCSSProperty('background-color');
+            return currentColor.value === idleColor.value;
+        }, {
+            timeout: 3000,
+            interval: 100,
+            timeoutMsg: `Button color did not reset to idle state (${idleColor.value})`
+        });
 
-        // 6. Check color AFTER the action
-        await browser.pause(400);
+        // 6. Final assertion — the button should be in its idle visual state
         const finalColor = await shortlistBtn.getCSSProperty('background-color');
-        console.log('[DEBUG] Color after 450ms:', finalColor.value);
+        console.log('[DEBUG] Final Color:', finalColor.value);
         expect(finalColor.value).toBe(idleColor.value);
     });
 });

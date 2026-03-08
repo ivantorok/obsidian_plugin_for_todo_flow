@@ -14,6 +14,14 @@ export class StackGestureManager {
     private _touchMovedSignificant = false;
     private startedOnHandle = false;
     private lastDragEndTime = 0;
+    // BUG-029 Hardening: Minimum tap duration + velocity-based scroll detection
+    private pointerDownTime = 0;
+    private lastMoveTime = 0;
+    private lastMoveY = 0;
+    private scrollIntentDetected = false;
+    private static readonly MIN_TAP_DURATION_MS = 80;
+    private static readonly SCROLL_VELOCITY_THRESHOLD = 2; // px/ms
+    private static readonly POST_DRAG_COOLDOWN_MS = 500;
 
     constructor(state: GestureState, config: GestureManagerConfig) {
         this.state = state;
@@ -55,6 +63,10 @@ export class StackGestureManager {
 
         this.isPressing = true;
         this._touchMovedSignificant = false;
+        this.scrollIntentDetected = false;
+        this.pointerDownTime = Date.now();
+        this.lastMoveTime = Date.now();
+        this.lastMoveY = e.clientY;
         this.state.touchStartX = e.clientX;
         this.state.touchStartY = e.clientY;
         this.state.touchCurrentX = e.clientX;
@@ -95,6 +107,22 @@ export class StackGestureManager {
         const threshold = this.config.isMobileState() ? 5 : 10;
         if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
             this._touchMovedSignificant = true;
+        }
+
+        // BUG-029 Hardening: Velocity-based scroll detection
+        // If vertical velocity exceeds threshold at any point, mark as scroll intent permanently
+        if (this.config.isMobileState() && !this.scrollIntentDetected) {
+            const now = Date.now();
+            const dt = now - this.lastMoveTime;
+            if (dt > 0) {
+                const velocityY = Math.abs(e.clientY - this.lastMoveY) / dt;
+                if (velocityY > StackGestureManager.SCROLL_VELOCITY_THRESHOLD) {
+                    this.scrollIntentDetected = true;
+                    this._touchMovedSignificant = true;
+                }
+            }
+            this.lastMoveTime = now;
+            this.lastMoveY = e.clientY;
         }
 
         if (!this.state.draggingTaskId) {
@@ -274,7 +302,20 @@ export class StackGestureManager {
         }
 
         const now = Date.now();
-        if (now - this.lastDragEndTime < 300) {
+        // BUG-029 Hardening: Wider post-drag cooldown (500ms) for mobile animation frames
+        if (now - this.lastDragEndTime < StackGestureManager.POST_DRAG_COOLDOWN_MS) {
+            return;
+        }
+
+        // BUG-029 Hardening: Reject taps shorter than MIN_TAP_DURATION_MS (accidental brush touches)
+        const tapDuration = now - this.pointerDownTime;
+        if (this.config.isMobileState() && tapDuration < StackGestureManager.MIN_TAP_DURATION_MS) {
+            return;
+        }
+
+        // BUG-029 Hardening: Reject taps if scroll intent was detected during this interaction
+        if (this.scrollIntentDetected) {
+            this.scrollIntentDetected = false;
             return;
         }
 
