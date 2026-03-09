@@ -968,3 +968,32 @@
 - [2026-03-08 22:15]: **Stability Warden (SW)** fixed: DOM dispatch + vault indexing wait.
 - [2026-03-08 22:25]: **Verification Officer (VO)** second E2E run: **22/22 passed**, exit code 0. Session v42 RESOLVED.
 
+
+---
+
+# Session v43 — Constitutional Alignment & Pruning
+
+## Input & Analysis (Process Governor)
+- **Source**: Constitutional audit of Master Plan, Blueprint, and Critique.
+- **Objective**: Implement non-conflicting refinements and prune dead code/legacy debt.
+- **Flavor**: [ARCHITECTURE / PRUNING / COMPLIANCE]
+
+## Active Objectives
+1. **[DONE]** Constitutional Alignment: Fixed `StackController.ts` to exclude `20` from the duration sequence (per Master Plan) and implemented the 8h ceiling bypass (±30m steps per Critique).
+2. **[DONE]** Source Pruning: Deleted 7 dead source files including unused prototypes (`CaptureModal.svelte`, `StackViewStructure.svelte`) and legacy Svelte views superseded by HardShell versions.
+3. **[DONE]** Service Pruning: Deleted `LoopManager.ts` (0 production imports).
+4. **[DONE]** Test Pruning: Deleted 4 legacy unit tests and the entire `tests/e2e/legacy/` directory (20 specs).
+5. **[DONE]** Config Cleanup: Removed legacy paths from `wdio.conf.mts`.
+
+## Key Insights & Hurdles (v43)
+1. **Duration Consistency**: Consistency between `DetailedTaskView.svelte` and `StackController.ts` is critical for a "Single Source of Truth" feel. The 8h ceiling bypass ensures that power users can schedule long blocks (9h, 10h) without being trapped by a hard-coded 8h ceiling.
+2. **"HardShell" Pruning Opportunity**: Once `.ts` view wrappers (like `DumpView.ts` and `TriageView.ts`) are fully switched to HardShell Svelte components, the legacy `.svelte` files become "ghost components" that only serve to slow down unit tests and increase bundle size.
+3. **Dead Prototype Gravity**: Research sandbox prototypes have a tendency to "leak" into the production `src/views/` directory during promotions. Periodic auditing is necessary to prevent `StackViewStructure.svelte` style zombies from lingering.
+
+## Status Logs
+- [2026-03-09 11:30]: **Process Governor (PG)** session v43 initialized. Audit identifies duration logic gaps and 27+ dead files/specs.
+- [2026-03-09 11:35]: **Refinement Officer (RO)** fixed `StackController.ts` duration sequence and ceiling bypass.
+- [2026-03-09 11:40]: **Pruning Warden (PW)** deleted 7 source files and 4 legacy unit tests.
+- [2026-03-09 11:45]: **Pruning Warden (PW)** deleted `tests/e2e/legacy/` spec directory.
+- [2026-03-09 11:55]: **Verification Officer (VO)** build passed. Unit tests: 81/81 files passed. 256/256 tests passed.
+- [2026-03-09 11:26]: **Verification Officer (VO)** E2E run: **22/22 passed**. Session v43 RESOLVED.

@@ -19,8 +19,7 @@ export const config: Options.Testrunner = {
         './tests/e2e/**/*.spec.ts'
     ],
     exclude: [
-        'tests/e2e/manual-open.spec.ts',
-        'tests/e2e/legacy/**/*.spec.ts'
+        'tests/e2e/manual-open.spec.ts'
     ],
 
     //

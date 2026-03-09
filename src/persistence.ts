@@ -44,7 +44,10 @@ ${content}`;
 export function generateFilename(title: string): string {
     const timestamp = moment().format("YYYY-MM-DD-HHmm");
     const randomID = Math.random().toString(36).substring(2, 6).padEnd(4, '0');
-    const normalizedTitle = title.replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, '-');
+    // Blueprint 1.1: Normalize to NFC and strictly clean Obsidian-prohibited characters
+    const normalizedTitle = title.normalize('NFC')
+        .replace(/[\\/:\*?"<>|#\^\[\]]/g, '-')
+        .replace(/\s+/g, '-');
     const sanitizedTitle = normalizedTitle.replace(/-+/g, '-');
     return `${timestamp}-${randomID}-${sanitizedTitle}.md`;
 }

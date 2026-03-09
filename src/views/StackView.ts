@@ -417,6 +417,12 @@ export class StackView extends ItemView {
             }
         });
 
+        // Blueprint 1.3: Immediate flush on application blur (Power Saving / Safety)
+        this.registerDomEvent(window, 'blur', () => {
+            if (this.logger) this.logger.info(`[StackView] Window BLUR detected. Triggering immediate persistence flush.`);
+            this.syncManager.flushPersistence();
+        });
+
         // Ensure container is focusable
         this.containerEl.tabIndex = 0;
         this.contentEl.focus();

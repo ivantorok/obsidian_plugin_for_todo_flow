@@ -329,4 +329,19 @@ export function registerCommands(plugin: TodoFlowPlugin) {
             new (window as any).Notice('Stack inserted!');
         }
     });
+
+    plugin.addCommand({
+        id: 'recalculate-active-stack',
+        name: 'Force Recalculate Timeline',
+        callback: async () => {
+            const leaf = plugin.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
+            if (leaf && leaf.view instanceof StackView) {
+                plugin.logger.info('[Command] Executing recalculate-active-stack');
+                await leaf.view.reload(true); // force=true
+                new Notice('Stack timeline recalculated.');
+            } else {
+                new Notice('Daily Stack view is not open.');
+            }
+        }
+    });
 }

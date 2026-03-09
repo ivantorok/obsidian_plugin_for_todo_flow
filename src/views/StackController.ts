@@ -3,7 +3,7 @@ import { computeSchedule, getMinDuration, type TaskNode } from '../scheduler.js'
 import { ProcessGovernor } from '../services/ProcessGovernor.js';
 import { type App } from 'obsidian';
 
-const DURATION_SEQUENCE = [2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300, 360, 420, 480];
+const DURATION_SEQUENCE = [2, 5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 300, 360, 420, 480];
 
 export class StackController {
     private tasks: TaskNode[];
@@ -415,19 +415,28 @@ export class StackController {
         const task = { ...taskToMove };
         const currentOwn = task.originalDuration ?? task.duration;
 
-        let seqIndex = DURATION_SEQUENCE.findIndex(d => d >= currentOwn);
-        if (seqIndex === -1) seqIndex = DURATION_SEQUENCE.length - 1;
-
-        if (direction === 'up') {
-            if (DURATION_SEQUENCE[seqIndex] === currentOwn) {
-                seqIndex = Math.min(DURATION_SEQUENCE.length - 1, seqIndex + 1);
-            }
-            task.originalDuration = DURATION_SEQUENCE[seqIndex]!;
+        // Ceiling Bypass: If duration >= 480m (8h), use flat ±30m steps
+        if (currentOwn >= 480 && direction === 'up') {
+            task.originalDuration = currentOwn + 30;
+            task.duration = task.originalDuration;
+        } else if (currentOwn > 480 && direction === 'down') {
+            task.originalDuration = Math.max(480, currentOwn - 30);
             task.duration = task.originalDuration;
         } else {
-            seqIndex = Math.max(0, seqIndex - 1);
-            task.originalDuration = DURATION_SEQUENCE[seqIndex]!;
-            task.duration = task.originalDuration;
+            let seqIndex = DURATION_SEQUENCE.findIndex(d => d >= currentOwn);
+            if (seqIndex === -1) seqIndex = DURATION_SEQUENCE.length - 1;
+
+            if (direction === 'up') {
+                if (DURATION_SEQUENCE[seqIndex] === currentOwn) {
+                    seqIndex = Math.min(DURATION_SEQUENCE.length - 1, seqIndex + 1);
+                }
+                task.originalDuration = DURATION_SEQUENCE[seqIndex]!;
+                task.duration = task.originalDuration;
+            } else {
+                seqIndex = Math.max(0, seqIndex - 1);
+                task.originalDuration = DURATION_SEQUENCE[seqIndex]!;
+                task.duration = task.originalDuration;
+            }
         }
 
         const newTasks = [...this.tasks];
