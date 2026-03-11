@@ -49,7 +49,7 @@ export class SmartImportService {
         if (addedCount > 0) {
             const loader = new StackLoader(this.app, this.logger);
             const nodes = await loader.loadSpecificFiles(mergedIds);
-            await this.persistence.saveStack(nodes, dailyFile);
+            await this.persistence.saveStack(nodes, dailyFile, true);
         }
 
         return addedCount;

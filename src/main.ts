@@ -15,6 +15,7 @@ import { registerCommands } from './commands/CommandRegistry.js';
 import { HandoffOrchestrator } from './services/HandoffOrchestrator.js';
 import { StackPersistenceService } from './services/StackPersistenceService.js';
 import { ProcessGovernor } from './services/ProcessGovernor.js';
+import { InteractionIdleQueue } from './services/InteractionIdleQueue.js';
 
 import { type TodoFlowSettings, DEFAULT_SETTINGS } from './settings.js';
 import { DEFAULT_KEYBINDINGS } from './keybindings.js';
@@ -63,6 +64,7 @@ export default class TodoFlowPlugin extends Plugin {
         );
 
         this.governor = ProcessGovernor.getInstance(this.app, this.logger);
+        InteractionIdleQueue.getInstance(this.app, this.logger);
 
         const buildId = typeof process !== 'undefined' ? (process.env as any).BUILD_ID : 'unknown';
         await this.logger.info(`[Todo Flow] Loading v${this.manifest.version} (Build ${buildId})`);
@@ -142,10 +144,20 @@ export default class TodoFlowPlugin extends Plugin {
         if (this.settings.enableShake) {
             this.initShakeDetector();
         }
+
+        // Register Global Idle Flush
+        this.registerDomEvent(window, 'blur', () => {
+            this.logger.info('[main] Window BLUR detected. Forcing InteractionIdleQueue flush.');
+            InteractionIdleQueue.getInstance(this.app).forceFlush();
+        });
     }
 
     onunload() {
         this.logger.info('[Todo Flow] Unloading plugin. Flushing views.');
+        
+        // Force flush of idle queue
+        InteractionIdleQueue.getInstance(this.app).forceFlush();
+
         this.app.workspace.getLeavesOfType(VIEW_TYPE_STACK).forEach(leaf => {
             if (leaf.view instanceof StackView) {
                 (leaf.view as StackView).flushPersistence();

@@ -139,6 +139,10 @@ export class TriageView extends ItemView {
                 if (result.startTime) options.startTime = result.startTime;
                 if (result.duration !== undefined) options.duration = result.duration;
                 if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+                // BUG-023: Propagate parentPath for link injection in sub-stacks
+                if (this.rootPath && !this.rootPath.includes('CurrentStack.md')) {
+                    options.parentPath = this.rootPath;
+                }
 
                 // Optimistic UI: Update view immediately
                 const tempId = `temp-${Date.now()}`;
@@ -165,20 +169,19 @@ export class TriageView extends ItemView {
                 }
 
                 // Background: Create actual file
-                this.onCreateTask(result.title, options).then((newNode) => {
-                    if (newNode) {
-                        tempNode.id = newNode.id; // Update ID with real path
-                        // Ideally we'd update other props if they changed during creation
-                    } else {
-                        // Rollback or Error state?
-                        if (this.logger) this.logger.error(`[TriageView] Failed to create task for ${result.title}`);
-                    }
+                const newNode = await this.onCreateTask(result.title, options);
+                if (newNode) {
+                    tempNode.id = newNode.id; // Update ID with real path
+                    // Ideally we'd update other props if they changed during creation
+                } else {
+                    // Rollback or Error state?
+                    if (this.logger) this.logger.error(`[TriageView] Failed to create task for ${result.title}`);
+                }
 
-                    // Release lock after resolution
-                    if (this.persistenceService && this.rootPath) {
-                        this.persistenceService.releaseLock(this.rootPath, `triage-add-${tempId}`);
-                    }
-                });
+                // Release lock after resolution
+                if (this.persistenceService && this.rootPath) {
+                    this.persistenceService.releaseLock(this.rootPath, `triage-add-${tempId}`);
+                }
             } else if (result.type === 'file' && result.file) {
                 // BUG-012: Handle existing file selection
                 const file = result.file;

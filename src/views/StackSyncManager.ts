@@ -1,6 +1,7 @@
 import { TFile, App } from "obsidian";
 import { type FileLogger } from "../logger.js";
 import { type StackPersistenceService } from "../services/StackPersistenceService.js";
+import { InteractionIdleQueue } from "../services/InteractionIdleQueue.js";
 import { type NavigationManager } from "../navigation/NavigationManager.js";
 import { type ProcessGovernor } from "../services/ProcessGovernor.js";
 import { type TaskNode } from "../scheduler.js";
@@ -146,6 +147,10 @@ export class StackSyncManager {
             this.broadcastIdleState();
         }
 
+        // Force InteractionIdleQueue flush
+        await InteractionIdleQueue.getInstance(this.config.app).forceFlush();
+        this.broadcastIdleState();
+
         if (!this.saveTimeout) return;
         if (this.config.logger) this.config.logger.info(`[StackSyncManager] Flush requested.`);
 
@@ -188,21 +193,25 @@ export class StackSyncManager {
         }
     }
 
-    public triggerSave(ms: number) {
+    public async triggerSave(ms: number, immediate: boolean = false): Promise<void> {
         if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
 
-        if (this.persistenceLockCount > 0) {
+        if (this.persistenceLockCount > 0 && !immediate) {
             if (this.config.logger) this.config.logger.info(`[StackSyncManager] Save DEFERRED: active interaction lock`);
             this.saveTimeout = 1 as any;
             this.broadcastIdleState();
             return;
         }
 
+        if (immediate) {
+            return await this.performSave(true);
+        }
+
         this.saveTimeout = window.setTimeout(() => this.performSave(), ms) as any;
         this.broadcastIdleState();
     }
 
-    private async performSave() {
+    private async performSave(immediate: boolean = false) {
         if (!this.lastTasksForSave) {
             this.saveTimeout = null;
             this.broadcastIdleState();
@@ -218,7 +227,7 @@ export class StackSyncManager {
 
         try {
             if (isCurrentlyViewingShortlist || (currentTaskIds && currentTaskIds.length > 0)) {
-                await this.config.persistenceService.saveStack(tasks, savePath);
+                await this.config.persistenceService.saveStack(tasks, savePath, immediate);
 
                 if (JSON.stringify(currentIds) === JSON.stringify(tasks.map(t => `${t.id}:${t.status}`))) {
                     this.lastSavedIds = currentIds;
@@ -238,7 +247,7 @@ export class StackSyncManager {
         }
     }
 
-    public handleStackChange(tasks: TaskNode[]) {
+    public async handleStackChange(tasks: TaskNode[], immediate: boolean = false): Promise<void> {
         const persistencePath = `${this.config.settings.targetFolder}/CurrentStack.md`;
         const rootPath = this.config.getRootPath();
         const currentTaskIds = this.config.getCurrentTaskIds();
@@ -248,10 +257,10 @@ export class StackSyncManager {
             const currentIds = tasks.map(t => `${t.id}:${t.status}`);
             const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
 
-            if (idsChanged && !this.isReloadPending) {
+            if ((idsChanged || immediate) && !this.isReloadPending) {
                 this.lastTasksForSave = tasks;
                 // Architectural Pivot: Increase debounce to 5s for in-memory sovereignty
-                this.triggerSave(5000);
+                return await this.triggerSave(immediate ? 0 : 5000, immediate);
             }
         }
     }

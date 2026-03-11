@@ -8,7 +8,7 @@
     import SovereignInput from '../components/SovereignInput.svelte';
     import ActionButton from '../components/ActionButton.svelte';
     import moment from 'moment';
-    import { tick } from 'svelte';
+    import { tick, onMount } from 'svelte';
 
     let {
         task = $bindable({ 
@@ -25,7 +25,10 @@
         onDrillDown,
         onComplete,
         onArchive,
-        onUndo
+        onUndo,
+        onAddSubtask,
+        onDurationChange,
+        onTitleChange
     } = $props<{
         task?: any;
         onClose?: () => void;
@@ -35,6 +38,7 @@
         onComplete?: () => void;
         onArchive?: () => void;
         onUndo?: () => void;
+        onAddSubtask?: (title: string) => void;
         onDurationChange?: (minutes: number) => void;
         onTitleChange?: (title: string) => void;
     }>();
@@ -116,6 +120,23 @@
 
     let displayTime = $derived(task.startTime.format("HH:mm"));
     let inputTimeValue = $derived(task.startTime.format("HH:mm"));
+
+    // Subtask Creation State
+    let isCreatingSubtask = $state(false);
+    let subtaskTitle = $state("");
+
+    async function handleSubtaskSubmit() {
+        if (subtaskTitle.trim()) {
+            onAddSubtask?.(subtaskTitle.trim());
+            subtaskTitle = "";
+            isCreatingSubtask = false;
+        }
+    }
+
+    onMount(() => {
+        console.log(`[DetailedTaskView] Mounted for task: ${task.title}`);
+        ((window as any)._tf_log = (window as any)._tf_log || []).push(`[DetailedTaskView] Mounted: ${task.title}`);
+    });
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -200,6 +221,26 @@
             class="vanilla-action-btn-sovereign"
             onclick={onDrillDown} 
         />
+
+        <div class="vanilla-section-header margin-top">Substack Hierarchy</div>
+        {#if isCreatingSubtask}
+            <div class="subtask-editor-wrapper" data-testid="subtask-input-wrapper">
+                <SovereignInput 
+                    bind:value={subtaskTitle}
+                    placeholder="New subtask name..."
+                    onSubmit={handleSubtaskSubmit}
+                    onCancel={() => isCreatingSubtask = false}
+                />
+            </div>
+        {:else}
+            <ActionButton 
+                text="+ Add Subtask" 
+                variant="secondary"
+                class="vanilla-action-btn-sovereign"
+                data-testid="add-subtask-btn"
+                onclick={() => isCreatingSubtask = true} 
+            />
+        {/if}
 
         <div class="vanilla-section-header margin-top">Core Operations</div>
         <ActionButton 
@@ -450,6 +491,12 @@
         justify-content: flex-start !important;
         border-bottom: 1px solid var(--background-modifier-border, #333) !important;
         background-color: transparent !important;
+    }
+
+    .subtask-editor-wrapper {
+        padding: 8px 16px;
+        background: var(--background-secondary);
+        border-bottom: 1px solid var(--background-modifier-border);
     }
 
     .vanilla-action-btn-sovereign:last-child {

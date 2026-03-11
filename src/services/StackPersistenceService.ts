@@ -1,6 +1,7 @@
 import { App, TFile } from 'obsidian';
 import type { TaskNode } from '../scheduler.js';
 import { FileLogger } from '../logger.js';
+import { InteractionIdleQueue } from './InteractionIdleQueue.js';
 
 export class StackPersistenceService {
     private lastInternalWriteTime: number = 0;
@@ -19,7 +20,8 @@ export class StackPersistenceService {
     }
 
     getIsIdle(): boolean {
-        return this.isIdle;
+        const queueIdle = InteractionIdleQueue.getInstance(this.app).getIsIdle();
+        return this.isIdle && queueIdle;
     }
 
     onIdleChange(cb: (idle: boolean) => void) {
@@ -74,28 +76,23 @@ export class StackPersistenceService {
         }
     }
 
-    async saveStack(tasks: TaskNode[], filePath: string): Promise<void> {
-        this.setInternalIdle(false);
-        try {
-            const msg = `[StackPersistenceService] saveStack() path=${filePath}, count=${tasks.length}`;
+    async saveStack(tasks: TaskNode[], filePath: string, immediate: boolean = false): Promise<void> {
+        const queue = InteractionIdleQueue.getInstance(this.app, this.logger);
+
+        const saveFn = async () => {
+            const msg = `[StackPersistenceService] FLUSHING saveStack() path=${filePath}, count=${tasks.length}`;
             if (this.logger) await this.logger.info(msg);
             console.log(msg);
-            if (typeof window !== 'undefined') {
-                console.log(msg);
-            }
-            let content = `# Current Stack\n\n`;
 
+            let content = `# Current Stack\n\n`;
             for (const task of tasks) {
                 const checkbox = task.status === 'done' ? '[x]' : '[ ]';
                 content += `- ${checkbox} [[${task.id}]]\n`;
             }
 
-            // Update internal write time BEFORE writing to avoid race with watcher
             this.recordInternalWrite(filePath, content);
-
             const file = this.app.vault.getAbstractFileByPath(filePath);
 
-            // Ensure directory exists
             const lastSlash = filePath.lastIndexOf('/');
             if (lastSlash !== -1) {
                 const folderPath = filePath.substring(0, lastSlash);
@@ -104,25 +101,25 @@ export class StackPersistenceService {
                 }
             }
 
-            // Relaxed check for TFile to support mocks
             if (file && (file instanceof TFile || (file as any).extension === 'md')) {
                 await this.app.vault.modify(file as TFile, content);
             } else {
                 await this.app.vault.create(filePath, content);
             }
-        } finally {
-            this.setInternalIdle(true);
-        }
+        };
+
+        return queue.push({ filePath, saveFn }, immediate);
     }
 
-    async saveTask(task: TaskNode): Promise<void> {
-        this.setInternalIdle(false);
-        try {
-            // Implement task metadata saving (e.g., frontmatter update)
-            // For now, we rely on the fact that any change to task metadata 
-            // should be reflected in its backing file.
+    async saveTask(task: TaskNode, immediate: boolean = false): Promise<void> {
+        const queue = InteractionIdleQueue.getInstance(this.app, this.logger);
+
+        const saveFn = async () => {
             const file = this.app.vault.getAbstractFileByPath(task.id);
             if (file instanceof TFile) {
+                const msg = `[StackPersistenceService] FLUSHING saveTask() path=${task.id}`;
+                if (this.logger) await this.logger.info(msg);
+                
                 this.recordInternalWrite(task.id);
                 await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
                     if (task.duration !== undefined) frontmatter.duration = task.duration;
@@ -130,9 +127,9 @@ export class StackPersistenceService {
                     if (task.isAnchored !== undefined) frontmatter.isAnchored = task.isAnchored;
                 });
             }
-        } finally {
-            this.setInternalIdle(true);
-        }
+        };
+
+        return queue.push({ filePath: task.id, saveFn }, immediate);
     }
 
     recordInternalWrite(filePath: string, content?: string): void {

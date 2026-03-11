@@ -37,6 +37,7 @@
         cancelRename,
         startEditStartTime,
         finishEditStartTime,
+        onNavigate,
         selectOnFocus,
         update,
         openQuickAddModal,
@@ -58,8 +59,24 @@
             ...navState, 
             isReorderMode: !navState.isReorderMode 
         });
-        onCloseContextMenu();
+    onCloseContextMenu();
     }
+
+    $effect(() => {
+        if (tasks.length > 0) {
+            console.log(`[ArchitectStackList] Rendering ${tasks.length} tasks.`);
+            if (typeof window !== 'undefined') {
+                const debugData = tasks.map((t: any) => ({
+                    id: t.id,
+                    title: t.title,
+                    childCount: t.children?.length || 0,
+                    children: t.children?.map((c: any) => c.id) || []
+                }));
+                (window as any)._tf_last_tasks = debugData;
+                ((window as any)._tf_log = (window as any)._tf_log || []).push(`[ArchitectStackList] Tasks updated: ${JSON.stringify(debugData.map(d => ({ title: d.title, children: d.childCount })))}`);
+            }
+        }
+    });
 </script>
 
 <div class="todo-flow-timeline mode-architect" data-testid="architect-timeline">
@@ -80,6 +97,7 @@
                 data-status={task.status}
                 class:is-missing={task.isMissing}
                 class:dragging={draggingTaskId === task.id}
+                data-task-id={task.id}
                 class:drop-before={dragTargetIndex === i &&
                     i !== draggingStartIndex &&
                     i <= draggingStartIndex}
@@ -209,13 +227,22 @@
                         data-index={i}
                         onclick={syncGuard((e) => {
                             if (!isMobileState) {
-                              e.stopPropagation();
-                              startRename(i);
+                                if (onNavigate && task.children && task.children.length > 0) {
+                                    e.stopPropagation();
+                                    onNavigate(task.id, i);
+                                } else {
+                                    e.stopPropagation();
+                                    startRename(i);
+                                }
                             } else {
-                              e.stopPropagation();
-                              if (focusedIndex === i) {
-                                openCaptureModal(i);
-                              }
+                                e.stopPropagation();
+                                if (focusedIndex === i) {
+                                    if (onNavigate && task.children && task.children.length > 0) {
+                                        onNavigate(task.id, i);
+                                    } else {
+                                        openCaptureModal(i);
+                                    }
+                                }
                             }
                         })}
                         onkeydown={(e) => {
@@ -229,6 +256,25 @@
                     >
                         {#if task.isMissing}<span class="missing-icon" title="Original note was deleted or moved">⚠️</span>{/if}{task.title}
                     </button>
+                    {#if task.children && task.children.length > 0}
+                        <button
+                            class="substack-indicator"
+                            onclick={(e) => {
+                                e.stopPropagation();
+                                if (onNavigate) onNavigate(task.id, i);
+                            }}
+                            onkeydown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.stopPropagation();
+                                    if (onNavigate) onNavigate(task.id, i);
+                                }
+                            }}
+                            title="Drill down into subtasks"
+                        >
+                            <span class="count">{task.children.length}</span>
+                            <span class="chevron">›</span>
+                        </button>
+                    {/if}
                 {/if}
 
                 <!-- Sovereign UX: State (Anchored) is indicated by border/shadow, not a cluttered column -->
@@ -356,7 +402,8 @@
     }
 
     .title {
-        width: 100%;
+        flex: 1;
+        min-width: 0;
         text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -414,5 +461,37 @@
     :global(.todo-flow-task-card.dragging .drag-handle) {
         color: var(--text-on-accent) !important;
         opacity: 1 !important;
+    }
+
+    .substack-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+        background: rgba(var(--interactive-accent-rgb), 0.1);
+        border: 1px solid var(--interactive-accent);
+        color: var(--interactive-accent);
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: auto;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .substack-indicator:hover {
+        border-color: var(--interactive-accent);
+        background: rgba(117, 171, 208, 0.1);
+    }
+
+    .substack-indicator .count {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+
+    .substack-indicator .chevron {
+        font-size: 1.1rem;
+        color: var(--interactive-accent);
+        line-height: 1;
     }
 </style>

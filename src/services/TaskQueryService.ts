@@ -18,16 +18,24 @@ export class TaskQueryService {
     private async queryTasksByFlowState(state: string): Promise<TaskNode[]> {
         const files = this.app.vault.getFiles();
         if (this.logger) await this.logger.info(`[TaskQueryService] Searching for flow_state="${state}" in ${files.length} files...`);
-        const matches = files.filter(file => {
+        const matches: TFile[] = [];
+        for (const file of files) {
             const cache = this.app.metadataCache.getCache(file.path);
-            const flowState = cache?.frontmatter?.flow_state;
+            let flowState = cache?.frontmatter?.flow_state;
+
+            // Fallback: If cache is missing or frontmatter is empty, check file content directly
+            // This is critical for E2E tests where files are created just before triage starts.
+            if (!flowState) {
+                const content = await this.app.vault.read(file);
+                const match = content.match(/flow_state:\s*["']?(\w+)["']?/);
+                if (match) flowState = match[1];
+            }
 
             if (flowState === state) {
                 if (this.logger) this.logger.info(`[TaskQueryService] MATCH: ${file.path} has flow_state="${flowState}"`);
-                return true;
+                matches.push(file);
             }
-            return false;
-        });
+        }
         if (this.logger) await this.logger.info(`[TaskQueryService] Found ${matches.length} matches for "${state}".`);
 
         // Use GraphBuilder to construct full nodes (with children if they exist)

@@ -45,6 +45,7 @@ vi.mock('obsidian', () => {
             addSettingTab = vi.fn();
             registerView = vi.fn();
             registerEvent = vi.fn();
+            registerDomEvent(el: any, type: any, cb: any) { return vi.fn(); }
             loadData = vi.fn().mockResolvedValue({});
             saveData = vi.fn();
         },

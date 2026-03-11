@@ -106,7 +106,7 @@ export function registerCommands(plugin: TodoFlowPlugin) {
 
             plugin.logger.info('[main] Clearing Daily Stack');
             const persistencePath = `${plugin.settings.targetFolder}/CurrentStack.md`;
-            await plugin.stackPersistenceService.saveStack([], persistencePath);
+            await plugin.stackPersistenceService.saveStack([], persistencePath, true);
 
             const leaf = plugin.app.workspace.getLeavesOfType(VIEW_TYPE_STACK)[0];
             if (leaf && leaf.view && (leaf.view as any).reload) {

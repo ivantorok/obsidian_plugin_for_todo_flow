@@ -35,12 +35,20 @@ export class LinkParser implements TaskSource {
     }
 
     async parse(filePath: string): Promise<TaskNode[]> {
+        const log = (msg: string) => {
+            if (typeof window !== 'undefined') {
+                (window as any)._tf_log = (window as any)._tf_log || [];
+                (window as any)._tf_log.push(`[LinkParser] ${msg}`);
+                console.log(`[LinkParser] ${msg}`);
+            }
+        };
+        log(`parse("${filePath}") entry`);
         // Read file content
         let content = '';
         try {
             content = await this.app.vault.adapter.read(filePath);
         } catch (e) {
-            console.warn(`[LinkParser] Failed to read ${filePath}: ${e}`);
+            log(`Failed to read ${filePath}: ${e}`);
             return [];
         }
 
@@ -72,6 +80,7 @@ export class LinkParser implements TaskSource {
                 // Resolve the link to a specific file in the vault
                 const file = this.app.metadataCache.getFirstLinkpathDest(linkPath, filePath);
                 const resolvedPath = file ? file.path : (linkPath.endsWith('.md') ? linkPath : `${linkPath}.md`);
+                log(`Resolved [[${linkPath}]] to ${resolvedPath} (fileFound: ${!!file})`);
 
                 // Create a "raw" title from the line to parse for NLP (e.g., "[[Task]] {18:00}")
                 // Remove the link itself to avoid confusion and strip metadata wrappers like {}
@@ -90,19 +99,39 @@ export class LinkParser implements TaskSource {
                 const metadata = await this.resolveTaskMetadata(resolvedPath, nlpInput);
                 const finalTitle = displayText || metadata.title || linkPath;
 
-                if (typeof window !== 'undefined') {
-                    console.log(`[LinkParser] Creating node for ${resolvedPath}: title="${finalTitle}" (displayText="${displayText}", metadataTitle="${metadata.title}", linkPath="${linkPath}")`);
+                // Recursive population of children using GraphBuilder
+                let children: TaskNode[] = [];
+                const resolvedFile = file || this.app.vault.getAbstractFileByPath(resolvedPath);
+                const ext = (resolvedFile as any)?.extension;
+                log(`resolvedFile for ${resolvedPath}: present=${!!resolvedFile}, ext="${ext}"`);
+
+                // Fidelity Guard: Robust TFile check for Obsidian environment
+                if (resolvedFile && (ext === 'md' || resolvedPath.endsWith('.md'))) {
+                    const { GraphBuilder } = await import('../GraphBuilder.js');
+                    const builder = new GraphBuilder(this.app, this.logger);
+                    const graph = await builder.buildGraph([resolvedFile as any]);
+                    if (graph[0]) {
+                        children = graph[0].children || [];
+                        if (this.logger) {
+                            this.logger.info(`[LinkParser] Populated ${children.length} subtasks for ${resolvedPath}`);
+                        }
+                        log(`Found ${children.length} subtasks for ${resolvedPath}`);
+                    }
+                } else {
+                    log(`resolvedFile for ${resolvedPath} skipped (invalid or not markdown: ${resolvedPath})`);
                 }
+
+                log(`Creating node for ${resolvedPath}: title="${finalTitle}" (children=${children.length})`);
 
                 tasks.push({
                     id: resolvedPath,
                     // Priority: Alias ([[link|alias]]) > Metadata (Resolved Title) > Link Path
                     title: finalTitle,
-                    duration: lineNlp.duration || metadata.duration || 30,
+                    duration: lineNlp.duration ?? metadata.duration ?? 30,
                     status: (line.includes('[x]') ? 'done' : 'todo'),
                     isAnchored: lineNlp.isAnchored || metadata.isAnchored || false,
                     startTime: lineNlp.startTime || metadata.startTime,
-                    children: []
+                    children
                 });
             }
         }

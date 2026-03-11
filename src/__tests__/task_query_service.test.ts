@@ -23,7 +23,12 @@ describe('TaskQueryService', () => {
     const mockApp = {
         vault: {
             getFiles: () => mockFiles,
-            getAbstractFileByPath: (path: string) => mockFiles.find(f => f.path === path)
+            getAbstractFileByPath: (path: string) => mockFiles.find(f => f.path === path),
+            read: async (file: TFile) => {
+                if (file.path === 'dump.md') return '---\nflow_state: dump\n---\n';
+                if (file.path === 'short.md') return '---\nflow_state: shortlist\n---\n';
+                return '';
+            }
         },
         metadataCache: {
             getCache: (pathOrFile: string) => {

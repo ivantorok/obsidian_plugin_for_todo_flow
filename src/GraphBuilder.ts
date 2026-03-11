@@ -22,7 +22,7 @@ export class GraphBuilder {
         return Promise.all(files.map(async f => {
             if (typeof f === 'string') {
                 const resolved = this.app.vault.getAbstractFileByPath(f);
-                if (resolved && (resolved instanceof TFile)) return this.buildNode(resolved, []);
+                if (resolved && (resolved as any).extension === 'md') return this.buildNode(resolved as any, []);
                 return this.createMissingNode(f);
             }
             return this.buildNode(f, []);
@@ -44,7 +44,15 @@ export class GraphBuilder {
     }
 
     private async buildNode(file: TFile, visitedPath: string[]): Promise<TaskNode> {
+        const log = (msg: string) => {
+            if (typeof window !== 'undefined') {
+                (window as any)._tf_log = (window as any)._tf_log || [];
+                (window as any)._tf_log.push(`[GraphBuilder] ${msg}`);
+                console.log(`[GraphBuilder] ${msg}`);
+            }
+        };
         const depth = visitedPath.length;
+        log(`buildNode(${file.path}, depth=${depth}) entry`);
         const cache = this.app.metadataCache.getFileCache(file);
         const frontmatter = cache?.frontmatter || {};
         const status = frontmatter.status || 'todo';
@@ -55,16 +63,19 @@ export class GraphBuilder {
         if (governor.isCriticalPressure()) {
             effectiveMaxDepth = Math.max(1, Math.floor(this.maxDepth / 2));
             if (this.logger) this.logger.warn(`[GraphBuilder] CRITICAL PRESSURE: Throttling maxDepth to ${effectiveMaxDepth}`);
+            log(`CRITICAL PRESSURE: Throttling maxDepth to ${effectiveMaxDepth}`);
         } else if (governor.isHighPressure()) {
             effectiveMaxDepth = Math.max(1, this.maxDepth - 1);
             if (this.logger) this.logger.info(`[GraphBuilder] HIGH PRESSURE: Throttling maxDepth to ${effectiveMaxDepth}`);
+            log(`HIGH PRESSURE: Throttling maxDepth to ${effectiveMaxDepth}`);
         }
 
         if (depth >= effectiveMaxDepth) {
+            log(`Max depth reached at ${file.path} (depth=${depth}, limit=${effectiveMaxDepth})`);
             return {
                 id: file.path,
                 title: file.basename,
-                duration: frontmatter.duration || 30,
+                duration: frontmatter.duration ?? 30,
                 isAnchored: !!frontmatter.anchored,
                 status: status as 'todo' | 'done',
                 children: [],
@@ -120,8 +131,8 @@ export class GraphBuilder {
         const node: TaskNode = {
             id: file.path,
             title: parsed.title, // Use cleaned title
-            duration: syncDuration || parsed.duration || 30,
-            originalDuration: syncOriginalDuration || syncDuration || parsed.duration, // No system default for overhead
+            duration: syncDuration ?? parsed.duration ?? 30,
+            originalDuration: syncOriginalDuration ?? syncDuration ?? parsed.duration, // No system default for overhead
             isAnchored: syncAnchored !== undefined ? syncAnchored : parsed.isAnchored,
             status: syncStatus as 'todo' | 'done',
             children: [],
@@ -139,47 +150,63 @@ export class GraphBuilder {
         const links = this.app.metadataCache.resolvedLinks[file.path] || {};
         const extractedLinks = this.extractLinks(content);
 
-        // Merge the async cache results with our synchronous regex extraction
-        // to ensure we never miss a newly inserted subtask link.
-        const childPathsToVisit = new Set([...Object.keys(links), ...extractedLinks]);
+        // Merge and Normalize
+        const normalizedPaths = new Set<string>();
+        for (const rawPath of [...Object.keys(links), ...extractedLinks]) {
+            let resolvedTFile = this.app.metadataCache.getFirstLinkpathDest(rawPath, file.path);
+            let finalPath = resolvedTFile ? resolvedTFile.path : (rawPath.endsWith('.md') ? rawPath : `${rawPath}.md`);
+
+            // Fallback for newly created tasks (metadataCache is async and may not have it yet)
+            if (!resolvedTFile) {
+                const plugin = (this.app as any).plugins?.getPlugin('obsidian_plugin_for_todo_flow');
+                const targetFolder = plugin?.settings?.targetFolder || '';
+                if (targetFolder) {
+                    const fallbackPath = `${targetFolder}/${rawPath.endsWith('.md') ? rawPath : rawPath + '.md'}`.replace(/\/\//g, '/');
+                    if (this.app.vault.getAbstractFileByPath(fallbackPath)) {
+                        finalPath = fallbackPath;
+                    }
+                }
+            }
+
+            normalizedPaths.add(finalPath);
+        }
+
+        if (this.logger) this.logger.info(`[GraphBuilder] ${file.path} has ${normalizedPaths.size} distinct child links to visit.`);
 
         const childFiles: TFile[] = [];
-
-        // Prepare the path for the next level
         const newVisited = [...visitedPath, file.path];
 
-        for (const childPath of childPathsToVisit) {
-            // Cycle Check: If this child is already in our history, skip it entirely.
-            // This prevents A -> B -> A. We want A -> B -> (nothing).
+        for (const childPath of normalizedPaths) {
             if (newVisited.includes(childPath)) {
                 continue;
             }
 
-            // Fallback for extracted links: they might lack the .md extension or path
-            const resolvedFile = this.app.metadataCache.getFirstLinkpathDest(childPath, file.path);
-            const finalPath = resolvedFile ? resolvedFile.path : (childPath.endsWith('.md') ? childPath : `${childPath}.md`);
-
-            let childFile = this.app.vault.getAbstractFileByPath(finalPath);
+            let resolvedTFile = this.app.metadataCache.getFirstLinkpathDest(childPath, file.path);
+            let finalPath = resolvedTFile ? resolvedTFile.path : (childPath.endsWith('.md') ? childPath : `${childPath}.md`);
+            let childFile = resolvedTFile || this.app.vault.getAbstractFileByPath(finalPath);
 
             // If getAbstractFileByPath fails but we extracted it from the file,
-            // Obsidian might not have indexed it yet. We'll let recursive buildHandle missing nodes.
-            if (childFile && (childFile as any).extension === 'md') {
+            // Obsidian might not have indexed it yet. We'll let recursive build handle missing nodes.
+            const ext = (childFile as any)?.extension;
+            if (childFile && (ext === 'md' || finalPath.endsWith('.md'))) {
                 childFiles.push(childFile as TFile);
-            } else if (extractedLinks.includes(childPath)) {
+            } else if (extractedLinks.includes(childPath) || extractedLinks.some(l => `${l}.md` === childPath || childPath.endsWith(`/${l}.md`))) {
                 // It's a newly extracted link that Obsidian doesn't know about yet.
                 // We add it as a string to let `buildGraph` handle it as a missing/pending node.
                 childFiles.push(finalPath as any);
             }
         }
+        log(`Found ${childFiles.length} child candidates for ${file.path}`);
 
         // 4. Recursive Build
         node.children = await Promise.all(childFiles.map(cf => {
             if (typeof cf === 'string') {
                 // If we forced an extracted string path in because the TFile isn't indexed yet,
                 // try to fetch it one last time, else build a missing node.
-                const fallbackFile = this.app.vault.getAbstractFileByPath(cf);
-                if (fallbackFile && fallbackFile instanceof TFile) {
-                    return this.buildNode(fallbackFile, newVisited);
+                const fallbackFile = this.app.metadataCache.getFirstLinkpathDest(cf, '');
+                const finalFallback = fallbackFile || this.app.vault.getAbstractFileByPath(cf);
+                if (finalFallback && (finalFallback as any).extension === 'md') {
+                    return this.buildNode(finalFallback as any, newVisited);
                 }
                 return Promise.resolve(this.createMissingNode(cf));
             }

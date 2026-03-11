@@ -21,7 +21,13 @@ export class StackLoader {
      * Load tasks from a path (file or folder)
      */
     async load(path: string): Promise<TaskNode[]> {
-        if (typeof window !== 'undefined') console.log(`[StackLoader] load("${path}") called.`);
+        const log = (msg: string) => {
+            if (typeof window !== 'undefined') {
+                ((window as any)._tf_log = (window as any)._tf_log || []).push(`[StackLoader] ${msg}`);
+                console.log(`[StackLoader] ${msg}`);
+            }
+        };
+        log(`load("${path}") called.`);
 
         if (path === 'QUERY:SHORTLIST') {
             return this.loadShortlisted();
@@ -35,10 +41,10 @@ export class StackLoader {
             return [];
         }
 
-        if (this.logger) this.logger.info(`[StackLoader] Found abstract file: ${fileOrFolder.path} (isFolder: ${fileOrFolder instanceof TFolder})`);
+        if (this.logger) this.logger.info(`[StackLoader] Found abstract file: ${fileOrFolder.path} (isFolder: ${(fileOrFolder as any).children !== undefined})`);
 
         try {
-            if (fileOrFolder instanceof TFolder) {
+            if ((fileOrFolder as any).children !== undefined) {
                 // It's a folder - use GraphBuilder
                 const { GraphBuilder } = await import('../GraphBuilder.js');
                 const builder = new GraphBuilder(this.app, this.logger);
@@ -46,14 +52,16 @@ export class StackLoader {
                 const result = await builder.buildGraph(files);
                 if (result.length === 0 && this.logger) await this.logger.warn(`[StackLoader] Folder "${path}" loaded 0 tasks.`);
                 return result;
-            } else if (fileOrFolder instanceof TFile) {
+            } else if ((fileOrFolder as any).extension === 'md') {
+                log(`Path ${path} recognized as markdown file.`);
                 // It's a file - use LinkParser to find children, then GraphBuilder to recurse
                 const linkedNodes = await this.parser.parse(path);
 
                 // Resolve TFiles from linked nodes
                 const linkedFiles = linkedNodes
                     .map(node => this.app.vault.getAbstractFileByPath(node.id))
-                    .filter(f => f instanceof TFile) as TFile[];
+                    .filter(f => f && (f as any).extension === 'md') as TFile[];
+                log(`Found ${linkedFiles.length} linked files for ${path}.`);
 
                 // Use GraphBuilder to build the deep graph for existing files
                 const { GraphBuilder } = await import('../GraphBuilder.js');

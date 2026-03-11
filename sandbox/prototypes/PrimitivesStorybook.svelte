@@ -2,6 +2,7 @@
     import ActionButton from '../../src/components/ActionButton.svelte';
     import IconButton from '../../src/components/IconButton.svelte';
     import SovereignInput from '../../src/components/SovereignInput.svelte';
+    import SubstackPrototype from './SubstackPrototype.svelte';
 
     let inputValue = $state("");
 </script>
@@ -38,7 +39,10 @@
             <div class="dummy-content">
                 This content gets pushed down automatically.
             </div>
-        </div>
+    <section>
+        <h2>Substack Hierarchy (FEAT-016)</h2>
+        <p class="note">Prototyping nested task navigation and recursive duration rollups.</p>
+        <SubstackPrototype />
     </section>
 </div>
 

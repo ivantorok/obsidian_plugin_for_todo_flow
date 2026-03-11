@@ -16,14 +16,16 @@
         variant = 'primary',
         disabled = false,
         class: className = '',
-        onclick
-    } = $props<Props>();
+        onclick,
+        ...rest
+    } = $props<Props & Record<string, any>>();
 </script>
 
 <button
     class="tf-action-btn variant-{variant} {className}"
     {disabled}
     onclick={onclick}
+    {...rest}
 >
     {text}
 </button>

@@ -111,6 +111,19 @@
                     {task.title || task.id.split('/').pop()?.replace('.md', '') || 'Untitled Task'}
                 </h1>
 
+                {#if task.children && task.children.length > 0}
+                    <button 
+                        class="substack-indicator focus-mode"
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            if (restProps.onNavigate) restProps.onNavigate(task.id, focusedIndex);
+                        }}
+                    >
+                        <span class="count">{task.children.length} subtasks</span>
+                        <span class="chevron">›</span>
+                    </button>
+                {/if}
+
                 <div class="focus-metadata">
                     <span class="focus-duration-text">{formatDuration(task.duration)}</span>
                     {#if task.isAnchored}
@@ -180,5 +193,37 @@
         min-width: 100px;
         background: var(--background-primary-alt);
         border: 1px solid var(--background-modifier-border);
+    }
+
+    .substack-indicator.focus-mode {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--background-secondary-alt);
+        border: 1px solid var(--background-modifier-border);
+        padding: 6px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 1rem auto;
+        transition: all 0.2s;
+        width: fit-content;
+    }
+
+    .substack-indicator.focus-mode:hover {
+        border-color: var(--interactive-accent);
+        background: rgba(117, 171, 208, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .substack-indicator.focus-mode .count {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-normal);
+    }
+
+    .substack-indicator.focus-mode .chevron {
+        font-size: 1.4rem;
+        color: var(--interactive-accent);
+        line-height: 1;
     }
 </style>

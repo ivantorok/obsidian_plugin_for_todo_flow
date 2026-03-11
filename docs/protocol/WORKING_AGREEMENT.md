@@ -33,6 +33,11 @@ Before a single line of production code is written, Antigravity MUST:
 - **The "Yay" Protocol**: Please provide explicit approval on implementation plans to avoid wasted work.
 - **Contextual Feedback**: Use the `notify_user` or artifact comments to provide feedback during planning.
 
+### Log Access Protocol (Sandboxed Stability)
+- **Log Symlinking**: For stability and to avoid redundant directory access prompts in the security sandbox, all external logs (e.g., `.test-vault` logs) MUST be accessed via symlinks in the project root's `logs/` directory (e.g., `logs/obsidian_debug.log`).
+- **Internal Preference**: All agentic logs, test reports, and session tracking should stay within the project root's `logs/` or the artifact directory.
+- **Permission Hygiene**: Avoid deep or nested directory reads that trigger the "Allow directory access" prompt. If a new log directory is needed, explicitly notify the USER during the planning phase.
+
 ### Redline: Unfeasibility & Escalation
 - **The Stop-Work Rule**: If during **Execution** or **Verification** a requirement is discovered to be technically unfeasible or in direct conflict with core UX Governance/Atlas Laws, Antigravity MUST:
     1.  **Pause** current Task.

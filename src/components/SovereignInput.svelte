@@ -12,6 +12,8 @@
         onkeydown?: (e: KeyboardEvent) => void;
         onfocus?: (e: FocusEvent) => void;
         onblur?: (e: FocusEvent) => void;
+        onSubmit?: () => void;
+        onCancel?: () => void;
     }
 
     let {
@@ -21,7 +23,9 @@
         class: className = '',
         onkeydown,
         onfocus,
-        onblur
+        onblur,
+        onSubmit,
+        onCancel
     } = $props<Props>();
 
     let textareaEl: HTMLTextAreaElement;
@@ -47,6 +51,16 @@
         }
     });
 
+    function handleKeyDown(e: KeyboardEvent) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            onSubmit?.();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            onCancel?.();
+        }
+        onkeydown?.(e);
+    }
 </script>
 
 <textarea
@@ -55,7 +69,7 @@
     class="tf-sovereign-input {className}"
     {placeholder}
     oninput={resize}
-    onkeydown={onkeydown}
+    onkeydown={handleKeyDown}
     onfocus={onfocus}
     onblur={onblur}
     rows="1"

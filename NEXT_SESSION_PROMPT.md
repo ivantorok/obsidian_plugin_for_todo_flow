@@ -1,23 +1,19 @@
-# NEXT SESSION PROMPT (v43)
+# NEXT SESSION PROMPT (v44 Complete)
 
-## Forensic Briefcase from v42 (Sync Fortress)
+## Forensic Briefcase from v43/v44 (Constitutional Alignment)
 
-**STATUS**: 22/22 E2E specs GREEN. Exit code 0. All 3 previously-skipped specs hardened and passing.
+**STATUS**: v1.2.154 SHIPPED. 22/22 E2E specs GREEN. 256/256 Unit tests GREEN.
 
 ### What Was Done
-- **`drill-down.spec.ts`**: Replaced `browser.keys` with `view.onNavigate()` / `navManager.goBack()`. Zero browser.pause.
-- **`bug_007_verify.spec.ts`**: Replaced CSS `.title` selector with `view.getTasks()` API. Uses `data-persistence-idle` for sync.
-- **`selective_flush.spec.ts`**: Replaced `browser.keys(['z'])` with `window.dispatchEvent(KeyboardEvent)`. Uses vault indexing wait.
-- **`wdio.conf.mts`**: Exclude list reduced to only `manual-open.spec.ts` and `legacy/**/*.spec.ts`.
+- **Constitutional Alignment**: Fixed `StackController` duration sequence (removed `20`) and implemented 8h ceiling bypass (±30m).
+- **Pruning**: Deleted 7 dead source files, 4 legacy unit tests, and the entire `tests/e2e/legacy/` directory (20 specs). -3623 lines net.
+- **Policies**: Enforced NFC slugification, window blur persistence flushing, and added `Force Recalculate Timeline` command.
 
-### Key Gotchas Documented (E2E_TESTING.md #10-12)
-1. `browser.keys` → `browser.execute` (Electron event propagation race)
-2. `browser.pause` → `browser.waitUntil` (deterministic polling)
-3. CSS class selectors → `view.getTasks()` or `data-testid` (selector drift)
-4. **NEW**: Synthetic `KeyboardEvent` has null `target` — must dispatch on `window`, not call `handleKeyDown()` directly
-5. **NEW**: Vault files written via `fs.writeFileSync` after `reloadObsidian` need `waitUntil` for `app.vault.getMarkdownFiles()`
+### Key Gotchas Documented (E2E_TESTING.md)
+- All original flakiness (dragAndDrop, keys, pause) resolved in v41/v42.
+- v43 focus was architectural purity and debt removal.
 
-### Suggested v43 Missions
-1. **Ship v1.2.153**: Green baseline secured. Run `./ship.sh`.
-2. **Architecture Pivot**: With all E2E specs green, consider the next macro-feature (Substack Hierarchy, Calendar Integration, etc.)
-3. **Legacy Cleanup**: The `tests/e2e/legacy/` directory still contains the original flaky versions. Consider deleting them now that hardened replacements exist.
+### Suggested v45 Missions
+1. **Substack Hierarchy**: Now that the baseline is stable and clean, begin prototyping nested task/substack support.
+2. **Persistence Refinement**: Consider granular frontmatter updates instead of whole-file rewriting for subtasks if performance becomes an issue.
+3. **Mobile UX Focus**: Full visual audit of the new Architect views on mobile devices.

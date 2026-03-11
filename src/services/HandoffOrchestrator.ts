@@ -105,7 +105,7 @@ export class HandoffOrchestrator {
                 }
 
                 // 3. Save Final Stack
-                await this.stackPersistenceService.saveStack(ids.map(id => ({ id, title: 'Ref', status: 'todo', children: [] } as any)), persistencePath);
+                await this.stackPersistenceService.saveStack(ids.map(id => ({ id, title: 'Ref', status: 'todo', children: [] } as any)), persistencePath, true);
 
                 // 4. Update the active view
                 const activeView = workspace.getLeavesOfType(VIEW_TYPE_STACK)
@@ -293,8 +293,12 @@ export class HandoffOrchestrator {
     }
 
     async injectLinkToParent(parentPath: string, childPath: string, childTitle: string) {
+        this.logger.info(`[HandoffOrchestrator] injectLinkToParent starting. parentPath: "${parentPath}", childPath: "${childPath}"`);
         const parentFile = this.app.vault.getAbstractFileByPath(parentPath);
-        if (!(parentFile instanceof TFile)) return;
+        if (!(parentFile instanceof TFile)) {
+            this.logger.error(`[HandoffOrchestrator] injectLinkToParent FAILED. getAbstractFileByPath returned ${parentFile} for path: "${parentPath}"`);
+            return;
+        }
 
         const timestamp = moment().format('YYYY-MM-DD HH:mm');
         const linkLine = `\n\nAdded on: ${timestamp}\n- [ ] [[${childPath}|${childTitle}]]`;
@@ -303,6 +307,7 @@ export class HandoffOrchestrator {
         const content = await this.app.vault.read(parentFile);
         const result = content.trimEnd() + linkLine;
         await this.app.vault.modify(parentFile, result);
+        this.logger.info(`[HandoffOrchestrator] injectLinkToParent SUCCESS. Parent size now ${result.length} chars.`);
     }
 
     async getTasksFromFolder(folderPath: string): Promise<TaskNode[]> {

@@ -11,10 +11,14 @@ describe('LinkParser - Link Resolution', () => {
                 adapter: {
                     read: vi.fn(),
                     exists: vi.fn()
-                }
+                },
+                getAbstractFileByPath: vi.fn().mockReturnValue(null),
+                read: vi.fn().mockResolvedValue('')
             },
             metadataCache: {
-                getFirstLinkpathDest: vi.fn()
+                getFirstLinkpathDest: vi.fn(),
+                getFileCache: vi.fn().mockReturnValue(null),
+                resolvedLinks: {}
             }
         };
         parser = new LinkParser(mockApp);
@@ -27,7 +31,10 @@ describe('LinkParser - Link Resolution', () => {
 
         mockApp.vault.adapter.read.mockResolvedValue('[[child]]');
         mockApp.metadataCache.getFirstLinkpathDest.mockReturnValue({
-            path: resolvedPath
+            path: resolvedPath,
+            name: 'child.md',
+            basename: 'child',
+            extension: 'md'
         });
         mockApp.vault.adapter.exists.mockResolvedValue(true);
 

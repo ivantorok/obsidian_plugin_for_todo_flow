@@ -8,8 +8,8 @@ const DURATION_SEQUENCE = [2, 5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 300, 360
 export class StackController {
     private tasks: TaskNode[];
     private currentTime: moment.Moment;
-    private onTaskUpdate: ((task: TaskNode) => void) | undefined;
-    private onTaskCreate: ((title: string) => TaskNode) | undefined;
+    private onTaskUpdate: ((task: TaskNode) => void | Promise<void>) | undefined;
+    private onTaskCreate: ((title: string, options?: any) => Promise<TaskNode> | TaskNode) | undefined;
     private isFrozen: boolean = false;
     private pendingTasks: TaskNode[] | null = null;
     private pendingActions: Map<string, Array<() => void>> = new Map();
@@ -18,8 +18,8 @@ export class StackController {
     constructor(
         initialTasks: TaskNode[],
         currentTime: moment.Moment,
-        onTaskUpdate?: (task: TaskNode) => void,
-        onTaskCreate?: (title: string) => TaskNode,
+        onTaskUpdate?: (task: TaskNode) => void | Promise<void>,
+        onTaskCreate?: (title: string, options?: any) => Promise<TaskNode> | TaskNode,
         app?: App
     ) {
         this.currentTime = currentTime;
@@ -363,7 +363,26 @@ export class StackController {
     addTaskAt(index: number, title: string): { task: TaskNode, index: number } | null {
         if (!this.onTaskCreate) return null;
 
-        const newTask = this.onTaskCreate(title);
+        const result = this.onTaskCreate(title);
+        let newTask: TaskNode;
+
+        if (result instanceof Promise) {
+            const tempId = `temp-add-${Date.now()}`;
+            newTask = {
+                id: tempId,
+                title: title,
+                duration: 30,
+                status: 'todo',
+                isAnchored: false,
+                children: []
+            };
+            result.then(realNode => {
+                this.resolveTempId(tempId, realNode.id);
+            });
+        } else {
+            newTask = result;
+        }
+
         const newTasks = [...this.tasks];
         newTasks.splice(index + 1, 0, newTask);
 
@@ -528,5 +547,27 @@ export class StackController {
             }
             return { action: 'DRILL_DOWN', newStack: [] };
         }
+    }
+
+    /**
+     * Creates a subtask for a given parent.
+     * 1. Appends a wikilink to the parent file (via persistence layer).
+     * 2. Adds a temporary node to the UI immediately.
+     */
+    async createSubtask(parentIndex: number, title: string): Promise<number> {
+        if (!this.onTaskCreate || !this.tasks[parentIndex]) return -1;
+        const parent = this.tasks[parentIndex]!;
+
+        // Trigger the backend creation logic with parentPath
+        const realNode = await this.onTaskCreate(title, { parentPath: parent.id });
+
+        if (realNode) {
+            // Once the real node is created, we notify the view
+            // The actual refresh of children indicators usually happens via 
+            // the vault watcher -> setStack flow, but this ensures traceability.
+            this.onTaskUpdate?.(realNode);
+        }
+
+        return parentIndex;
     }
 }

@@ -1,8 +1,21 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { App, TFile, Vault } from 'obsidian';
 import { StackPersistenceService } from '../services/StackPersistenceService.js';
+import { InteractionIdleQueue } from '../services/InteractionIdleQueue.js';
 import type { TaskNode } from '../scheduler.js';
 import moment from 'moment';
+
+vi.mock('../services/InteractionIdleQueue.js', () => {
+    return {
+        InteractionIdleQueue: {
+            getInstance: vi.fn().mockReturnValue({
+                push: vi.fn((req: any) => req.saveFn()),
+                getIsIdle: vi.fn().mockReturnValue(true),
+                forceFlush: vi.fn().mockResolvedValue(undefined)
+            })
+        }
+    };
+});
 
 // Mock Obsidian types
 const mockVault = {
@@ -31,6 +44,8 @@ describe('StackPersistenceService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // Reset InteractionIdleQueue singleton for clean slate
+        (InteractionIdleQueue as any).instance = null;
         service = new StackPersistenceService(mockApp);
     });
 

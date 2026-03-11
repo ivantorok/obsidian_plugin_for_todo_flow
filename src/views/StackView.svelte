@@ -270,6 +270,18 @@
         if (restProps.onTaskUpdate) await restProps.onTaskUpdate(controller.tasks[capturedIndex]);
         navState.tasks = [...controller.tasks];
     }
+
+    async function handleSubtaskCreation(title: string) {
+        if (!detailedViewTask) return;
+        await controller.createSubtask(capturedIndex, title);
+        // After subtask creation, we don't necessarily need to force a refresh here
+        // as the vault change watcher will eventually pick up the modified parent file
+        // and update the indicators. However, we can hint to the view to update.
+        if (restProps.onTaskUpdate) {
+            // Re-sync parent metadata to ensure it's fresh
+            await restProps.onTaskUpdate(controller.getTasks()[capturedIndex]);
+        }
+    }
 </script>
 
 <div
@@ -329,6 +341,7 @@
             onComplete={() => executeGestureAction('complete', detailedViewTask!, capturedIndex)}
             onArchive={() => executeGestureAction('archive', detailedViewTask!, capturedIndex)}
             onUndo={() => { restProps.historyManager.undo(); navState.tasks = [...controller.tasks]; }}
+            onAddSubtask={handleSubtaskCreation}
         />
     {/if}
 </div>

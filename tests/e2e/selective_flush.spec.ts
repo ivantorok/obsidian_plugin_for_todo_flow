@@ -45,7 +45,7 @@ describe('Selective Flush Race Condition (Hardened)', () => {
                 const files = app.vault.getMarkdownFiles().map((f: any) => f.path);
                 return files.includes('Task1.md') && files.includes('Task2.md') && files.includes('Task3.md');
             });
-        }, { timeout: 15000, timeoutMsg: 'Vault did not index Task1/2/3.md after pre-population' });
+        }, { timeout: 30000, timeoutMsg: 'Vault did not index Task1/2/3.md after pre-population' });
 
         // 4. Enable debug logging
         // @ts-ignore

@@ -286,6 +286,7 @@ import { type StackUIState } from "./ViewTypes.js";
             touchBlocking={(n, h) => gestureManager.touchBlocking(n, h)}
             handleTouchBlocking={(e) => gestureManager.handleTouchBlocking(e)}
             {syncGuard} {getCardTransform}
+            onNavigate={onNavigate}
             startRename={(i) => inputManager.startRename(i)} finishRename={(id, t, s) => inputManager.finishRename(id, t, s)}
             cancelRename={() => inputManager.cancelRename()} startEditStartTime={(i) => inputManager.startEditStartTime(i)}
             finishEditStartTime={(id, t) => inputManager.finishEditStartTime(id, t)}

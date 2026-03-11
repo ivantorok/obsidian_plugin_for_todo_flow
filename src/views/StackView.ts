@@ -97,7 +97,18 @@ export class StackView extends ItemView {
                 if (this.governor) this.governor.releaseInteraction();
             }
         };
-        this.onTaskCreate = onTaskCreate;
+        this.onTaskCreate = async (title: string, options?: any) => {
+            const node = await onTaskCreate(title, options);
+            if (options?.parentPath) {
+                // For subtasks, we need to trigger a reload to pick up the new link in the parent file
+                // and update the indicators, since the parent file write is "internal" and ignored by the watcher.
+                // BUG-024: Detach to avoid deadlock with the background promise tracker
+                this.reload().catch(e => {
+                    if (this.logger) this.logger.error(`[StackView] Reload after create failed: ${e}`);
+                });
+            }
+            return node;
+        };
         this.navigation = true; // Enable Obsidian native back/forward buttons
 
         // Initialize navigation services
@@ -307,10 +318,10 @@ export class StackView extends ItemView {
         }
 
         // Trigger a save so flushPersistence has something to do
-        this.syncManager.handleStackChange(controller.getTasks());
+        await this.syncManager.handleStackChange(controller.getTasks(), true);
 
         // 2. BACKGROUND RESOLUTION
-        let resolveBg: (p: Promise<void>) => void;
+        let resolveBg: () => void;
         const bgPromiseTracker = new Promise<void>((resolve) => {
             resolveBg = resolve;
         });
@@ -323,9 +334,12 @@ export class StackView extends ItemView {
                     if (result.startTime) options.startTime = result.startTime;
                     if (result.duration !== undefined) options.duration = result.duration;
                     if (result.isAnchored !== undefined) options.isAnchored = result.isAnchored;
+                    // BUG-023: Propagate parentPath for link injection in sub-stacks
+                    if (this.rootPath && !this.rootPath.includes('CurrentStack.md')) {
+                        options.parentPath = this.rootPath;
+                    }
 
                     if (this.logger) this.logger.info(`[StackView] (QuickAdd) Resolving temp task "${result.title}" with rootPath: ${this.rootPath}`);
-                    options.parentPath = this.rootPath?.endsWith('.md') ? this.rootPath : undefined;
 
                     nodeToInsert = await this.onTaskCreate(result.title, options);
                 } else if (result.type === 'file' && result.file) {
@@ -338,16 +352,17 @@ export class StackView extends ItemView {
                     this.component.resolveTempId(tempId, nodeToInsert.id);
 
                     // BUG-022: Ensure the real ID is persisted to the stack file immediately
-                    this.syncManager.flushPersistence();
+                    await this.syncManager.handleStackChange(this.getTasks(), true);
                 }
+            } catch (err) {
+                if (this.logger) this.logger.error(`[StackView] createPromise FAILED: ${err}`);
             } finally {
-                // Cleaned up by trackSyncPromise wrapper automatically 
+                resolveBg!();
             }
         })();
 
         // Track natively in sync manager so flushPersistence drains it
         this.syncManager.trackSyncPromise(bgPromiseTracker);
-        resolveBg!(createPromise);
     }
 
     openAddModal() {
