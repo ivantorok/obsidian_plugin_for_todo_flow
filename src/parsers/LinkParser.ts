@@ -215,6 +215,77 @@ export class LinkParser implements TaskSource {
     }
 
     /**
+     * Replaces the contiguous block of wikilinks in a parent file's content
+     * with the newly ordered list of tasks. Used for Substack reordering.
+     */
+    public replaceLinksInContent(content: string, tasks: TaskNode[], parentPath: string = ''): string {
+        const log = (m: string) => {
+            if (typeof window !== 'undefined') {
+                (window as any)._tf_log = (window as any)._tf_log || [];
+                (window as any)._tf_log.push(`[replaceLinks] ${m}`);
+            }
+        };
+
+        const lines = content.split('\n');
+        const wikilinkRegex = /^\s*-\s*\[([ x])\]\s*\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/;
+        
+        let firstLinkIndex = -1;
+        let lastLinkIndex = -1;
+
+        // 1. Find the contiguous block of links
+        log(`Starting scan for wikilink block. Total lines: ${lines.length}. parentPath=${parentPath}`);
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (typeof line !== 'string') continue;
+
+            const match = line.match(wikilinkRegex);
+            if (match) {
+                if (firstLinkIndex === -1) {
+                    firstLinkIndex = i;
+                    log(`Found first link at index ${i}: ${line.trim()}`);
+                }
+                lastLinkIndex = i;
+            } else if (firstLinkIndex !== -1 && line.trim() === '') {
+                // Allow empty lines within the block (could be spacing)
+                continue;
+            }
+        }
+
+        log(`Scan complete. firstLinkIndex=${firstLinkIndex}, lastLinkIndex=${lastLinkIndex}, tasks=${tasks.length}`);
+
+        // 2. Generate the new block of links
+        const parentDir = parentPath.includes('/') ? parentPath.substring(0, parentPath.lastIndexOf('/') + 1) : '';
+        const newLinkLines = tasks.map(task => {
+            const checkbox = task.status === 'done' ? '[x]' : '[ ]';
+            // We strip '.md' from the ID for the display link to match Obsidian conventions
+            let linkPath = task.id.endsWith('.md') ? task.id.slice(0, -3) : task.id;
+            
+            // Shorten the path if it's in the same directory as the parent
+            if (parentDir && linkPath.startsWith(parentDir)) {
+                linkPath = linkPath.substring(parentDir.length);
+            }
+
+            return `- ${checkbox} [[${linkPath}|${task.title}]]`;
+        });
+
+        // 3. Replace the old block with the new block
+        if (firstLinkIndex !== -1 && lastLinkIndex !== -1) {
+            // Found existing links, replace them
+            lines.splice(firstLinkIndex, lastLinkIndex - firstLinkIndex + 1, ...newLinkLines);
+            const result = lines.join('\n');
+            log(`Replaced block. lines count=${lines.length}`);
+            return result;
+        } else {
+            // No existing links found (maybe it's a new substack that didn't have links yet)
+            // Just append to the bottom
+            log(`No block found. Appending to bottom.`);
+            const result = content.trimEnd() + '\n\n' + newLinkLines.join('\n');
+            log(`replaceLinksInContent completed: appended to end.`);
+            return result;
+        }
+    }
+
+    /**
      * Extract wikilinks from markdown content
      * Matches: [[Example]] and [[Example|Display Text]]
      */

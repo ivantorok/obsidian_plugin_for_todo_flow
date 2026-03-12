@@ -84,31 +84,71 @@ export class StackPersistenceService {
             if (this.logger) await this.logger.info(msg);
             console.log(msg);
 
-            let content = `# Current Stack\n\n`;
-            for (const task of tasks) {
+            // 2. Generate the new block of links
+            const parentDir = filePath.includes('/') ? filePath.substring(0, filePath.lastIndexOf('/') + 1) : '';
+            const newLinkLines = tasks.map(task => {
                 const checkbox = task.status === 'done' ? '[x]' : '[ ]';
-                content += `- ${checkbox} [[${task.id}]]\n`;
-            }
+                // We strip '.md' from the ID for the display link to match Obsidian conventions
+                let linkPath = task.id.endsWith('.md') ? task.id.slice(0, -3) : task.id;
+                
+                // Shorten the path if it's in the same directory as the parent
+                if (parentDir && linkPath.startsWith(parentDir)) {
+                    linkPath = linkPath.substring(parentDir.length);
+                }
+
+                return `- ${checkbox} [[${linkPath}|${task.title}]]`;
+            });
+
+            let content = `# Current Stack\n\n` + newLinkLines.join('\n');
 
             this.recordInternalWrite(filePath, content);
             const file = this.app.vault.getAbstractFileByPath(filePath);
+            const isMarkdownFile = file instanceof TFile || (file && (file as any).extension === 'md');
 
-            const lastSlash = filePath.lastIndexOf('/');
-            if (lastSlash !== -1) {
-                const folderPath = filePath.substring(0, lastSlash);
-                if (!await this.app.vault.adapter.exists(folderPath)) {
-                    await this.app.vault.adapter.mkdir(folderPath);
-                }
-            }
-
-            if (file && (file instanceof TFile || (file as any).extension === 'md')) {
+            if (isMarkdownFile) {
                 await this.app.vault.modify(file as TFile, content);
             } else {
+                const lastSlash = filePath.lastIndexOf('/');
+                if (lastSlash !== -1) {
+                    const folderPath = filePath.substring(0, lastSlash);
+                    if (!await this.app.vault.adapter.exists(folderPath)) {
+                        await this.app.vault.adapter.mkdir(folderPath);
+                    }
+                }
                 await this.app.vault.create(filePath, content);
             }
         };
 
         return queue.push({ filePath, saveFn }, immediate);
+    }
+
+    async saveSubstack(tasks: TaskNode[], parentPath: string, immediate: boolean = false): Promise<void> {
+        const queue = InteractionIdleQueue.getInstance(this.app, this.logger);
+
+        const saveFn = async () => {
+            const parentFile = this.app.vault.getAbstractFileByPath(parentPath);
+            const isMarkdownFile = parentFile instanceof TFile || (parentFile && (parentFile as any).extension === 'md');
+
+            if (!isMarkdownFile) {
+                return;
+            }
+
+            // Read the current parent file content
+            const content = await this.app.vault.read(parentFile);
+            
+            // Reorder the wikilinks using LinkParser logic
+            const { LinkParser } = await import('../parsers/LinkParser.js');
+            const parser = new LinkParser(this.app, this.logger);
+            const updatedContent = parser.replaceLinksInContent(content, tasks, parentPath);
+
+            // Important: Record internal write BEFORE modifying to debounce the watcher
+            this.recordInternalWrite(parentPath, updatedContent);
+            await this.app.vault.modify(parentFile as TFile, updatedContent);
+
+            if (this.logger) await this.logger.info(`[StackPersistenceService] saveSubstack SUCCESS for ${parentPath}`);
+        };
+
+        return queue.push({ filePath: parentPath, saveFn }, immediate);
     }
 
     async saveTask(task: TaskNode, immediate: boolean = false): Promise<void> {
@@ -320,4 +360,5 @@ export class StackPersistenceService {
 
         return ids;
     }
+
 }

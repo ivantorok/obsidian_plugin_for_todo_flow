@@ -2,6 +2,9 @@
 
 Welcome! This guide outlines our workflow to ensure the repository remains stable, clean, and easy for both of us to work on simultaneously.
 
+> [!IMPORTANT]
+> If you are setting up your development environment, please review [DEV_SETUP.md](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/DEV_SETUP.md) for sandbox permission and logging conventions.
+
 ## 🚀 Workflow: Feature Branches
 
 To avoid merge conflicts and keep `main` stable (green), we use a **Feature Branch Workflow**.

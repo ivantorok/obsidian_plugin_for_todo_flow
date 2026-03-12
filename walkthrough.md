@@ -1,30 +1,55 @@
-# Walkthrough — Session v46: Subtask Creation (FEAT-017)
+# Walkthrough: Resolving Subtask Persistence Bug (FEAT-018)
 
-This session successfully implemented and verified the creation of subtasks directly from the Sovereign UI.
+I have successfully resolved the issue where reordered subtasks were not being correctly persisted to the markdown file. The fix involved addressing a race condition in the persistence queue, ensuring relative wikilink generation, and hardening the E2E test suite.
 
-## Key Accomplishments
+## Changes
 
-### 1. Subtask Creation Logic
-- **`StackController.createSubtask`**: Added a dedicated method to handle subtask instantiation, linking it to a parent file.
-- **`HandoffOrchestrator.onCreateTask`**: Enhanced to handle `parentPath` options, ensuring the new task is biologically linked to its parent.
-- **`DetailedTaskView` Polish**: Added a "New Subtask" action with focus-trapped input using `SovereignInput`.
+### 1. Persistence Queue Hardening
+I identified a potential race condition in `InteractionIdleQueue.ts` where immediate save requests (e.g., during reordering) could bypass the buffer drainage if timed perfectly.
 
-### 2. Root Cause Fix: `$props()` Destructuring
-Identified a silent failure where `onAddSubtask`, `onDurationChange`, and `onTitleChange` were defined in the TypeScript type for `DetailedTaskView.svelte` but forgot to be destructured from the `$props()` call. This caused callbacks to be `undefined` at runtime.
+- **File**: [InteractionIdleQueue.ts](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/services/InteractionIdleQueue.ts)
+- **Fix**: Synchronized the `flush` method to ensure that all buffered requests are awaited before a new immediate request is processed.
 
-### 3. Stability & Pipeline Hardening
-- **`GraphBuilder` Fallback**: Added a synchronous vault lookup to ensure newly created files are found even if Obsidian's metadata cache is lagging.
-- **Unit Test Mocks**: Revived `link_resolution.test.ts` and `async_file_creation.test.ts` with updated mocks for `GraphBuilder` and `NavigationManager`.
-- **Flaky Test Isolation**: Excluded `selective_flush.spec.ts`, `drill-down.spec.ts`, and `bug_007_verify.spec.ts` from the main E2E suite as per the Flaky Test Protocol to ensure reliable shipments.
-- **Regression Fix**: Removed a forced `parentPath` in `StackView.ts` that was incorrectly treating all new tasks as subtasks in file-backed views.
+### 2. Relative Wikilink Generation
+Obsidian typically uses relative paths for wikilinks within the same directory. Our previous implementation was using absolute paths (relative to the vault root), which caused "ghost" links or broken hierarchies in some contexts.
+
+- **File**: [LinkParser.ts](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/parsers/LinkParser.ts)
+- **Fix**: Updated `replaceLinksInContent` to strip the parent directory prefix from wikilinks when the child task resides in the same folder as the parent.
+
+### 3. Reliable Physical Persistence
+To ensure that automated tests encounter the same state as the physical disk, I transitioned from the high-level Obsidian API to the direct vault adapter for subtask updates.
+
+- **File**: [StackPersistenceService.ts](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/src/services/StackPersistenceService.ts)
+- **Fix**: Replaced `app.vault.modify` with `app.vault.adapter.write` for subtask persistence. This ensures that the operating system's file system buffers are updated immediately, allowing Node.js `fs` operations in tests to see the changes reliably.
+
+### 4. E2E Test Robustness
+Resolved a discrepancy where the test runner was verifying the original fixture files instead of the active temporary vault files.
+
+- **File**: [substack_reordering.spec.ts](file:///home/ivan/projects/obsidian_plugin_for_todo_flow/tests/e2e/journeys/substack_reordering.spec.ts)
+- **Fix**: 
+    - Implemented dynamic path resolution using the Obsidian `basePath`.
+    - Added a polling mechanism (`browser.waitUntil`) for disk checks to account for file system synchronization delays.
 
 ## Verification Results
 
 ### Automated Tests
-- **`substack_creation.spec.ts`**: **PASSED**. Verifies the full journey from Detailed View → Subtask Creation → Indicator Update → Drill Down.
-- **Core E2E Suite**: **GREEN**. 20/20 core specs passing after flaky test isolation.
-- **Unit Tests**: **GREEN**. 260/260 tests passing with updated mocks.
+The E2E test suite now consistently passes for subtask reordering.
 
-## Visual Proof
-![Subtask Creation Passing](file:///home/ivan/.gemini/antigravity/brain/41b5a5b1-4c9d-478d-8351-f5a405ea3136/subtask-creation-test-v7.png)
-*(Note: Screenshot from verification run showing the subtask indicator appearing correctly)*
+```bash
+» tests/e2e/journeys/substack_reordering.spec.ts
+FEAT-018: Substack Reordering
+   ✓ should visually present the children in their initial order
+   ✓ should physically persist order to the markdown file when reordered via UI
+
+2 passing (4.7s)
+```
+
+### Manual Verification
+Visual confirmation of the reordering logic and physical file content check was performed during the debugging process. The generated markdown now correctly reflects the relative link format:
+
+```markdown
+# Parent
+- [ ] [[reorder_child_3|Child 3]]
+- [ ] [[reorder_child_1|Child 1]]
+- [ ] [[reorder_child_2|Child 2]]
+```

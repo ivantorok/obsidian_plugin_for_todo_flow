@@ -273,7 +273,8 @@ export class HandoffOrchestrator {
             _loadedAt: Date.now()
         };
 
-        let fileContent = `---\ntask: ${title}\nstatus: todo\nduration: ${duration}`;
+        const timestamp = moment().format('YYYY-MM-DD HH:mm');
+        let fileContent = `---\ntask: ${title}\nstatus: todo\nduration: ${duration}\nadded: ${timestamp}`;
         if (isAnchored) {
             fileContent += `\nanchored: true`;
             if (startTime) {
@@ -300,8 +301,7 @@ export class HandoffOrchestrator {
             return;
         }
 
-        const timestamp = moment().format('YYYY-MM-DD HH:mm');
-        const linkLine = `\n\nAdded on: ${timestamp}\n- [ ] [[${childPath}|${childTitle}]]`;
+        const linkLine = `\n- [ ] [[${childPath}|${childTitle}]]`;
 
         this.stackPersistenceService.recordInternalWrite(parentPath);
         const content = await this.app.vault.read(parentFile);

@@ -131,10 +131,10 @@ describe('Link Injection in Child Stacks', () => {
             expect(verificationResult.childFound).toBe(true);
 
             if (verificationResult.childFilename) {
-                const expectedLink = `[[${TARGET_FOLDER}/${verificationResult.childFilename}|NewSubTask]]`;
+                const linkId = verificationResult.childFilename.replace('.md', '');
+                const expectedLink = `[[${TARGET_FOLDER}/${linkId}|NewSubTask]]`;
                 expect(verificationResult.parentContent).toContain(expectedLink);
             }
-            expect(verificationResult.parentContent).toContain('Added on:');
 
         } finally {
             // Retrieve and print logs and errors

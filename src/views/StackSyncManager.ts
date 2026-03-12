@@ -197,7 +197,6 @@ export class StackSyncManager {
         if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
 
         if (this.persistenceLockCount > 0 && !immediate) {
-            if (this.config.logger) this.config.logger.info(`[StackSyncManager] Save DEFERRED: active interaction lock`);
             this.saveTimeout = 1 as any;
             this.broadcastIdleState();
             return;
@@ -217,27 +216,37 @@ export class StackSyncManager {
             this.broadcastIdleState();
             return;
         }
+
         const tasks = this.lastTasksForSave;
         const currentIds = tasks.map(t => `${t.id}:${t.status}`);
         const persistencePath = `${this.config.settings.targetFolder}/CurrentStack.md`;
         const rootPath = this.config.getRootPath();
-        const savePath = (rootPath && rootPath.includes('CurrentStack.md')) ? rootPath : persistencePath;
+        
+        // Context Awareness: Are we in the Daily Stack or a Substack?
         const isCurrentlyViewingShortlist = rootPath === persistencePath || (rootPath && rootPath.includes('CurrentStack.md'));
+        const isSubstackContext = rootPath && rootPath.endsWith('.md') && !isCurrentlyViewingShortlist;
         const currentTaskIds = this.config.getCurrentTaskIds();
 
-        try {
-            if (isCurrentlyViewingShortlist || (currentTaskIds && currentTaskIds.length > 0)) {
-                await this.config.persistenceService.saveStack(tasks, savePath, immediate);
 
-                if (JSON.stringify(currentIds) === JSON.stringify(tasks.map(t => `${t.id}:${t.status}`))) {
-                    this.lastSavedIds = currentIds;
-                    if (this.config.logger && this.config.settings.debug) this.config.logger.info(`[StackSyncManager] Saved ${tasks.length} tasks to ${savePath}.`);
-                }
+        try {
+            if (isSubstackContext) {
+                // FEAT-018: Subtask Reordering
+                await this.config.persistenceService.saveSubstack(tasks, rootPath!, immediate);
+            } else if (isCurrentlyViewingShortlist || (currentTaskIds && currentTaskIds.length > 0)) {
+                // Standard Daily Stack or Filtered View persistence
+                const savePath = isCurrentlyViewingShortlist ? (rootPath || persistencePath) : persistencePath;
+                await this.config.persistenceService.saveStack(tasks, savePath, immediate);
             } else {
-                if (this.config.logger && this.config.settings.debug) this.config.logger.info(`[StackSyncManager] Skipping save: Not viewing Shortlist (rootPath: ${rootPath})`);
+            }
+
+            // Sync the expected IDs to prevent redundant cycles
+            const currentTasksInView = this.config.getTasks();
+            if (JSON.stringify(currentIds) === JSON.stringify(currentTasksInView.map(t => `${t.id}:${t.status}`))) {
+                this.lastSavedIds = currentIds;
+            } else {
             }
         } catch (e) {
-            if (this.config.logger) this.config.logger.error(`[StackSyncManager] Failed to save stack list: ${e}`);
+            if (this.config.logger) await this.config.logger.error(`[StackSyncManager] Critical Save Failure: ${e}`);
         } finally {
             this.saveTimeout = null;
             this.broadcastIdleState();
@@ -251,16 +260,22 @@ export class StackSyncManager {
         const persistencePath = `${this.config.settings.targetFolder}/CurrentStack.md`;
         const rootPath = this.config.getRootPath();
         const currentTaskIds = this.config.getCurrentTaskIds();
+        
+        const isSubstackContext = rootPath && rootPath.endsWith('.md');
 
-        if (rootPath === persistencePath || rootPath === 'CurrentStack.md' || (currentTaskIds && currentTaskIds.length > 0)) {
+        if (immediate) {
+            this.lastTasksForSave = tasks;
+            return await this.triggerSave(0, true);
+        }
+
+        if (rootPath === persistencePath || rootPath === 'CurrentStack.md' || isSubstackContext || (currentTaskIds && currentTaskIds.length > 0)) {
             if (tasks.length === 0 && (!this.lastSavedIds || this.lastSavedIds.length === 0)) return;
             const currentIds = tasks.map(t => `${t.id}:${t.status}`);
             const idsChanged = JSON.stringify(currentIds) !== JSON.stringify(this.lastSavedIds);
-
-            if ((idsChanged || immediate) && !this.isReloadPending) {
+            
+            if (idsChanged && !this.isReloadPending) {
                 this.lastTasksForSave = tasks;
-                // Architectural Pivot: Increase debounce to 5s for in-memory sovereignty
-                return await this.triggerSave(immediate ? 0 : 5000, immediate);
+                return await this.triggerSave(5000, false);
             }
         }
     }

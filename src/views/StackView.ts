@@ -252,6 +252,7 @@ export class StackView extends ItemView {
             if (state.rootPath === 'QUERY:SHORTLIST') {
                 rawTasks = await this.loader.loadShortlisted();
                 this.rootPath = 'QUERY:SHORTLIST';
+                this.currentTaskIds = null;
             } else if (state.ids && Array.isArray(state.ids)) {
                 this.currentTaskIds = state.ids;
                 rawTasks = await this.loader.loadSpecificFiles(state.ids);
@@ -260,6 +261,7 @@ export class StackView extends ItemView {
                 this.rootPath = state.rootPath;
                 if (this.logger) this.logger.info(`[StackView] Loading path: ${this.rootPath}`);
                 rawTasks = await this.loader.load(state.rootPath);
+                this.currentTaskIds = null;
             }
 
             this.parentTaskName = this.resolveParentName(this.rootPath);

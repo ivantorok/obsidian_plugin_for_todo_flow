@@ -77,8 +77,10 @@ export class InteractionIdleQueue {
     private pendingFlush: Promise<void> = Promise.resolve();
 
     public async flush(): Promise<void> {
-        // BUG-024: Prevent deadlock on recursive immediate saves.
-        if (this.isExecutingSave) return;
+        if (typeof window !== 'undefined') {
+            (window as any)._tf_log = (window as any)._tf_log || [];
+            (window as any)._tf_log.push(`[InteractionIdleQueue] flush() entry. buffer=${this.buffer.size}, isFlushing=${this.isFlushing}, isExecutingSave=${this.isExecutingSave}`);
+        }
 
         // Chain flushes: Ensure each flush waits for the previous one to complete
         // but only if we have something to flush or are already flushing.
@@ -86,7 +88,10 @@ export class InteractionIdleQueue {
 
         // Use a local copy of the chain to avoid race conditions
         const driveFlush = async () => {
-            if (this.isFlushing) return; // Only one active drainage loop
+            if (this.isFlushing) {
+                 if (typeof window !== 'undefined') (window as any)._tf_log.push(`[InteractionIdleQueue] driveFlush() EXIT: already flushing (draining buffer)`);
+                 return;
+            }
             
             this.isFlushing = true;
             try {
@@ -94,19 +99,25 @@ export class InteractionIdleQueue {
                     const snapshot = Array.from(this.buffer.values());
                     this.buffer.clear();
 
+                    if (typeof window !== 'undefined') (window as any)._tf_log.push(`[InteractionIdleQueue] driveFlush() loop START. snapshot=${snapshot.length}`);
+
                     for (const request of snapshot) {
                         try {
                             this.isExecutingSave = true;
+                            if (typeof window !== 'undefined') (window as any)._tf_log.push(`[InteractionIdleQueue] Executing saveFn for ${request.filePath}`);
                             await request.saveFn();
                         } catch (err) {
                             console.error(`[InteractionIdleQueue] Flush failed for ${request.filePath}:`, err);
+                            if (typeof window !== 'undefined') (window as any)._tf_log.push(`[InteractionIdleQueue] SaveFn FAILED for ${request.filePath}: ${err}`);
                         } finally {
                             this.isExecutingSave = false;
                         }
                     }
+                    if (typeof window !== 'undefined') (window as any)._tf_log.push(`[InteractionIdleQueue] driveFlush() loop END. buffer remaining=${this.buffer.size}`);
                 }
             } finally {
                 this.isFlushing = false;
+                if (typeof window !== 'undefined') (window as any)._tf_log.push(`[InteractionIdleQueue] driveFlush() COMPLETE`);
             }
         };
 

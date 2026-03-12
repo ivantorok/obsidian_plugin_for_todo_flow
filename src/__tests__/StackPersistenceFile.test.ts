@@ -76,8 +76,8 @@ describe('StackPersistenceService', () => {
 
         await service.saveStack(mockTasks, filePath);
 
-        expect(mockVault.create).toHaveBeenCalledWith(filePath, expect.stringContaining('- [ ] [[task1.md]]'));
-        expect(mockVault.create).toHaveBeenCalledWith(filePath, expect.stringContaining('- [x] [[task2.md]]'));
+        expect(mockVault.create).toHaveBeenCalledWith(filePath, expect.stringContaining('- [ ] [[task1|Task 1]]'));
+        expect(mockVault.create).toHaveBeenCalledWith(filePath, expect.stringContaining('- [x] [[task2|Task 2]]'));
     });
 
     it('should load stack from a markdown file', async () => {
