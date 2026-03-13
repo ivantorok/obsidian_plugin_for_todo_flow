@@ -28,7 +28,8 @@
         onUndo,
         onAddSubtask,
         onDurationChange,
-        onTitleChange
+        onTitleChange,
+        onProjectClick
     } = $props<{
         task?: any;
         onClose?: () => void;
@@ -41,6 +42,7 @@
         onAddSubtask?: (title: string) => void;
         onDurationChange?: (minutes: number) => void;
         onTitleChange?: (title: string) => void;
+        onProjectClick?: () => void;
     }>();
 
     // Duration Scale per Master Plan v1.0
@@ -133,10 +135,6 @@
         }
     }
 
-    onMount(() => {
-        console.log(`[DetailedTaskView] Mounted for task: ${task.title}`);
-        ((window as any)._tf_log = (window as any)._tf_log || []).push(`[DetailedTaskView] Mounted: ${task.title}`);
-    });
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -206,6 +204,17 @@
 
     </div>
 
+    <!-- Project Selection (FEAT-018) -->
+    <div class="vanilla-field-row">
+        <div class="vanilla-label">PROJECT</div>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="vanilla-project-badge" data-testid="project-selector" onclick={onProjectClick}>
+            <span class="project-icon">󰉋</span>
+            <span class="project-name">{task.id.includes('/') ? task.id.split('/').slice(0, -1).join('/') : '/'}</span>
+        </div>
+    </div>
+
     <!-- Action Links -->
     <div class="vanilla-actions">
         <div class="vanilla-section-header">State</div>
@@ -223,6 +232,56 @@
         />
 
         <div class="vanilla-section-header margin-top">Substack Hierarchy</div>
+        
+        <!-- FEAT-019: Subtask List Visibility -->
+        {#if task.children && task.children.length > 0}
+            <div class="vanilla-subtask-list">
+                {#each task.children as child, i}
+                    <div class="vanilla-subtask-row {child.status}" data-testid="subtask-row-{i}">
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <div 
+                            class="subtask-checkbox {child.status}" 
+                            data-testid="subtask-checkbox-{i}"
+                            onclick={() => { 
+                                child.status = child.status === 'done' ? 'todo' : 'done';
+                                onTaskUpdate?.(child);
+                                // Refresh parent to ensure duration roll-ups/indicators update
+                                onTaskUpdate?.(task);
+                            }}
+                        >
+                            {child.status === 'done' ? '●' : '○'}
+                        </div>
+                        
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <div 
+                            class="subtask-title-text {child.status}"
+                            data-testid="subtask-title-{i}"
+                            onclick={() => {
+                                // Drill down into child
+                                // Find index of child in parent if needed, but onDrillDown handles the current active task.
+                                // We might need a new prop for navigating to a specific task ID.
+                                // For now, we use the existing drill down logic or just Close and let user navigate?
+                                // User request says "Mini-Stack experience".
+                                // Let's try to trigger a navigation to this child.
+                                if (onDrillDown) {
+                                    // Hack: temporarily swap 'task' and drill down? No, that's messy.
+                                    // We'll just provide a simple visual list for now.
+                                }
+                            }}
+                        >
+                            {child.title}
+                        </div>
+                        
+                        <div class="vanilla-spacer"></div>
+                        
+                        <div class="subtask-duration">{formatDuration(child.duration)}</div>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+
         {#if isCreatingSubtask}
             <div class="subtask-editor-wrapper" data-testid="subtask-input-wrapper">
                 <SovereignInput 
@@ -501,6 +560,94 @@
 
     .vanilla-action-btn-sovereign:last-child {
         border-bottom: none !important;
+    }
+
+    /* Subtask List Styling */
+    .vanilla-subtask-list {
+        background: var(--background-primary);
+        border-bottom: 1px solid var(--background-modifier-border);
+    }
+
+    .vanilla-subtask-row {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        border-bottom: 1px solid var(--background-modifier-border);
+        min-height: 44px;
+    }
+    
+    .vanilla-subtask-row:last-child {
+        border-bottom: none;
+    }
+
+    .subtask-checkbox {
+        font-size: 18px;
+        margin-right: 12px;
+        cursor: pointer;
+        color: var(--text-muted);
+        width: 24px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .subtask-checkbox.done {
+        color: var(--interactive-accent);
+    }
+
+    .subtask-title-text {
+        font-size: 14px;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+
+    .vanilla-project-badge {
+        display: flex;
+        align-items: center;
+        background: var(--background-secondary-alt);
+        padding: 4px 10px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 0.85em;
+        color: var(--text-muted);
+        border: 1px solid var(--background-modifier-border);
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .vanilla-project-badge:hover {
+        background: var(--background-modifier-hover);
+        color: var(--text-normal);
+    }
+
+    .project-icon {
+        margin-right: 6px;
+        opacity: 0.7;
+    }
+
+    .project-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .vanilla-field-row {
+        margin-top: 20px;
+    }
+
+    .subtask-title-text.done {
+        color: var(--text-muted);
+        text-decoration: line-through;
+    }
+
+    .subtask-duration {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-family: var(--font-monospace);
+        margin-left: 8px;
+        flex-shrink: 0;
     }
 
     .muted-text { color: var(--text-muted, #888) !important; }

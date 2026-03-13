@@ -342,6 +342,7 @@
             onArchive={() => executeGestureAction('archive', detailedViewTask!, capturedIndex)}
             onUndo={() => { restProps.historyManager.undo(); navState.tasks = [...controller.tasks]; }}
             onAddSubtask={handleSubtaskCreation}
+            onProjectClick={() => restProps.onProjectClick?.(detailedViewTask, capturedIndex)}
         />
     {/if}
 </div>

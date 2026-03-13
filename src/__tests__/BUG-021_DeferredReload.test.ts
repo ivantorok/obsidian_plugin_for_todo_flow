@@ -16,6 +16,11 @@ vi.mock('obsidian', () => ({
         registerInterval() { }
     },
     TFile: class { },
+    TFolder: class { },
+    FuzzySuggestModal: class {
+        constructor(app: any) { }
+    },
+    App: class { },
     Notice: vi.fn(),
     mount: vi.fn(),
     unmount: vi.fn()

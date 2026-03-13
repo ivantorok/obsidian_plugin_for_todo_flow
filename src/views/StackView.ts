@@ -22,6 +22,7 @@ import { type ViewManager } from '../ViewManager.js';
 import { type StackUIState } from './ViewTypes.js';
 import { ProcessGovernor } from '../services/ProcessGovernor.js';
 import { StackSyncManager } from './StackSyncManager.js';
+import { FolderSuggester } from '../ui/Suggesters.js';
 
 export const VIEW_TYPE_STACK = "todo-flow-stack-view";
 
@@ -568,6 +569,11 @@ export class StackView extends ItemView {
                         this.app.workspace.openLinkText(path, '', true);
                     },
                     onNavigate: this.onNavigate.bind(this),
+                    onProjectClick: (task: TaskNode, index: number) => {
+                        new FolderSuggester(this.app, async (folder) => {
+                            await this.onProjectChange(task, folder, index);
+                        }).open();
+                    },
                     lockPersistence: (path: string, token: string) => this.syncManager.lockPersistence(path, token),
                     unlockPersistence: (path: string, token: string) => this.syncManager.unlockPersistence(path, token),
                     app: this.app
@@ -662,5 +668,34 @@ export class StackView extends ItemView {
             return result;
         }
         return null;
+    }
+
+    async onProjectChange(task: TaskNode, folder: any, index: number) {
+        const oldPath = task.id;
+        const filename = oldPath.split('/').pop();
+        const newPath = (folder.path === '/' || !folder.path) ? filename : `${folder.path}/${filename}`;
+        
+        if (oldPath === newPath) return;
+
+        try {
+            const file = this.app.vault.getAbstractFileByPath(oldPath);
+            if (file instanceof TFile) {
+                await this.app.fileManager.renameFile(file, newPath!);
+                if (this.logger) this.logger.info(`[StackView] Task moved from ${oldPath} to ${newPath}`);
+                
+                // Update task in memory with cloning to ensure Svelte 5 reactivity
+                const newTask = { ...task, id: newPath! };
+                const state = this.navManager.getState();
+                state.currentStack[index] = newTask;
+                this.navManager.setState({ ...state });
+                
+                this.pushStateToComponent(index);
+                
+                if ((window as any).Notice) new (window as any).Notice(`Moved to: ${folder.path}`);
+            }
+        } catch (err) {
+            if (this.logger) this.logger.error(`[StackView] Failed to move task: ${err}`);
+            if ((window as any).Notice) new (window as any).Notice(`Failed to move task: ${err}`);
+        }
     }
 }

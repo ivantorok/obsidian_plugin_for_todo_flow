@@ -443,3 +443,84 @@ Repository at `v1.2.154` is 100% Green. No pending orphans in `discovery/` or `t
 - **Bugs Fixed**: Duration fallback (|| vs ??), path normalization (double-counting), and stale build artifacts.
 - **Verification**: v19 E2E run is 100% Green.
 - **Next Role**: **Process Governor (PG)** for Session v46 Roadmap Triage.
+
+## Session Entry: 2026-03-10 12:00 (Session v46 Initialization)
+
+### Input Analysis
+- **Source**: Governance Handover (Session v45)
+- **Objective**: Identify the next priority mission from the Phased Roadmap.
+- **Flavor**: [GOVERNANCE / SESSION-START]
+
+### Triage Verdict
+FEAT-017 (Subtask Creation) selected as next priority. Repository at v1.2.154 is Green.
+
+### Routing
+- **Implementation Lead (IL)**: Complete `createSubtask` in `StackController.ts` and `DetailedTaskView.svelte`.
+- **Stability Warden (SW)**: Resolve `$props()` destructure issues and `metadataCache` lag.
+- **Status**: **RESOLVED / SHIPPED v1.2.162**.
+
+## Session Entry: 2026-03-11 15:00 (Session v47 Initialization)
+
+### Input Analysis
+- **Source**: Internal Stability Audit
+- **Objective**: Implement `InteractionIdleQueue` to resolve Mobile Hybrid disk thrashing.
+- **Flavor**: [STABILITY / PERFORMANCE]
+
+### Triage Verdict
+Disk thrashing on mobile requires an idle queue to debounce persistence until interaction ceases.
+
+### Routing
+- **Implementation Lead (IL)**: Build `InteractionIdleQueue.ts`.
+- **Stability Warden (SW)**: Integrate queue into `StackPersistenceService.ts`.
+- **Status**: **RESOLVED / SHIPPED v1.2.167**.
+
+## Session Entry: 2026-03-11 19:15 (Session v48 Initialization)
+
+### Input Analysis
+- **Source**: User Request ("embody the process governor")
+- **Objective**: Synchronize protocol logs and verify Green Baseline for uncommitted changes.
+- **Flavor**: [GOVERNANCE / RECOVERY]
+
+### Triage Verdict
+Repository at v1.2.176 but "dirty". Sync required to secure the baseline.
+
+### Routing
+- **Process Governor (PG)**: Secure Green Baseline and orchestrate shipment.
+- **Status**: **RESOLVED / SHIPPED v1.2.177**.
+## Session Entry: 2026-03-12 20:28 (Session v49 Initialization)
+
+### Input Analysis
+- **Source**: Implementation Plan (The Slide Protocol)
+- **Objective**: Refactor `computeSchedule` to handle anchored task overlaps via downward sliding (The Slide).
+- **Flavor**: [ARCHITECTURE / SCHEDULER]
+
+### Triage Verdict
+The current scheduler allows anchored tasks to overlap or persist in the past if following tasks are too long. "The Slide" protocol preserves list order by sliding all subsequent anchored tasks down when a conflict occurs.
+
+### Routing
+- **Implementation Lead (IL)**: Refactor `computeSchedule` in `scheduler.ts`.
+- **Verification Officer (VO)**: Create `TheSlide.test.ts`.
+- **Status**: **RESOLVED / SHIPPED v1.2.181**.
+
+### Resolution Summary: 2026-03-12 21:55
+- **Action**: Implemented deterministic downward sliding for anchored tasks. All tasks now respect the "no overlap" and "no past start" invariant while preserving list order.
+- **Verification**: 273/273 unit tests passing. E2E specs confirmed linear order preservation.
+- **Final Status**: **SHIPPED v1.2.181**.
+
+---
+
+## Session v50: Baseline Recovery & Regression Fix
+
+### Input & Analysis
+- **Source**: Governance Audit (Process Governor)
+- **Problem**: Discovered regressions in `DetailedTaskView.svelte` (`initShortcuts` undefined) and `obsidian` mock (missing `FuzzySuggestModal`).
+- **Verdict**: Critical Recovery required to establish Green Baseline for Session v51.
+
+### Routing
+- **Process Governor (PG)**: Patch `obsidian` mock and `DetailedTaskView.svelte`.
+- **Status**: **RESOLVED**.
+
+### Resolution Summary: 2026-03-13 09:25
+- **Action**: Fixed orphaned function call in `DetailedTaskView.svelte`. Expanded `obsidian` mock to support `FuzzySuggestModal` and `App` classes.
+- **Verification**: 273/273 unit tests passing. 23/23 E2E specs passing (v1.2.181+).
+- **Final Status**: **GREEN BASELINE RESTORED**.

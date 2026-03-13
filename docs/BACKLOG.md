@@ -59,7 +59,7 @@ This document tracks bugs and feature requests. To request work, add an item her
 | ID | Title | Type | Spec | Priority |
 | :--- | :--- | :--- | :--- | :--- |
 | BUG-024 | ✅ Dump — Missing "Finish" Button | Bug | [Spec](./archive/backlog/BUG-024_dump_missing_finish_button.md) | High | v1.2.80 |
-| BUG-025 | Triage — "Shortlist All" Bulk Action | Feat | [Spec](./backlog/BUG-025_triage_select_all_shortlist.md) | Medium | **[PLANNED]** |
+| BUG-025 | Triage — "Shortlist All" Bulk Action | Feat | [Spec](./backlog/BUG-025_triage_select_all_shortlist.md) | Medium | v1.2.80 |
 | BUG-026 | ✅ Stack View — Pink Background Present | Bug | [Spec](./archive/backlog/BUG-026_stack_pink_background.md) | High | v1.2.80 |
 | BUG-027 | ✅ Daily Stack — Opens in Card Mode (Should Be List) | Bug | [Spec](./archive/backlog/BUG-027_stack_opens_in_card_mode.md) | **Critical** | v1.2.80 |
 | BUG-028 | ✅ Header Bar — Excessive Height | Bug | [Spec](./archive/backlog/BUG-028_header_bar_too_thick.md) | High | v1.2.80 |

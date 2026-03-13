@@ -94,36 +94,13 @@ export function getTotalGreedyDuration(root: TaskNode, registry?: TaskRegistry, 
 }
 
 export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, options?: { highPressure?: boolean }): TaskNode[] {
-    const rocks = tasks.filter(t => t.isAnchored && t.startTime);
-    rocks.sort((a, b) => a.startTime!.valueOf() - b.startTime!.valueOf());
-
-    const resolvedRockTimes = new Map<string, moment.Moment>();
-    let shiftBase = moment(currentTime).subtract(10, 'years');
-
-    for (const rock of rocks) {
-        let start = moment(rock.startTime!);
-        if (start.isBefore(shiftBase)) {
-            start = moment(shiftBase);
-        }
-        resolvedRockTimes.set(rock.id, start);
-        const duration = rock.originalDuration ?? rock.duration;
-        shiftBase = moment(start).add(duration, 'minutes');
-    }
-
-    let playhead = moment(currentTime);
     const scheduled: TaskNode[] = [];
-    const sortedTasks = [...tasks].sort((a, b) => {
-        if (a.isAnchored && !b.isAnchored) return -1;
-        if (!a.isAnchored && b.isAnchored) return 1;
-        if (a.isAnchored && b.isAnchored) {
-            return (a.startTime?.valueOf() ?? 0) - (b.startTime?.valueOf() ?? 0);
-        }
-        return 0;
-    });
+    let playhead = moment(currentTime);
 
     const registry: TaskRegistry = new Map(tasks.map(t => [t.id, t]));
 
-    for (const t of sortedTasks) {
+    // Iterate through tasks in their original list order (Sovereign UX)
+    for (const t of tasks) {
         let totalDuration = 0;
         let trace: string[] = [];
         const isLeaf = !t.children || t.children.length === 0;
@@ -145,33 +122,21 @@ export function computeSchedule(tasks: TaskNode[], currentTime: moment.Moment, o
         const scheduledDuration = t.status === 'done' ? 0 : totalDuration;
 
         if (t.isAnchored && t.startTime) {
-            const rockStart = resolvedRockTimes.get(t.id)!;
+            // THE SLIDE: Anchored tasks slide downstream if hit by the playhead.
+            let start = moment(t.startTime);
+            if (start.isBefore(playhead)) {
+                start = moment(playhead);
+            }
+            
             scheduled.push({
                 ...t,
-                startTime: rockStart,
+                startTime: start,
                 duration: totalDuration,
                 trace
             });
-            const rockEnd = moment(rockStart).add(scheduledDuration, 'minutes');
-            if (rockEnd.isAfter(playhead)) {
-                playhead = moment(rockEnd);
-            }
+            playhead = moment(start).add(scheduledDuration, 'minutes');
         } else {
-            let foundSlot = false;
-            while (!foundSlot) {
-                foundSlot = true;
-                for (const rock of rocks) {
-                    const rStart = resolvedRockTimes.get(rock.id)!;
-                    const rockDuration = rock.originalDuration ?? (rock.status === 'done' ? 0 : rock.duration);
-                    const rEnd = moment(rStart).add(rockDuration, 'minutes');
-                    const potentialEnd = moment(playhead).add(scheduledDuration, 'minutes');
-                    if (playhead.isBefore(rEnd) && potentialEnd.isAfter(rStart)) {
-                        playhead = moment(rEnd);
-                        foundSlot = false;
-                        break;
-                    }
-                }
-            }
+            // FLOATING: Always starts at the current playhead.
             scheduled.push({
                 ...t,
                 startTime: moment(playhead),

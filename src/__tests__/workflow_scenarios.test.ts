@@ -148,14 +148,12 @@ describe('Workflow Scenarios: Integration Features', () => {
         // Let's proceed to the fix.
     });
 
-    it('Scenario 3: User Reorders task (Shift+J) skipping over an Anchor (Reordering Collision)', async () => {
+    it('Scenario 3: User Reorders task (Shift+J) skipping over an Anchor (The Slide / Order Preservation)', async () => {
         const { HistoryManager } = await import('../history.js');
         const historyManager = new HistoryManager();
 
-        // Setup: [Unanchored A] -> [Anchor B] -> [Unanchored C]
-        // Goal: Move A down. It should jump over B and land after C (or swap with C).
-        // Actually, user said: "jump over the anchored items, so i can keep on moving my originally selected task"
-        // Standard behavior: Swap A with next available slot.
+        // Setup: [Floating A] -> [Anchor B] -> [Floating C]
+        // IN SOVEREIGN UX: List order matches display order.
         const tasks: TaskNode[] = [
             { id: 'A', title: 'Task A', duration: 30, status: 'todo', isAnchored: false, children: [] },
             { id: 'B', title: 'Task B', duration: 30, status: 'todo', isAnchored: true, children: [], startTime: moment() },
@@ -181,28 +179,14 @@ describe('Workflow Scenarios: Integration Features', () => {
         const stackContainer = container.querySelector('.todo-flow-stack-container') as HTMLElement;
         stackContainer.focus();
 
-        // 1. Initial State:
-        // B (Rock) takes T+0.
-        // A (Water) pushed to T+30.
-        // C (Water) pushed to T+60.
-        // Visual: [B, A, C].
-        // Focus is initially on B (Index 0).
-        // Move focus to A (Index 1).
-        // @ts-ignore
-        const eventJ = new KeyboardEvent('keydown', { key: 'j', code: 'KeyJ' });
-        Object.defineProperty(eventJ, 'target', { value: stackContainer });
-        // @ts-ignore
-        component.handleKeyDown(eventJ);
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // 1. Initial State: [Task A, Task B, Task C]
+        // Focus is on A (Index 0).
+        let titles = Array.from(container.querySelectorAll('.title')).map(el => el.textContent);
+        expect(titles).toEqual(['Task A', 'Task B', 'Task C']);
 
         // 2. Press Shift+J (Move Down) on A.
-        // Focused Index = 1 (A).
-        // Target = Index 2 (C).
-        // Swap A and C.
-        // List: [B, C, A].
-        // Schedule: B(0), C(30), A(60).
-        // Visual: [B, C, A].
-
+        // It should skip Anchor B and swap with C.
+        // New List Order: [Task C, Task B, Task A]
         // @ts-ignore
         const eventSJ = new KeyboardEvent('keydown', { key: 'J', code: 'KeyJ', shiftKey: true });
         Object.defineProperty(eventSJ, 'target', { value: stackContainer });
@@ -210,16 +194,10 @@ describe('Workflow Scenarios: Integration Features', () => {
         component.handleKeyDown(eventSJ);
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        const titles = Array.from(container.querySelectorAll('.title')).map(el => el.textContent);
+        titles = Array.from(container.querySelectorAll('.title')).map(el => el.textContent);
+        expect(titles).toEqual(['Task C', 'Task B', 'Task A']);
 
-        // Result: [Task B, Task C, Task A]
-        expect(titles).toEqual(['Task B', 'Task C', 'Task A']);
-        // Failing test expectation logic adjustment:
-        // Even if the Scheduler puts A after B (or B stays first due to Anchor dominance in List View),
-        // The CRITICAL requirement is that the SELECTION follows A.
-        // If selection follows A, the user can continue working.
-
-        // Check selection
+        // Check selection: Focus follows Task A to its new position (Index 2)
         const focused = container.querySelector('.is-focused .title');
         expect(focused?.textContent).toBe('Task A');
     });

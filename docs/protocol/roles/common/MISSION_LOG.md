@@ -1081,3 +1081,52 @@ Harmonize FEAT-017 (Subtask Creation) with architectural standards and implement
 - [2026-03-11 19:15]: **Process Governor (PG)** session v48 initialized. Found dirty repository despite passing test suite.
 - [2026-03-11 19:25]: **Verification Officer (VO)** ran full suite: 100% Green.
 - [2026-03-11 19:30]: **Release Manager (RM)** triggered continuous shipment to synchronize `main` branch with the local working tree.
+
+---
+
+# Session v49 — Session Initialization & Intake Ritual
+
+## Input & Analysis (Process Governor)
+- **Source**: User Request (Role Invocation)
+- **Objective**: Session Initialization, Protocol Synchronization, and Mission Triage.
+- **Flavor**: [GOVERNANCE / SESSION-START]
+
+## Active Objectives
+1. **[DONE]** Protocol Sync: Reconcile `MISSION_LOG.md` and `triage_log.md` with repo state `v1.2.181`.
+2. **[DONE]** Green Baseline: Establish stable test state (100% Green Unit/E2E).
+3. **[PENDING]** Mission Definition: Identify and activate the next high-impact mission.
+
+## Triage Routing
+1. **Process Governor (PG)**: Finalize log synchronization and present mission options.
+
+## Status Logs
+- [2026-03-12 21:28]: **Process Governor (PG)** session v49 initialized. Intake ritual commenced.
+- [2026-03-12 21:30]: **Green Baseline Secured**. 269/269 unit tests, 21/21 E2E specs passed on v1.2.181.
+- [2026-03-12 21:42]: **Protocol Sync Complete**. `triage_log.md` synchronized with Sessions v46-v48.
+- [2026-03-12 21:55]: **Mission: The Slide — COMPLETED**. Refactored `scheduler.ts` to implement deterministic sliding and linear list order (Sovereign UX).
+- [2026-03-12 21:57]: **Verification Complete**. 273/273 unit tests, 21/21 E2E specs passed.
+
+---
+
+# Session v50 — Governance Audit & Roadmap Triage
+
+## Input & Analysis (Process Governor)
+- **Source**: User Request ("process governor")
+- **Objective**: Session Initialization, Protocol Synchronization, and Roadmap Triage.
+- **Flavor**: [GOVERNANCE / SESSION-START]
+
+## Active Objectives
+1. **[DONE]** Protocol Sync: Reconcile `MISSION_LOG.md` and `triage_log.md` with repo state `v1.2.181`.
+2. **[DONE]** Backlog Audit: Marked BUG-025 as resolved.
+3. **[DONE]** Baseline Recovery: Fixed regressions in `obsidian` mock and `DetailedTaskView.svelte`.
+4. **[DONE]** Verification: 273/273 unit tests, 23/23 E2E specs passed.
+5. **[IN_PROGRESS]** Mission Triage: Identify Session v51 primary objective.
+
+## Triage Routing
+1. **Process Governor (PG)**: Presentation of Roadmap candidates to the User.
+
+## Status Logs
+- [2026-03-13 06:15]: **Process Governor (PG)** session v50 initialized. Repository state v1.2.181 confirmed GREEN.
+- [2026-03-13 06:20]: **Backlog Audit**: BUG-025 confirmed as shipped in v1.2.80; backlog updated.
+- [2026-03-13 09:10]: **Baseline Recovery Complete**. Restored green state after fixing `initShortcuts` regression and `obsidian` mock gaps.
+- [2026-03-13 09:20]: **Verification Complete**. 273/273 unit tests, 23/23 E2E specs passed.
