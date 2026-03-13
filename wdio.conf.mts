@@ -95,10 +95,10 @@ export const config: Options.Testrunner = {
     after: function () {
         console.log('[WDIO] E2E test session complete');
         results.duration = Date.now() - results.start;
-        fs.writeFileSync(
-            path.resolve('./logs/wdio-results.json'),
-            JSON.stringify(results, null, 2)
-        );
+        const outputPath = process.env.TF_ARTIFACT_DIR
+            ? path.join(process.env.TF_ARTIFACT_DIR, 'wdio-results.json')
+            : path.resolve('./logs/wdio-results.json');
+        fs.writeFileSync(outputPath, JSON.stringify(results, null, 2));
     },
 
     afterTest: async function (test, context, { error, result, duration, passed, retries }) {

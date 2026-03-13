@@ -70,3 +70,9 @@ To prevent state drift between the Logic Layer (`StackController`) and the UI La
 - **Non-Destructive Graph Building**: The `GraphBuilder` MUST never prune sub-tasks based on the parent's current status (e.g., DONE). This ensures that structural data (sub-task durations) remains durable if a task is toggled back to TODO.
 - **Asynchronous View Transitions**: All major view transitions (Dump -> Triage -> Stack) must be awaited. This prevents UI race conditions where one view closes before the next has fully computed its projection from the disk.
 - **Mobile Environment Stability**: In automated testing (E2E), environments often fail to emulate `Platform.isMobile` correctly. The plugin MUST provide a dedicated setter/mock for this state to prevent "View Mismatch" where a Desktop view is registered in a Mobile test.
+## 8. The Slide (Scheduling Sovereignty)
+Todo Flow uses a deterministic scheduling protocol called **The Slide**.
+- **Deterministic Flow**: Anchored tasks are pushed downstream if the current playhead (time or preceding tasks) overlaps their set start time.
+- **Order Preservation**: Floating tasks never "jump" over anchored tasks; the list order is the absolute sequence of execution.
+- **Recursive Rollup**: Total task duration is calculated as a "Greedy Rollup" of all reachable subtasks. See [[GREEDY_DURATION_PROTOCOL]] (docs/discovery/GREEDY_DURATION_PROTOCOL.md).
+- **Reference**: See [[THE_SLIDE_PROTOCOL]] (docs/discovery/THE_SLIDE_PROTOCOL.md) for full mechanical details.

@@ -9,9 +9,10 @@ if (!['unit', 'e2e'].includes(type)) {
 
 const logDir = 'logs';
 const historyFile = path.join(logDir, 'test-history.jsonl');
-const resultsFile = type === 'unit'
-    ? path.join(logDir, 'vitest-results.json')
-    : path.join(logDir, 'wdio-results.json');
+const resultsFileName = type === 'unit' ? 'vitest-results.json' : 'wdio-results.json';
+const resultsFile = process.env.TF_ARTIFACT_DIR
+    ? path.join(process.env.TF_ARTIFACT_DIR, resultsFileName)
+    : path.join(logDir, resultsFileName);
 
 if (!fs.existsSync(resultsFile)) {
     console.error(`Results file not found: ${resultsFile}`);

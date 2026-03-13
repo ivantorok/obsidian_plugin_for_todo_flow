@@ -14,7 +14,9 @@ export default defineConfig({
     environment: 'happy-dom',
     setupFiles: ['./src/__tests__/setup.ts'],
     reporters: ['default', 'json'],
-    outputFile: 'logs/vitest-results.json',
+    outputFile: process.env.TF_ARTIFACT_DIR 
+      ? `${process.env.TF_ARTIFACT_DIR}/vitest-results.json`
+      : 'logs/vitest-results.json',
     exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**', 'src/__tests__/legacy/**'],
     pool: 'forks',
   },
