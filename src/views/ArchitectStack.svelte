@@ -42,6 +42,7 @@ import { type StackUIState } from "./ViewTypes.js";
         unlockPersistence,
         isSyncing = false,
         isPersistenceIdle = true,
+        governor,
         debug,
     }: {
         navState: StackUIState;
@@ -64,6 +65,7 @@ import { type StackUIState } from "./ViewTypes.js";
         onFocusChange?: (index: number) => void;
         lockPersistence?: (path: string, token: string) => void;
         unlockPersistence?: (path: string, token: string) => void;
+        governor?: any;
         debug?: boolean;
         openDetailedView: (index: number) => void;
     } = $props();
@@ -145,8 +147,18 @@ import { type StackUIState } from "./ViewTypes.js";
         onFocusAction: (idx) => { navState.focusedIndex = idx; if (onFocusChange) onFocusChange(idx); },
         onDrillDown: (id, idx) => onNavigate?.(id, idx),
         getSettings: () => settings,
-        onInteractionStart: () => { activeInteractionToken = Math.random().toString(36).substring(7); if (lockPersistence) lockPersistence(navState.rootPath, activeInteractionToken); },
-        unlockPersistence: () => { if (unlockPersistence && activeInteractionToken) { unlockPersistence(navState.rootPath, activeInteractionToken); activeInteractionToken = null; } },
+        onInteractionStart: () => { 
+            activeInteractionToken = Math.random().toString(36).substring(7); 
+            if (lockPersistence) lockPersistence(navState.rootPath, activeInteractionToken);
+            if (governor) governor.claimInteraction();
+        },
+        unlockPersistence: () => { 
+            if (unlockPersistence && activeInteractionToken) { 
+                unlockPersistence(navState.rootPath, activeInteractionToken); 
+                activeInteractionToken = null; 
+            }
+            if (governor) governor.releaseInteraction();
+        },
         unfreezeController: () => controller?.unfreeze?.(),
         debugLogger: logger
     });

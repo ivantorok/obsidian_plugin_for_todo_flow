@@ -524,3 +524,23 @@ The current scheduler allows anchored tasks to overlap or persist in the past if
 - **Action**: Fixed orphaned function call in `DetailedTaskView.svelte`. Expanded `obsidian` mock to support `FuzzySuggestModal` and `App` classes.
 - **Verification**: 273/273 unit tests passing. 23/23 E2E specs passing (v1.2.181+).
 - **Final Status**: **GREEN BASELINE RESTORED**.
+
+## Session Entry: 2026-03-13 09:38 (Session v51 Initialization)
+
+### Input Analysis
+- **Source**: Process Governor (Self)
+- **Objective**: Session v51 Intake & Roadmap Selection.
+- **Flavor**: [GOVERNANCE / STRATEGY]
+
+### Triage Verdict
+Repository is in a stable Green state (v1.2.182). Baseline is confirmed. Triage protocol complete. Selection: **STAB-02 (Process Governor Activation)** identified as the highest impact mission for operational stability.
+
+### Routing
+- **Process Governor (Self)**: Orchestrate the integration of `ProcessGovernor` into the gesture engine.
+- **Implementation Lead (IL)**: Update `GestureManager.ts` and `StackView.svelte` to utilize pressure-based throttling.
+- **Status**: **RESOLVED**.
+
+### Resolution Summary: 2026-03-13 09:46 (STAB-02 Complete)
+- **Action**: Integrated `ProcessGovernor` with the gesture engine. UI interactions now correctly trigger high-pressure state, throttling background persistence flushes and debounces.
+- **Verification**: 276/276 unit tests passing. New unit test `ProcessGovernorInteraction.test.ts` confirms state machine correctness.
+- **Final Status**: **GREEN**.

@@ -576,6 +576,7 @@ export class StackView extends ItemView {
                     },
                     lockPersistence: (path: string, token: string) => this.syncManager.lockPersistence(path, token),
                     unlockPersistence: (path: string, token: string) => this.syncManager.unlockPersistence(path, token),
+                    governor: this.governor,
                     app: this.app
                 }
             });

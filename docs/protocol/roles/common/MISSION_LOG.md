@@ -1130,3 +1130,48 @@ Harmonize FEAT-017 (Subtask Creation) with architectural standards and implement
 - [2026-03-13 06:20]: **Backlog Audit**: BUG-025 confirmed as shipped in v1.2.80; backlog updated.
 - [2026-03-13 09:10]: **Baseline Recovery Complete**. Restored green state after fixing `initShortcuts` regression and `obsidian` mock gaps.
 - [2026-03-13 09:20]: **Verification Complete**. 273/273 unit tests, 23/23 E2E specs passed.
+
+---
+
+# Session v51 — Process Governor Activation
+
+## Input & Analysis (Process Governor)
+- **Source**: Governance Intake (Session v51)
+- **Objective**: Activate and integrate the `ProcessGovernor` service (STAB-02).
+- **Flavor**: [STABILITY / PERFORMANCE]
+
+## Active Objectives
+1. **[IN_PROGRESS]** STAB-02: Integrate `ProcessGovernor` into the Mobile Gesture engine to throttle background tasks during high-pressure UI interaction.
+2. **[PENDING]** Concept Atlas Audit (Post-Activation).
+
+## Triage Routing
+1. **Process Governor (PG)**: Presentation of Roadmap candidates to the User. (RESOLVED: STAB-02 selected).
+2. **Implementation Lead (IL)**: Modify `GestureManager.ts` and `StackPersistenceService.ts` to respect `governor.isHighPressure()`.
+
+## Status Logs
+- [2026-03-13 09:34]: **Process Governor (PG)** session v51 initialized. Repository state v1.2.182 confirmed GREEN (273/273 tests pass).
+- [2026-03-13 09:38]: **Mission Selection**: STAB-02 (Process Governor Activation) activated as primary objective.
+- [2026-03-13 09:44]: **Technical Execution Complete**: `ProcessGovernor` integrated into `StackView` and `ArchitectStack`. Interaction claiming implemented for gestures.
+- [2026-03-13 09:45]: **Verification Complete**: 276/276 tests pass (including new `ProcessGovernorInteraction.test.ts`). Green Baseline preserved.
+- [2026-03-13 09:46]: **MISSION COMPLETE**.
+
+---
+
+# Session v52 — Governance Intake & Roadmap Triage
+
+## Input & Analysis (Process Governor)
+- **Source**: Governance Intake (Session v52)
+- **Objective**: Session Initialization, Protocol Synchronization, and Roadmap Triage.
+- **Flavor**: [GOVERNANCE / SESSION-START]
+
+## Active Objectives
+1. **[DONE]** Protocol Sync: Reconcile `MISSION_LOG.md` and `triage_log.md` with repo state `v1.2.182`.
+2. **[DONE]** Green Baseline: 276/276 unit tests pass. E2E specs confirmed passing in logs.
+3. **[IN_PROGRESS]** Mission Triage: Identify Session v52 primary objective.
+
+## Triage Routing
+1. **Process Governor (PG)**: Presentation of Roadmap candidates to the User.
+
+## Status Logs
+- [2026-03-13 09:48]: **Process Governor (PG)** session v52 initialized. Repository state v1.2.182 confirmed GREEN.
+- [2026-03-13 10:05]: **Intake Ritual Complete**. Scanned discovery and teacher logs. No orphaned documentation found.

@@ -18,6 +18,7 @@
         openDetailedView,
         isSyncing = false,
         isPersistenceIdle = true,
+        governor,
         ...restProps
     } = $props();
 

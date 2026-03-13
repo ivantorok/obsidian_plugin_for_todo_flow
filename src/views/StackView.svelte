@@ -22,6 +22,7 @@
         navState: externalNavState,
         initialTasks = [],
         persistenceService,
+        governor,
         ...restProps
     } = $props();
 
@@ -321,6 +322,7 @@
             {controller}
             {executeGestureAction}
             {persistenceService}
+            {governor}
             {isSyncing}
             {isPersistenceIdle}
             {openDetailedView}
